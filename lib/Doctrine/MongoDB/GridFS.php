@@ -1,0 +1,114 @@
+<?php
+
+namespace Doctrine\MongoDB;
+
+class GridFS extends Collection
+{
+    /** @override */
+    protected function doFindOne(array $query = array(), array $fields = array())
+    {
+        $file = $this->mongoCollection->findOne($query, $fields);
+        if ($file) {
+            $document = $file->file;
+            $document['file'] = new GridFSFile($file);
+            $file = $document;
+        }
+        return $file;
+    }
+
+    /** @override */
+    protected function doUpdate($criteria, array $newObj, array $options = array())
+    {
+        if (is_scalar($criteria)) {
+            $criteria = array('_id' => $criteria);
+        }
+        $file = isset($newObj[$this->cmd.'set']['file']) ? $newObj[$this->cmd.'set']['file'] : null;
+        unset($newObj[$this->cmd.'set']['file']);
+        if ($file === null) {
+            $file = isset($newObj['file']) ? $newObj['file'] : null;
+            unset($newObj['file']);
+        }
+
+        // Has file to be persisted
+        if (isset($file) && $file->isDirty()) {
+            // It is impossible to update a file on the grid so we have to remove it and
+            // persist a new file with the same data
+
+            // First do a find and remove query to remove the file metadata and chunks so
+            // we can restore the file below
+            $document = $this->findAndRemove($criteria, $options);
+            unset(
+                $document['filename'],
+                $document['length'],
+                $document['chunkSize'],
+                $document['uploadDate'],
+                $document['md5'],
+                $document['file']
+            );
+
+            // Store the file
+            $this->storeFile($file, $document, $options);
+        }
+
+        // Now send the original update bringing the file up to date
+        if ($newObj) {
+            if ( ! isset($newObj[$this->cmd.'set'])) {
+                unset($newObj['_id']);
+                $newObj = array($this->cmd.'set' => $newObj);
+            }
+            $this->mongoCollection->update($criteria, $newObj, $options);
+        }
+        return $newObj;
+    }
+
+    /** @override */
+    protected function doBatchInsert(array &$a, array $options = array())
+    {
+        foreach ($a as $key => &$array) {
+            $this->doInsert($array, $options);
+        }
+    }
+
+    /** @override */
+    protected function doInsert(array &$a, array $options = array())
+    {
+        // If file exists and is dirty then lets persist the file and store the file path or the bytes
+        if (isset($a['file'])) {
+            $file = $a['file']; // instanceof GridFSFile
+            unset($a['file']);
+            if ($file->isDirty()) {
+                $this->storeFile($file, $a, $options);
+            } else {
+                parent::doInsert($a, $options);
+            }
+        } else {
+            parent::doInsert($a, $options);
+        }
+        $a['file'] = $file;
+        return $a;
+    }
+
+    /** @override */
+    protected function doSave(array &$a, array $options = array())
+    {
+        if (isset($a['_id'])) {
+            return $this->doUpdate(array('_id' => $a['_id']), $a, $options);
+        } else {
+            return $this->doInsert($a, $options);
+        }
+    }
+
+    private function storeFile(GridFSFile $file, array &$document, array $options)
+    {
+        if ($file->hasUnpersistedFile()) {
+            $filename = $file->getFilename();
+            $id = $this->mongoCollection->storeFile($filename, $document, $options);
+        } else {
+            $bytes = $file->getBytes();
+            $id = $this->mongoCollection->storeBytes($bytes, $document, $options);
+        }
+        $document = array_merge(array('_id' => $id), $document);
+        $file->setMongoGridFSFile(new \MongoGridFSFile($this->mongoCollection, $document));
+        return $file;
+    }
+}
