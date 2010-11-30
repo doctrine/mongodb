@@ -2,17 +2,19 @@
 
 namespace Doctrine\MongoDB\Tests;
 
+use Doctrine\MongoDB\Configuration;
+use Doctrine\MongoDB\Connection;
 use Doctrine\MongoDB\GridFSFile;
 
-class GridFSFileTest extends \Doctrine\ODM\MongoDB\Tests\BaseTest
+class GridFSFileTest extends BaseTest
 {
-    public function testSetAndGetGridFSFile()
+    public function testSetAndGetMongoGridFSFile()
     {
         $path = __DIR__.'/GridFSFileTest.php';
         $file = $this->getTestGridFSFile($path);
         $mockPHPGridFSFile = $this->getMockPHPGridFSFile();
-        $file->setGridFSFile($mockPHPGridFSFile);
-        $this->assertEquals($mockPHPGridFSFile, $file->getGridFSFile());
+        $file->setMongoGridFSFile($mockPHPGridFSFile);
+        $this->assertEquals($mockPHPGridFSFile, $file->getMongoGridFSFile());
     }
 
     public function testIsDirty()
@@ -80,18 +82,27 @@ class GridFSFileTest extends \Doctrine\ODM\MongoDB\Tests\BaseTest
     public function testGetSizeWithSetFilename()
     {
         $file = $this->getTestGridFSFile();
-        $file->setFilename(__DIR__.'/Functional/file.txt');
+        $file->setFilename(__DIR__.'/file.txt');
         $this->assertEquals(22, $file->getSize());
     }
 
     public function testFunctional()
     {
-        $path = __DIR__.'/Functional/file.txt';
-        $db = $this->dm->getConnection()->selectDB('test_files');
+        $db = $this->conn->selectDatabase('doctrine_mongodb');
+
+        $path = __DIR__.'/file.txt';
         $gridFS = $db->getGridFS();
-        $id = $gridFS->storeFile($path);
-        $file = $gridFS->findOne(array('_id' => $id));
-        $file = new GridFSFile($file);
+        $file = new GridFSFile($path);
+        $document = array(
+            'title' => 'Test Title',
+            'file' => $file
+        );
+        $gridFS->insert($document);
+        $id = $document['_id'];
+
+        $document = $gridFS->findOne(array('_id' => $id));
+        $file = $document['file'];
+
         $this->assertFalse($file->isDirty());
         $this->assertEquals($path, $file->getFilename());
         $this->assertEquals(file_get_contents($path), $file->getBytes());
@@ -106,7 +117,7 @@ class GridFSFileTest extends \Doctrine\ODM\MongoDB\Tests\BaseTest
 
     private function getMockPHPGridFSFile()
     {
-        return $this->getMock('GridFSFile', array(), array(), '', false, false);
+        return $this->getMock('MongoGridFSFile', array(), array(), '', false, false);
     }
 
     private function getTestGridFSFile($file = null)

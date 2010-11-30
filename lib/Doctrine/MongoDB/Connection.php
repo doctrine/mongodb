@@ -51,13 +51,6 @@ class Connection
     private $eventManager;
 
     /**
-     * The logger callable.
-     *
-     * @var mixed
-     */
-    private $loggerCallable;
-
-    /**
      * Mongo command prefix
      *
      * @var string
@@ -87,7 +80,6 @@ class Connection
         }
         $this->config = $config ? $config : new Configuration();
         $this->eventManager = $evm ? $evm : new EventManager();
-        $this->loggerCallable = $this->config->getLoggerCallable();
         $this->cmd = $this->config->getMongoCmd();
     }
 
@@ -109,7 +101,7 @@ class Connection
      */
     public function log(array $log)
     {
-        call_user_func_array($this->loggerCallable, array($log));
+        call_user_func_array($this->config->getLoggerCallable(), array($log));
     }
 
     /**
@@ -119,7 +111,6 @@ class Connection
      */
     public function setMongo(\Mongo $mongo)
     {
-        $this->initialize();
         $this->mongo = $mongo;
     }
 
@@ -131,6 +122,11 @@ class Connection
     public function getMongo()
     {
         return $this->mongo;
+    }
+
+    public function getConfiguration()
+    {
+        return $this->config;
     }
 
     /** @proxy */
@@ -148,14 +144,7 @@ class Connection
     }
 
     /** @proxy */
-    public function connectUntil()
-    {
-        $this->initialize();
-        return $this->mongo->connectUntil();
-    }
-
-    /** @proxy */
-    public function dropDB($db)
+    public function dropDatabase($db)
     {
         $this->initialize();
         return $this->mongo->dropDB($db);
@@ -169,7 +158,7 @@ class Connection
     }
 
     /** @proxy */
-    public function listDBs()
+    public function listDatabases()
     {
         $this->initialize();
         return $this->mongo->listDBs();
@@ -179,17 +168,17 @@ class Connection
     public function selectCollection($db, $collection)
     {
         $this->initialize();
-        return $this->selectDB($db)->selectCollection($collection);
+        return $this->selectDatabase($db)->selectCollection($collection);
     }
 
     /** @proxy */
-    public function selectDB($name)
+    public function selectDatabase($name)
     {
         if ( ! isset($this->databases[$name])) {
             $this->initialize();
             $db = $this->mongo->selectDB($name);
             $this->databases[$name] = new Database(
-                $db, $this->eventManager, $this->loggerCallable, $this->cmd
+                $db, $this->eventManager, $this->config->getLoggerCallable(), $this->cmd
             );
         }
         return $this->databases[$name];

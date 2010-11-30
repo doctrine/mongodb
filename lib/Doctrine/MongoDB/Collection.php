@@ -143,22 +143,22 @@ class Collection
     }
 
     /** @override */
-    public function update($criteria, array $newObj, array $options = array())
+    public function update($query, array $newObj, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preUpdate)) {
-            $this->eventManager->dispatchEvent(Events::preUpdate, new CollectionUpdateEventArgs($this, $criteria, $newObj));
+            $this->eventManager->dispatchEvent(Events::preUpdate, new CollectionUpdateEventArgs($this, $query, $newObj));
         }
 
         if ($this->loggerCallable) {
             $this->log(array(
                 'update' => true,
-                'criteria' => $criteria,
+                'query' => $query,
                 'newObj' => $newObj,
                 'options' => $options
             ));
         }
 
-        $result = $this->doUpdate($criteria, $newObj, $options);
+        $result = $this->doUpdate($query, $newObj, $options);
 
         if ($this->eventManager->hasListeners(Events::postUpdate)) {
             $this->eventManager->dispatchEvent(Events::postUpdate, new CollectionEventArgs($this, $result));
@@ -167,12 +167,12 @@ class Collection
         return $result;
     }
 
-    protected function doUpdate($criteria, array $newObj, array $options)
+    protected function doUpdate($query, array $newObj, array $options)
     {
-        if (is_scalar($criteria)) {
-            $criteria = array('_id' => $criteria);
+        if (is_scalar($query)) {
+            $query = array('_id' => $query);
         }
-        return $this->mongoCollection->update($criteria, $newObj, $options);
+        return $this->mongoCollection->update($query, $newObj, $options);
     }
 
     /** @override */
@@ -264,10 +264,10 @@ class Collection
         return $document;
     }
 
-    public function findAndModify(array $criteria, array $newObj, array $options = array())
+    public function findAndModify(array $query, array $newObj, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preFindAndModify)) {
-            $this->eventManager->dispatchEvent(Events::preFindAndModify, new CollectionUpdateEventArgs($this, $criteria, $query));
+            $this->eventManager->dispatchEvent(Events::preFindAndModify, new CollectionUpdateEventArgs($this, $query, $query));
         }
 
         $command = array();
@@ -477,28 +477,28 @@ class Collection
     {
         $document = $a;
         $result = $this->mongoCollection->insert($document, $options);
-        if ($result) {
+        if ($result && isset($document['_id'])) {
             $a['_id'] = $document['_id'];
         }
         return $result;
     }
 
     /** @proxy */
-    public function remove(array $criteria, array $options = array())
+    public function remove(array $query, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preRemove)) {
-            $this->eventManager->dispatchEvent(Events::preRemove, new CollectionEventArgs($this, $criteria));
+            $this->eventManager->dispatchEvent(Events::preRemove, new CollectionEventArgs($this, $query));
         }
 
         if ($this->loggerCallable) {
             $this->log(array(
                 'remove' => true,
-                'criteria' => $criteria,
+                'query' => $query,
                 'options' => $options
             ));
         }
 
-        $result = $this->mongoCollection->remove($criteria, $options);
+        $result = $this->mongoCollection->remove($query, $options);
 
         if ($this->eventManager->hasListeners(Events::postRemove)) {
             $this->eventManager->dispatchEvent(Events::postRemove, new CollectionEventArgs($this, $result));

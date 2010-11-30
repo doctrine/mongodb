@@ -2,20 +2,13 @@
 
 namespace Doctrine\MongoDB\Tests;
 
-use Doctrine\MongoDB\Configuration;
-use Doctrine\MongoDB\Connection;
 use Doctrine\MongoDB\GridFSFile;
 
 class FunctionalTest extends BaseTest
 {
     public function testFunctional()
     {
-        $config = new Configuration();
-        $config->setLoggerCallable(function($msg) {
-            print_r($msg);
-        });
-        $conn = new Connection(null, array(), $config);
-        $db = $conn->selectDB('doctrine_mongodb');
+        $db = $this->conn->selectDatabase('doctrine_mongodb');
 
         $coll = $db->selectCollection('users');
 
@@ -25,9 +18,12 @@ class FunctionalTest extends BaseTest
         $coll->update(array('_id' => $document['_id']), array('$set' => array('test' => 'jon')));
 
         $cursor = $coll->find();
-        print_r($cursor->getSingleResult());
+        $this->assertInstanceOf('Doctrine\MongoDB\Cursor', $cursor);
+    }
 
-        /*
+    public function testFunctionalGridFS()
+    {
+        $db = $this->conn->selectDatabase('doctrine_mongodb');
         $files = $db->getGridFS('files');
         $file = array(
             'title' => 'test file',
@@ -36,9 +32,13 @@ class FunctionalTest extends BaseTest
         );
         $files->insert($file, array('safe' => true));
 
-        $files->update(array('_id' => $file['_id']), array('$set' => array('title' => 'test', 'file' => new GridFSFile(__DIR__.'/BaseTest.php'))));
+        $this->assertTrue(isset($file['_id']));
 
-        print_r($files->find()->getSingleResult());
-        */
+        $path = __DIR__.'/BaseTest.php';
+        $files->update(array('_id' => $file['_id']), array('$set' => array('title' => 'test', 'file' => new GridFSFile($path))));
+
+        $file = $files->find()->getSingleResult();
+        $this->assertInstanceOf('Doctrine\MongoDB\GridFSFile', $file['file']);
+        $this->assertEquals(file_get_contents($path), $file['file']->getBytes());
     }
 }
