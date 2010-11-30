@@ -187,7 +187,7 @@ class Database
         if ($this->loggerCallable) {
             $this->log(array(
                 'dropCollection' => true,
-                'collection' => $collection
+                'collection' => $coll
             ));
         }
 
