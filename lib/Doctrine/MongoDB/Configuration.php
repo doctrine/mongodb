@@ -19,10 +19,6 @@
 
 namespace Doctrine\MongoDB;
 
-use Doctrine\ODM\MongoDB\Mapping\Driver\Driver,
-    Doctrine\ODM\MongoDB\Mapping\Driver\PHPDriver,
-    Doctrine\Common\Cache\Cache;
-
 /**
  * Configuration
  *

@@ -12,12 +12,11 @@ class FunctionalTest extends BaseTest
     {
         $config = new Configuration();
         $config->setLoggerCallable(function($msg) {
-            //print_r($msg);
+            print_r($msg);
         });
         $conn = new Connection(null, array(), $config);
         $db = $conn->selectDB('doctrine_mongodb');
 
-        /*
         $coll = $db->selectCollection('users');
 
         $document = array('test' => 'jwage');
@@ -27,8 +26,8 @@ class FunctionalTest extends BaseTest
 
         $cursor = $coll->find();
         print_r($cursor->getSingleResult());
-        */
 
+        /*
         $files = $db->getGridFS('files');
         $file = array(
             'title' => 'test file',
@@ -36,7 +35,10 @@ class FunctionalTest extends BaseTest
             'file' => new GridFSFile(__DIR__.'/FunctionalTest.php')
         );
         $files->insert($file, array('safe' => true));
-print_r($file);
-        $files->update(array('_id' => $file['_id']), array('$set' => array('title' => 'fuck', 'file' => new GridFSFile(__DIR__.'/BaseTest.php'))));
+
+        $files->update(array('_id' => $file['_id']), array('$set' => array('title' => 'test', 'file' => new GridFSFile(__DIR__.'/BaseTest.php'))));
+
+        print_r($files->find()->getSingleResult());
+        */
     }
 }

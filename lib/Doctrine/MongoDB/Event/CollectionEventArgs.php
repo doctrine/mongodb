@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -17,57 +15,38 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
- */
+*/
 
-namespace Doctrine\MongoDB;
+namespace Doctrine\MongoDB\Event;
+
+use Doctrine\Common\EventArgs;
 
 /**
- * Container for all Doctrine\MongoDB events.
- *
- * This class cannot be instantiated.
+ * Collection event args
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  */
-final class Events
+class CollectionEventArgs extends EventArgs
 {
-    private function __construct() {}
+    private $invoker;
+    private $data;
 
-    const preBatchInsert = 'preBatchInsert';
-    const postBatchInsert = 'postBatchInsert';
+    public function __construct($invoker, &$data)
+    {
+        $this->invoker = $invoker;
+        $this->data = $data;
+    }
 
-    const preSave = 'preSave';
-    const postSave = 'postSave';
+    public function getInvoker()
+    {
+        return $this->invoker;
+    }
 
-    const preInsert = 'preInsert';
-    const postInsert = 'postInsert';
-
-    const preUpdate = 'preUpdate';
-    const postUpdate = 'postUpdate';
-
-    const preRemove = 'preRemove';
-    const postRemove = 'postRemove';
-
-    const preFind = 'preFind';
-    const postFind = 'postFind';
-
-    const preFindOne = 'preFindOne';
-    const postFindOne = 'postFindOne';
-
-    const preFindAndRemove = 'preFindAndRemove';
-    const postFindAndRemove = 'postFindAndRemove';
-
-    const preFindAndModify = 'preFindAndModify';
-    const postFindAndModify = 'postFindAndModify';
-
-    const preGroup = 'preGroup';
-    const postGroup = 'postGroup';
-
-    const preGetDBRef = 'preGetDBRef';
-    const postGetDBRef = 'postGetDBRef';
-
-    const preCreateDBRef = 'preCreateDBRef';
-    const postCreateDBRef = 'postCreateDBRef';
+    public function getData()
+    {
+        return $this->data;
+    }
 }

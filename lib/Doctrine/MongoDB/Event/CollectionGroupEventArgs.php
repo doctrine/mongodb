@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -17,57 +15,47 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
- */
+*/
 
-namespace Doctrine\MongoDB;
+namespace Doctrine\MongoDB\Event;
+
+use Doctrine\Common\EventArgs;
 
 /**
- * Container for all Doctrine\MongoDB events.
- *
- * This class cannot be instantiated.
+ * Collection group event args
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  */
-final class Events
+class CollectionGroupEventArgs extends CollectionEventArgs
 {
-    private function __construct() {}
+    private $invoker;
+    private $keys;
+    private $initial;
+    private $reduce;
 
-    const preBatchInsert = 'preBatchInsert';
-    const postBatchInsert = 'postBatchInsert';
+    public function __construct($invoker, &$keys, array &$initial, &$reduce)
+    {
+        $this->invoker = $invoker;
+        $this->keys = $keys;
+        $this->initial = $initial;
+        $this->reduce = $reduce;
+    }
 
-    const preSave = 'preSave';
-    const postSave = 'postSave';
+    public function getKeys()
+    {
+        return $this->keys;
+    }
 
-    const preInsert = 'preInsert';
-    const postInsert = 'postInsert';
+    public function getInitial()
+    {
+        return $this->initial;
+    }
 
-    const preUpdate = 'preUpdate';
-    const postUpdate = 'postUpdate';
-
-    const preRemove = 'preRemove';
-    const postRemove = 'postRemove';
-
-    const preFind = 'preFind';
-    const postFind = 'postFind';
-
-    const preFindOne = 'preFindOne';
-    const postFindOne = 'postFindOne';
-
-    const preFindAndRemove = 'preFindAndRemove';
-    const postFindAndRemove = 'postFindAndRemove';
-
-    const preFindAndModify = 'preFindAndModify';
-    const postFindAndModify = 'postFindAndModify';
-
-    const preGroup = 'preGroup';
-    const postGroup = 'postGroup';
-
-    const preGetDBRef = 'preGetDBRef';
-    const postGetDBRef = 'postGetDBRef';
-
-    const preCreateDBRef = 'preCreateDBRef';
-    const postCreateDBRef = 'postCreateDBRef';
+    public function getReduce()
+    {
+        return $this->reduce;
+    }
 }
