@@ -30,7 +30,7 @@ namespace Doctrine\MongoDB;
 class Cursor implements Iterator
 {
     /** The PHP MongoCursor being wrapped */
-    private $mongoCursor;
+    protected $mongoCursor;
 
     /**
      * Create a new MongoCursor which wraps around a given PHP MongoCursor.

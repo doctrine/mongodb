@@ -32,42 +32,42 @@ use Doctrine\Common\EventManager;
 class Database
 {
     /** The PHP MongoDB instance being wrapped */
-    private $mongoDB;
+    protected $mongoDB;
 
     /**
      * The event manager that is the central point of the event system.
      *
      * @var Doctrine\Common\EventManager
      */
-    private $eventManager;
+    protected $eventManager;
 
     /**
      * A callable for logging statements.
      *
      * @var mixed
      */
-    private $loggerCallable;
+    protected $loggerCallable;
 
     /**
      * Mongo command prefix
      *
      * @var string
      */
-    private $cmd;
+    protected $cmd;
 
     /**
      * Array holding selected collections.
      *
      * @var array
      */
-    private $collections = array();
+    protected $collections = array();
 
     /**
      * Array holding GridFS instances.
      *
      * @var GridFS
      */
-    private $gridFileSystems = array();
+    protected $gridFileSystems = array();
 
     /**
      * Create a new MongoDB instance which wraps a PHP MongoDB instance.

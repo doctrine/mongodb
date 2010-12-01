@@ -32,37 +32,37 @@ use Doctrine\Common\EventManager;
 class Connection
 {
     /** The PHP Mongo instance. */
-    private $mongo;
+    protected $mongo;
 
     /** The server string */
-    private $server;
+    protected $server;
 
     /** The array of server options to use when connecting */
-    private $options = array();
+    protected $options = array();
 
     /** The Configuration instance */
-    private $config;
+    protected $config;
 
     /**
      * The event manager that is the central point of the event system.
      *
      * @var Doctrine\Common\EventManager
      */
-    private $eventManager;
+    protected $eventManager;
 
     /**
      * Mongo command prefix
      *
      * @var string
      */
-    private $cmd;
+    protected $cmd;
 
     /**
      * Array holding selected databases.
      *
      * @var array
      */
-    private $databases = array();
+    protected $databases = array();
 
     /**
      * Create a new Mongo wrapper instance.
