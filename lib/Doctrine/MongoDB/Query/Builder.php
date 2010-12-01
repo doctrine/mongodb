@@ -149,6 +149,20 @@ class Builder
     private $near;
 
     /**
+     * Whether or not to return the new document on findAndUpdate
+     *
+     * @var boolean
+     */
+    private $new = false;
+
+    /**
+     * Whether or not to upsert on findAndUpdate.
+     *
+     * @var boolean
+     */
+    private $upsert = false;
+
+    /**
      * The type of query
      *
      * @var integer
@@ -264,6 +278,18 @@ class Builder
     public function findAndUpdate()
     {
         $this->type = self::TYPE_FIND_AND_UPDATE;
+        return $this;
+    }
+
+    public function returnNew($bool = true)
+    {
+        $this->new = $bool;
+        return $this;
+    }
+
+    public function upsert($bool = true)
+    {
+        $this->upsert = $bool;
         return $this;
     }
 
@@ -995,8 +1021,8 @@ class Builder
                 $query->setQuery($this->expr->getQuery());
                 $query->setNewObj($this->expr->getNewObj());
                 $query->setSort($this->sort);
-                $query->setUpsert(isset($this->findAndUpdate['upsert']));
-                $query->setNew(isset($this->findAndUpdate['new']));
+                $query->setUpsert($this->upsert);
+                $query->setNew($this->new);
                 $query->setLimit($this->limit);
                 return $query;
             case self::TYPE_REMOVE;
