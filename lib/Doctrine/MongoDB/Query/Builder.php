@@ -48,140 +48,140 @@ class Builder
      *
      * @var Database
      */
-    private $database;
+    protected $database;
 
     /**
      * The Collection instance.
      *
      * @var Collection
      */
-    private $collection;
+    protected $collection;
 
     /**
      * The current field we are operating on.
      *
      * @var string
      */
-    private $currentField;
+    protected $currentField;
 
     /**
      * Field to select distinct values of
      *
      * @var string
      */
-    private $distinctField;
+    protected $distinctField;
 
     /**
      * Array of fields to select
      *
      * @var array
      */
-    private $select = array();
+    protected $select = array();
 
     /**
      * Array of sort options
      *
      * @var array
      */
-    private $sort = array();
+    protected $sort = array();
 
     /**
      * Limit number of records
      *
      * @var integer
      */
-    private $limit = null;
+    protected $limit = null;
 
     /**
      * Skip a specified number of records (offset)
      *
      * @var integer
      */
-    private $skip = null;
+    protected $skip = null;
 
     /**
      * Group information.
      *
      * @var array
      */
-    private $group = array();
+    protected $group = array();
 
     /**
      * Pass hints to the Cursor
      *
      * @var array
      */
-    private $hints = array();
+    protected $hints = array();
 
     /**
      * Pass immortal to cursor
      *
      * @var bool
      */
-    private $immortal = false;
+    protected $immortal = false;
 
     /**
      * Pass snapshot to cursor
      *
      * @var bool
      */
-    private $snapshot = false;
+    protected $snapshot = false;
 
     /**
      * Pass slaveOkay to cursor
      *
      * @var bool
      */
-    private $slaveOkay = false;
+    protected $slaveOkay = false;
 
     /**
      * Map reduce information
      *
      * @var array
      */
-    private $mapReduce = array();
+    protected $mapReduce = array();
 
     /**
      * Data to use with $near operator for geospatial indexes
      *
      * @var array
      */
-    private $near;
+    protected $near;
 
     /**
      * Whether or not to return the new document on findAndUpdate
      *
      * @var boolean
      */
-    private $new = false;
+    protected $new = false;
 
     /**
      * Whether or not to upsert on findAndUpdate.
      *
      * @var boolean
      */
-    private $upsert = false;
+    protected $upsert = false;
 
     /**
      * The type of query
      *
      * @var integer
      */
-    private $type = self::TYPE_FIND;
+    protected $type = self::TYPE_FIND;
 
     /**
      * Mongo command prefix
      *
      * @var string
      */
-    private $cmd;
+    protected $cmd;
 
     /**
      * Holds a Query\Expr instance used for generating query expressions using the operators.
      *
      * @var Query\Expr $expr
      */
-    private $expr;
+    protected $expr;
 
     /** Refresh hint */
     const HINT_REFRESH = 1;
