@@ -56,20 +56,6 @@ class Database
     protected $cmd;
 
     /**
-     * Array holding selected collections.
-     *
-     * @var array
-     */
-    protected $collections = array();
-
-    /**
-     * Array holding GridFS instances.
-     *
-     * @var GridFS
-     */
-    protected $gridFileSystems = array();
-
-    /**
      * Create a new MongoDB instance which wraps a PHP MongoDB instance.
      *
      * @param MongoDB $mongoDB  The MongoDB instance to wrap.
@@ -236,11 +222,8 @@ class Database
     /** @proxy */
     public function getGridFS($prefix = 'fs')
     {
-        if ( ! isset($this->gridFileSystems[$prefix])) {
-            $gridFS = $this->mongoDB->getGridFS($prefix);
-            $this->gridFileSystems[$prefix] = $this->wrapGridFS($gridFS);
-        }
-        return $this->gridFileSystems[$prefix];
+        $gridFS = $this->mongoDB->getGridFS($prefix);
+        return $this->wrapGridFS($gridFS);
     }
 
     protected function wrapGridFS(\MongoGridFS $gridFS)
@@ -289,11 +272,8 @@ class Database
     /** @proxy */
     public function selectCollection($name)
     {
-        if ( ! isset($this->collections[$name])) {
-            $collection = $this->mongoDB->selectCollection($name);
-            $this->collections[$name] = $this->wrapCollection($collection);
-        }
-        return $this->collections[$name];
+        $collection = $this->mongoDB->selectCollection($name);
+        return $this->wrapCollection($collection);
     }
 
     protected function wrapCollection(\MongoCollection $collection)

@@ -58,13 +58,6 @@ class Connection
     protected $cmd;
 
     /**
-     * Array holding selected databases.
-     *
-     * @var array
-     */
-    protected $databases = array();
-
-    /**
      * Create a new Mongo wrapper instance.
      *
      * @param mixed $server A string server name, an existing Mongo instance or can be omitted.
@@ -174,12 +167,9 @@ class Connection
     /** @proxy */
     public function selectDatabase($name)
     {
-        if ( ! isset($this->databases[$name])) {
-            $this->initialize();
-            $db = $this->mongo->selectDB($name);
-            $this->databases[$name] = $this->wrapDatabase($db);
-        }
-        return $this->databases[$name];
+        $this->initialize();
+        $db = $this->mongo->selectDB($name);
+        return $this->wrapDatabase($db);
     }
 
     protected function wrapDatabase(\MongoDB $database)
