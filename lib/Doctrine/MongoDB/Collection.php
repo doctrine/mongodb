@@ -44,7 +44,7 @@ class Collection
      *
      * @var Database
      */
-    protected $db;
+    protected $database;
 
     /**
      * The event manager that is the central point of the event system.
@@ -72,14 +72,14 @@ class Collection
      * for a given ClassMetadata instance.
      *
      * @param MongoCollection $mongoCollection The MongoCollection instance.
-     * @param Database $db The Database instance.
+     * @param Database $database The Database instance.
      * @param EventManager $evm The EventManager instance.
      * @param mixed $loggerCallable The logger callable.
      */
-    public function __construct(\MongoCollection $mongoCollection, Database $db, EventManager $evm, $loggerCallable, $cmd)
+    public function __construct(\MongoCollection $mongoCollection, Database $database, EventManager $evm, $loggerCallable, $cmd)
     {
         $this->mongoCollection = $mongoCollection;
-        $this->db = $db;
+        $this->database = $database;
         $this->eventManager = $evm;
         $this->loggerCallable = $loggerCallable;
         $this->cmd = $cmd;
@@ -92,7 +92,7 @@ class Collection
      */
     public function log(array $log)
     {
-        $log['db'] = $this->db->getName();
+        $log['db'] = $this->database->getName();
         $log['collection'] = $this->getName();
         call_user_func_array($this->loggerCallable, array($log));
     }
@@ -109,7 +109,7 @@ class Collection
 
     public function getDatabase()
     {
-        return $this->db;
+        return $this->database;
     }
 
     /** @override */
@@ -248,7 +248,7 @@ class Collection
 
         $document = null;
 
-        $result = $this->db->command($command);
+        $result = $this->database->command($command);
         if (isset($result['value'])) {
             $document = $result['value'];
             if ($this->mongoCollection instanceof \MongoGridFS) {
@@ -283,7 +283,7 @@ class Collection
             unset($options['new']);
         }
         $command['options'] = $options;
-        $result = $this->db->command($command);
+        $result = $this->database->command($command);
         $document = isset($result['value']) ? $result['value'] : null;
 
         if ($this->eventManager->hasListeners(Events::postFindAndModify)) {
@@ -547,6 +547,11 @@ class Collection
         }
 
         return $this->mongoCollection->validate($scanData);
+    }
+
+    public function createQueryBuilder()
+    {
+        return new Query\Builder($this->database, $this, $this->cmd);
     }
 
     /** @proxy */
