@@ -35,39 +35,39 @@ final class Events
 {
     private function __construct() {}
 
-    const preBatchInsert = 'preBatchInsert';
-    const postBatchInsert = 'postBatchInsert';
+    const preBatchInsert = 'collectionPreBatchInsert';
+    const postBatchInsert = 'collectionPostBatchInsert';
 
-    const preSave = 'preSave';
-    const postSave = 'postSave';
+    const preSave = 'collectionPreSave';
+    const postSave = 'collectionPostSave';
 
-    const preInsert = 'preInsert';
-    const postInsert = 'postInsert';
+    const preInsert = 'collectionPreInsert';
+    const postInsert = 'collectionPostInsert';
 
-    const preUpdate = 'preUpdate';
-    const postUpdate = 'postUpdate';
+    const preUpdate = 'collectionPreUpdate';
+    const postUpdate = 'collectionPostUpdate';
 
-    const preRemove = 'preRemove';
-    const postRemove = 'postRemove';
+    const preRemove = 'collectionPreRemove';
+    const postRemove = 'collectionPostRemove';
 
-    const preFind = 'preFind';
-    const postFind = 'postFind';
+    const preFind = 'collectionPreFind';
+    const postFind = 'collectionPostFind';
 
-    const preFindOne = 'preFindOne';
-    const postFindOne = 'postFindOne';
+    const preFindOne = 'collectionPreFindOne';
+    const postFindOne = 'collectionPostFindOne';
 
-    const preFindAndRemove = 'preFindAndRemove';
-    const postFindAndRemove = 'postFindAndRemove';
+    const preFindAndRemove = 'collectionPreFindAndRemove';
+    const postFindAndRemove = 'collectionPostFindAndRemove';
 
-    const preFindAndModify = 'preFindAndModify';
-    const postFindAndModify = 'postFindAndModify';
+    const preFindAndModify = 'collectionPreFindAndModify';
+    const postFindAndModify = 'collectionPostFindAndModify';
 
-    const preGroup = 'preGroup';
-    const postGroup = 'postGroup';
+    const preGroup = 'collectionPreGroup';
+    const postGroup = 'collectionPostGroup';
 
-    const preGetDBRef = 'preGetDBRef';
-    const postGetDBRef = 'postGetDBRef';
+    const preGetDBRef = 'collectionPreGetDBRef';
+    const postGetDBRef = 'collectionPostGetDBRef';
 
-    const preCreateDBRef = 'preCreateDBRef';
-    const postCreateDBRef = 'postCreateDBRef';
+    const preCreateDBRef = 'collectionPreCreateDBRef';
+    const postCreateDBRef = 'collectionPostCreateDBRef';
 }
