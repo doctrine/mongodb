@@ -191,7 +191,6 @@ class Collection
         }
 
         $result = $this->doFind($query, $fields);
-        $result = new Cursor($result);
 
         if ($this->eventManager->hasListeners(Events::postFind)) {
             $this->eventManager->dispatchEvent(Events::postFind, new CollectionEventArgs($this, $result));
@@ -202,7 +201,8 @@ class Collection
 
     protected function doFind(array $query, array $fields)
     {
-        return $this->mongoCollection->find($query, $fields);
+        $cursor = $this->mongoCollection->find($query, $fields);
+        return new Cursor($cursor);
     }
 
     /** @override */
