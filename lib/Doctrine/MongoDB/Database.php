@@ -238,11 +238,16 @@ class Database
     {
         if ( ! isset($this->gridFileSystems[$prefix])) {
             $gridFS = $this->mongoDB->getGridFS($prefix);
-            $this->gridFileSystems[$prefix] = new GridFS(
-                $gridFS, $this, $this->eventManager, $this->loggerCallable, $this->cmd
-            );
+            $this->gridFileSystems[$prefix] = $this->wrapGridFS($gridFS);
         }
         return $this->gridFileSystems[$prefix];
+    }
+
+    protected function wrapGridFS(\MongoGridFS $gridFS)
+    {
+        return new GridFS(
+            $gridFS, $this, $this->eventManager, $this->loggerCallable, $this->cmd
+        );
     }
 
     /** @proxy */
