@@ -172,6 +172,12 @@ class Connection
         return $this->wrapDatabase($db);
     }
 
+    /**
+     * Method which wraps a MongoDB with a Doctrine\MongoDB\Database instance.
+     *
+     * @param MongoDB $database
+     * @return Database $database
+     */
     protected function wrapDatabase(\MongoDB $database)
     {
         return new Database(

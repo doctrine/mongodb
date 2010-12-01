@@ -276,6 +276,12 @@ class Database
         return $this->wrapCollection($collection);
     }
 
+    /**
+     * Method which wraps a MongoCollection with a Doctrine\MongoDB\Collection instance.
+     *
+     * @param MongoCollection $collection
+     * @return Collection $coll
+     */
     protected function wrapCollection(\MongoCollection $collection)
     {
         return new Collection(
