@@ -67,9 +67,19 @@ class Expr
         return $this->query;
     }
 
+    public function setQuery(array $query)
+    {
+        $this->query = $query;
+    }
+
     public function getNewObj()
     {
         return $this->newObj;
+    }
+
+    public function setNewObj(array $newObj)
+    {
+        $this->newObj = $newObj;
     }
 
     public function getCurrentField()

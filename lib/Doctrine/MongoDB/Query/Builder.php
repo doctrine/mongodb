@@ -947,9 +947,21 @@ class Builder
         return $this->expr->getQuery();
     }
 
+    public function setQueryArray(array $query)
+    {
+        $this->expr->setQuery($query);
+        return $this;
+    }
+
     public function getNewObj()
     {
         return $this->expr->getNewObj();
+    }
+
+    public function setNewObj(array $newObj)
+    {
+        $this->expr->setNewObj($newObj);
+        return $this;
     }
 
     /**
