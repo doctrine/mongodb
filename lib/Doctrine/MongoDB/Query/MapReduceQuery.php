@@ -17,9 +17,9 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\ODM\MongoDB\Query;
+namespace Doctrine\MongoDB\Query;
 
-use Doctrine\ODM\MongoDB\Cursor;
+use Doctrine\MongoDB\Cursor;
 
 /**
  * InsertQuery
