@@ -31,8 +31,6 @@ class FindAndRemoveQuery extends AbstractQuery
     protected $select = array();
     protected $query = array();
     protected $sort;
-    protected $upsert;
-    protected $new;
     protected $limit;
 
     public function setSelect(array $select)
