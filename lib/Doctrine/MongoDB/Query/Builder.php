@@ -698,6 +698,7 @@ class Builder
      */
     public function mapReduce($map, $reduce, array $options = array())
     {
+        $this->type = self::TYPE_MAP_REDUCE;
         $this->mapReduce = array(
             'map' => $map,
             'reduce' => $reduce,
@@ -715,6 +716,7 @@ class Builder
     public function map($map)
     {
         $this->mapReduce['map'] = $map;
+        $this->type = self::TYPE_MAP_REDUCE;
         return $this;
     }
 
@@ -727,6 +729,9 @@ class Builder
     public function reduce($reduce)
     {
         $this->mapReduce['reduce'] = $reduce;
+        if (isset($this->mapReduce['map']) && isset($this->mapReduce['reduce'])) {
+            $this->type = self::TYPE_MAP_REDUCE;
+        }
         return $this;
     }
 
