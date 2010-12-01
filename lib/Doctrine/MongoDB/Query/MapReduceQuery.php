@@ -118,7 +118,7 @@ class MapReduceQuery extends AbstractQuery
             $this->reduce = new \MongoCode($this->reduce);
         }
         $command = array(
-            'mapreduce' => $this->class->getCollection(),
+            'mapreduce' => $this->collection->getName(),
             'map' => $this->map,
             'reduce' => $this->reduce,
             'query' => $this->query
