@@ -33,14 +33,14 @@ class Expr
      *
      * @var string
      */
-    private $cmd;
+    protected $cmd;
 
     /**
      * The query array built by this expression class.
      *
      * @var string
      */
-    private $query = array();
+    protected $query = array();
 
     /**
      * The new object array containing a whole new document or a query containing
@@ -48,14 +48,14 @@ class Expr
      *
      * @var array
      */
-    private $newObj = array();
+    protected $newObj = array();
 
     /**
      * The current field we are operating on.
      *
      * @var string
      */
-    private $currentField;
+    protected $currentField;
 
     public function __construct($cmd)
     {

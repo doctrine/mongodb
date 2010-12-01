@@ -641,18 +641,6 @@ class Builder
     }
 
     /**
-     * Uses $elemMatch to limit results to documents that reference another document.
-     *
-     * @param mixed $document A document
-     * @return Query
-     */
-    public function references($document)
-    {
-        $this->expr->references($document);
-        return $this;
-    }
-
-    /**
      * Set sort and erase all old sorts.
      *
      * @param string $order
