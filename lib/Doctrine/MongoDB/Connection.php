@@ -177,11 +177,16 @@ class Connection
         if ( ! isset($this->databases[$name])) {
             $this->initialize();
             $db = $this->mongo->selectDB($name);
-            $this->databases[$name] = new Database(
-                $db, $this->eventManager, $this->config->getLoggerCallable(), $this->cmd
-            );
+            $this->databases[$name] = $this->wrapDatabase($db);
         }
         return $this->databases[$name];
+    }
+
+    protected function wrapDatabase(\MongoDB $database)
+    {
+        return new Database(
+            $database, $this->eventManager, $this->config->getLoggerCallable(), $this->cmd
+        );
     }
 
     /** @proxy */

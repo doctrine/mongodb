@@ -286,11 +286,16 @@ class Database
     {
         if ( ! isset($this->collections[$name])) {
             $collection = $this->mongoDB->selectCollection($name);
-            $this->collections[$name] = new Collection(
-                $collection, $this, $this->eventManager, $this->loggerCallable, $this->cmd
-            );
+            $this->collections[$name] = $this->wrapCollection($collection);
         }
         return $this->collections[$name];
+    }
+
+    protected function wrapCollection(\MongoCollection $collection)
+    {
+        return new Collection(
+            $collection, $this, $this->eventManager, $this->loggerCallable, $this->cmd
+        );
     }
 
     /** @proxy */
