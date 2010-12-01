@@ -19,6 +19,8 @@
 
 namespace Doctrine\MongoDB;
 
+use ArrayAccess;
+
 /**
  * ArrayIterator
  *
@@ -26,7 +28,7 @@ namespace Doctrine\MongoDB;
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  */
-class ArrayIterator implements Iterator
+class ArrayIterator implements Iterator, ArrayAccess
 {
     private $elements;
 
@@ -78,6 +80,26 @@ class ArrayIterator implements Iterator
     public function valid()
     {
         return current($this->elements) !== false;
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        $this->elements[$offset] = $value;
+    }
+
+    public function offsetExists($offset)
+    {
+        return isset($this->elements[$offset]);
+    }
+
+    public function offsetUnset($offset)
+    {
+        unset($this->elements[$offset]);
+    }
+
+    public function offsetGet($offset)
+    {
+        return isset($this->elements[$offset]) ? $this->elements[$offset] : null;
     }
 
     public function toArray()
