@@ -141,10 +141,10 @@ class Query implements Iterator
                 if ($this->query['select']) {
                     $options['fields'] = $this->query['select'];
                 }
-                if ($this->upsert) {
+                if ($this->query['upsert']) {
                     $options['upsert'] = true;
                 }
-                if ($this->new) {
+                if ($this->query['new']) {
                     $options['new'] = true;
                 }
                 return $this->collection->findAndUpdate($this->query['query'], $this->query['newObj'], $options);
