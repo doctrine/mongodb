@@ -2,7 +2,8 @@ Doctrine MongoDB
 ----------------
 
 The Doctrine MongoDB project is a simple layer that wraps the PECL Mongo extension and
-adds new functionality like logging and improves the API user friendliness.
+adds new functionality like logging, events, a query builder and improves the API user 
+friendliness.
 
 It is very easy to use, you only need a new Connection instance:
 
@@ -30,3 +31,11 @@ Now it is almost identical to the PECL extensions API:
     $coll->insert($user);
 
     echo $user['_id']; // new id assigned in _id key
+
+It comes with some additional functionality like an object oriented query builder:
+
+    $qb = $coll->createQueryBuilder()
+        ->field('username')->equals('jwage');
+
+    $query = $qb->getQuery();
+    $user = $query->getSingleResult();
