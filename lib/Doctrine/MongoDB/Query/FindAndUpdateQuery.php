@@ -85,6 +85,6 @@ class FindAndUpdateQuery extends AbstractQuery
         if ($this->new) {
             $options['new'] = true;
         }
-        return $this->findAndUpdate($this->query, $this->newObj, $options);
+        return $this->collection->findAndUpdate($this->query, $this->newObj, $options);
     }
 }
