@@ -229,7 +229,7 @@ class Collection
     protected function doFind(array $query, array $fields)
     {
         $cursor = $this->mongoCollection->find($query, $fields);
-        return new Cursor($cursor);
+        return new Cursor($cursor, $this->loggerCallable, $query, $fields);
     }
 
     /** @override */
