@@ -294,7 +294,7 @@ class Cursor implements Iterator
     /**
      * Get the first single result from the cursor.
      *
-     * @return object $document  The single document.
+     * @return array $document  The single document.
      */
     public function getSingleResult()
     {
