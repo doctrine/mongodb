@@ -410,8 +410,7 @@ class Collection
             throw new \RuntimeException($result['errmsg']);
         }
 
-        $cursor = $this->database->selectCollection($result['result'])->find();
-        return new Cursor($cursor);
+        return $this->database->selectCollection($result['result'])->find();
     }
 
     /** @proxy */
