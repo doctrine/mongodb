@@ -135,8 +135,8 @@ class Query implements Iterator
                 return $cursor;
 
             case self::TYPE_FIND_AND_UPDATE:
-                if ($this->query['query']['sort']) {
-                    $options['sort'] = $this->query['query']['sort'];
+                if ($this->query['sort']) {
+                    $options['sort'] = $this->query['sort'];
                 }
                 if ($this->query['select']) {
                     $options['fields'] = $this->query['select'];
@@ -171,7 +171,7 @@ class Query implements Iterator
                 return $this->collection->group($this->query['group']['keys'], $this->query['group']['initial'], $this->query['mapReduce']['reduce'], $this->query['query']);
 
             case self::TYPE_MAP_REDUCE:
-                $cursor = $this->collection->mapReduce($this->query['query']['map'], $this->query['query']['reduce'], $this->query['query'], $options);
+                $cursor = $this->collection->mapReduce($this->query['mapReduce']['map'], $this->query['mapReduce']['reduce'], $this->query['query'], $options);
                 $this->prepareCursor($cursor);
                 return $cursor;
 
@@ -190,7 +190,7 @@ class Query implements Iterator
     {
         $cursor->limit($this->query['limit']);
         $cursor->skip($this->query['skip']);
-        $cursor->sort($this->query['query']['sort']);
+        $cursor->sort($this->query['sort']);
         $cursor->immortal($this->query['immortal']);
         $cursor->slaveOkay($this->query['slaveOkay']);
         if ($this->query['snapshot']) {
