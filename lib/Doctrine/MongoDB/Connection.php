@@ -58,6 +58,13 @@ class Connection
     protected $cmd;
 
     /**
+     * Whether or not this connection has been connected or not.
+     *
+     * @var boolean
+     */
+    protected $connected = false;
+
+    /**
      * Create a new Mongo wrapper instance.
      *
      * @param mixed $server A string server name, an existing Mongo instance or can be omitted.
@@ -79,10 +86,18 @@ class Connection
     public function initialize()
     {
         if ($this->mongo === null) {
+            if ($this->eventManager->hasListeners(Events::preConnect)) {
+                $this->eventManager->dispatchEvent(Events::preConnect, new EventArgs($this));
+            }
+
             if ($this->server) {
                 $this->mongo = new \Mongo($this->server, $this->options);
             } else {
                 $this->mongo = new \Mongo();
+            }
+
+            if ($this->eventManager->hasListeners(Events::postConnect)) {
+                $this->eventManager->dispatchEvent(Events::postConnect, new EventArgs($this));
             }
         }
     }
@@ -145,27 +160,15 @@ class Connection
     /** @proxy */
     public function close()
     {
-        $this->connect();
+        $this->initialize();
         return $this->mongo->close();
     }
 
     /** @proxy */
     public function connect()
     {
-        if ( ! $this->isConnected()) {
-            if ($this->eventManager->hasListeners(Events::preConnect)) {
-                $this->eventManager->dispatchEvent(Events::preConnect, new EventArgs($this));
-            }
-
-            $this->initialize();
-            $result = $this->mongo->connect();
-
-            if ($this->eventManager->hasListeners(Events::postConnect)) {
-                $this->eventManager->dispatchEvent(Events::postConnect, new EventArgs($this));
-            }
-
-            return $result;
-        }
+        $this->initialize();
+        return $this->mongo->connect();
     }
 
     /** @proxy */
@@ -175,7 +178,7 @@ class Connection
             $this->eventManager->dispatchEvent(Events::preDropDatabase, new EventArgs($this, $database));
         }
 
-        $this->connect();
+        $this->initialize();
         $result = $this->mongo->dropDB($database);
 
         if ($this->eventManager->hasListeners(Events::postDropDatabase)) {
@@ -188,21 +191,21 @@ class Connection
     /** @proxy */
     public function __get($key)
     {
-        $this->connect();
+        $this->initialize();
         return $this->mongo->$key;
     }
 
     /** @proxy */
     public function listDatabases()
     {
-        $this->connect();
+        $this->initialize();
         return $this->mongo->listDBs();
     }
 
     /** @proxy */
     public function selectCollection($db, $collection)
     {
-        $this->connect();
+        $this->initialize();
         return $this->selectDatabase($db)->selectCollection($collection);
     }
 
@@ -213,7 +216,7 @@ class Connection
             $this->eventManager->dispatchEvent(Events::preSelectDatabase, new EventArgs($this, $name));
         }
 
-        $this->connect();
+        $this->initialize();
         $db = $this->mongo->selectDB($name);
         $database = $this->wrapDatabase($db);
 
@@ -240,7 +243,7 @@ class Connection
     /** @proxy */
     public function __toString()
     {
-        $this->connect();
+        $this->initialize();
         return $this->mongo->__toString();
     }
 }
