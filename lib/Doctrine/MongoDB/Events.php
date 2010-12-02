@@ -77,6 +77,9 @@ final class Events
     const preNear = 'collectionPreNear';
     const postNear = 'collectionPostNear';
 
+    const preCreateCollection = 'preCreateCollection';
+    const postCreateCollection = 'postCreateCollection';
+
     const preSelectDatabase = 'preSelectDatabase';
     const postSelectDatabase = 'postSelectDatabase';
 
