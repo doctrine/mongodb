@@ -76,4 +76,22 @@ final class Events
 
     const preNear = 'collectionPreNear';
     const postNear = 'collectionPostNear';
+
+    const preSelectDatabase = 'preSelectDatabase';
+    const postSelectDatabase = 'postSelectDatabase';
+
+    const preDropDatabase = 'preDropDatabase';
+    const postDropDatabase = 'postDropDatabase';
+
+    const preSelectCollection = 'preSelectCollection';
+    const postSelectCollection = 'postSelectCollection';
+
+    const preDropCollection = 'preDropCollection';
+    const postDropCollection = 'postDropCollection';
+
+    const preGetGridFS = 'preGetGridFS';
+    const postGetGridFS = 'postGetGridFS';
+
+    const preConnect = 'preConnect';
+    const postConnect = 'postConnect';
 }

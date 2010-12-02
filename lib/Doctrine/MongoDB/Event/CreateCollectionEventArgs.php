@@ -22,22 +22,28 @@ namespace Doctrine\MongoDB\Event;
 use Doctrine\Common\EventArgs;
 
 /**
- * Collection event args
+ * Create collection event args.
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  */
-class CollectionEventArgs extends EventArgs
+class CreateCollectionEventArgs extends EventArgs
 {
     private $invoker;
-    private $data;
+    private $name;
+    private $capped;
+    private $size;
+    private $max;
 
-    public function __construct($invoker, &$data)
+    public function __construct($invoker, &$name, &$capped, &$size, &$max)
     {
         $this->invoker = $invoker;
-        $this->data = $data;
+        $this->name = $name;
+        $this->capped = $capped;
+        $this->size = $size;
+        $this->max = $max;
     }
 
     public function getInvoker()
@@ -45,8 +51,23 @@ class CollectionEventArgs extends EventArgs
         return $this->invoker;
     }
 
-    public function getData()
+    public function getName()
     {
-        return $this->data;
+        return $this->name;
+    }
+
+    public function getCapped()
+    {
+        return $this->capped;
+    }
+
+    public function getSize()
+    {
+        return $this->size;
+    }
+
+    public function getMax()
+    {
+        return $this->max;
     }
 }

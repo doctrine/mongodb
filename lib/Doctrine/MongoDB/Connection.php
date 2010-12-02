@@ -88,6 +88,26 @@ class Connection
     }
 
     /**
+     * Gets the status of the connection.
+     *
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->mongo->status;
+    }
+
+    /**
+     * Checks whether the connection is initialized and connected.
+     *
+     * @return boolean
+     */
+    public function isConnected()
+    {
+        return $this->mongo instanceof \Mongo && $this->mongo->connected;
+    }
+
+    /**
      * Log something using the configured logger callable.
      *
      * @param array $log The array of data to log.
@@ -125,51 +145,83 @@ class Connection
     /** @proxy */
     public function close()
     {
-        $this->initialize();
+        $this->connect();
         return $this->mongo->close();
     }
 
     /** @proxy */
     public function connect()
     {
-        $this->initialize();
-        return $this->mongo->connect();
+        if ( ! $this->isConnected()) {
+            if ($this->eventManager->hasListeners(Events::preConnect)) {
+                $this->eventManager->dispatchEvent(Events::preConnect, new EventArgs($this));
+            }
+
+            $this->initialize();
+            $result = $this->mongo->connect();
+
+            if ($this->eventManager->hasListeners(Events::postConnect)) {
+                $this->eventManager->dispatchEvent(Events::postConnect, new EventArgs($this));
+            }
+
+            return $result;
+        }
     }
 
     /** @proxy */
-    public function dropDatabase($db)
+    public function dropDatabase($database)
     {
-        $this->initialize();
-        return $this->mongo->dropDB($db);
+        if ($this->eventManager->hasListeners(Events::preDropDatabase)) {
+            $this->eventManager->dispatchEvent(Events::preDropDatabase, new EventArgs($this, $database));
+        }
+
+        $this->connect();
+        $result = $this->mongo->dropDB($database);
+
+        if ($this->eventManager->hasListeners(Events::postDropDatabase)) {
+            $this->eventManager->dispatchEvent(Events::postDropDatabase, new EventArgs($this, $result));
+        }
+
+        return $result;
     }
 
     /** @proxy */
     public function __get($key)
     {
-        $this->initialize();
+        $this->connect();
         return $this->mongo->$key;
     }
 
     /** @proxy */
     public function listDatabases()
     {
-        $this->initialize();
+        $this->connect();
         return $this->mongo->listDBs();
     }
 
     /** @proxy */
     public function selectCollection($db, $collection)
     {
-        $this->initialize();
+        $this->connect();
         return $this->selectDatabase($db)->selectCollection($collection);
     }
 
     /** @proxy */
     public function selectDatabase($name)
     {
-        $this->initialize();
+        if ($this->eventManager->hasListeners(Events::preSelectDatabase)) {
+            $this->eventManager->dispatchEvent(Events::preSelectDatabase, new EventArgs($this, $name));
+        }
+
+        $this->connect();
         $db = $this->mongo->selectDB($name);
-        return $this->wrapDatabase($db);
+        $database = $this->wrapDatabase($db);
+
+        if ($this->eventManager->hasListeners(Events::postSelectDatabase)) {
+            $this->eventManager->dispatchEvent(Events::postSelectDatabase, new EventArgs($this, $database));
+        }
+
+        return $database;
     }
 
     /**
@@ -188,7 +240,7 @@ class Connection
     /** @proxy */
     public function __toString()
     {
-        $this->initialize();
+        $this->connect();
         return $this->mongo->__toString();
     }
 }

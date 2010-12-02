@@ -42,10 +42,10 @@ class GridFS extends Collection
     }
 
     /** @override */
-    protected function doUpdate($criteria, array $newObj, array $options = array())
+    protected function doUpdate($query, array $newObj, array $options = array())
     {
-        if (is_scalar($criteria)) {
-            $criteria = array('_id' => $criteria);
+        if (is_scalar($query)) {
+            $query = array('_id' => $query);
         }
         $file = isset($newObj[$this->cmd.'set']['file']) ? $newObj[$this->cmd.'set']['file'] : null;
         unset($newObj[$this->cmd.'set']['file']);
@@ -61,7 +61,7 @@ class GridFS extends Collection
 
             // First do a find and remove query to remove the file metadata and chunks so
             // we can restore the file below
-            $document = $this->findAndRemove($criteria, $options);
+            $document = $this->findAndRemove($query, $options);
             unset(
                 $document['filename'],
                 $document['length'],
@@ -81,7 +81,7 @@ class GridFS extends Collection
                 unset($newObj['_id']);
                 $newObj = array($this->cmd.'set' => $newObj);
             }
-            $this->mongoCollection->update($criteria, $newObj, $options);
+            $this->mongoCollection->update($query, $newObj, $options);
         }
         return $newObj;
     }

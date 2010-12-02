@@ -129,6 +129,10 @@ class Database
     /** @proxy */
     public function createCollection($name, $capped = false, $size = 0, $max = 0)
     {
+        if ($this->eventManager->hasListeners(Events::preCreateCollection)) {
+            $this->eventManager->dispatchEvent(Events::preCreateCollection, new CreateCollectionEventArgs($this, $name, $capped, $size, $max));
+        }
+
         if ($this->loggerCallable) {
             $this->log(array(
                 'createCollection' => true,
@@ -138,7 +142,13 @@ class Database
             ));
         }
 
-        return $this->mongoDB->createCollection($name, $capped, $size, $max);
+        $result = $this->mongoDB->createCollection($name, $capped, $size, $max);
+
+        if ($this->eventManager->hasListeners(Events::postCreateCollection)) {
+            $this->eventManager->dispatchEvent(Events::postCreateCollection, new EventArgs($this, $prefix));
+        }
+
+        return $result;
     }
 
     /** @proxy */
@@ -158,25 +168,28 @@ class Database
     /** @proxy */
     public function drop()
     {
+        if ($this->eventManager->hasListeners(Events::preDropDatabase)) {
+            $this->eventManager->dispatchEvent(Events::preDropDatabase, new EventArgs($this));
+        }
+
         if ($this->loggerCallable) {
             $this->log(array(
                 'drop' => true
             ));
         }
 
-        return $this->mongoDB->drop();
+        $result = $this->mongoDB->drop();
+
+        if ($this->eventManager->hasListeners(Events::postDropDatabase)) {
+            $this->eventManager->dispatchEvent(Events::postDropDatabase, new EventArgs($this));
+        }
+
+        return $result;
     }
 
     /** @proxy */
     public function dropCollection($coll)
     {
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'dropCollection' => true,
-                'collection' => $coll
-            ));
-        }
-
         return $this->mongoDB->dropCollection($coll);
     }
 
@@ -222,8 +235,18 @@ class Database
     /** @proxy */
     public function getGridFS($prefix = 'fs')
     {
+        if ($this->eventManager->hasListeners(Events::preGetGridFS)) {
+            $this->eventManager->dispatchEvent(Events::preGetGridFS, new EventArgs($this, $prefix));
+        }
+
         $gridFS = $this->mongoDB->getGridFS($prefix);
-        return $this->wrapGridFS($gridFS);
+        $gridFS = $this->wrapGridFS($gridFS);
+
+        if ($this->eventManager->hasListeners(Events::preGetGridFS)) {
+            $this->eventManager->dispatchEvent(Events::preGetGridFS, new EventArgs($this, $gridFS));
+        }
+
+        return $gridFS;
     }
 
     protected function wrapGridFS(\MongoGridFS $gridFS)
@@ -272,8 +295,18 @@ class Database
     /** @proxy */
     public function selectCollection($name)
     {
+        if ($this->eventManager->hasListeners(Events::preSelectCollection)) {
+            $this->eventManager->dispatchEvent(Events::preSelectCollection, new EventArgs($this, $name));
+        }
+
         $collection = $this->mongoDB->selectCollection($name);
-        return $this->wrapCollection($collection);
+        $collection = $this->wrapCollection($collection);
+
+        if ($this->eventManager->hasListeners(Events::postSelectCollection)) {
+            $this->eventManager->dispatchEvent(Events::postSelectCollection, new EventArgs($this, $collection));
+        }
+
+        return $collection;
     }
 
     /**

@@ -20,7 +20,7 @@
 namespace Doctrine\MongoDB;
 
 use Doctrine\Common\EventManager,
-    Doctrine\ODM\Event\CollectionEventArgs;
+    Doctrine\ODM\Event\EventArgs;
 
 /**
  * Wrapper for the PHP MongoCollection class.
@@ -143,7 +143,7 @@ class Collection
     public function batchInsert(array &$a, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preBatchInsert)) {
-            $this->eventManager->dispatchEvent(Events::preBatchInsert, new CollectionEventArgs($this, $a));
+            $this->eventManager->dispatchEvent(Events::preBatchInsert, new EventArgs($this, $a));
         }
 
         $this->doBatchInsert($a, $options);
@@ -158,7 +158,7 @@ class Collection
         }
 
         if ($this->eventManager->hasListeners(Events::postBatchInsert)) {
-            $this->eventManager->dispatchEvent(Events::postBatchInsert, new CollectionEventArgs($this, $result));
+            $this->eventManager->dispatchEvent(Events::postBatchInsert, new EventArgs($this, $result));
         }
 
         return $a;
@@ -188,7 +188,7 @@ class Collection
         $result = $this->doUpdate($query, $newObj, $options);
 
         if ($this->eventManager->hasListeners(Events::postUpdate)) {
-            $this->eventManager->dispatchEvent(Events::postUpdate, new CollectionEventArgs($this, $result));
+            $this->eventManager->dispatchEvent(Events::postUpdate, new EventArgs($this, $result));
         }
 
         return $result;
@@ -206,7 +206,7 @@ class Collection
     public function find(array $query = array(), array $fields = array())
     {
         if ($this->eventManager->hasListeners(Events::preFind)) {
-            $this->eventManager->dispatchEvent(Events::preFind, new CollectionEventArgs($this, $query));
+            $this->eventManager->dispatchEvent(Events::preFind, new EventArgs($this, $query));
         }
 
         if ($this->loggerCallable) {
@@ -220,7 +220,7 @@ class Collection
         $result = $this->doFind($query, $fields);
 
         if ($this->eventManager->hasListeners(Events::postFind)) {
-            $this->eventManager->dispatchEvent(Events::postFind, new CollectionEventArgs($this, $result));
+            $this->eventManager->dispatchEvent(Events::postFind, new EventArgs($this, $result));
         }
 
         return $result;
@@ -236,7 +236,7 @@ class Collection
     public function findOne(array $query = array(), array $fields = array())
     {
         if ($this->eventManager->hasListeners(Events::preFindOne)) {
-            $this->eventManager->dispatchEvent(Events::preFindOne, new CollectionEventArgs($this, $query));
+            $this->eventManager->dispatchEvent(Events::preFindOne, new EventArgs($this, $query));
         }
 
         if ($this->loggerCallable) {
@@ -250,7 +250,7 @@ class Collection
         $result = $this->doFindOne($query, $fields);
 
         if ($this->eventManager->hasListeners(Events::postFindOne)) {
-            $this->eventManager->dispatchEvent(Events::postFindOne, new CollectionEventArgs($this, $result));
+            $this->eventManager->dispatchEvent(Events::postFindOne, new EventArgs($this, $result));
         }
 
         return $result;
@@ -264,13 +264,13 @@ class Collection
     public function findAndRemove(array $query, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preFindAndRemove)) {
-            $this->eventManager->dispatchEvent(Events::preFindAndRemove, new CollectionEventArgs($this, $query));
+            $this->eventManager->dispatchEvent(Events::preFindAndRemove, new EventArgs($this, $query));
         }
 
         $document = $this->doFindAndRemove($query, $options);
 
         if ($this->eventManager->hasListeners(Events::postFindAndRemove)) {
-            $this->eventManager->dispatchEvent(Events::postFindAndRemove, new CollectionEventArgs($this, $document));
+            $this->eventManager->dispatchEvent(Events::postFindAndRemove, new EventArgs($this, $document));
         }
 
         return $document;
@@ -305,7 +305,7 @@ class Collection
         $document = $this->doFindAndUpdate($query, $newObj, $options);
 
         if ($this->eventManager->hasListeners(Events::postFindAndUpdate)) {
-            $this->eventManager->dispatchEvent(Events::postFindAndUpdate, new CollectionEventArgs($this, $document));
+            $this->eventManager->dispatchEvent(Events::postFindAndUpdate, new EventArgs($this, $document));
         }
 
         return $document;
@@ -331,7 +331,7 @@ class Collection
         $result = $this->doNear($near, $query, $options);
 
         if ($this->eventManager->hasListeners(Events::postNear)) {
-            $this->eventManager->dispatchEvent(Events::postNear, new CollectionEventArgs($this, $result));
+            $this->eventManager->dispatchEvent(Events::postNear, new EventArgs($this, $result));
         }
 
         return $result;
@@ -357,7 +357,7 @@ class Collection
         $result = $this->doDistinct($field, $query, $options);
 
         if ($this->eventManager->hasListeners(Events::postDistinct)) {
-            $this->eventManager->dispatchEvent(Events::postDistinct, new CollectionEventArgs($this, $result));
+            $this->eventManager->dispatchEvent(Events::postDistinct, new EventArgs($this, $result));
         }
 
         return $result;
@@ -377,13 +377,13 @@ class Collection
     public function mapReduce($map, $reduce, array $query = array(), array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preDistinct)) {
-            $this->eventManager->dispatchEvent(Events::preDistinct, new CollectionDistinctEventArgs($this, $map, $reduce, $query));
+            $this->eventManager->dispatchEvent(Events::preDistinct, new CollectionMapReduceEventArgs($this, $map, $reduce, $query));
         }
 
         $result = $this->doMapReduce($map, $reduce, $query, $options);
 
         if ($this->eventManager->hasListeners(Events::postDistinct)) {
-            $this->eventManager->dispatchEvent(Events::postDistinct, new CollectionEventArgs($this, $result));
+            $this->eventManager->dispatchEvent(Events::postDistinct, new EventArgs($this, $result));
         }
 
         return $result;
@@ -432,7 +432,7 @@ class Collection
     public function createDBRef(array $a)
     {
         if ($this->eventManager->hasListeners(Events::preCreateDBRef)) {
-            $this->eventManager->dispatchEvent(Events::preCreateDBRef, new CollectionEventArgs($this, $a));
+            $this->eventManager->dispatchEvent(Events::preCreateDBRef, new EventArgs($this, $a));
         }
 
         if ($this->loggerCallable) {
@@ -445,7 +445,7 @@ class Collection
         $result = $this->doCreateDBRef($a);
 
         if ($this->eventManager->hasListeners(Events::postCreateDBRef)) {
-            $this->eventManager->dispatchEvent(Events::postCreateDBRef, new CollectionEventArgs($this, $result));
+            $this->eventManager->dispatchEvent(Events::postCreateDBRef, new EventArgs($this, $result));
         }
 
         return $result;
@@ -494,13 +494,23 @@ class Collection
     /** @proxy */
     public function drop()
     {
+        if ($this->eventManager->hasListeners(Events::preDropCollection)) {
+            $this->eventManager->dispatchEvent(Events::preDropCollection, new EventArgs($this));
+        }
+
         if ($this->loggerCallable) {
             $this->log(array(
                 'drop' => true
             ));
         }
 
-        return $this->doDrop();
+        $result = $this->doDrop();
+
+        if ($this->eventManager->hasListeners(Events::postDropCollection)) {
+            $this->eventManager->dispatchEvent(Events::postDropCollection, new EventArgs($this, $result));
+        }
+
+        return $result;
     }
 
     protected function doDrop()
@@ -537,7 +547,7 @@ class Collection
     public function getDBRef(array $reference)
     {
         if ($this->eventManager->hasListeners(Events::preGetDBRef)) {
-            $this->eventManager->dispatchEvent(Events::preGetDBRef, new CollectionEventArgs($this, $reference));
+            $this->eventManager->dispatchEvent(Events::preGetDBRef, new EventArgs($this, $reference));
         }
 
         if ($this->loggerCallable) {
@@ -550,7 +560,7 @@ class Collection
         $result = $this->doGetDBRef($reference);
 
         if ($this->eventManager->hasListeners(Events::postGetDBRef)) {
-            $this->eventManager->dispatchEvent(Events::postGetDBRef, new CollectionEventArgs($this, $result));
+            $this->eventManager->dispatchEvent(Events::postGetDBRef, new EventArgs($this, $result));
         }
 
         return $result;
@@ -581,7 +591,7 @@ class Collection
         $result = $this->doGroup($keys, $initial, $reduce, $options);
 
         if ($this->eventManager->hasListeners(Events::postGroup)) {
-            $this->eventManager->dispatchEvent(Events::postGroup, new CollectionEventArgs($this, $result));
+            $this->eventManager->dispatchEvent(Events::postGroup, new EventArgs($this, $result));
         }
 
         return $result;
@@ -597,7 +607,7 @@ class Collection
     public function insert(array &$a, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preInsert)) {
-            $this->eventManager->dispatchEvent(Events::preInsert, new CollectionEventArgs($this, $a));
+            $this->eventManager->dispatchEvent(Events::preInsert, new EventArgs($this, $a));
         }
 
         $result = $this->doInsert($a, $options);
@@ -611,7 +621,7 @@ class Collection
         }
 
         if ($this->eventManager->hasListeners(Events::postInsert)) {
-            $this->eventManager->dispatchEvent(Events::postInsert, new CollectionEventArgs($this, $result));
+            $this->eventManager->dispatchEvent(Events::postInsert, new EventArgs($this, $result));
         }
         return $result;
     }
@@ -630,7 +640,7 @@ class Collection
     public function remove(array $query, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preRemove)) {
-            $this->eventManager->dispatchEvent(Events::preRemove, new CollectionEventArgs($this, $query));
+            $this->eventManager->dispatchEvent(Events::preRemove, new EventArgs($this, $query));
         }
 
         if ($this->loggerCallable) {
@@ -644,7 +654,7 @@ class Collection
         $result = $this->doRemove($query, $options);
 
         if ($this->eventManager->hasListeners(Events::postRemove)) {
-            $this->eventManager->dispatchEvent(Events::postRemove, new CollectionEventArgs($this, $result));
+            $this->eventManager->dispatchEvent(Events::postRemove, new EventArgs($this, $result));
         }
 
         return $result;
@@ -659,7 +669,7 @@ class Collection
     public function save(array &$a, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preSave)) {
-            $this->eventManager->dispatchEvent(Events::preSave, new CollectionEventArgs($this, $a));
+            $this->eventManager->dispatchEvent(Events::preSave, new EventArgs($this, $a));
         }
 
         $result = $this->doSave($a, $options);
@@ -673,7 +683,7 @@ class Collection
         }
 
         if ($this->eventManager->hasListeners(Events::postSave)) {
-            $this->eventManager->dispatchEvent(Events::postSave, new CollectionEventArgs($this, $result));
+            $this->eventManager->dispatchEvent(Events::postSave, new EventArgs($this, $result));
         }
 
         return $result;

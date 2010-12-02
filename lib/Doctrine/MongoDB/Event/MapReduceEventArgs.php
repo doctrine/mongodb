@@ -22,37 +22,40 @@ namespace Doctrine\MongoDB\Event;
 use Doctrine\Common\EventArgs;
 
 /**
- * Collection update event args
+ * Map reduce event args.
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  */
-class CollectionUpdateEventArgs extends CollectionEventArgs
+class MapReduceEventArgs extends EventArgs
 {
     private $invoker;
-    private $data;
+    private $map;
+    private $reduce;
+    private $query = array();
 
-    public function __construct($invoker, &$criteria, &$newObj)
+    public function __construct($invoker, &$map, array &$reduce, array &$query)
     {
         $this->invoker = $invoker;
-        $this->criteria = $criteria;
-        $this->newObj = $newObj;
+        $this->map = $map;
+        $this->reduce = $reduce;
+        $this->query = $query;
     }
 
-    public function getInvoker()
+    public function getKeys()
     {
-        return $this->invoker;
+        return $this->keys;
     }
 
-    public function getCriteria()
+    public function getReduce()
     {
-        return $this->criteria;
+        return $this->reduce;
     }
 
-    public function getNewObj()
+    public function getQuery()
     {
-        return $this->newObj;
+        return $this->query;
     }
 }
