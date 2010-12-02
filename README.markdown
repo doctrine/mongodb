@@ -39,3 +39,67 @@ It comes with some additional functionality like an object oriented query builde
 
     $query = $qb->getQuery();
     $user = $query->getSingleResult();
+
+It also adds the ability to connect to events that get triggered internally. The list of
+available events are:
+
+* preBatchInsert
+* postBatchInsert
+* preSave
+* postSave
+* preInsert
+* postInsert
+* preUpdate
+* postUpdate
+* preRemove
+* postRemove
+* preFind
+* postFind
+* preFindOne
+* postFindOne
+* preFindAndRemove
+* postFindAndRemove
+* preFindAndUpdate
+* postFindAndUpdate
+* preGroup
+* postGroup
+* preGetDBRef
+* postGetDBRef
+* preCreateDBRef
+* postCreateDBRef
+* preDistinct
+* postDistinct
+* preNear
+* postNear
+* preCreateCollection
+* postCreateCollection
+* preSelectDatabase
+* postSelectDatabase
+* preDropDatabase
+* postDropDatabase
+* preSelectCollection
+* postSelectCollection
+* preDropCollection
+* postDropCollection
+* preGetGridFS
+* postGetGridFS
+* preConnect
+* postConnect
+
+You can connect to these events using the EventManager:
+
+    use Doctrine\MongoDB\Events;
+    use Doctrine\MongoDB\Events\EventArgs;
+
+    $connectionEvents = new ConnectionEvents();
+    $evm->addEventListener(Events::preConnect, $connectionEvents);
+
+Now we just need to write the simple PHP class we initialized above:
+
+    class ConnectionEvents
+    {
+        public function preConnect(EventArgs $eventArgs)
+        {
+            // do something before the connection to mongodb is initialized
+        }
+    }
