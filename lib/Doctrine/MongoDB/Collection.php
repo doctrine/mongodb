@@ -278,10 +278,11 @@ class Collection
 
     protected function doFindAndRemove(array $query, array $options = array())
     {
-        $command = $options;
+        $command = array();
         $command['findandmodify'] = $this->mongoCollection->getName();
         $command['query'] = $query;
         $command['remove'] = true;
+        $command = array_merge($command, $options);
 
         $document = null;
         $result = $this->database->command($command);
@@ -312,10 +313,11 @@ class Collection
 
     protected function doFindAndUpdate(array $query, array $newObj, array $options)
     {
-        $command = $options;
+        $command = array();
         $command['findandmodify'] = $this->mongoCollection->getName();
         $command['query'] = $query;
         $command['update'] = $newObj;
+        $command = array_merge($command, $options);
         $result = $this->database->command($command);
         return isset($result['value']) ? $result['value'] : null;
     }
@@ -337,10 +339,11 @@ class Collection
 
     protected function doNear(array $near, array $query, array $options)
     {
-        $command = $options;
+        $command = array();
         $command['geoNear'] = $this->mongoCollection->getName();
         $command['near'] = $near;
         $command['query'] = $query;
+        $command = array_merge($command, $options);
         $result = $this->database->command($command);
         return new ArrayIterator(isset($result['results']) ? $result['results'] : array());
     }
@@ -362,10 +365,11 @@ class Collection
 
     protected function doDistinct($field, array $query, array $options)
     {
-        $command = $options;
+        $command = array();
         $command['distinct'] = $this->mongoCollection->getName();
         $command['key'] = $field;
         $command['query'] = $query;
+        $command = array_merge($command, $options);
         $result = $this->database->command($command);
         return new ArrayIterator(isset($result['values']) ? $result['values'] : array());
     }
@@ -393,17 +397,16 @@ class Collection
         if (is_string($reduce)) {
             $reduce = new \MongoCode($reduce);
         }
-        $command = $options;
+        $command = array();
         $command['mapreduce'] = $this->mongoCollection->getName();
         $command['map'] = $map;
         $command['reduce'] = $reduce;
         $command['query'] = $query;
+        $command = array_merge($command, $options);
 
         $result = $this->database->command($command);
 
         if ( ! $result['ok']) {
-            print_r($command);
-            print_r($result);
             throw new \RuntimeException($result['errmsg']);
         }
 
