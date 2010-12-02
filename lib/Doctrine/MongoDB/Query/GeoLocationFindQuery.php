@@ -51,16 +51,9 @@ class GeoLocationFindQuery extends AbstractQuery
 
     public function execute(array $options = array())
     {
-        $command = array(
-            'geoNear' => $this->collection->getName(),
-            'near' => $this->near,
-            'query' => $this->query
-        );
         if ($this->limit) {
-            $command['num'] = $this->limit;
+            $options['num'] = $this->limit;
         }
-        $result = $this->database->command($command);
-        $results = isset($result['results']) ? $result['results'] : array();
-        return new ArrayIterator($results);
+        return $this->collection->near($this->near, $this->query, $options);
     }
 }

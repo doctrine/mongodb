@@ -1018,7 +1018,6 @@ class Builder
                 $query->setSelect($this->select);
                 $query->setQuery($this->expr->getQuery());
                 $query->setSort($this->sort);
-                $query->setLimit($this->limit);
                 return $query;
             case self::TYPE_FIND_AND_UPDATE;
                 $query = new FindAndUpdateQuery($this->database, $this->collection, $this->cmd);

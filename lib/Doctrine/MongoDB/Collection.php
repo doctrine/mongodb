@@ -97,6 +97,12 @@ class Collection
         call_user_func_array($this->loggerCallable, array($log));
     }
 
+    /** @proxy */
+    public function getName()
+    {
+        return $this->mongoCollection->getName();
+    }
+
     /**
      * Returns the wrapped MongoCollection instance.
      *
@@ -107,9 +113,30 @@ class Collection
         return $this->mongoCollection;
     }
 
+    /**
+     * Gets the database this collection belongs to.
+     *
+     * @return Database $database
+     */
     public function getDatabase()
     {
         return $this->database;
+    }
+
+    /** @proxy */
+    public function getIndexInfo()
+    {
+        return $this->mongoCollection->getIndexInfo();
+    }
+
+    /**
+     * Creates a new query builder instnce.
+     *
+     * @return Query\Builder $qb
+     */
+    public function createQueryBuilder()
+    {
+        return new Query\Builder($this->database, $this, $this->cmd);
     }
 
     /** @override */
@@ -240,22 +267,7 @@ class Collection
             $this->eventManager->dispatchEvent(Events::preFindAndRemove, new CollectionEventArgs($this, $query));
         }
 
-        $command = array();
-        $command['findandmodify'] = $this->mongoCollection->getName();
-        $command['query'] = $query;
-        $command['remove'] = true;
-        $command['options'] = $options;
-
-        $document = null;
-
-        $result = $this->database->command($command);
-        if (isset($result['value'])) {
-            $document = $result['value'];
-            if ($this->mongoCollection instanceof \MongoGridFS) {
-                // Remove the file data from the chunks collection
-                $this->mongoCollection->chunks->remove(array('files_id' => $document['_id']), $options);
-            }
-        }
+        $document = $this->doFindAndRemove($query, $options);
 
         if ($this->eventManager->hasListeners(Events::postFindAndRemove)) {
             $this->eventManager->dispatchEvent(Events::postFindAndRemove, new CollectionEventArgs($this, $document));
@@ -264,33 +276,139 @@ class Collection
         return $document;
     }
 
-    public function findAndModify(array $query, array $newObj, array $options = array())
+    protected function doFindAndRemove(array $query, array $options = array())
     {
-        if ($this->eventManager->hasListeners(Events::preFindAndModify)) {
-            $this->eventManager->dispatchEvent(Events::preFindAndModify, new CollectionUpdateEventArgs($this, $query, $query));
-        }
-
-        $command = array();
+        $command = $options;
         $command['findandmodify'] = $this->mongoCollection->getName();
         $command['query'] = $query;
-        $command['update'] = $newObj;
-        if (isset($options['upsert'])) {
-            $command['upsert'] = true;
-            unset($options['upsert']);
-        }
-        if (isset($options['new'])) {
-            $command['new'] = true;
-            unset($options['new']);
-        }
-        $command['options'] = $options;
-        $result = $this->database->command($command);
-        $document = isset($result['value']) ? $result['value'] : null;
+        $command['remove'] = true;
 
-        if ($this->eventManager->hasListeners(Events::postFindAndModify)) {
-            $this->eventManager->dispatchEvent(Events::postFindAndModify, new CollectionEventArgs($this, $document));
+        $document = null;
+        $result = $this->database->command($command);
+        if (isset($result['value'])) {
+            $document = $result['value'];
+            if ($this->mongoCollection instanceof \MongoGridFS) {
+                // Remove the file data from the chunks collection
+                $this->mongoCollection->chunks->remove(array('files_id' => $document['_id']), $options);
+            }
+        }
+        return $document;
+    }
+
+    public function findAndUpdate(array $query, array $newObj, array $options = array())
+    {
+        if ($this->eventManager->hasListeners(Events::preFindAndUpdate)) {
+            $this->eventManager->dispatchEvent(Events::preFindAndUpdate, new CollectionUpdateEventArgs($this, $query, $query));
+        }
+
+        $document = $this->doFindAndUpdate($query, $newObj, $options);
+
+        if ($this->eventManager->hasListeners(Events::postFindAndUpdate)) {
+            $this->eventManager->dispatchEvent(Events::postFindAndUpdate, new CollectionEventArgs($this, $document));
         }
 
         return $document;
+    }
+
+    protected function doFindAndUpdate(array $query, array $newObj, array $options)
+    {
+        $command = $options;
+        $command['findandmodify'] = $this->mongoCollection->getName();
+        $command['query'] = $query;
+        $command['update'] = $newObj;
+        $result = $this->database->command($command);
+        return isset($result['value']) ? $result['value'] : null;
+    }
+
+    public function near(array $near, array $query = array(), array $options = array())
+    {
+        if ($this->eventManager->hasListeners(Events::preNear)) {
+            $this->eventManager->dispatchEvent(Events::preNear, new CollectionNearEventArgs($this, $near, $query));
+        }
+
+        $result = $this->doNear($near, $query, $options);
+
+        if ($this->eventManager->hasListeners(Events::postNear)) {
+            $this->eventManager->dispatchEvent(Events::postNear, new CollectionEventArgs($this, $result));
+        }
+
+        return $result;
+    }
+
+    protected function doNear(array $near, array $query, array $options)
+    {
+        $command = $options;
+        $command['geoNear'] = $this->mongoCollection->getName();
+        $command['near'] = $near;
+        $command['query'] = $query;
+        $result = $this->database->command($command);
+        return new ArrayIterator(isset($result['results']) ? $result['results'] : array());
+    }
+
+    public function distinct($field, array $query = array(), array $options = array())
+    {
+        if ($this->eventManager->hasListeners(Events::preDistinct)) {
+            $this->eventManager->dispatchEvent(Events::preDistinct, new CollectionDistinctEventArgs($this, $field, $query));
+        }
+
+        $result = $this->doDistinct($field, $query, $options);
+
+        if ($this->eventManager->hasListeners(Events::postDistinct)) {
+            $this->eventManager->dispatchEvent(Events::postDistinct, new CollectionEventArgs($this, $result));
+        }
+
+        return $result;
+    }
+
+    protected function doDistinct($field, array $query, array $options)
+    {
+        $command = $options;
+        $command['distinct'] = $this->mongoCollection->getName();
+        $command['key'] = $field;
+        $command['query'] = $query;
+        $result = $this->database->command($command);
+        return new ArrayIterator(isset($result['values']) ? $result['values'] : array());
+    }
+
+    public function mapReduce($map, $reduce, array $query = array(), array $options = array())
+    {
+        if ($this->eventManager->hasListeners(Events::preDistinct)) {
+            $this->eventManager->dispatchEvent(Events::preDistinct, new CollectionDistinctEventArgs($this, $map, $reduce, $query));
+        }
+
+        $result = $this->doMapReduce($map, $reduce, $query, $options);
+
+        if ($this->eventManager->hasListeners(Events::postDistinct)) {
+            $this->eventManager->dispatchEvent(Events::postDistinct, new CollectionEventArgs($this, $result));
+        }
+
+        return $result;
+    }
+
+    protected function doMapReduce($map, $reduce, array $query, array $options)
+    {
+        if (is_string($map)) {
+            $map = new \MongoCode($map);
+        }
+        if (is_string($reduce)) {
+            $reduce = new \MongoCode($reduce);
+        }
+        $command = $options;
+        $command['mapreduce'] = $this->mongoCollection->getName();
+        $command['map'] = $map;
+        $command['reduce'] = $reduce;
+        $command['query'] = $query;
+
+        $result = $this->database->command($command);
+
+        if ( ! $result['ok']) {
+            print_r($command);
+            print_r($result);
+            throw new \RuntimeException($result['errmsg']);
+        }
+
+        $cursor = $this->database->selectCollection($result['result'])->find();
+        return new Cursor($cursor);
     }
 
     /** @proxy */
@@ -322,13 +440,18 @@ class Collection
             ));
         }
 
-        $result = $this->mongoCollection->createDBRef($a);
+        $result = $this->doCreateDBRef($a);
 
         if ($this->eventManager->hasListeners(Events::postCreateDBRef)) {
             $this->eventManager->dispatchEvent(Events::postCreateDBRef, new CollectionEventArgs($this, $result));
         }
 
         return $result;
+    }
+
+    protected function doCreateDBRef(array $a)
+    {
+        return $this->mongoCollection->createDBRef($a);
     }
 
     /** @proxy */
@@ -341,6 +464,11 @@ class Collection
             ));
         }
 
+        return $this->doDeleteIndex($keys);
+    }
+
+    protected function doDeleteIndex($keys)
+    {
         return $this->mongoCollection->deleteIndex($keys);
     }
 
@@ -353,6 +481,11 @@ class Collection
             ));
         }
 
+        return $this->doDeleteIndexes();
+    }
+
+    protected function doDeleteIndexes()
+    {
         return $this->mongoCollection->deleteIndexes();
     }
 
@@ -365,6 +498,11 @@ class Collection
             ));
         }
 
+        return $this->doDrop();
+    }
+
+    protected function doDrop()
+    {
         return $this->mongoCollection->drop();
     }
 
@@ -379,6 +517,11 @@ class Collection
             ));
         }
 
+        return $this->doEnsureIndex($keys, $options);
+    }
+
+    protected function doEnsureIndex(array $keys, array $options)
+    {
         return $this->mongoCollection->ensureIndex($keys, $options);
     }
 
@@ -389,20 +532,20 @@ class Collection
     }
 
     /** @proxy */
-    public function getDBRef(array $ref)
+    public function getDBRef(array $reference)
     {
         if ($this->eventManager->hasListeners(Events::preGetDBRef)) {
-            $this->eventManager->dispatchEvent(Events::preGetDBRef, new CollectionEventArgs($this, $ref));
+            $this->eventManager->dispatchEvent(Events::preGetDBRef, new CollectionEventArgs($this, $reference));
         }
 
         if ($this->loggerCallable) {
             $this->log(array(
                 'getDBRef' => true,
-                'reference' => $ref
+                'reference' => $reference
             ));
         }
 
-        $result = $this->mongoCollection->getDBRef($ref);
+        $result = $this->doGetDBRef($reference);
 
         if ($this->eventManager->hasListeners(Events::postGetDBRef)) {
             $this->eventManager->dispatchEvent(Events::postGetDBRef, new CollectionEventArgs($this, $result));
@@ -411,16 +554,9 @@ class Collection
         return $result;
     }
 
-    /** @proxy */
-    public function getIndexInfo()
+    protected function doGetDBRef(array $reference)
     {
-        return $this->mongoCollection->getIndexInfo();
-    }
-
-    /** @proxy */
-    public function getName()
-    {
-        return $this->mongoCollection->getName();
+        return $this->mongoCollection->getDBRef($reference);
     }
 
     /** @proxy */
@@ -440,14 +576,19 @@ class Collection
             ));
         }
 
-        $result = $this->mongoCollection->group($keys, $initial, $reduce, $options);
-        $result = new ArrayIterator($result);
+        $result = $this->doGroup($keys, $initial, $reduce, $options);
 
         if ($this->eventManager->hasListeners(Events::postGroup)) {
             $this->eventManager->dispatchEvent(Events::postGroup, new CollectionEventArgs($this, $result));
         }
 
         return $result;
+    }
+
+    protected function doGroup($keys, array $initial, $reduce, array $options)
+    {
+        $result = $this->mongoCollection->group($keys, $initial, $reduce, $options);
+        return new ArrayIterator($result);
     }
 
     /** @proxy */
@@ -498,13 +639,18 @@ class Collection
             ));
         }
 
-        $result = $this->mongoCollection->remove($query, $options);
+        $result = $this->doRemove($query, $options);
 
         if ($this->eventManager->hasListeners(Events::postRemove)) {
             $this->eventManager->dispatchEvent(Events::postRemove, new CollectionEventArgs($this, $result));
         }
 
         return $result;
+    }
+
+    protected function doRemove(array $query, array $options)
+    {
+        return $this->mongoCollection->remove($query, $options);
     }
 
     /** @proxy */
@@ -547,11 +693,6 @@ class Collection
         }
 
         return $this->mongoCollection->validate($scanData);
-    }
-
-    public function createQueryBuilder()
-    {
-        return new Query\Builder($this->database, $this, $this->cmd);
     }
 
     /** @proxy */

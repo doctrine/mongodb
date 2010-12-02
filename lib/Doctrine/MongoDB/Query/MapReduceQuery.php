@@ -111,24 +111,7 @@ class MapReduceQuery extends AbstractQuery
 
     public function execute(array $options = array())
     {
-        if (is_string($this->map)) {
-            $this->map = new \MongoCode($this->map);
-        }
-        if (is_string($this->reduce)) {
-            $this->reduce = new \MongoCode($this->reduce);
-        }
-        $command = array(
-            'mapreduce' => $this->collection->getName(),
-            'map' => $this->map,
-            'reduce' => $this->reduce,
-            'query' => $this->query
-        );
-        $command = array_merge($command, $options);
-        $result = $this->database->command($command);
-        if ( ! $result['ok']) {
-            throw new \RuntimeException($result['errmsg']);
-        }
-        $cursor = $this->database->selectCollection($result['result'])->find();
+        $cursor = $this->collection->mapReduce($this->map, $this->reduce, $this->query, $options);
         $cursor->limit($this->limit);
         $cursor->skip($this->skip);
         $cursor->sort($this->sort);

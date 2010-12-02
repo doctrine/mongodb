@@ -59,8 +59,8 @@ final class Events
     const preFindAndRemove = 'collectionPreFindAndRemove';
     const postFindAndRemove = 'collectionPostFindAndRemove';
 
-    const preFindAndModify = 'collectionPreFindAndModify';
-    const postFindAndModify = 'collectionPostFindAndModify';
+    const preFindAndUpdate = 'collectionPreFindAndUpdate';
+    const postFindAndUpdate = 'collectionPostFindAndUpdate';
 
     const preGroup = 'collectionPreGroup';
     const postGroup = 'collectionPostGroup';
@@ -70,4 +70,10 @@ final class Events
 
     const preCreateDBRef = 'collectionPreCreateDBRef';
     const postCreateDBRef = 'collectionPostCreateDBRef';
+
+    const preDistinct = 'collectionPreDistinct';
+    const postDistinct = 'collectionPostDistinct';
+
+    const preNear = 'collectionPreNear';
+    const postNear = 'collectionPostNear';
 }

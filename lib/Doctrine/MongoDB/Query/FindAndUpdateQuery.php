@@ -73,31 +73,18 @@ class FindAndUpdateQuery extends AbstractQuery
 
     public function execute(array $options = array())
     {
-        $command = array();
-        $command['findandmodify'] = $this->collection->getName();
-        if ($this->query) {
-            $command['query'] = $this->query;
-        }
         if ($this->sort) {
-            $command['sort'] = $this->sort;
+            $options['sort'] = $this->sort;
         }
         if ($this->select) {
-            $command['fields'] = $this->select;
+            $options['fields'] = $this->select;
         }
-        $command['update'] = $this->newObj;
         if ($this->upsert) {
-            $command['upsert'] = true;
+            $options['upsert'] = true;
         }
         if ($this->new) {
-            $command['new'] = true;
+            $options['new'] = true;
         }
-        if ($this->limit) {
-            $command['num'] = $this->limit;
-        }
-        $result = $this->database->command($command);
-        if (isset($result['value'])) {
-            return $result['value'];
-        }
-        return $result;
+        return $this->findAndUpdate($this->query, $this->newObj, $options);
     }
 }

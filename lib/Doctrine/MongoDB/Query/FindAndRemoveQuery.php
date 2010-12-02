@@ -31,7 +31,6 @@ class FindAndRemoveQuery extends AbstractQuery
     protected $select = array();
     protected $query = array();
     protected $sort;
-    protected $limit;
 
     public function setSelect(array $select)
     {
@@ -48,32 +47,14 @@ class FindAndRemoveQuery extends AbstractQuery
         $this->sort = $sort;
     }
 
-    public function setLimit($limit)
-    {
-        $this->limit = $limit;
-    }
-
     public function execute(array $options = array())
     {
-        $command = array();
-        $command['findandmodify'] = $this->collection->getName();
-        if ($this->query) {
-            $command['query'] = $this->query;
-        }
         if ($this->sort) {
-            $command['sort'] = $this->sort;
+            $options['sort'] = $this->sort;
         }
         if ($this->select) {
-            $command['fields'] = $this->select;
+            $options['fields'] = $this->select;
         }
-        $command['remove'] = true;
-        if ($this->limit) {
-            $command['num'] = $this->limit;
-        }
-        $result = $this->database->command($command);
-        if (isset($result['value'])) {
-            return $result['value'];
-        }
-        return $result;
+        return $this->collection->findAndRemove($this->query, $options);
     }
 }

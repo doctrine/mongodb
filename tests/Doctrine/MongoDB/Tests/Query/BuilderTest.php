@@ -32,7 +32,40 @@ class BuilderTest extends BaseTest
             'username' => 'jwage'
         );
         $this->assertEquals($expected, $qb->getQueryArray());
-        $this->assertTrue(is_array($qb->getQuery()->execute()));
+        $this->assertNull($qb->getQuery()->execute());
+    }
+
+    public function testMapReduceQuery()
+    {
+        $map = 'function() {
+            for(i = 0; i <= this.options.length; i++) {
+                emit(this.name, { count: 1 });
+            }
+        }';
+
+        $reduce = 'function(product, values) {
+            var total = 0
+            values.forEach(function(value){
+                total+= value.count;
+            });
+            return {
+                product: product,
+                options: total,
+                test: values
+            };
+        }';
+
+        $qb = $this->getTestQueryBuilder()
+            ->map($map)->reduce($reduce)
+            ->field('username')->equals('jwage');
+
+        $this->assertEquals(Builder::TYPE_MAP_REDUCE, $qb->getType());
+        $expected = array(
+            'username' => 'jwage'
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+        $this->assertEquals(array('map' => $map, 'reduce' => $reduce), $qb->debug('mapReduce'));
+        $this->assertInstanceOf('Doctrine\MongoDB\Query\MapReduceQuery', $qb->getQuery());
     }
 
     public function testFindAndUpdateQuery()
@@ -47,7 +80,7 @@ class BuilderTest extends BaseTest
         );
         $this->assertEquals($expected, $qb->getQueryArray());
         $this->assertInstanceOf('Doctrine\MongoDB\Query\FindAndRemoveQuery', $qb->getQuery());
-        $this->assertTrue(is_array($qb->getQuery()->execute()));
+        $this->assertNull($qb->getQuery()->execute());
     }
 
     public function testGeoLocationQuery()

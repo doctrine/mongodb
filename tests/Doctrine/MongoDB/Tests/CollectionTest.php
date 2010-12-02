@@ -100,7 +100,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
         $options = array('safe' => true);
         $command = array(
             'findandmodify' => 'coll_name',
-            'options' => $options,
+            'safe' => true,
             'query' => $query,
             'remove' => true,
         );
@@ -129,8 +129,8 @@ class CollectionTest extends PHPUnit_Framework_TestCase
         $options = array('safe' => true);
         $command = array(
             'findandmodify' => 'coll_name',
-            'options' => $options,
             'query' => $query,
+            'safe' => true,
             'update' => array(
                 'name' => 'ok'
             ),
@@ -144,7 +144,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
             ->will($this->returnValue(array('value' => $document)));
 
         $coll = $this->getTestCollection($mockMongoCollection, $mockDatabase);
-        $result = $coll->findAndModify($query, $newObj, $options);
+        $result = $coll->findAndUpdate($query, $newObj, $options);
         $this->assertEquals($document, $result);
     }
 

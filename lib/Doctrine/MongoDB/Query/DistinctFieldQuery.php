@@ -45,11 +45,6 @@ class DistinctFieldQuery extends AbstractQuery
 
     public function execute(array $options = array())
     {
-        $result = $this->database->command(array(
-            'distinct' => $this->collection->getName(),
-            'key' => $this->distinctField,
-            'query' => $this->query
-        ));
-        return new ArrayIterator($result['values']);
+        return $this->collection->distinct($this->distinctField, $this->query, $options);
     }
 }
