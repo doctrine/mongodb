@@ -258,7 +258,7 @@ class Cursor implements Iterator
         if ($this->loggerCallable) {
             $this->log(array(
                 'sort' => true,
-                'fields' => $fields
+                'sortFields' => $fields
             ));
         }
 
