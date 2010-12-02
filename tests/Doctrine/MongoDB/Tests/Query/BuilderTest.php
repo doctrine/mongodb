@@ -4,6 +4,7 @@ namespace Doctrine\MongoDB\Tests\Query;
 
 use Doctrine\MongoDB\Tests\BaseTest;
 use Doctrine\MongoDB\Query\Builder;
+use Doctrine\MongoDB\Query\Query;
 
 class BuilderTest extends BaseTest
 {
@@ -16,9 +17,11 @@ class BuilderTest extends BaseTest
         $expected = array(
             'username' => 'distinct_test'
         );
-        $this->assertInstanceOf('Doctrine\MongoDB\Query\DistinctFieldQuery', $qb->getQuery());
+        $query = $qb->getQuery();
+        $this->assertInstanceOf('Doctrine\MongoDB\Query\Query', $query);
+        $this->assertEquals(Query::TYPE_DISTINCT_FIELD, $query->getType());
         $this->assertEquals($expected, $qb->getQueryArray());
-        $this->assertInstanceof('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
+        $this->assertInstanceof('Doctrine\MongoDB\ArrayIterator', $query->execute());
     }
 
     public function testFindAndRemoveQuery()
@@ -27,7 +30,7 @@ class BuilderTest extends BaseTest
             ->findAndRemove()
             ->field('username')->equals('jwage');
 
-        $this->assertEquals(Builder::TYPE_FIND_AND_REMOVE, $qb->getType());
+        $this->assertEquals(Query::TYPE_FIND_AND_REMOVE, $qb->getType());
         $expected = array(
             'username' => 'jwage'
         );
@@ -59,13 +62,12 @@ class BuilderTest extends BaseTest
             ->map($map)->reduce($reduce)
             ->field('username')->equals('jwage');
 
-        $this->assertEquals(Builder::TYPE_MAP_REDUCE, $qb->getType());
+        $this->assertEquals(Query::TYPE_MAP_REDUCE, $qb->getType());
         $expected = array(
             'username' => 'jwage'
         );
         $this->assertEquals($expected, $qb->getQueryArray());
-        $this->assertEquals(array('map' => $map, 'reduce' => $reduce), $qb->debug('mapReduce'));
-        $this->assertInstanceOf('Doctrine\MongoDB\Query\MapReduceQuery', $qb->getQuery());
+        $this->assertEquals(array('map' => $map, 'options' => array(), 'reduce' => $reduce), $qb->debug('mapReduce'));
     }
 
     public function testFindAndUpdateQuery()
@@ -74,13 +76,15 @@ class BuilderTest extends BaseTest
             ->findAndRemove()
             ->field('username')->equals('jwage');
 
-        $this->assertEquals(Builder::TYPE_FIND_AND_REMOVE, $qb->getType());
+        $this->assertEquals(Query::TYPE_FIND_AND_REMOVE, $qb->getType());
         $expected = array(
             'username' => 'jwage'
         );
         $this->assertEquals($expected, $qb->getQueryArray());
-        $this->assertInstanceOf('Doctrine\MongoDB\Query\FindAndRemoveQuery', $qb->getQuery());
-        $this->assertNull($qb->getQuery()->execute());
+
+        $query = $qb->getQuery();
+        $this->assertEquals(Query::TYPE_FIND_AND_REMOVE, $query->getType());
+        $this->assertNull($query->execute());
     }
 
     public function testGeoLocationQuery()
@@ -90,12 +94,11 @@ class BuilderTest extends BaseTest
             ->field('y')->near(2)
             ->field('username')->equals('jwage');
 
-        $this->assertEquals(Builder::TYPE_GEO_LOCATION, $qb->getType());
+        $this->assertEquals(Query::TYPE_GEO_LOCATION, $qb->getType());
         $expected = array(
             'username' => 'jwage'
         );
         $this->assertEquals($expected, $qb->getQueryArray());
-        $this->assertInstanceOf('Doctrine\MongoDB\Query\GeoLocationFindQuery', $qb->getQuery());
         $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
     }
 
@@ -104,8 +107,7 @@ class BuilderTest extends BaseTest
         $qb = $this->getTestQueryBuilder()
             ->group(array(), array());
 
-        $this->assertEquals(Builder::TYPE_GROUP, $qb->getType());
-        $this->assertInstanceOf('Doctrine\MongoDB\Query\GroupQuery', $qb->getQuery());
+        $this->assertEquals(Query::TYPE_GROUP, $qb->getType());
         $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
     }
 
@@ -119,8 +121,7 @@ class BuilderTest extends BaseTest
             'username' => 'jwage'
         );
         $this->assertEquals($expected, $qb->getNewObj());
-        $this->assertEquals(Builder::TYPE_INSERT, $qb->getType());
-        $this->assertInstanceOf('Doctrine\MongoDB\Query\InsertQuery', $qb->getQuery());
+        $this->assertEquals(Query::TYPE_INSERT, $qb->getType());
         $this->assertTrue($qb->getQuery()->execute());
     }
 
@@ -136,9 +137,11 @@ class BuilderTest extends BaseTest
             )
         );
         $this->assertEquals($expected, $qb->getNewObj());
-        $this->assertEquals(Builder::TYPE_UPDATE, $qb->getType());
-        $this->assertInstanceOf('Doctrine\MongoDB\Query\UpdateQuery', $qb->getQuery());
-        $this->assertTrue($qb->getQuery()->execute());
+        $this->assertEquals(Query::TYPE_UPDATE, $qb->getType());
+
+        $query = $qb->getQuery();
+        $this->assertEquals(Query::TYPE_UPDATE, $query->getType());
+        $this->assertTrue($query->execute());
     }
 
     public function testRemoveQuery()
@@ -147,8 +150,7 @@ class BuilderTest extends BaseTest
             ->remove()
             ->field('username')->equals('jwage');
 
-        $this->assertEquals(Builder::TYPE_REMOVE, $qb->getType());
-        $this->assertInstanceOf('Doctrine\MongoDB\Query\RemoveQuery', $qb->getQuery());
+        $this->assertEquals(Query::TYPE_REMOVE, $qb->getType());
         $this->assertTrue($qb->getQuery()->execute());
     }
 
@@ -211,8 +213,6 @@ class BuilderTest extends BaseTest
             ->set('jwage')
             ->equals('boo');
 
-        $this->assertInstanceOf('Doctrine\MongoDB\Query\UpdateQuery', $qb->getQuery());
-
         $expected = array(
             'username' => 'boo'
         );
@@ -231,8 +231,6 @@ class BuilderTest extends BaseTest
             ->field('hits')->inc(5)
             ->field('username')->equals('boo');
         $query = $qb->getQuery();
-
-        $this->assertInstanceOf('Doctrine\MongoDB\Query\UpdateQuery', $qb->getQuery());
 
         $expected = array(
             'username' => 'boo'
@@ -277,7 +275,10 @@ class BuilderTest extends BaseTest
         );
         $this->assertEquals($expected, $qb->debug('group'));
 
-        $expected = array('reduce' => 'function (obj, prev) { prev.count++; }');
+        $expected = array(
+            'map' => null,
+            'options' => array(),
+            'reduce' => 'function (obj, prev) { prev.count++; }');
         $this->assertEquals($expected, $qb->debug('mapReduce'));
     }
 

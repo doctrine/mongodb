@@ -32,17 +32,6 @@ use Doctrine\MongoDB\Collection;
  */
 class Builder
 {
-    const TYPE_FIND            = 1;
-    const TYPE_FIND_AND_UPDATE = 2;
-    const TYPE_FIND_AND_REMOVE = 3;
-    const TYPE_INSERT          = 4;
-    const TYPE_UPDATE          = 5;
-    const TYPE_REMOVE          = 6;
-    const TYPE_GROUP           = 7;
-    const TYPE_MAP_REDUCE      = 9;
-    const TYPE_DISTINCT_FIELD  = 10;
-    const TYPE_GEO_LOCATION    = 11;
-
     /**
      * The Database instance.
      *
@@ -65,109 +54,31 @@ class Builder
     protected $currentField;
 
     /**
-     * Field to select distinct values of
-     *
-     * @var string
-     */
-    protected $distinctField;
-
-    /**
-     * Array of fields to select
+     * Array containing the query data.
      *
      * @var array
      */
-    protected $select = array();
-
-    /**
-     * Array of sort options
-     *
-     * @var array
-     */
-    protected $sort = array();
-
-    /**
-     * Limit number of records
-     *
-     * @var integer
-     */
-    protected $limit = null;
-
-    /**
-     * Skip a specified number of records (offset)
-     *
-     * @var integer
-     */
-    protected $skip = null;
-
-    /**
-     * Group information.
-     *
-     * @var array
-     */
-    protected $group = array();
-
-    /**
-     * Pass hints to the Cursor
-     *
-     * @var array
-     */
-    protected $hints = array();
-
-    /**
-     * Pass immortal to cursor
-     *
-     * @var bool
-     */
-    protected $immortal = false;
-
-    /**
-     * Pass snapshot to cursor
-     *
-     * @var bool
-     */
-    protected $snapshot = false;
-
-    /**
-     * Pass slaveOkay to cursor
-     *
-     * @var bool
-     */
-    protected $slaveOkay = false;
-
-    /**
-     * Map reduce information
-     *
-     * @var array
-     */
-    protected $mapReduce = array();
-
-    /**
-     * Data to use with $near operator for geospatial indexes
-     *
-     * @var array
-     */
-    protected $near;
-
-    /**
-     * Whether or not to return the new document on findAndUpdate
-     *
-     * @var boolean
-     */
-    protected $new = false;
-
-    /**
-     * Whether or not to upsert on findAndUpdate.
-     *
-     * @var boolean
-     */
-    protected $upsert = false;
-
-    /**
-     * The type of query
-     *
-     * @var integer
-     */
-    protected $type = self::TYPE_FIND;
+    protected $query = array(
+        'type' => Query::TYPE_FIND,
+        'distinctField' => null,
+        'select' => array(),
+        'sort' => array(),
+        'limit' => null,
+        'skip' => null,
+        'group' => array(),
+        'hints' => array(),
+        'immortal' => false,
+        'snapshot' => false,
+        'slaveOkay' => false,
+        'mapReduce' => array(
+            'map' => null,
+            'reduce' => null,
+            'options' => array()
+        ),
+        'near' => array(),
+        'new' => false,
+        'upsert' => false,
+    );
 
     /**
      * Mongo command prefix
@@ -207,7 +118,7 @@ class Builder
      */
     public function getType()
     {
-        return $this->type;
+        return $this->query['type'];
     }
 
     /**
@@ -218,7 +129,7 @@ class Builder
      */
     public function slaveOkay($bool = true)
     {
-        $this->slaveOkay = $bool;
+        $this->query['slaveOkay'] = $bool;
         return $this;
     }
 
@@ -230,7 +141,7 @@ class Builder
      */
     public function snapshot($bool = true)
     {
-        $this->snapshot = $bool;
+        $this->query['snapshot'] = $bool;
         return $this;
     }
 
@@ -242,7 +153,7 @@ class Builder
      */
     public function immortal($bool = true)
     {
-        $this->immortal = $bool;
+        $this->query['immortal'] = $bool;
         return $this;
     }
 
@@ -254,7 +165,7 @@ class Builder
      */
     public function hint($keyPattern)
     {
-        $this->hints[] = $keyPattern;
+        $this->query['hints'][] = $keyPattern;
         return $this;
     }
 
@@ -266,7 +177,7 @@ class Builder
      */
     public function find()
     {
-        $this->type = self::TYPE_FIND;
+        $this->query['type'] = Query::TYPE_FIND;
         return $this;
     }
 
@@ -277,19 +188,19 @@ class Builder
      */
     public function findAndUpdate()
     {
-        $this->type = self::TYPE_FIND_AND_UPDATE;
+        $this->query['type'] = Query::TYPE_FIND_AND_UPDATE;
         return $this;
     }
 
     public function returnNew($bool = true)
     {
-        $this->new = $bool;
+        $this->query['new'] = $bool;
         return $this;
     }
 
     public function upsert($bool = true)
     {
-        $this->upsert = $bool;
+        $this->query['upsert'] = $bool;
         return $this;
     }
 
@@ -300,7 +211,7 @@ class Builder
      */
     public function findAndRemove()
     {
-        $this->type = self::TYPE_FIND_AND_REMOVE;
+        $this->query['type'] = Query::TYPE_FIND_AND_REMOVE;
         return $this;
     }
 
@@ -311,7 +222,7 @@ class Builder
      */
     public function update()
     {
-        $this->type = self::TYPE_UPDATE;
+        $this->query['type'] = Query::TYPE_UPDATE;
         return $this;
     }
 
@@ -322,7 +233,7 @@ class Builder
      */
     public function insert()
     {
-        $this->type = self::TYPE_INSERT;
+        $this->query['type'] = Query::TYPE_INSERT;
         return $this;
     }
 
@@ -333,7 +244,7 @@ class Builder
      */
     public function remove()
     {
-        $this->type = self::TYPE_REMOVE;
+        $this->query['type'] = Query::TYPE_REMOVE;
         return $this;
     }
 
@@ -348,11 +259,11 @@ class Builder
      */
     public function group($keys, array $initial)
     {
-        $this->group = array(
+        $this->query['group'] = array(
             'keys' => $keys,
             'initial' => $initial
         );
-        $this->type = self::TYPE_GROUP;
+        $this->query['type'] = Query::TYPE_GROUP;
         return $this;
     }
 
@@ -365,8 +276,8 @@ class Builder
      */
     public function distinct($field)
     {
-        $this->type = self::TYPE_DISTINCT_FIELD;
-        $this->distinctField = $field;
+        $this->query['type'] = Query::TYPE_DISTINCT_FIELD;
+        $this->query['distinctField'] = $field;
         return $this;
     }
 
@@ -380,7 +291,7 @@ class Builder
     {
         $select = func_get_args();
         foreach ($select as $fieldName) {
-            $this->select[] = $fieldName;
+            $this->query['select'][] = $fieldName;
         }
         return $this;
     }
@@ -399,7 +310,7 @@ class Builder
         if ($limit !== null) {
             $slice[] = $limit;
         }
-        $this->select[$fieldName][$this->cmd . 'slice'] = $slice;
+        $this->query['select'][$fieldName][$this->cmd . 'slice'] = $slice;
         return $this;
     }
 
@@ -412,8 +323,8 @@ class Builder
      */
     public function near($value)
     {
-        $this->type = self::TYPE_GEO_LOCATION;
-        $this->near[$this->currentField] = $value;
+        $this->query['type'] = Query::TYPE_GEO_LOCATION;
+        $this->query['near'][$this->currentField] = $value;
         return $this;
     }
 
@@ -648,7 +559,7 @@ class Builder
      */
     public function sort($fieldName, $order)
     {
-        $this->sort[$fieldName] = strtolower($order) === 'asc' ? 1 : -1;
+        $this->query['sort'][$fieldName] = strtolower($order) === 'asc' ? 1 : -1;
         return $this;
     }
 
@@ -660,7 +571,7 @@ class Builder
      */
     public function limit($limit)
     {
-        $this->limit = $limit;
+        $this->query['limit'] = $limit;
         return $this;
     }
 
@@ -672,7 +583,7 @@ class Builder
      */
     public function skip($skip)
     {
-        $this->skip = $skip;
+        $this->query['skip'] = $skip;
         return $this;
     }
 
@@ -686,8 +597,8 @@ class Builder
      */
     public function mapReduce($map, $reduce, array $options = array())
     {
-        $this->type = self::TYPE_MAP_REDUCE;
-        $this->mapReduce = array(
+        $this->query['type'] = Query::TYPE_MAP_REDUCE;
+        $this->query['mapReduce'] = array(
             'map' => $map,
             'reduce' => $reduce,
             'options' => $options
@@ -703,8 +614,8 @@ class Builder
      */
     public function map($map)
     {
-        $this->mapReduce['map'] = $map;
-        $this->type = self::TYPE_MAP_REDUCE;
+        $this->query['mapReduce']['map'] = $map;
+        $this->query['type'] = Query::TYPE_MAP_REDUCE;
         return $this;
     }
 
@@ -716,9 +627,9 @@ class Builder
      */
     public function reduce($reduce)
     {
-        $this->mapReduce['reduce'] = $reduce;
-        if (isset($this->mapReduce['map']) && isset($this->mapReduce['reduce'])) {
-            $this->type = self::TYPE_MAP_REDUCE;
+        $this->query['mapReduce']['reduce'] = $reduce;
+        if (isset($this->query['mapReduce']['map']) && isset($this->query['mapReduce']['reduce'])) {
+            $this->query['type'] = Query::TYPE_MAP_REDUCE;
         }
         return $this;
     }
@@ -731,7 +642,7 @@ class Builder
      */
     public function mapReduceOptions(array $options)
     {
-        $this->mapReduce['options'] = $options;
+        $this->query['mapReduce']['options'] = $options;
         return $this;
     }
 
@@ -744,7 +655,7 @@ class Builder
      */
     public function set($value, $atomic = true)
     {
-        if ($this->type == self::TYPE_INSERT) {
+        if ($this->query['type'] == Query::TYPE_INSERT) {
             $atomic = false;
         }
         $this->expr->set($value, $atomic);
@@ -972,84 +883,10 @@ class Builder
      */
     public function getQuery()
     {
-        switch ($this->type) {
-            case self::TYPE_GEO_LOCATION;
-                $query = new GeoLocationFindQuery($this->database, $this->collection, $this->cmd);
-                $query->setQuery($this->expr->getQuery());
-                $query->setNear($this->near);
-                $query->setLimit($this->limit);
-                return $query;
-            case self::TYPE_DISTINCT_FIELD;
-                $query = new DistinctFieldQuery($this->database, $this->collection, $this->cmd);
-                $query->setDistinctField($this->distinctField);
-                $query->setQuery($this->expr->getQuery());
-                return $query;
-            case self::TYPE_MAP_REDUCE;
-                $query = new MapReduceQuery($this->database, $this->collection, $this->cmd);
-                $query->setQuery($this->expr->getQuery());
-                $query->setMap(isset($this->mapReduce['map']) ? $this->mapReduce['map'] : null);
-                $query->setReduce(isset($this->mapReduce['reduce']) ? $this->mapReduce['reduce'] : null);
-                $query->setOptions(isset($this->mapReduce['options']) ? $this->mapReduce['options'] : array());
-                $query->setSelect($this->select);
-                $query->setQuery($this->expr->getQuery());
-                $query->setLimit($this->limit);
-                $query->setSkip($this->skip);
-                $query->setSort($this->sort);
-                $query->setImmortal($this->immortal);
-                $query->setSlaveOkay($this->slaveOkay);
-                $query->setSnapshot($this->snapshot);
-                $query->setHints($this->hints);
-                return $query;
-            case self::TYPE_FIND;
-                $query = new FindQuery($this->database, $this->collection, $this->cmd);
-                $query->setReduce(isset($this->mapReduce['reduce']) ? $this->mapReduce['reduce'] : null);
-                $query->setSelect($this->select);
-                $query->setQuery($this->expr->getQuery());
-                $query->setLimit($this->limit);
-                $query->setSkip($this->skip);
-                $query->setSort($this->sort);
-                $query->setImmortal($this->immortal);
-                $query->setSlaveOkay($this->slaveOkay);
-                $query->setSnapshot($this->snapshot);
-                $query->setHints($this->hints);
-                return $query;
-            case self::TYPE_FIND_AND_REMOVE;
-                $query = new FindAndRemoveQuery($this->database, $this->collection, $this->cmd);
-                $query->setSelect($this->select);
-                $query->setQuery($this->expr->getQuery());
-                $query->setSort($this->sort);
-                return $query;
-            case self::TYPE_FIND_AND_UPDATE;
-                $query = new FindAndUpdateQuery($this->database, $this->collection, $this->cmd);
-                $query->setSelect($this->select);
-                $query->setQuery($this->expr->getQuery());
-                $query->setNewObj($this->expr->getNewObj());
-                $query->setSort($this->sort);
-                $query->setUpsert($this->upsert);
-                $query->setNew($this->new);
-                $query->setLimit($this->limit);
-                return $query;
-            case self::TYPE_REMOVE;
-                $query = new RemoveQuery($this->database, $this->collection, $this->cmd);
-                $query->setQuery($this->expr->getQuery());
-                return $query;
-            case self::TYPE_UPDATE;
-                $query = new UpdateQuery($this->database, $this->collection, $this->cmd);
-                $query->setQuery($this->expr->getQuery());
-                $query->setNewObj($this->expr->getNewObj());
-                return $query;
-            case self::TYPE_INSERT;
-                $query = new InsertQuery($this->database, $this->collection, $this->cmd);
-                $query->setNewObj($this->expr->getNewObj());
-                return $query;
-            case self::TYPE_GROUP;
-                $query = new GroupQuery($this->database, $this->collection, $this->cmd);
-                $query->setKeys(isset($this->group['keys']) ? $this->group['keys'] : null);
-                $query->setInitial(isset($this->group['initial']) ? $this->group['initial'] : array());
-                $query->setReduce(isset($this->mapReduce['reduce']) ? $this->mapReduce['reduce'] : null);
-                $query->setQuery($this->expr->getQuery());
-                return $query;
-        }
+        $query = $this->query;
+        $query['query'] = $this->expr->getQuery();
+        $query['newObj'] = $this->expr->getNewObj();
+        return new Query($this->database, $this->collection, $query, $this->cmd);
     }
 
     /**
@@ -1060,9 +897,7 @@ class Builder
      */
     public function debug($name = null)
     {
-        $debug = get_object_vars($this);
-
-        unset($debug['database'], $debug['collection'], $debug['expr']);
+        $debug = $this->query;
         if ($name !== null) {
             return $debug[$name];
         }
