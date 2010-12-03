@@ -3,6 +3,7 @@
 namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\Collection;
+use Doctrine\MongoDB\LoggableCollection;
 use Doctrine\MongoDB\Database;
 use Doctrine\Common\EventManager;
 use MongoCollection;
@@ -372,6 +373,9 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
     private function getTestCollection(MongoCollection $mongoCollection, Database $db, $loggerCallable = null)
     {
-        return new Collection($mongoCollection, $db, new EventManager(), $loggerCallable, '$');
+        if (null === $loggerCallable) {
+            return new Collection($mongoCollection, $db, new EventManager(), '$');
+        }
+        return new LoggableCollection($mongoCollection, $db, new EventManager(), '$', $loggerCallable);
     }
 }
