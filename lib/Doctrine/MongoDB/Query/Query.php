@@ -20,6 +20,7 @@
 namespace Doctrine\MongoDB\Query;
 
 use Doctrine\MongoDB\IteratorAggregate;
+use Doctrine\MongoDB\Iterator;
 use Doctrine\MongoDB\Database;
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Cursor;
