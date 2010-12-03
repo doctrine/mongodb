@@ -128,7 +128,7 @@ class GridFS extends Collection
      *
      * @param string|GridFSFile $file String path to a file or a GridFSFile object.
      * @param object $document
-     * @param array $options 
+     * @param array $options
      * @return GridFSFile $file
      */
     public function storeFile($file, array &$document, array $options = array())
