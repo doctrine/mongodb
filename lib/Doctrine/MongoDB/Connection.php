@@ -68,7 +68,7 @@ class Connection
      * Create a new Mongo wrapper instance.
      *
      * @param mixed $server A string server name, an existing Mongo instance or can be omitted.
-     * @param array $options 
+     * @param array $options
      */
     public function __construct($server = null, array $options = array(), Configuration $config = null, EventManager $evm = null)
     {
@@ -235,8 +235,13 @@ class Connection
      */
     protected function wrapDatabase(\MongoDB $database)
     {
+        if (is_callable($this->config->getLoggerCallable())) {
+            return new LoggableDatabase(
+                $database, $this->eventManager, $this->cmd, $this->config->getLoggerCallable()
+            );
+        }
         return new Database(
-            $database, $this->eventManager, $this->config->getLoggerCallable(), $this->cmd
+            $database, $this->eventManager, $this->cmd
         );
     }
 
