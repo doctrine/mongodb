@@ -29,6 +29,7 @@ use Doctrine\Common\EventManager,
  * @link        www.doctrine-project.org
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
+ * @author      Bulat Shakirzyanov <mallluhuct@gmail.com>
  */
 class Collection
 {

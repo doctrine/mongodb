@@ -28,6 +28,7 @@ use Doctrine\Common\EventManager;
  * @link        www.doctrine-project.org
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
+ * @author      Bulat Shakirzyanov <mallluhuct@gmail.com>
  */
 class Database
 {
@@ -52,6 +53,8 @@ class Database
      * Create a new MongoDB instance which wraps a PHP MongoDB instance.
      *
      * @param MongoDB $mongoDB  The MongoDB instance to wrap.
+     * @param EventManager $evm  The EventManager instance.
+     * @param string $cmd  The MongoDB cmd character.
      */
     public function __construct(\MongoDB $mongoDB, EventManager $evm, $cmd)
     {
