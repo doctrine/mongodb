@@ -115,6 +115,19 @@ class GridFSFileTest extends BaseTest
         unlink($tmpPath);
     }
 
+    public function testStoreFile()
+    {
+        $db = $this->conn->selectDatabase('doctrine_mongodb');
+        $gridFS = $db->getGridFS();
+
+        $metadata = array(
+            'test' => 'file'
+        );
+        $file = $gridFS->storeFile(__DIR__.'/file.txt', $metadata);
+        $this->assertInstanceOf('Doctrine\MongoDB\GridFSFile', $file);
+        $this->assertTrue(isset($metadata['_id']));
+    }
+
     private function getMockPHPGridFSFile()
     {
         return $this->getMock('MongoGridFSFile', array(), array(), '', false, false);

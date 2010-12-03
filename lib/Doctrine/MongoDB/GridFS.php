@@ -123,14 +123,23 @@ class GridFS extends Collection
         }
     }
 
-    private function storeFile(GridFSFile $file, array &$document, array $options)
+    /**
+     * Store a file on the mongodb grid file system.
+     *
+     * @param string|GridFSFile $file String path to a file or a GridFSFile object.
+     * @param object $document
+     * @param array $options 
+     * @return GridFSFile $file
+     */
+    public function storeFile($file, array &$document, array $options = array())
     {
+        if (is_string($file)) {
+            $file = new GridFSFile($file);
+        }
         if ($file->hasUnpersistedFile()) {
-            $filename = $file->getFilename();
-            $id = $this->mongoCollection->storeFile($filename, $document, $options);
+            $id = $this->mongoCollection->storeFile($file->getFilename(), $document, $options);
         } else {
-            $bytes = $file->getBytes();
-            $id = $this->mongoCollection->storeBytes($bytes, $document, $options);
+            $id = $this->mongoCollection->storeBytes($file->getBytes(), $document, $options);
         }
         $document = array_merge(array('_id' => $id), $document);
         $file->setMongoGridFSFile(new \MongoGridFSFile($this->mongoCollection, $document));
