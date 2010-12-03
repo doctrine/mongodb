@@ -30,7 +30,7 @@ use Doctrine\Common\EventManager;
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  * @author      Bulat Shakirzyanov <mallluhuct@gmail.com>
  */
-class LoggableDatabase extends Database
+class LoggableDatabase extends Database implements Loggable
 {
     /**
      * A callable for logging statements.

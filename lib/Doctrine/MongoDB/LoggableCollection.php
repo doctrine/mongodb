@@ -32,7 +32,7 @@ use Doctrine\Common\EventManager,
  * @author      Bulat Shakirzyanov <mallluhuct@gmail.com>
  */
 
-class LoggableCollection extends Collection
+class LoggableCollection extends Collection implements Loggable
 {
     /**
      * A callable for logging statements.
