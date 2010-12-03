@@ -235,7 +235,7 @@ class Connection
      */
     protected function wrapDatabase(\MongoDB $database)
     {
-        if (is_callable($this->config->getLoggerCallable())) {
+        if (null !== $this->config->getLoggerCallable()) {
             return new LoggableDatabase(
                 $database, $this->eventManager, $this->cmd, $this->config->getLoggerCallable()
             );
