@@ -42,13 +42,6 @@ class Database
     protected $eventManager;
 
     /**
-     * A callable for logging statements.
-     *
-     * @var mixed
-     */
-    protected $loggerCallable;
-
-    /**
      * Mongo command prefix
      *
      * @var string
@@ -60,23 +53,11 @@ class Database
      *
      * @param MongoDB $mongoDB  The MongoDB instance to wrap.
      */
-    public function __construct(\MongoDB $mongoDB, EventManager $evm, $loggerCallable, $cmd)
+    public function __construct(\MongoDB $mongoDB, EventManager $evm, $cmd)
     {
         $this->mongoDB = $mongoDB;
         $this->eventManager = $evm;
-        $this->loggerCallable = $loggerCallable;
         $this->cmd = $cmd;
-    }
-
-    /**
-     * Log something using the configured logger callable.
-     *
-     * @param array $log The array of data to log.
-     */
-    public function log(array $log)
-    {
-        $log['db'] = $this->getName();
-        call_user_func_array($this->loggerCallable, array($log));
     }
 
     /**
@@ -102,27 +83,12 @@ class Database
     /** @proxy */
     public function authenticate($username, $password)
     {
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'authenticate' => true,
-                'username' => $username,
-                'password' => $password
-            ));
-        }
-
         return $this->mongoDB->authenticate($username, $password);
     }
 
     /** @proxy */
     public function command(array $data)
     {
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'command' => true,
-                'data' => $data
-            ));
-        }
-
         return $this->mongoDB->command($data);
     }
 
@@ -131,15 +97,6 @@ class Database
     {
         if ($this->eventManager->hasListeners(Events::preCreateCollection)) {
             $this->eventManager->dispatchEvent(Events::preCreateCollection, new CreateCollectionEventArgs($this, $name, $capped, $size, $max));
-        }
-
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'createCollection' => true,
-                'capped' => $capped,
-                'size' => $size,
-                'max' => $max
-            ));
         }
 
         $result = $this->mongoDB->createCollection($name, $capped, $size, $max);
@@ -154,14 +111,6 @@ class Database
     /** @proxy */
     public function createDBRef($collection, $a)
     {
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'createDBRef' => true,
-                'collection' => $collection,
-                'reference' => $a
-            ));
-        }
-
         return $this->mongoDB->createDBRef($collection, $a);
     }
 
@@ -170,12 +119,6 @@ class Database
     {
         if ($this->eventManager->hasListeners(Events::preDropDatabase)) {
             $this->eventManager->dispatchEvent(Events::preDropDatabase, new EventArgs($this));
-        }
-
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'drop' => true
-            ));
         }
 
         $result = $this->mongoDB->drop();
@@ -196,14 +139,6 @@ class Database
     /** @proxy */
     public function execute($code, array $args = array())
     {
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'execute' => true,
-                'code' => $code,
-                'args' => $args
-            ));
-        }
-
         return $this->mongoDB->execute($code, $args);
     }
 
@@ -222,13 +157,6 @@ class Database
     /** @proxy */
     public function getDBRef(array $ref)
     {
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'getDBRef' => true,
-                'reference' => $ref
-            ));
-        }
-
         return $this->mongoDB->getDBRef($ref);
     }
 
@@ -252,7 +180,7 @@ class Database
     protected function wrapGridFS(\MongoGridFS $gridFS)
     {
         return new GridFS(
-            $gridFS, $this, $this->eventManager, $this->loggerCallable, $this->cmd
+            $gridFS, $this, $this->eventManager, $this->cmd
         );
     }
 
@@ -318,7 +246,7 @@ class Database
     protected function wrapCollection(\MongoCollection $collection)
     {
         return new Collection(
-            $collection, $this, $this->eventManager, $this->loggerCallable, $this->cmd
+            $collection, $this, $this->eventManager, $this->cmd
         );
     }
 

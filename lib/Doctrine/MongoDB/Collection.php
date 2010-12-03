@@ -74,27 +74,14 @@ class Collection
      * @param MongoCollection $mongoCollection The MongoCollection instance.
      * @param Database $database The Database instance.
      * @param EventManager $evm The EventManager instance.
-     * @param mixed $loggerCallable The logger callable.
+     * @param string $cmd Mongo cmd character.
      */
-    public function __construct(\MongoCollection $mongoCollection, Database $database, EventManager $evm, $loggerCallable, $cmd)
+    public function __construct(\MongoCollection $mongoCollection, Database $database, EventManager $evm, $cmd)
     {
         $this->mongoCollection = $mongoCollection;
         $this->database = $database;
         $this->eventManager = $evm;
-        $this->loggerCallable = $loggerCallable;
         $this->cmd = $cmd;
-    }
-
-    /**
-     * Log something using the configured logger callable.
-     *
-     * @param array $log The array of data to log.
-     */
-    public function log(array $log)
-    {
-        $log['db'] = $this->database->getName();
-        $log['collection'] = $this->getName();
-        call_user_func_array($this->loggerCallable, array($log));
     }
 
     /** @proxy */
@@ -148,15 +135,6 @@ class Collection
 
         $this->doBatchInsert($a, $options);
 
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'batchInsert' => true,
-                'num' => count($a),
-                'data' => $a,
-                'options' => $options
-            ));
-        }
-
         if ($this->eventManager->hasListeners(Events::postBatchInsert)) {
             $this->eventManager->dispatchEvent(Events::postBatchInsert, new EventArgs($this, $result));
         }
@@ -174,15 +152,6 @@ class Collection
     {
         if ($this->eventManager->hasListeners(Events::preUpdate)) {
             $this->eventManager->dispatchEvent(Events::preUpdate, new CollectionUpdateEventArgs($this, $query, $newObj));
-        }
-
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'update' => true,
-                'query' => $query,
-                'newObj' => $newObj,
-                'options' => $options
-            ));
         }
 
         $result = $this->doUpdate($query, $newObj, $options);
@@ -209,14 +178,6 @@ class Collection
             $this->eventManager->dispatchEvent(Events::preFind, new EventArgs($this, $query));
         }
 
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'find' => true,
-                'query' => $query,
-                'fields' => $fields
-            ));
-        }
-
         $result = $this->doFind($query, $fields);
 
         if ($this->eventManager->hasListeners(Events::postFind)) {
@@ -237,14 +198,6 @@ class Collection
     {
         if ($this->eventManager->hasListeners(Events::preFindOne)) {
             $this->eventManager->dispatchEvent(Events::preFindOne, new EventArgs($this, $query));
-        }
-
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'findOne' => true,
-                'query' => $query,
-                'fields' => $fields
-            ));
         }
 
         $result = $this->doFindOne($query, $fields);
@@ -416,15 +369,6 @@ class Collection
     /** @proxy */
     public function count(array $query = array(), $limit = 0, $skip = 0)
     {
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'count' => true,
-                'query' => $query,
-                'limit' => $limit,
-                'skip' => $skip
-            ));
-        }
-
         return $this->mongoCollection->count($query, $limit, $skip);
     }
 
@@ -433,13 +377,6 @@ class Collection
     {
         if ($this->eventManager->hasListeners(Events::preCreateDBRef)) {
             $this->eventManager->dispatchEvent(Events::preCreateDBRef, new EventArgs($this, $a));
-        }
-
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'createDBRef' => true,
-                'reference' => $a
-            ));
         }
 
         $result = $this->doCreateDBRef($a);
@@ -459,34 +396,11 @@ class Collection
     /** @proxy */
     public function deleteIndex($keys)
     {
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'deleteIndex' => true,
-                'keys' => $keys
-            ));
-        }
-
-        return $this->doDeleteIndex($keys);
-    }
-
-    protected function doDeleteIndex($keys)
-    {
         return $this->mongoCollection->deleteIndex($keys);
     }
 
     /** @proxy */
     public function deleteIndexes()
-    {
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'deleteIndexes' => true
-            ));
-        }
-
-        return $this->doDeleteIndexes();
-    }
-
-    protected function doDeleteIndexes()
     {
         return $this->mongoCollection->deleteIndexes();
     }
@@ -496,12 +410,6 @@ class Collection
     {
         if ($this->eventManager->hasListeners(Events::preDropCollection)) {
             $this->eventManager->dispatchEvent(Events::preDropCollection, new EventArgs($this));
-        }
-
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'drop' => true
-            ));
         }
 
         $result = $this->doDrop();
@@ -521,19 +429,6 @@ class Collection
     /** @proxy */
     public function ensureIndex(array $keys, array $options)
     {
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'ensureIndex' => true,
-                'keys' => $keys,
-                'options' => $options
-            ));
-        }
-
-        return $this->doEnsureIndex($keys, $options);
-    }
-
-    protected function doEnsureIndex(array $keys, array $options)
-    {
         return $this->mongoCollection->ensureIndex($keys, $options);
     }
 
@@ -548,13 +443,6 @@ class Collection
     {
         if ($this->eventManager->hasListeners(Events::preGetDBRef)) {
             $this->eventManager->dispatchEvent(Events::preGetDBRef, new EventArgs($this, $reference));
-        }
-
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'getDBRef' => true,
-                'reference' => $reference
-            ));
         }
 
         $result = $this->doGetDBRef($reference);
@@ -576,16 +464,6 @@ class Collection
     {
         if ($this->eventManager->hasListeners(Events::preGroup)) {
             $this->eventManager->dispatchEvent(Events::preGroup, new CollectionGroupEventArgs($this, $keys, $initial, $reduce));
-        }
-
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'group' => true,
-                'keys' => $keys,
-                'initial' => $initial,
-                'reduce' => $reduce,
-                'options' => $options
-            ));
         }
 
         $result = $this->doGroup($keys, $initial, $reduce, $options);
@@ -612,14 +490,6 @@ class Collection
 
         $result = $this->doInsert($a, $options);
 
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'insert' => true,
-                'document' => $a,
-                'options' => $options
-            ));
-        }
-
         if ($this->eventManager->hasListeners(Events::postInsert)) {
             $this->eventManager->dispatchEvent(Events::postInsert, new EventArgs($this, $result));
         }
@@ -641,14 +511,6 @@ class Collection
     {
         if ($this->eventManager->hasListeners(Events::preRemove)) {
             $this->eventManager->dispatchEvent(Events::preRemove, new EventArgs($this, $query));
-        }
-
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'remove' => true,
-                'query' => $query,
-                'options' => $options
-            ));
         }
 
         $result = $this->doRemove($query, $options);
@@ -674,14 +536,6 @@ class Collection
 
         $result = $this->doSave($a, $options);
 
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'save' => true,
-                'document' => $a,
-                'options' => $options
-            ));
-        }
-
         if ($this->eventManager->hasListeners(Events::postSave)) {
             $this->eventManager->dispatchEvent(Events::postSave, new EventArgs($this, $result));
         }
@@ -697,13 +551,6 @@ class Collection
     /** @proxy */
     public function validate($scanData = false)
     {
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'validate' => true,
-                'scanData' => $scanData
-            ));
-        }
-
         return $this->mongoCollection->validate($scanData);
     }
 
