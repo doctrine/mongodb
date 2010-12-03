@@ -19,7 +19,7 @@
 
 namespace Doctrine\MongoDB\Query;
 
-use Doctrine\MongoDB\Iterator;
+use Doctrine\MongoDB\IteratorAggregate;
 use Doctrine\MongoDB\Database;
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Cursor;
@@ -31,8 +31,9 @@ use Doctrine\MongoDB\Cursor;
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
+ * @author      Bulat Shakirzyanov <mallluhuct@gmail.com>
  */
-class Query implements Iterator
+class Query implements IteratorAggregate
 {
     const TYPE_FIND            = 1;
     const TYPE_FIND_AND_UPDATE = 2;
@@ -78,12 +79,20 @@ class Query implements Iterator
      */
     protected $iterator;
 
-    public function __construct(Database $database, Collection $collection, array $query, $cmd)
+    /**
+     * Query options
+     *
+     * @var array
+     */
+    protected $options;
+
+    public function __construct(Database $database, Collection $collection, array $query, array $options, $cmd)
     {
-        $this->database = $database;
+        $this->database   = $database;
         $this->collection = $collection;
-        $this->query = $query;
-        $this->cmd = $cmd;
+        $this->query      = $query;
+        $this->cmd        = $cmd;
+        $this->options    = $options;
     }
 
     /**
@@ -111,10 +120,10 @@ class Query implements Iterator
         return $this->query['type'];
     }
 
-    public function getIterator(array $options = array())
+    public function getIterator()
     {
         if ($this->iterator === null) {
-            $iterator = $this->execute($options);
+            $iterator = $this->execute();
             if ($iterator !== null && !$iterator instanceof Iterator) {
                 throw new \BadMethodCallException('Query execution did not return an iterator. This query may not support returning iterators. ');
             }
@@ -123,40 +132,40 @@ class Query implements Iterator
         return $this->iterator;
     }
 
-    public function execute(array $options = array())
+    public function execute()
     {
         switch ($this->query['type']) {
             case self::TYPE_FIND:
                 if (isset($this->query['mapReduce']['reduce'])) {
                     $this->query['query'][$this->cmd . 'where'] = $this->query['mapReduce']['reduce'];
                 }
-                $cursor = $this->collection->find($this->query['query'], $this->query['select'], $options);
+                $cursor = $this->collection->find($this->query['query'], $this->query['select']);
                 $this->prepareCursor($cursor);
                 return $cursor;
 
             case self::TYPE_FIND_AND_UPDATE:
                 if ($this->query['sort']) {
-                    $options['sort'] = $this->query['sort'];
+                    $this->options['sort'] = $this->query['sort'];
                 }
                 if ($this->query['select']) {
-                    $options['fields'] = $this->query['select'];
+                    $this->options['fields'] = $this->query['select'];
                 }
                 if ($this->query['upsert']) {
-                    $options['upsert'] = true;
+                    $this->options['upsert'] = true;
                 }
                 if ($this->query['new']) {
-                    $options['new'] = true;
+                    $this->options['new'] = true;
                 }
-                return $this->collection->findAndUpdate($this->query['query'], $this->query['newObj'], $options);
+                return $this->collection->findAndUpdate($this->query['query'], $this->query['newObj'], $this->options);
 
             case self::TYPE_FIND_AND_REMOVE:
                 if ($this->query['sort']) {
-                    $options['sort'] = $this->query['sort'];
+                    $this->options['sort'] = $this->query['sort'];
                 }
                 if ($this->query['select']) {
-                    $options['fields'] = $this->query['select'];
+                    $this->options['fields'] = $this->query['select'];
                 }
-                return $this->collection->findAndRemove($this->query['query'], $options);
+                return $this->collection->findAndRemove($this->query['query'], $this->options);
 
             case self::TYPE_INSERT:
                 return $this->collection->insert($this->query['newObj']);
@@ -165,24 +174,24 @@ class Query implements Iterator
                 return $this->collection->update($this->query['query'], $this->query['newObj']);
 
             case self::TYPE_REMOVE:
-                return $this->collection->remove($this->query['query'], $options);
+                return $this->collection->remove($this->query['query'], $this->options);
 
             case self::TYPE_GROUP:
                 return $this->collection->group($this->query['group']['keys'], $this->query['group']['initial'], $this->query['mapReduce']['reduce'], $this->query['query']);
 
             case self::TYPE_MAP_REDUCE:
-                $cursor = $this->collection->mapReduce($this->query['mapReduce']['map'], $this->query['mapReduce']['reduce'], $this->query['query'], $options);
+                $cursor = $this->collection->mapReduce($this->query['mapReduce']['map'], $this->query['mapReduce']['reduce'], $this->query['query'], $this->options);
                 $this->prepareCursor($cursor);
                 return $cursor;
 
             case self::TYPE_DISTINCT_FIELD:
-                return $this->collection->distinct($this->query['distinctField'], $this->query['query'], $options);
+                return $this->collection->distinct($this->query['distinctField'], $this->query['query'], $this->options);
 
             case self::TYPE_GEO_LOCATION:
                 if (isset($this->query['limit']) && $this->query['limit']) {
-                    $options['num'] = $this->query['limit'];
+                    $this->options['num'] = $this->query['limit'];
                 }
-                return $this->collection->near($this->query['near'], $this->query['query'], $options);
+                return $this->collection->near($this->query['near'], $this->query['query'], $this->options);
         }
     }
 
@@ -242,36 +251,6 @@ class Query implements Iterator
     public function last()
     {
         return $this->getIterator()->last();
-    }
-
-    /** @inheritDoc */
-    public function key()
-    {
-        return $this->getIterator()->key();
-    }
-
-    /** @inheritDoc */
-    public function next()
-    {
-        return $this->getIterator()->next();
-    }
-
-    /** @inheritDoc */
-    public function current()
-    {
-        return $this->getIterator()->current();
-    }
-
-    /** @inheritDoc */
-    public function rewind()
-    {
-        return $this->getIterator()->rewind();
-    }
-
-    /** @inheritDoc */
-    public function valid()
-    {
-        return $this->getIterator()->valid();
     }
 
     /** @inheritDoc */

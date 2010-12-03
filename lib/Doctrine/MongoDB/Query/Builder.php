@@ -881,12 +881,12 @@ class Builder
      * @param array $options
      * @return QueryInterface $query
      */
-    public function getQuery()
+    public function getQuery(array $options = array())
     {
         $query = $this->query;
         $query['query'] = $this->expr->getQuery();
         $query['newObj'] = $this->expr->getNewObj();
-        return new Query($this->database, $this->collection, $query, $this->cmd);
+        return new Query($this->database, $this->collection, $query, $options, $this->cmd);
     }
 
     /**

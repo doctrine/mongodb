@@ -302,8 +302,8 @@ class BuilderTest extends BaseTest
     {
         $qb = $this->getTestQueryBuilder();
         $query = $qb->getQuery();
-        $this->assertInstanceOf('Iterator', $query);
-        $this->assertInstanceOf('Doctrine\MongoDB\Iterator', $query);
+        $this->assertInstanceOf('IteratorAggregate', $query);
+        $this->assertInstanceOf('Doctrine\MongoDB\IteratorAggregate', $query);
     }
 
     private function getTestQueryBuilder()
