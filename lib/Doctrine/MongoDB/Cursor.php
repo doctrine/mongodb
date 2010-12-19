@@ -33,60 +33,13 @@ class Cursor implements Iterator
     protected $mongoCursor;
 
     /**
-     * A callable for logging statements.
-     *
-     * @var mixed
-     */
-    protected $loggerCallable;
-
-    /**
-     * The query array that was used when creating this cursor.
-     *
-     * @var array
-     */
-    protected $query = array();
-
-    /**
-     * The array of fields that were selected when creating this cursor.
-     *
-     * @var array
-     */
-    protected $fields = array();
-
-    /**
      * Create a new MongoCursor which wraps around a given PHP MongoCursor.
      *
      * @param MongoCursor $mongoCursor The cursor being wrapped.
-     * @param mixed $loggerCallable Logger callable.
-     * @param array $query The query array that was used to create this cursor.
-     * @param array $query The fields selected on this cursor.
      */
-    public function __construct(\MongoCursor $mongoCursor, $loggerCallable, array $query, array $fields)
+    public function __construct(\MongoCursor $mongoCursor)
     {
         $this->mongoCursor = $mongoCursor;
-        $this->loggerCallable = $loggerCallable;
-        $this->query = $query;
-        $this->fields = $fields;
-    }
-
-    /**
-     * Gets the query array that was used when creating this cursor.
-     *
-     * @return array $query
-     */
-    public function getQuery()
-    {
-        return $this->query;
-    }
-
-    /**
-     * Gets the array of fields that were selected when creating this cursor.
-     *
-     * @return array $fields
-     */
-    public function getFields()
-    {
-        return $this->fields;
     }
 
     /**
@@ -97,18 +50,6 @@ class Cursor implements Iterator
     public function getMongoCursor()
     {
         return $this->mongoCursor;
-    }
-
-    /**
-     * Log something using the configured logger callable.
-     *
-     * @param array $log The array of data to log.
-     */
-    public function log(array $log)
-    {
-        $log['query'] = $this->query;
-        $log['fields'] = $this->fields;
-        call_user_func_array($this->loggerCallable, array($log));
     }
 
     /** @proxy */
@@ -255,13 +196,6 @@ class Cursor implements Iterator
     /** @proxy */
     public function sort($fields)
     {
-        if ($this->loggerCallable) {
-            $this->log(array(
-                'sort' => true,
-                'sortFields' => $fields
-            ));
-        }
-
         $this->mongoCursor->sort($fields);
         return $this;
     }

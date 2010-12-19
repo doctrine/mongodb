@@ -55,13 +55,6 @@ class Collection
     protected $eventManager;
 
     /**
-     * A callable for logging statements.
-     *
-     * @var mixed
-     */
-    protected $loggerCallable;
-
-    /**
      * Mongo command prefix
      *
      * @var string
@@ -191,7 +184,12 @@ class Collection
     protected function doFind(array $query, array $fields)
     {
         $cursor = $this->mongoCollection->find($query, $fields);
-        return new Cursor($cursor, $this->loggerCallable, $query, $fields);
+        return $this->wrapCursor($cursor, $query, $fields);
+    }
+
+    protected function wrapCursor(\MongoCursor $cursor, $query, $fields)
+    {
+        return new Cursor($cursor);
     }
 
     /** @override */

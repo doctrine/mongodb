@@ -261,4 +261,9 @@ class LoggableCollection extends Collection implements Loggable
         return parent::validate($scanData);
     }
 
+    /** @override */
+    protected function wrapCursor(\MongoCursor $cursor, $query, $fields)
+    {
+        return new LoggableCursor($cursor, $this->loggerCallable, $query, $fields);
+    }
 }
