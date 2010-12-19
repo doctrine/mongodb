@@ -70,6 +70,16 @@ class LoggableCursor extends Cursor implements Loggable
     }
 
     /**
+     * Gets the logger callable.
+     *
+     * @return mixed The logger callable
+     */
+    public function getLoggerCallable()
+    {
+        return $this->loggerCallable;
+    }
+
+    /**
      * Gets the query array that was used when creating this cursor.
      *
      * @return array $query
