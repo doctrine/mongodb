@@ -161,7 +161,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function batchSize($num)
     {
-        $htis->mongoCursor->batchSize($num);
+        $this->mongoCursor->batchSize($num);
         return $this;
     }
 
