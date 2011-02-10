@@ -19,7 +19,7 @@
 
 namespace Doctrine\MongoDB\Event;
 
-use Doctrine\Common\EventArgs;
+//use Doctrine\Common\EventArgs;
 
 /**
  * Near event args.
@@ -29,7 +29,7 @@ use Doctrine\Common\EventArgs;
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  */
-class NearEventArgs extends EventArgs
+class NearEventArgs extends \Doctrine\Common\EventArgs
 {
     private $invoker;
     private $query = array();
