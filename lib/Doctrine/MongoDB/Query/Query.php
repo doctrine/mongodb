@@ -172,7 +172,7 @@ class Query implements IteratorAggregate
                 return $this->collection->insert($this->query['newObj']);
 
             case self::TYPE_UPDATE:
-                return $this->collection->update($this->query['query'], $this->query['newObj']);
+                return $this->collection->update($this->query['query'], $this->query['newObj'], $this->options);
 
             case self::TYPE_REMOVE:
                 return $this->collection->remove($this->query['query'], $this->options);
