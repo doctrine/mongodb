@@ -103,6 +103,16 @@ class Connection
     }
 
     /**
+     * Returns currenct server string if one was set
+     *
+     * @return string|null
+     */
+    public function getServer()
+    {
+        return $this->server;
+    }
+
+    /**
      * Gets the status of the connection.
      *
      * @return string
