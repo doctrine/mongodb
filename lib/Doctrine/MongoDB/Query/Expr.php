@@ -237,7 +237,6 @@ class Expr
                 $e = explode('.', $this->currentField);
                 $current = &$this->newObj;
                 foreach ($e as $v) {
-                    $current[$v] = null;
                     $current = &$current[$v];
                 }
                 $current = $value;
