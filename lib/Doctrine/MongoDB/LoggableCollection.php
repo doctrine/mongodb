@@ -164,7 +164,7 @@ class LoggableCollection extends Collection implements Loggable
             'deleteIndexes' => true
         ));
 
-        return parent::doDeleteIndexes();
+        return parent::deleteIndexes();
     }
 
     /** @proxy */
