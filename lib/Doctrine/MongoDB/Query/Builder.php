@@ -291,7 +291,22 @@ class Builder
     {
         $select = func_get_args();
         foreach ($select as $fieldName) {
-            $this->query['select'][] = $fieldName;
+            $this->query['select'][$fieldName] = true;
+        }
+        return $this;
+    }
+
+    /**
+     * The fields not to select.
+     *
+     * @param string $fieldName
+     * @return Query
+     */
+    public function exclude($fieldName = null)
+    {
+        $select = func_get_args();
+        foreach ($select as $fieldName) {
+            $this->query['select'][$fieldName] = false;
         }
         return $this;
     }
