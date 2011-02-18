@@ -291,7 +291,7 @@ class Builder
     {
         $select = func_get_args();
         foreach ($select as $fieldName) {
-            $this->query['select'][$fieldName] = true;
+            $this->query['select'][$fieldName] = 1;
         }
         return $this;
     }
@@ -306,7 +306,7 @@ class Builder
     {
         $select = func_get_args();
         foreach ($select as $fieldName) {
-            $this->query['select'][$fieldName] = false;
+            $this->query['select'][$fieldName] = 0;
         }
         return $this;
     }
