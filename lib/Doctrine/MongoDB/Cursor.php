@@ -196,6 +196,13 @@ class Cursor implements Iterator
     /** @proxy */
     public function sort($fields)
     {
+        foreach ($fields as $fieldName => $order) {
+            if (is_string($order)) {
+                $order = strtolower($order) === 'asc' ? 1 : -1;
+            }
+            $order = (int) $order;
+            $fields[$fieldName] = $order;
+        }
         $this->mongoCursor->sort($fields);
         return $this;
     }

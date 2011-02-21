@@ -559,7 +559,11 @@ class Builder
      */
     public function sort($fieldName, $order)
     {
-        $this->query['sort'][$fieldName] = strtolower($order) === 'asc' ? 1 : -1;
+        if (is_string($order)) {
+            $order = strtolower($order) === 'asc' ? 1 : -1;
+        }
+        $order = (int) $order;
+        $this->query['sort'][$fieldName] = $order;
         return $this;
     }
 
