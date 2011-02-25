@@ -557,13 +557,19 @@ class Builder
      * @param string $order
      * @return Query
      */
-    public function sort($fieldName, $order)
+    public function sort($fieldName, $order = null)
     {
-        if (is_string($order)) {
-            $order = strtolower($order) === 'asc' ? 1 : -1;
+        if (is_array($fieldName)) {
+            foreach ($fieldName as $fieldName => $order) {
+                $this->sort($fieldName, $order);
+            }
+        } else {
+            if (is_string($order)) {
+                $order = strtolower($order) === 'asc' ? 1 : -1;
+            }
+            $order = (int) $order;
+            $this->query['sort'][$fieldName] = $order;
         }
-        $order = (int) $order;
-        $this->query['sort'][$fieldName] = $order;
         return $this;
     }
 
