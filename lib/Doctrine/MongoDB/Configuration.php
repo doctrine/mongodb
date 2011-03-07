@@ -34,7 +34,7 @@ class Configuration
      *
      * @var array $attributes
      */
-    private $attributes = array('mongoCmd' => '$');
+    protected $attributes = array('mongoCmd' => '$');
 
     /**
      * Set the logger callable.
