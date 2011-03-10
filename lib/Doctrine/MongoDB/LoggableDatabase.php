@@ -119,7 +119,7 @@ class LoggableDatabase extends Database implements Loggable
     public function drop()
     {
         $this->log(array(
-            'drop' => true
+            'dropDatabase' => true
         ));
 
         return parent::drop();
