@@ -426,7 +426,7 @@ class Collection
     }
 
     /** @proxy */
-    public function ensureIndex(array $keys, array $options)
+    public function ensureIndex(array $keys, array $options = array())
     {
         return $this->mongoCollection->ensureIndex($keys, $options);
     }
