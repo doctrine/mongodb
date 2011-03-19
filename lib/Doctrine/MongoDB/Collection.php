@@ -20,7 +20,7 @@
 namespace Doctrine\MongoDB;
 
 use Doctrine\Common\EventManager,
-    Doctrine\ODM\Event\EventArgs;
+    Doctrine\MongoDB\Event\EventArgs;
 
 /**
  * Wrapper for the PHP MongoCollection class.
@@ -127,7 +127,7 @@ class Collection
             $this->eventManager->dispatchEvent(Events::preBatchInsert, new EventArgs($this, $a));
         }
 
-        $this->doBatchInsert($a, $options);
+        $result = $this->doBatchInsert($a, $options);
 
         if ($this->eventManager->hasListeners(Events::postBatchInsert)) {
             $this->eventManager->dispatchEvent(Events::postBatchInsert, new EventArgs($this, $result));
