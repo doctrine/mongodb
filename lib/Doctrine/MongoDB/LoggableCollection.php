@@ -178,7 +178,7 @@ class LoggableCollection extends Collection implements Loggable
     }
 
     /** @proxy */
-    public function ensureIndex(array $keys, array $options)
+    public function ensureIndex(array $keys, array $options = array())
     {
         $this->log(array(
             'ensureIndex' => true,
