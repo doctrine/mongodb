@@ -103,7 +103,7 @@ class Connection
     }
 
     /**
-     * Returns currenct server string if one was set
+     * Returns current server string if one was set.
      *
      * @return string|null
      */
@@ -162,6 +162,21 @@ class Connection
         return $this->mongo;
     }
 
+    /**
+     * Gets the EventManager used by the Connection.
+     *
+     * @return Doctrine\Common\EventManager
+     */
+    public function getEventManager()
+    {
+        return $this->eventManager;
+    }
+
+    /**
+     * Gets the Configuration used by the Connection.
+     *
+     * @return Doctrine\MongoDB\Configuration
+     */
     public function getConfiguration()
     {
         return $this->config;
