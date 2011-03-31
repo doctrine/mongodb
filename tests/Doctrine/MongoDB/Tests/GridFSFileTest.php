@@ -53,7 +53,7 @@ class GridFSFileTest extends BaseTest
     {
         $file = $this->getTestGridFSFile();
         $file->setBytes('bytes');
-        $path = sys_get_temp_dir().'doctrine_write_test';
+        $path = realpath(sys_get_temp_dir()).'/doctrine_write_test';
         $file->write($path);
         $this->assertTrue(file_exists($path));
         $this->assertEquals('bytes', file_get_contents($path));
@@ -65,7 +65,7 @@ class GridFSFileTest extends BaseTest
         $origPath = __DIR__.'/GridFSFileTest.php';
         $file = $this->getTestGridFSFile();
         $file->setFilename($origPath);
-        $path = sys_get_temp_dir().'doctrine_write_test';
+        $path = realpath(sys_get_temp_dir()).'/doctrine_write_test';
         $file->write($path);
         $this->assertTrue(file_exists($path));
         $this->assertEquals(file_get_contents($origPath), file_get_contents($path));
@@ -108,7 +108,7 @@ class GridFSFileTest extends BaseTest
         $this->assertEquals(file_get_contents($path), $file->getBytes());
         $this->assertEquals(22, $file->getSize());
 
-        $tmpPath = sys_get_temp_dir().'doctrine_write_test';
+        $tmpPath = realpath(sys_get_temp_dir()).'/doctrine_write_test';
         $file->write($tmpPath);
         $this->assertTrue(file_exists($path));
         $this->assertEquals(file_get_contents($path), file_get_contents($tmpPath));
