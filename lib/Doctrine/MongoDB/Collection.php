@@ -331,13 +331,13 @@ class Collection
         return new ArrayIterator(isset($result['values']) ? $result['values'] : array());
     }
 
-    public function mapReduce($map, $reduce, array $query = array(), array $out = array('inline' => 1), array $options = array())
+    public function mapReduce($map, $reduce, array $out = array('inline' => true), array $query = array(), array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preMapReduce)) {
-            $this->eventManager->dispatchEvent(Events::preMapReduce, new MapReduceEventArgs($this, $map, $reduce, $query, $out));
+            $this->eventManager->dispatchEvent(Events::preMapReduce, new MapReduceEventArgs($this, $map, $reduce, $out, $query));
         }
 
-        $result = $this->doMapReduce($map, $reduce, $query, $out, $options);
+        $result = $this->doMapReduce($map, $reduce, $out, $query, $options);
 
         if ($this->eventManager->hasListeners(Events::postMapReduce)) {
             $this->eventManager->dispatchEvent(Events::postMapReduce, new EventArgs($this, $result));
@@ -346,7 +346,7 @@ class Collection
         return $result;
     }
 
-    protected function doMapReduce($map, $reduce, array $query, array $options)
+    protected function doMapReduce($map, $reduce, array $out, array $query, array $options)
     {
         if (is_string($map)) {
             $map = new \MongoCode($map);
@@ -359,6 +359,7 @@ class Collection
         $command['map'] = $map;
         $command['reduce'] = $reduce;
         $command['query'] = $query;
+        $command['out'] = $out;
         $command = array_merge($command, $options);
 
         $result = $this->database->command($command);
