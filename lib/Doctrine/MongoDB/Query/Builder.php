@@ -646,6 +646,20 @@ class Builder
     }
 
     /**
+     * Specify output type for mar/reduce operation.
+     *
+     * @param array $out
+     * @return Query
+     */
+    public function out(array $out)
+    {
+        $this->query['mapReduce']['out'] = $out;
+        $this->query['type'] = Query::TYPE_MAP_REDUCE;
+
+        return $this;
+    }
+
+    /**
      * Specify the map reduce array of options for this query.
      *
      * @param array $options

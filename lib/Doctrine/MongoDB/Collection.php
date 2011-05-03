@@ -358,7 +358,7 @@ class Collection
         $command['mapreduce'] = $this->mongoCollection->getName();
         $command['map'] = $map;
         $command['reduce'] = $reduce;
-        $command['query'] = $query;
+        $command['query'] = (object) $query;
         $command['out'] = $out;
         $command = array_merge($command, $options);
 
