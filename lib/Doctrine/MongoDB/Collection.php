@@ -20,7 +20,12 @@
 namespace Doctrine\MongoDB;
 
 use Doctrine\Common\EventManager,
-    Doctrine\MongoDB\Event\EventArgs;
+    Doctrine\MongoDB\Event\EventArgs,
+    Doctrine\MongoDB\Event\DistinctEventArgs,
+    Doctrine\MongoDB\Event\GroupEventArgs,
+    Doctrine\MongoDB\Event\NearEventArgs,
+    Doctrine\MongoDB\Event\MapReduceEventArgs,
+    Doctrine\MongoDB\Event\UpdateEventArgs;
 
 /**
  * Wrapper for the PHP MongoCollection class.
@@ -145,7 +150,7 @@ class Collection
     public function update($query, array $newObj, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preUpdate)) {
-            $this->eventManager->dispatchEvent(Events::preUpdate, new CollectionUpdateEventArgs($this, $query, $newObj));
+            $this->eventManager->dispatchEvent(Events::preUpdate, new UpdateEventArgs($this, $query, $newObj));
         }
 
         $result = $this->doUpdate($query, $newObj, $options);
@@ -251,7 +256,7 @@ class Collection
     public function findAndUpdate(array $query, array $newObj, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preFindAndUpdate)) {
-            $this->eventManager->dispatchEvent(Events::preFindAndUpdate, new CollectionUpdateEventArgs($this, $query, $query));
+            $this->eventManager->dispatchEvent(Events::preFindAndUpdate, new UpdateEventArgs($this, $query, $query));
         }
 
         $document = $this->doFindAndUpdate($query, $newObj, $options);
@@ -277,7 +282,7 @@ class Collection
     public function near(array $near, array $query = array(), array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preNear)) {
-            $this->eventManager->dispatchEvent(Events::preNear, new CollectionNearEventArgs($this, $near, $query));
+            $this->eventManager->dispatchEvent(Events::preNear, new NearEventArgs($this, $near, $query));
         }
 
         $result = $this->doNear($near, $query, $options);
@@ -303,7 +308,7 @@ class Collection
     public function distinct($field, array $query = array(), array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preDistinct)) {
-            $this->eventManager->dispatchEvent(Events::preDistinct, new CollectionDistinctEventArgs($this, $field, $query));
+            $this->eventManager->dispatchEvent(Events::preDistinct, new DistinctEventArgs($this, $field, $query));
         }
 
         $result = $this->doDistinct($field, $query, $options);
@@ -326,16 +331,16 @@ class Collection
         return new ArrayIterator(isset($result['values']) ? $result['values'] : array());
     }
 
-    public function mapReduce($map, $reduce, array $query = array(), array $options = array())
+    public function mapReduce($map, $reduce, array $query = array(), array $out = array('inline' => 1), array $options = array())
     {
-        if ($this->eventManager->hasListeners(Events::preDistinct)) {
-            $this->eventManager->dispatchEvent(Events::preDistinct, new CollectionMapReduceEventArgs($this, $map, $reduce, $query));
+        if ($this->eventManager->hasListeners(Events::preMapReduce)) {
+            $this->eventManager->dispatchEvent(Events::preMapReduce, new MapReduceEventArgs($this, $map, $reduce, $query, $out));
         }
 
-        $result = $this->doMapReduce($map, $reduce, $query, $options);
+        $result = $this->doMapReduce($map, $reduce, $query, $out, $options);
 
-        if ($this->eventManager->hasListeners(Events::postDistinct)) {
-            $this->eventManager->dispatchEvent(Events::postDistinct, new EventArgs($this, $result));
+        if ($this->eventManager->hasListeners(Events::postMapReduce)) {
+            $this->eventManager->dispatchEvent(Events::postMapReduce, new EventArgs($this, $result));
         }
 
         return $result;
@@ -462,7 +467,7 @@ class Collection
     public function group($keys, array $initial, $reduce, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preGroup)) {
-            $this->eventManager->dispatchEvent(Events::preGroup, new CollectionGroupEventArgs($this, $keys, $initial, $reduce));
+            $this->eventManager->dispatchEvent(Events::preGroup, new GroupEventArgs($this, $keys, $initial, $reduce));
         }
 
         $result = $this->doGroup($keys, $initial, $reduce, $options);

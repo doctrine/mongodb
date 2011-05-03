@@ -74,6 +74,9 @@ final class Events
     const preDistinct = 'collectionPreDistinct';
     const postDistinct = 'collectionPostDistinct';
 
+    const preMapReduce = 'preMapReduce';
+    const postMapReduce = 'postMapReduce';
+
     const preNear = 'collectionPreNear';
     const postNear = 'collectionPostNear';
 
