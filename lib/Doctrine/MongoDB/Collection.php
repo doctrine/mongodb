@@ -368,6 +368,10 @@ class Collection
             throw new \RuntimeException($result['errmsg']);
         }
 
+        if (isset($out['inline'])) {
+            return new ArrayIterator($result['results']);
+        }
+
         return $this->database->selectCollection($result['result'])->find();
     }
 

@@ -185,7 +185,11 @@ class Query implements IteratorAggregate
                     $this->query['mapReduce']['out'] = array('inline' => true);
                 }
                 $cursor = $this->collection->mapReduce($this->query['mapReduce']['map'], $this->query['mapReduce']['reduce'], $this->query['mapReduce']['out'], $this->query['query'], $this->options);
-                $this->prepareCursor($cursor);
+
+                if ($cursor instanceof Cursor) {
+                    $this->prepareCursor($cursor);
+                }
+
                 return $cursor;
 
             case self::TYPE_DISTINCT_FIELD:
