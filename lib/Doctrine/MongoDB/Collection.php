@@ -364,11 +364,11 @@ class Collection
 
         $result = $this->database->command($command);
 
-        if ( ! $result['ok']) {
+        if (!$result['ok']) {
             throw new \RuntimeException($result['errmsg']);
         }
 
-        if (isset($out['inline'])) {
+        if (isset($out['inline']) && $out['inline'] === true) {
             return new ArrayIterator($result['results']);
         }
 
