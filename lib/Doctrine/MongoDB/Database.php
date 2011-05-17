@@ -19,7 +19,8 @@
 
 namespace Doctrine\MongoDB;
 
-use Doctrine\Common\EventManager;
+use Doctrine\Common\EventManager,
+    Doctrine\MongoDB\Event\EventArgs;
 
 /**
  * Wrapper for the PHP MongoDB class.
