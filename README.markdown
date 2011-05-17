@@ -89,7 +89,7 @@ available events are:
 You can connect to these events using the EventManager:
 
     use Doctrine\MongoDB\Events;
-    use Doctrine\MongoDB\Events\EventArgs;
+    use Doctrine\MongoDB\Event\EventArgs;
 
     $connectionEvents = new ConnectionEvents();
     $evm->addEventListener(Events::preConnect, $connectionEvents);
