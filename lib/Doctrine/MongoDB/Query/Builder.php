@@ -620,7 +620,7 @@ class Builder
      * @param array $options
      * @return Query
      */
-    public function mapReduce($map, $reduce, array $out = array('inline' => 1), array $options = array())
+    public function mapReduce($map, $reduce, array $out = array('inline' => true), array $options = array())
     {
         $this->query['type'] = Query::TYPE_MAP_REDUCE;
         $this->query['mapReduce'] = array(
