@@ -331,6 +331,15 @@ class Expr
         return $this;
     }
 
+    public function addAnd($expression)
+    {
+        if ($expression instanceof Expr) {
+            $expression = $expression->getQuery();
+        }
+        $this->query[$this->cmd . 'and'][] = $expression;
+        return $this;
+    }
+
     public function elemMatch($expression)
     {
         if ($expression instanceof Expr) {
