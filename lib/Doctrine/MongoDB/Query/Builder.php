@@ -566,8 +566,8 @@ class Builder
     /**
      * Set sort and erase all old sorts.
      *
-     * @param $fieldName
-     * @param null $order
+     * @param string $fieldName
+     * @param string $order
      * @return Builder
      */
     public function sort($fieldName, $order = null)
@@ -613,8 +613,8 @@ class Builder
     /**
      * Specify a map reduce operation for this query.
      *
-     * @param $map
-     * @param $reduce
+     * @param string $map
+     * @param string $reduce
      * @param array $out
      * @param array $options
      * @return Builder
