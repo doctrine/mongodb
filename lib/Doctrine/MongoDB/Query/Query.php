@@ -46,6 +46,7 @@ class Query implements IteratorAggregate
     const TYPE_MAP_REDUCE      = 8;
     const TYPE_DISTINCT_FIELD  = 9;
     const TYPE_GEO_LOCATION    = 10;
+    const TYPE_COUNT           = 11;
 
     /**
      * The Database instance.
@@ -203,6 +204,9 @@ class Query implements IteratorAggregate
                     $this->options['num'] = $this->query['limit'];
                 }
                 return $this->collection->near($this->query['near'], $this->query['query'], $this->options);
+                
+            case self::TYPE_COUNT:
+                return $this->collection->count($this->query['query']);
         }
     }
 

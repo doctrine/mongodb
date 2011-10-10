@@ -180,6 +180,12 @@ class Builder
         $this->query['type'] = Query::TYPE_FIND;
         return $this;
     }
+    
+    public function count()
+    {
+    	$this->query['type'] = Query::TYPE_COUNT;
+    	return $this;
+    }
 
     /**
      * Sets a flag for the query to be executed as a findAndUpdate query query.
