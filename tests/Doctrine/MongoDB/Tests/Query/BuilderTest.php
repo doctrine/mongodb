@@ -171,6 +171,24 @@ class BuilderTest extends BaseTest
         )), $qb->getQueryArray());
     }
 
+    public function testThatAndAcceptsAnotherQuery()
+    {
+        $coll = $this->conn->selectCollection('db', 'users');
+
+        $qb = $coll->createQueryBuilder();
+        $qb->addAnd($qb->expr()->field('hits')->gte(1));
+        $qb->addAnd($qb->expr()->field('hits')->lt(5));
+
+        $this->assertEquals(array('$and' => array(
+            'hits' => array(
+                '$gte' => array(1)
+            ),
+            'hits' => array(
+                '$lt' => array(5)
+            )
+        )), $qb->getQueryArray());
+    }
+
     public function testAddElemMatch()
     {
         $qb = $this->getTestQueryBuilder();
