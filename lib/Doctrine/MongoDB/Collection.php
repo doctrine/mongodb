@@ -143,6 +143,10 @@ class Collection
 
     protected function doBatchInsert(array &$a, array $options = array())
     {
+        if (version_compare(\Mongo::VERSION, '1.0.5', '<')){
+            return $this->mongoCollection->batchInsert($a);
+        }
+
         return $this->mongoCollection->batchInsert($a, $options);
     }
 
