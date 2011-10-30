@@ -183,8 +183,8 @@ class Builder
     
     public function count()
     {
-    	$this->query['type'] = Query::TYPE_COUNT;
-    	return $this;
+        $this->query['type'] = Query::TYPE_COUNT;
+        return $this;
     }
 
     /**
