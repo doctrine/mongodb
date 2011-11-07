@@ -130,7 +130,7 @@ class Connection
      */
     public function isConnected()
     {
-        return $this->mongo instanceof \Mongo && $this->mongo->connected;
+        return $this->mongo !== null && $this->mongo instanceof \Mongo && $this->mongo->connected;
     }
 
     /**
