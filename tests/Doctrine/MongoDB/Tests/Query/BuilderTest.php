@@ -179,14 +179,12 @@ class BuilderTest extends BaseTest
         $qb->addAnd($qb->expr()->field('hits')->gte(1));
         $qb->addAnd($qb->expr()->field('hits')->lt(5));
 
-        $this->assertEquals(array('$and' => array(
-            'hits' => array(
-                '$gte' => array(1)
+        $this->assertEquals(array(
+            '$and' => array(
+                array('hits' => array('$gte' => 1)),
+                array('hits' => array('$lt' => 5)),
             ),
-            'hits' => array(
-                '$lt' => array(5)
-            )
-        )), $qb->getQueryArray());
+        ), $qb->getQueryArray());
     }
 
     public function testAddElemMatch()
