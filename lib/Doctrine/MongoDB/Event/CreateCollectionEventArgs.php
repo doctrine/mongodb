@@ -19,7 +19,7 @@
 
 namespace Doctrine\MongoDB\Event;
 
-use Doctrine\Common\EventArgs;
+use Doctrine\Common\EventArgs as BaseEventArgs;
 
 /**
  * Create collection event args.
@@ -29,7 +29,7 @@ use Doctrine\Common\EventArgs;
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  */
-class CreateCollectionEventArgs extends EventArgs
+class CreateCollectionEventArgs extends BaseEventArgs
 {
     private $invoker;
     private $name;

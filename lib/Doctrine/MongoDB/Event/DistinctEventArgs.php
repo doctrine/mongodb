@@ -19,7 +19,7 @@
 
 namespace Doctrine\MongoDB\Event;
 
-use Doctrine\Common\EventArgs;
+use Doctrine\Common\EventArgs as BaseEventArgs;
 
 /**
  * Distinct event args.
@@ -29,7 +29,7 @@ use Doctrine\Common\EventArgs;
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  */
-class DistinctEventArgs extends EventArgs
+class DistinctEventArgs extends BaseEventArgs
 {
     private $invoker;
     private $field;
