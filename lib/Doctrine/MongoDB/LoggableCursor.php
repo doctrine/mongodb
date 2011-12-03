@@ -121,4 +121,47 @@ class LoggableCursor extends Cursor implements Loggable
 
         return parent::sort($fields);
     }
+
+    /** @proxy */
+    public function skip($num)
+    {
+        $this->log(array(
+            'skip' => true,
+            'skipNum' => $num,
+        ));
+
+        return parent::skip($num);
+    }
+
+    /** @proxy */
+    public function limit($num)
+    {
+        $this->log(array(
+            'limit' => true,
+            'limitNum' => $num,
+        ));
+
+        return parent::limit($num);
+    }
+
+    /** @proxy */
+    public function hint(array $keyPattern)
+    {
+        $this->log(array(
+            'hint' => true,
+            'keyPattern' => $keyPattern,
+        ));
+
+        return parent::hint($keyPattern);
+    }
+
+    /** @proxy */
+    public function snapshot()
+    {
+        $this->log(array(
+            'snapshot' => true,
+        ));
+
+        return parent::snapshot();
+    }
 }
