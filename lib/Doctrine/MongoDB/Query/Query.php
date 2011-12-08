@@ -188,7 +188,9 @@ class Query implements IteratorAggregate
                 if (!isset($this->query['mapReduce']['out'])) {
                     $this->query['mapReduce']['out'] = array('inline' => true);
                 }
-                $cursor = $this->collection->mapReduce($this->query['mapReduce']['map'], $this->query['mapReduce']['reduce'], $this->query['mapReduce']['out'], $this->query['query'], $this->options);
+
+                $options = array_merge($this->options, $this->query['mapReduce']['options']);
+                $cursor = $this->collection->mapReduce($this->query['mapReduce']['map'], $this->query['mapReduce']['reduce'], $this->query['mapReduce']['out'], $this->query['query'], $options);
 
                 if ($cursor instanceof Cursor) {
                     $this->prepareCursor($cursor);
