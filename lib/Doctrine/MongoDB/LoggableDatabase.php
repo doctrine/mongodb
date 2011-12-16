@@ -19,7 +19,8 @@
 
 namespace Doctrine\MongoDB;
 
-use Doctrine\Common\EventManager;
+use Doctrine\Common\EventManager,
+    Doctrine\MongoDB\Logging\MethodLogger;
 
 /**
  * Wrapper for the PHP MongoDB class.
@@ -33,11 +34,11 @@ use Doctrine\Common\EventManager;
 class LoggableDatabase extends Database
 {
     /**
-     * A callable for logging statements.
+     * A logger.
      *
-     * @var mixed
+     * @var MethodLogger
      */
-    protected $loggerCallable;
+    protected $logger;
 
     /**
      * Create a new MongoDB instance which wraps a PHP MongoDB instance.
@@ -45,107 +46,108 @@ class LoggableDatabase extends Database
      * @param MongoDB $mongoDB  The MongoDB instance to wrap.
      * @param EventManager $evm  The EventManager instance.
      * @param string $cmd  The MongoDB cmd character.
-     * @param Closure $loggerCallable  Logger callback function.
+     * @param MethodLogger $logger A logger
      */
-    public function __construct(\MongoDB $mongoDB, EventManager $evm, $cmd, $loggerCallable)
+    public function __construct(\MongoDB $mongoDB, EventManager $evm, $cmd, MethodLogger $logger)
     {
-        if ( ! is_callable($loggerCallable)) {
-            throw new \InvalidArgumentException('$loggerCallable must be a valid callback');
-        }
         parent::__construct($mongoDB, $evm, $cmd);
-        $this->loggerCallable = $loggerCallable;
-    }
 
-    /**
-     * Log something using the configured logger callable.
-     *
-     * @param array $log The array of data to log.
-     */
-    public function log(array $log)
-    {
-        $log['db'] = $this->getName();
-        call_user_func_array($this->loggerCallable, array($log));
+        $this->logger = $logger;
     }
 
     /** @proxy */
     public function authenticate($username, $password)
     {
-        $this->log(array(
-            'authenticate' => true,
-            'username' => $username,
-            'password' => $password
-        ));
+        $this->logger->startMethod(MethodLogger::CONTEXT_DATABASE, __FUNCTION__, array('username' => $username), $this->getName());
 
-        return parent::authenticate($username, $password);
+        $retval = parent::authenticate($username, $password);
+
+        $this->logger->stopMethod();
+
+        return $retval;
     }
 
     /** @proxy */
     public function command(array $data)
     {
-        $this->log(array(
-            'command' => true,
-            'data' => $data
-        ));
+        $this->logger->startMethod(MethodLogger::CONTEXT_DATABASE, __FUNCTION__, array('data' => $data), $this->getName());
 
-        return parent::command($data);
+        $retval = parent::command($data);
+
+        $this->logger->stopMethod();
+
+        return $retval;
     }
 
     /** @proxy */
     public function createCollection($name, $capped = false, $size = 0, $max = 0)
     {
-        $this->log(array(
-            'createCollection' => true,
+        $this->logger->startMethod(MethodLogger::CONTEXT_DATABASE, __FUNCTION__, array(
+            'name' => $name,
             'capped' => $capped,
             'size' => $size,
-            'max' => $max
-        ));
+            'max' => $max,
+        ), $this->getName());
 
-        return parent::createCollection($name, $capped, $size, $max);
+        $retval = parent::createCollection($name, $capped, $size, $max);
+
+        $this->logger->stopMethod();
+
+        return $retval;
     }
 
     /** @proxy */
     public function createDBRef($collection, $a)
     {
-        $this->log(array(
-            'createDBRef' => true,
+        $this->logger->startMethod(MethodLogger::CONTEXT_DATABASE, __FUNCTION__, array(
             'collection' => $collection,
-            'reference' => $a
-        ));
+            'data' => $a,
+        ), $this->getName());
 
-        return parent::createDBRef($collection, $a);
+        $retval = parent::createDBRef($collection, $a);
+
+        $this->logger->stopMethod();
+
+        return $retval;
     }
 
     /** @proxy */
     public function drop()
     {
-        $this->log(array(
-            'dropDatabase' => true
-        ));
+        $this->logger->startMethod(MethodLogger::CONTEXT_DATABASE, __FUNCTION__, array(), $this->getName());
 
-        return parent::drop();
+        $retval = parent::drop();
+
+        $this->logger->stopMethod();
+
+        return $return;
     }
 
     /** @proxy */
     public function execute($code, array $args = array())
     {
-        $this->log(array(
-            'execute' => true,
+        $this->logger->startMethod(MethodLogger::CONTEXT_DATABASE, __FUNCTION__, array(
             'code' => $code,
-            'args' => $args
-        ));
+            'args' => $args,
+        ), $this->getName());
 
-        return parent::execute($code, $args);
+        $retval = parent::execute($code, $args);
+
+        $this->logger->stopMethod();
+
+        return $retval;
     }
 
     /** @proxy */
     public function getDBRef(array $ref)
     {
-        $this->log(array(
-            'getDBRef' => true,
-            'reference' => $ref
-        ));
+        $this->logger->startMethod(MethodLogger::CONTEXT_DATABASE, __FUNCTION__, array('ref' => $ref), $this->getName());
 
-        return parent::getDBRef($ref);
+        $retval = parent::getDBRef($ref);
+
+        $this->logger->stopMethod();
+
+        return $retval;
     }
 
     /**
@@ -157,7 +159,7 @@ class LoggableDatabase extends Database
     protected function wrapCollection(\MongoCollection $collection)
     {
         return new LoggableCollection(
-            $collection, $this, $this->eventManager, $this->cmd, $this->loggerCallable
+            $collection, $this, $this->eventManager, $this->cmd, $this->logger
         );
     }
 

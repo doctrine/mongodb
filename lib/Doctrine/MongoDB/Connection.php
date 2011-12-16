@@ -134,16 +134,6 @@ class Connection
     }
 
     /**
-     * Log something using the configured logger callable.
-     *
-     * @param array $log The array of data to log.
-     */
-    public function log(array $log)
-    {
-        call_user_func_array($this->config->getLoggerCallable(), array($log));
-    }
-
-    /**
      * Set the PHP Mongo instance to wrap.
      *
      * @param Mongo $mongo The PHP Mongo instance
@@ -261,14 +251,11 @@ class Connection
      */
     protected function wrapDatabase(\MongoDB $database)
     {
-        if (null !== $this->config->getLoggerCallable()) {
-            return new LoggableDatabase(
-                $database, $this->eventManager, $this->cmd, $this->config->getLoggerCallable()
-            );
-        }
-        return new Database(
-            $database, $this->eventManager, $this->cmd
-        );
+        $logger = $this->config->getLogger();
+
+        return $logger
+            ? new LoggableDatabase($database, $this->eventManager, $this->cmd, $logger)
+            : new Database($database, $this->eventManager, $this->cmd);
     }
 
     /** @proxy */

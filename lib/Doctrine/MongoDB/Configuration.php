@@ -19,6 +19,8 @@
 
 namespace Doctrine\MongoDB;
 
+use Doctrine\MongoDB\Logging\MethodLogger;
+
 /**
  * Configuration
  *
@@ -37,24 +39,23 @@ class Configuration
     protected $attributes = array('mongoCmd' => '$');
 
     /**
-     * Set the logger callable.
+     * Set the logger.
      *
-     * @param mixed $loggerCallable The logger callable.
+     * @param MethodLogger $logger The logger.
      */
-    public function setLoggerCallable($loggerCallable)
+    public function setLogger(MethodLogger $logger)
     {
-        $this->attributes['loggerCallable'] = $loggerCallable;
+        $this->attributes['logger'] = $logger;
     }
 
     /**
-     * Gets the logger callable.
+     * Gets the logger.
      *
-     * @return mixed $loggerCallable The logger callable.
+     * @return MethodLogger $logger The logger.
      */
-    public function getLoggerCallable()
+    public function getLogger()
     {
-        return isset($this->attributes['loggerCallable']) ?
-                $this->attributes['loggerCallable'] : null;
+        return isset($this->attributes['logger']) ? $this->attributes['logger'] : null;
     }
 
     /**
