@@ -27,7 +27,7 @@ namespace Doctrine\MongoDB;
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  */
-class LoggableCursor extends Cursor implements Loggable
+class LoggableCursor extends Cursor
 {
     /**
      * A callable for logging statements.
