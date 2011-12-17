@@ -45,14 +45,15 @@ class LoggableDatabase extends Database implements Loggable
      * @param MongoDB $mongoDB  The MongoDB instance to wrap.
      * @param EventManager $evm  The EventManager instance.
      * @param string $cmd  The MongoDB cmd character.
+     * @param mixed $numRetries Number of times to retry queries.
      * @param Closure $loggerCallable  Logger callback function.
      */
-    public function __construct(\MongoDB $mongoDB, EventManager $evm, $cmd, $loggerCallable)
+    public function __construct(\MongoDB $mongoDB, EventManager $evm, $cmd, $numRetries, $loggerCallable)
     {
         if ( ! is_callable($loggerCallable)) {
             throw new \InvalidArgumentException('$loggerCallable must be a valid callback');
         }
-        parent::__construct($mongoDB, $evm, $cmd);
+        parent::__construct($mongoDB, $evm, $cmd, $numRetries);
         $this->loggerCallable = $loggerCallable;
     }
 

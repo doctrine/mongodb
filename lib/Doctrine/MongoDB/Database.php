@@ -51,17 +51,26 @@ class Database
     protected $cmd;
 
     /**
+     * Number of times to retry queries.
+     *
+     * @var mixed
+     */
+    protected $numRetries;
+
+    /**
      * Create a new MongoDB instance which wraps a PHP MongoDB instance.
      *
      * @param MongoDB $mongoDB  The MongoDB instance to wrap.
      * @param EventManager $evm  The EventManager instance.
      * @param string $cmd  The MongoDB cmd character.
+     * @param mixed $numRetries Number of times to retry queries.
      */
-    public function __construct(\MongoDB $mongoDB, EventManager $evm, $cmd)
+    public function __construct(\MongoDB $mongoDB, EventManager $evm, $cmd, $numRetries)
     {
         $this->mongoDB = $mongoDB;
         $this->eventManager = $evm;
         $this->cmd = $cmd;
+        $this->numRetries = $numRetries;
     }
 
     /**
@@ -250,7 +259,7 @@ class Database
     protected function wrapCollection(\MongoCollection $collection)
     {
         return new Collection(
-            $collection, $this, $this->eventManager, $this->cmd
+            $collection, $this, $this->eventManager, $this->cmd, $this->numRetries
         );
     }
 

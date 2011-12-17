@@ -91,10 +91,21 @@ class Connection
                 $this->eventManager->dispatchEvent(Events::preConnect, new EventArgs($this));
             }
 
-            if ($this->server) {
-                $this->mongo = new \Mongo($this->server, $this->options);
+            $numRetries = $this->config->getRetryConnect();
+            if ($numRetries !== null && $numRetries !== false) {
+                for ($i = 1; $i <= $numRetries; $i++) {
+                    try {
+                        $this->initializeMongo();
+                        break;
+                    } catch (\MongoConnectionException $e) {
+                        if ($i === $numRetries) {
+                            throw $e;
+                        }
+                        sleep(1);
+                    }
+                }
             } else {
-                $this->mongo = new \Mongo();
+                $this->initializeMongo();
             }
 
             if ($this->eventManager->hasListeners(Events::postConnect)) {
@@ -261,14 +272,27 @@ class Connection
      */
     protected function wrapDatabase(\MongoDB $database)
     {
+        $numRetries = $this->config->getRetryQuery();
         if (null !== $this->config->getLoggerCallable()) {
             return new LoggableDatabase(
-                $database, $this->eventManager, $this->cmd, $this->config->getLoggerCallable()
+                $database, $this->eventManager, $this->cmd, $numRetries, $this->config->getLoggerCallable()
             );
         }
         return new Database(
-            $database, $this->eventManager, $this->cmd
+            $database, $this->eventManager, $this->cmd, $numRetries
         );
+    }
+
+    /**
+     * Initialize new Mongo instance.
+     */
+    protected function initializeMongo()
+    {
+        if ($this->server) {
+            $this->mongo = new \Mongo($this->server, $this->options);
+        } else {
+            $this->mongo = new \Mongo();
+        }
     }
 
     /** @proxy */
