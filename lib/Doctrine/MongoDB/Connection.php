@@ -32,16 +32,24 @@ use Doctrine\Common\EventManager,
  */
 class Connection
 {
-    /** The PHP Mongo instance. */
+    /**
+     * @var Mongo $mongo
+     */
     protected $mongo;
 
-    /** The server string */
+    /**
+     * @var string $server
+     */
     protected $server;
 
-    /** The array of server options to use when connecting */
+    /**
+     * @var array $options
+     */
     protected $options = array();
 
-    /** The Configuration instance */
+    /**
+     * @var Doctrine\MongoDB\Configuration
+     */
     protected $config;
 
     /**
@@ -57,13 +65,6 @@ class Connection
      * @var string
      */
     protected $cmd;
-
-    /**
-     * Whether or not this connection has been connected or not.
-     *
-     * @var boolean
-     */
-    protected $connected = false;
 
     /**
      * Create a new Mongo wrapper instance.
@@ -84,18 +85,18 @@ class Connection
         $this->cmd = $this->config->getMongoCmd();
     }
 
-    public function initialize()
+    public function initialize($reinitialize = false)
     {
-        if ($this->mongo === null) {
+        if ($reinitialize === true || $this->mongo === null) {
             if ($this->eventManager->hasListeners(Events::preConnect)) {
                 $this->eventManager->dispatchEvent(Events::preConnect, new EventArgs($this));
             }
 
-            if ($this->server) {
-                $this->mongo = new \Mongo($this->server, $this->options);
-            } else {
-                $this->mongo = new \Mongo();
-            }
+            $server  = $this->server;
+            $options = $this->options;
+            $this->mongo = $this->retry(function() use($server, $options) {
+                return new \Mongo($server ?: 'mongodb://localhost:27017', $options);
+            });
 
             if ($this->eventManager->hasListeners(Events::postConnect)) {
                 $this->eventManager->dispatchEvent(Events::postConnect, new EventArgs($this));
@@ -194,7 +195,11 @@ class Connection
     public function connect()
     {
         $this->initialize();
-        return $this->mongo->connect();
+
+        $mongo = $this->mongo;
+        return $this->retry(function() use($mongo) {
+            return $mongo->connect();
+        });
     }
 
     /** @proxy */
@@ -243,8 +248,7 @@ class Connection
         }
 
         $this->initialize();
-        $db = $this->mongo->selectDB($name);
-        $database = $this->wrapDatabase($db);
+        $database = $this->wrapDatabase($name);
 
         if ($this->eventManager->hasListeners(Events::postSelectDatabase)) {
             $this->eventManager->dispatchEvent(Events::postSelectDatabase, new EventArgs($this, $database));
@@ -254,21 +258,45 @@ class Connection
     }
 
     /**
-     * Method which wraps a MongoDB with a Doctrine\MongoDB\Database instance.
+     * Method which creates a Doctrine\MongoDB\Database instance.
      *
-     * @param MongoDB $database
+     * @param string $name
      * @return Database $database
      */
-    protected function wrapDatabase(\MongoDB $database)
+    protected function wrapDatabase($name)
     {
+        $numRetries = $this->config->getRetryQuery();
         if (null !== $this->config->getLoggerCallable()) {
             return new LoggableDatabase(
-                $database, $this->eventManager, $this->cmd, $this->config->getLoggerCallable()
+                $this, $name, $this->eventManager, $this->cmd, $numRetries, $this->config->getLoggerCallable()
             );
         }
         return new Database(
-            $database, $this->eventManager, $this->cmd
+            $this, $name, $this->eventManager, $this->cmd, $numRetries
         );
+    }
+
+    protected function retry(\Closure $retry)
+    {
+        if (!$numRetries = $this->config->getRetryConnect()) {
+            return $retry();
+        }
+
+        $firstException = null;
+        for ($i = 0; $i <= $numRetries; $i++) {
+            try {
+                return $retry();
+            } catch (\MongoException $e) {
+                if (!$firstException) {
+                    $firstException = $e;
+                }
+                if ($i === $numRetries) {
+                    throw $firstException;
+                }
+            }
+        }
+
+        throw $e;
     }
 
     /** @proxy */
