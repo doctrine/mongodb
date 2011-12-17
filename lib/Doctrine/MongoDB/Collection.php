@@ -67,6 +67,13 @@ class Collection
     protected $cmd;
 
     /**
+     * Number of times to retry queries.
+     *
+     * @var mixed
+     */
+    protected $numRetries;
+
+    /**
      * Create a new MongoCollection instance that wraps a PHP MongoCollection instance
      * for a given ClassMetadata instance.
      *
@@ -74,13 +81,15 @@ class Collection
      * @param Database $database The Database instance.
      * @param EventManager $evm The EventManager instance.
      * @param string $cmd Mongo cmd character.
+     * @param mixed $numRetries Number of times to retry queries.
      */
-    public function __construct(\MongoCollection $mongoCollection, Database $database, EventManager $evm, $cmd)
+    public function __construct(\MongoCollection $mongoCollection, Database $database, EventManager $evm, $cmd, $numRetries = false)
     {
         $this->mongoCollection = $mongoCollection;
         $this->database = $database;
         $this->eventManager = $evm;
         $this->cmd = $cmd;
+        $this->numRetries = $numRetries;
     }
 
     /** @proxy */
@@ -194,7 +203,7 @@ class Collection
 
     protected function wrapCursor(\MongoCursor $cursor, $query, $fields)
     {
-        return new Cursor($cursor);
+        return new Cursor($cursor, $this->numRetries);
     }
 
     /** @override */
@@ -215,7 +224,10 @@ class Collection
 
     protected function doFindOne(array $query, array $fields)
     {
-        return $this->mongoCollection->findOne($query, $fields);
+        $mongoCollection = $this->mongoCollection;
+        return $this->retry(function() use ($mongoCollection, $query, $fields) {
+            return $mongoCollection->findOne($query, $fields);
+        });
     }
 
     public function findAndRemove(array $query, array $options = array())
@@ -242,12 +254,20 @@ class Collection
         $command = array_merge($command, $options);
 
         $document = null;
-        $result = $this->database->command($command);
+
+        $database = $this->database;
+        $result = $this->retry(function() use ($database, $command) {
+            return $database->command($command);
+        });
+
         if (isset($result['value'])) {
             $document = $result['value'];
             if ($this->mongoCollection instanceof \MongoGridFS) {
                 // Remove the file data from the chunks collection
-                $this->mongoCollection->chunks->remove(array('files_id' => $document['_id']), $options);
+                $mongoCollection = $this->mongoCollection;
+                $this->retry(function() use ($mongoCollection, $document, $options) {
+                    return $mongoCollection->chunks->remove(array('files_id' => $document['_id']), $options);
+                });
             }
         }
         return $document;
@@ -275,7 +295,11 @@ class Collection
         $command['query'] = $query;
         $command['update'] = $newObj;
         $command = array_merge($command, $options);
-        $result = $this->database->command($command);
+
+        $database = $this->database;
+        $result = $this->retry(function() use ($database, $command) {
+            return $database->command($command);
+        });
         return isset($result['value']) ? $result['value'] : null;
     }
 
@@ -301,7 +325,11 @@ class Collection
         $command['near'] = $near;
         $command['query'] = $query;
         $command = array_merge($command, $options);
-        $result = $this->database->command($command);
+
+        $database = $this->database;
+        $result = $this->retry(function() use ($database, $command) {
+            return $database->command($command);
+        });
         return new ArrayIterator(isset($result['results']) ? $result['results'] : array());
     }
 
@@ -327,7 +355,11 @@ class Collection
         $command['key'] = $field;
         $command['query'] = $query;
         $command = array_merge($command, $options);
-        $result = $this->database->command($command);
+
+        $database = $this->database;
+        $result = $this->retry(function() use ($database, $command) {
+            return $database->command($command);
+        });
         return new ArrayIterator(isset($result['values']) ? $result['values'] : array());
     }
 
@@ -362,7 +394,10 @@ class Collection
         $command['out'] = $out;
         $command = array_merge($command, $options);
 
-        $result = $this->database->command($command);
+        $database = $this->database;
+        $result = $this->retry(function() use ($database, $command) {
+            return $database->command($command);
+        });
 
         if (!$result['ok']) {
             throw new \RuntimeException($result['errmsg']);
@@ -372,13 +407,18 @@ class Collection
             return new ArrayIterator($result['results']);
         }
 
-        return $this->database->selectCollection($result['result'])->find();
+        return $this->retry(function() use ($database, $command, $result) {
+            return $database->selectCollection($result['result'])->find();
+        });
     }
 
     /** @proxy */
     public function count(array $query = array(), $limit = 0, $skip = 0)
     {
-        return $this->mongoCollection->count($query, $limit, $skip);
+        $mongoCollection = $this->mongoCollection;
+        return $this->retry(function() use ($mongoCollection, $query, $limit, $skip) {
+            return $mongoCollection->count($query, $limit, $skip);
+        });
     }
 
     /** @proxy */
@@ -465,7 +505,10 @@ class Collection
 
     protected function doGetDBRef(array $reference)
     {
-        return $this->mongoCollection->getDBRef($reference);
+        $mongoCollection = $this->mongoCollection;
+        return $this->retry(function() use ($mongoCollection, $reference) {
+            return $mongoCollection->getDBRef($reference);
+        });
     }
 
     /** @proxy */
@@ -486,7 +529,10 @@ class Collection
 
     protected function doGroup($keys, array $initial, $reduce, array $options)
     {
-        $result = $this->mongoCollection->group($keys, $initial, $reduce, $options);
+        $mongoCollection = $this->mongoCollection;
+        $result = $this->retry(function() use ($mongoCollection, $keys, $initial, $reduce, $options) {
+            return $mongoCollection->group($keys, $initial, $reduce, $options);
+        });
         return new ArrayIterator($result);
     }
 
@@ -508,11 +554,20 @@ class Collection
     protected function doInsert(array &$a, array $options)
     {
         $document = $a;
-        $result = $this->mongoCollection->insert($document, $options);
-        if ($result && isset($document['_id'])) {
-            $a['_id'] = $document['_id'];
+
+        $mongoCollection = $this->mongoCollection;
+        $result = $this->retry(function() use ($mongoCollection, $document, $options) {
+            $return =  $mongoCollection->insert($document, $options);
+            return array(
+                'return' => $return,
+                'document' => $document
+            );
+        });
+
+        if ($result && isset($result['document']['_id'])) {
+            $a['_id'] = $result['document']['_id'];
         }
-        return $result;
+        return $result['return'];
     }
 
     /** @proxy */
@@ -554,18 +609,43 @@ class Collection
 
     protected function doSave(array &$a, array $options)
     {
-        return $this->mongoCollection->save($a, $options);
+        $mongoCollection = $this->mongoCollection;
+        return $this->retry(function() use ($mongoCollection, &$a, $options) {
+            return $mongoCollection->save($a, $options);
+        });
     }
 
     /** @proxy */
     public function validate($scanData = false)
     {
-        return $this->mongoCollection->validate($scanData);
+        $mongoCollection = $this->mongoCollection;
+        return $this->retry(function() use ($mongoCollection, $scanData) {
+            return $mongoCollection->validate($scanData);
+        });
     }
 
     /** @proxy */
     public function __toString()
     {
         return $this->mongoCollection->__toString();
+    }
+
+    protected function retry(\Closure $retry)
+    {
+        if ($this->numRetries !== null && $this->numRetries !== false) {
+            for ($i = 1; $i <= $this->numRetries; $i++) {
+                try {
+                    return $retry();
+                    break;
+                } catch (\MongoException $e) {
+                    if ($i === $this->numRetries) {
+                        throw $e;
+                    }
+                    sleep(1);
+                }
+            }
+        } else {
+            return $retry();
+        }
     }
 }
