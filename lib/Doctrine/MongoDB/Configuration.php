@@ -38,8 +38,8 @@ class Configuration
      */
     protected $attributes = array(
         'mongoCmd' => '$',
-        'retryConnect' => 3,
-        'retryQuery' => 3
+        'retryConnect' => 0,
+        'retryQuery' => 0,
     );
 
     /**
@@ -83,7 +83,7 @@ class Configuration
     /**
      * Get number of times to retry connect when errors occur.
      *
-     * @return mixed True/False or number of times to retry.
+     * @return integer The number of times to retry.
      */
     public function getRetryConnect()
     {
@@ -93,17 +93,17 @@ class Configuration
     /**
      * Set number of times to retry connect when errors occur.
      *
-     * @param string $retryConnect
+     * @param boolean|integer $retryConnect
      */
     public function setRetryConnect($retryConnect)
     {
-        $this->attributes['retryConnect'] = $retryConnect;
+        $this->attributes['retryConnect'] = (integer) $retryConnect;
     }
 
     /**
      * Get number of times to retry queries when
      *
-     * @return mixed True/False or number of times to retry queries.
+     * @return integer The number of times to retry queries.
      */
     public function getRetryQuery()
     {
@@ -113,10 +113,10 @@ class Configuration
     /**
      * Set true/false whether or not to retry connect upon failure or number of times to retry.
      *
-     * @param mixed $retryQuery True/false or number of times to retry queries.
+     * @param boolean|integer $retryQuery True/false or number of times to retry queries.
      */
     public function setRetryQuery($retryQuery)
     {
-        $this->attributes['retryQuery'] = $retryQuery;
+        $this->attributes['retryQuery'] = (integer) $retryQuery;
     }
 }

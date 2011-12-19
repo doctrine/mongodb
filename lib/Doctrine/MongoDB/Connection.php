@@ -92,8 +92,8 @@ class Connection
             }
 
             $numRetries = $this->config->getRetryConnect();
-            if ($numRetries !== null && $numRetries !== false) {
-                for ($i = 1; $i <= $numRetries; $i++) {
+            if ($numRetries) {
+                for ($i = 0; $i <= $numRetries; $i++) {
                     try {
                         $this->initializeMongo();
                         break;

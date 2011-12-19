@@ -91,15 +91,15 @@ class Collection
      * @param Database $database The Database instance.
      * @param EventManager $evm The EventManager instance.
      * @param string $cmd Mongo cmd character.
-     * @param mixed $numRetries Number of times to retry queries.
+     * @param boolean|integer $numRetries Number of times to retry queries.
      */
-    public function __construct(\MongoCollection $mongoCollection, Database $database, EventManager $evm, $cmd, $numRetries = false)
+    public function __construct(\MongoCollection $mongoCollection, Database $database, EventManager $evm, $cmd, $numRetries = 0)
     {
         $this->mongoCollection = $mongoCollection;
         $this->database = $database;
         $this->eventManager = $evm;
         $this->cmd = $cmd;
-        $this->numRetries = $numRetries;
+        $this->numRetries = (integer) $numRetries;
     }
 
     /** @proxy */
@@ -670,8 +670,8 @@ class Collection
 
     protected function retry(\Closure $retry)
     {
-        if ($this->numRetries !== null && $this->numRetries !== false) {
-            for ($i = 1; $i <= $this->numRetries; $i++) {
+        if ($this->numRetries) {
+            for ($i = 0; $i <= $this->numRetries; $i++) {
                 try {
                     return $retry();
                 } catch (\MongoException $e) {

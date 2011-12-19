@@ -63,14 +63,14 @@ class Database
      * @param MongoDB $mongoDB  The MongoDB instance to wrap.
      * @param EventManager $evm  The EventManager instance.
      * @param string $cmd  The MongoDB cmd character.
-     * @param mixed $numRetries Number of times to retry queries.
+     * @param boolean|integer $numRetries Number of times to retry queries.
      */
-    public function __construct(\MongoDB $mongoDB, EventManager $evm, $cmd, $numRetries)
+    public function __construct(\MongoDB $mongoDB, EventManager $evm, $cmd, $numRetries = 0)
     {
         $this->mongoDB = $mongoDB;
         $this->eventManager = $evm;
         $this->cmd = $cmd;
-        $this->numRetries = $numRetries;
+        $this->numRetries = (integer) $numRetries;
     }
 
     /**
@@ -294,8 +294,8 @@ class Database
      */
     protected function callDelegate($method, array $arguments = array())
     {
-        if ($this->numRetries !== null && $this->numRetries !== false) {
-            for ($i = 1; $i <= $this->numRetries; $i++) {
+        if ($this->numRetries) {
+            for ($i = 0; $i <= $this->numRetries; $i++) {
                 try {
                     return call_user_func_array(array($this->mongoDB, $method), $arguments);
                 } catch (\MongoException $e) {

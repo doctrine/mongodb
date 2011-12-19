@@ -39,11 +39,12 @@ class Cursor implements Iterator
      * Create a new MongoCursor which wraps around a given PHP MongoCursor.
      *
      * @param MongoCursor $mongoCursor The cursor being wrapped.
+     * @param boolean|integer $numRetries Number of times to retry queries.
      */
-    public function __construct(\MongoCursor $mongoCursor, $numRetries = false)
+    public function __construct(\MongoCursor $mongoCursor, $numRetries = 0)
     {
         $this->mongoCursor = $mongoCursor;
-        $this->numRetries = $numRetries;
+        $this->numRetries = (integer) $numRetries;
     }
 
     /**
@@ -259,8 +260,8 @@ class Cursor implements Iterator
      */
     protected function callDelegate($method, array $arguments = array())
     {
-        if ($this->numRetries !== null && $this->numRetries !== false) {
-            for ($i = 1; $i <= $this->numRetries; $i++) {
+        if ($this->numRetries) {
+            for ($i = 0; $i <= $this->numRetries; $i++) {
                 try {
                     return call_user_func_array(array($this->mongoCursor, $method), $arguments);
                 } catch (\MongoException $e) {
