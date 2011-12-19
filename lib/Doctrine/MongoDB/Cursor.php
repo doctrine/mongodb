@@ -32,14 +32,18 @@ class Cursor implements Iterator
     /** The PHP MongoCursor being wrapped */
     protected $mongoCursor;
 
+    /** Number of times to try operations on the cursor */
+    protected $numRetries;
+
     /**
      * Create a new MongoCursor which wraps around a given PHP MongoCursor.
      *
      * @param MongoCursor $mongoCursor The cursor being wrapped.
      */
-    public function __construct(\MongoCursor $mongoCursor)
+    public function __construct(\MongoCursor $mongoCursor, $numRetries = false)
     {
         $this->mongoCursor = $mongoCursor;
+        $this->numRetries = $numRetries;
     }
 
     /**
@@ -55,7 +59,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function current()
     {
-        $current = $this->mongoCursor->current();
+        $current = $this->callDelegate('current');
         if ($current instanceof \MongoGridFSFile) {
             $document = $current->file;
             $document['file'] = new GridFSFile($current);
@@ -79,7 +83,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function explain()
     {
-        return $this->mongoCursor->explain();
+        return $this->callDelegate('explain');
     }
 
     /** @proxy */
@@ -92,7 +96,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function getNext()
     {
-        $next = $this->mongoCursor->getNext();
+        $next = $this->callDelegate('getNext');
         if ($next instanceof \MongoGridFSFile) {
             $document = $next->file;
             $document['file'] = new GridFSFile($next);
@@ -104,7 +108,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function hasNext()
     {
-        return $this->mongoCursor->hasNext();
+        return $this->callDelegate('hasNext');
     }
 
     /** @proxy */
@@ -130,13 +134,13 @@ class Cursor implements Iterator
     /** @proxy */
     public function rewind()
     {
-        return $this->mongoCursor->rewind();
+        return $this->callDelegate('rewind');
     }
 
     /** @proxy */
     public function next()
     {
-        return $this->mongoCursor->next();
+        return $this->callDelegate('next');
     }
 
     /** @proxy */
@@ -148,7 +152,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function count($foundOnly = false)
     {
-        return $this->mongoCursor->count($foundOnly);
+        return $this->callDelegate('count', array('foundOnly' => $foundOnly));
     }
 
     /** @proxy */
@@ -255,6 +259,17 @@ class Cursor implements Iterator
      */
     protected function callDelegate($method, array $arguments = array())
     {
-        return call_user_func_array(array($this->mongoCursor, $method), $arguments);
+        if ($this->numRetries !== null && $this->numRetries !== false) {
+            for ($i = 1; $i <= $this->numRetries; $i++) {
+                try {
+                    return call_user_func_array(array($this->mongoCursor, $method), $arguments);
+                } catch (\MongoException $e) {
+                    sleep(1);
+                }
+            }
+            throw $e;
+        } else {
+            return call_user_func_array(array($this->mongoCursor, $method), $arguments);
+        }
     }
 }
