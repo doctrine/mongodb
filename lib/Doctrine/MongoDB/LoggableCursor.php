@@ -38,7 +38,18 @@ class LoggableCursor extends Cursor
      */
     protected $logger;
 
+    /**
+     * The database name.
+     *
+     * @var string
+     */
     protected $databaseName;
+
+    /**
+     * The collection name.
+     *
+     * @var string
+     */
     protected $collectionName;
 
     /**
@@ -55,35 +66,14 @@ class LoggableCursor extends Cursor
      */
     protected $fields = array();
 
-    /**
-     * Create a new MongoCursor which wraps around a given PHP MongoCursor.
-     *
-     * @param MongoCursor $mongoCursor The cursor being wrapped.
-     * @param MethodLogger $logger A logger.
-     * @param string $databaseName The database name.
-     * @param string $collectionName The collection name.
-     * @param array $query The query array that was used to create this cursor.
-     * @param array $fields The fields selected on this cursor.
-     */
-    public function __construct(\MongoCursor $mongoCursor, MethodLogger $logger, $databaseName, $collectionName, array $query, array $fields)
-    {
-        parent::__construct($mongoCursor);
-
-        $this->databaseName = $databaseName;
-        $this->collectionName = $collectionName;
-        $this->logger = $logger;
-        $this->query = $query;
-        $this->fields = $fields;
-    }
-
-    /**
-     * Gets the logger.
-     *
-     * @return mixed The logger
-     */
     public function getLogger()
     {
         return $this->logger;
+    }
+
+    public function setLogger(MethodLogger $logger)
+    {
+        $this->logger = $logger;
     }
 
     public function getDatabaseName()
@@ -91,107 +81,52 @@ class LoggableCursor extends Cursor
         return $this->databaseName;
     }
 
+    public function setDatabaseName($databaseName)
+    {
+        $this->databaseName = $databaseName;
+    }
+
     public function getCollectionName()
     {
         return $this->collectionName;
     }
 
-    /**
-     * Gets the query array that was used when creating this cursor.
-     *
-     * @return array $query
-     */
+    public function setCollectionName($collectionName)
+    {
+        $this->collectionName = $collectionName;
+    }
+
     public function getQuery()
     {
         return $this->query;
     }
 
-    /**
-     * Gets the array of fields that were selected when creating this cursor.
-     *
-     * @return array $fields
-     */
+    public function setQuery(array $query)
+    {
+        $this->query = $query;
+    }
+
     public function getFields()
     {
         return $this->fields;
     }
 
-    /** @proxy */
-    public function sort($fields)
+    public function setFields(array $fields)
     {
-        $this->logger->startMethod(MethodLogger::CONTEXT_CURSOR, __FUNCTION__, array(
-            'query' => $this->query,
-            'queryFields' => $this->fields,
-            'fields' => $fields,
-        ), $this->databaseName, $this->collectionName);
-
-        $retval = parent::sort($fields);
-
-        $this->logger->stopMethod();
-
-        return $retval;
+        $this->fields = $fields;
     }
 
-    /** @proxy */
-    public function skip($num)
+    /** @override */
+    protected function callDelegate($method, array $arguments = array())
     {
-        $this->logger->startMethod(MethodLogger::CONTEXT_CURSOR, __FUNCTION__, array(
-            'query' => $this->query,
-            'queryFields' => $this->fields,
-            'num' => $num,
-        ), $this->databaseName, $this->collectionName);
+        if (!$this->logger) {
+            return parent::callDelegate($method, $arguments);
+        }
 
-        $retval = parent::skip($num);
-
+        $this->logger->startMethod(MethodLogger::CONTEXT_CURSOR, $method, $arguments, $this->databaseName, $this->collectionName, $this->query, $this->fields);
+        $result = parent::callDelegate($method, $arguments);
         $this->logger->stopMethod();
 
-        return $retval;
-    }
-
-    /** @proxy */
-    public function limit($num)
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_CURSOR, __FUNCTION__, array(
-            'query' => $this->query,
-            'queryFields' => $this->fields,
-            'num' => $num,
-        ), $this->databaseName, $this->collectionName);
-
-        $retval = parent::limit($num);
-
-        $this->logger->stopMethod();
-
-        return $this->retval;
-    }
-
-    /** @proxy */
-    public function hint(array $keyPattern)
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_CURSOR, __FUNCTION__, array(
-            'query' => $this->query,
-            'queryFields' => $this->fields,
-            'keyPattern' => $keyPattern,
-        ), $this->databaseName, $this->collectionName);
-
-        $retval = parent::hint($keyPattern);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function snapshot()
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_CURSOR, __FUNCTION__, array(
-            'query' => $this->query,
-            'queryFields' => $this->fields,
-        ), $this->databaseName, $this->collectionName);
-
-        $retval = parent::snapshot();
-
-        $this->logger->stopMethod();
-
-        return $retval;
+        return $result;
     }
 }

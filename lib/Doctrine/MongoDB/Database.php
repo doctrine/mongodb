@@ -87,13 +87,16 @@ class Database
     /** @proxy */
     public function authenticate($username, $password)
     {
-        return $this->mongoDB->authenticate($username, $password);
+        return $this->callDelegate('authenticate', array(
+            'username' => $username,
+            'password' => $password,
+        ));
     }
 
     /** @proxy */
     public function command(array $data)
     {
-        return $this->mongoDB->command($data);
+        return $this->callDelegate('command', array('data' => $data));
     }
 
     /** @proxy */
@@ -103,7 +106,12 @@ class Database
             $this->eventManager->dispatchEvent(Events::preCreateCollection, new CreateCollectionEventArgs($this, $name, $capped, $size, $max));
         }
 
-        $result = $this->mongoDB->createCollection($name, $capped, $size, $max);
+        $result = $this->callDelegate('createCollection', array(
+            'name'   => $name,
+            'capped' => $capped,
+            'size'   => $size,
+            'max'    => $max,
+        ));
 
         if ($this->eventManager->hasListeners(Events::postCreateCollection)) {
             $this->eventManager->dispatchEvent(Events::postCreateCollection, new EventArgs($this, $prefix));
@@ -115,7 +123,10 @@ class Database
     /** @proxy */
     public function createDBRef($collection, $a)
     {
-        return $this->mongoDB->createDBRef($collection, $a);
+        return $this->callDelegate('createDBRef', array(
+            'collection' => $collection,
+            'data'       => $a,
+        ));
     }
 
     /** @proxy */
@@ -125,7 +136,7 @@ class Database
             $this->eventManager->dispatchEvent(Events::preDropDatabase, new EventArgs($this));
         }
 
-        $result = $this->mongoDB->drop();
+        $result = $this->callDelegate('drop');
 
         if ($this->eventManager->hasListeners(Events::postDropDatabase)) {
             $this->eventManager->dispatchEvent(Events::postDropDatabase, new EventArgs($this));
@@ -143,7 +154,10 @@ class Database
     /** @proxy */
     public function execute($code, array $args = array())
     {
-        return $this->mongoDB->execute($code, $args);
+        return $this->callDelegate('execute', array(
+            'code' => $code,
+            'args' => $args,
+        ));
     }
 
     /** @proxy */
@@ -161,7 +175,7 @@ class Database
     /** @proxy */
     public function getDBRef(array $ref)
     {
-        return $this->mongoDB->getDBRef($ref);
+        return $this->callDelegate('getDBRef', array('ref' => $ref));
     }
 
     /** @proxy */
@@ -264,5 +278,13 @@ class Database
     public function __toString()
     {
         return $this->mongoDB->__toString();
+    }
+
+    /**
+     * Calls a method on the inner collection.
+     */
+    protected function callDelegate($method, array $arguments = array())
+    {
+        return call_user_func_array(array($this->mongoDB, $method), $arguments);
     }
 }

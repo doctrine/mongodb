@@ -110,7 +110,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function hint(array $keyPattern)
     {
-        $this->mongoCursor->hint($keyPattern);
+        $this->callDelegate('hint', array('keyPattern' => $keyPattern));
         return $this;
     }
 
@@ -168,14 +168,14 @@ class Cursor implements Iterator
     /** @proxy */
     public function limit($num)
     {
-        $this->mongoCursor->limit($num);
+        $this->callDelegate('limit', array('num' => $num));
         return $this;
     }
 
     /** @proxy */
     public function skip($num)
     {
-        $this->mongoCursor->skip($num);
+        $this->callDelegate('skip', array('num' => $num));
         return $this;
     }
 
@@ -189,7 +189,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function snapshot()
     {
-        $this->mongoCursor->snapshot();
+        $this->callDelegate('snapshot');
         return $this;
     }
 
@@ -203,7 +203,9 @@ class Cursor implements Iterator
             $order = (int) $order;
             $fields[$fieldName] = $order;
         }
-        $this->mongoCursor->sort($fields);
+
+        $this->callDelegate('sort', array('fields' => $fields));
+
         return $this;
     }
 
@@ -246,5 +248,13 @@ class Cursor implements Iterator
         }
         $this->reset();
         return $result ? $result : null;
+    }
+
+    /**
+     * Calls a method on the inner cursor.
+     */
+    protected function callDelegate($method, array $arguments = array())
+    {
+        return call_user_func_array(array($this->mongoCursor, $method), $arguments);
     }
 }

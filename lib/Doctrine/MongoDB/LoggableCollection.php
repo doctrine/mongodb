@@ -19,8 +19,7 @@
 
 namespace Doctrine\MongoDB;
 
-use Doctrine\Common\EventManager,
-    Doctrine\MongoDB\Logging\MethodLogger;
+use Doctrine\MongoDB\Logging\MethodLogger;
 
 /**
  * Wrapper for the PHP MongoCollection class.
@@ -41,251 +40,43 @@ class LoggableCollection extends Collection
     protected $logger;
 
     /**
-     * Create a new MongoCollection instance that wraps a PHP MongoCollection instance
-     * for a given ClassMetadata instance.
+     * Sets the logger.
      *
-     * @param MongoCollection $mongoCollection The MongoCollection instance.
-     * @param Database $database The Database instance.
-     * @param EventManager $evm The EventManager instance.
-     * @param string $cmd Mongo cmd character.
-     * @param MethodLogger $logger The logger.
+     * @param MethodLogger $logger The logger
      */
-    public function __construct(\MongoCollection $mongoCollection, Database $database, EventManager $evm, $cmd, MethodLogger $logger)
+    public function setLogger(MethodLogger $logger)
     {
-        parent::__construct($mongoCollection, $database, $evm, $cmd);
-
         $this->logger = $logger;
     }
 
     /** @override */
-    public function batchInsert(array &$a, array $options = array())
+    protected function callDelegate($method, array $arguments = array())
     {
-        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, __FUNCTION__, array(
-            'data' => $a,
-            'options' => $options,
-        ), $this->database->getName(), $this->getName());
+        if (!$this->logger) {
+            return parent::callDelegate($method, $arguments);
+        }
 
-        $retval = parent::batchInsert($a, $options);
-
+        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, $method, $arguments, $this->database->getName(), $this->getName());
+        $result = parent::callDelegate($method, $arguments);
         $this->logger->stopMethod();
 
-        return $retval;
+        return $result;
     }
 
     /** @override */
-    public function update($query, array $newObj, array $options = array())
+    protected function wrapCursor(\MongoCursor $delegate, $query, $fields)
     {
-        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, __FUNCTION__, array(
-            'query' => $query,
-            'newObj' => $newObj,
-            'options' => $options,
-        ), $this->database->getName(), $this->getName());
+        if (!$this->logger) {
+            return parent::wrapCursor($delegate, $query, $fields);
+        }
 
-        $retval = parent::update($query, $newObj, $options);
+        $cursor = new LoggableCursor($delegate);
+        $cursor->setLogger($this->logger);
+        $cursor->setDatabaseName($this->database->getName());
+        $cursor->setCollectionName($this->getName());
+        $cursor->setQuery($query);
+        $cursor->setFields($fields);
 
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @override */
-    public function find(array $query = array(), array $fields = array())
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, __FUNCTION__, array(
-            'query' => $query,
-            'fields' => $fields,
-        ), $this->database->getName(), $this->getName());
-
-        $retval = parent::find($query, $fields);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @override */
-    public function findOne(array $query = array(), array $fields = array())
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, __FUNCTION__, array(
-            'query' => $query,
-            'fields' => $fields,
-        ), $this->database->getName(), $this->getName());
-
-        $retval = parent::findOne($query, $fields);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function count(array $query = array(), $limit = 0, $skip = 0)
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, __FUNCTION__, array(
-            'query' => $query,
-            'limit' => $limit,
-            'skip' => $skip,
-        ), $this->database->getName(), $this->getName());
-
-        $retval = parent::count($query, $limit, $skip);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function createDBRef(array $a)
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, __FUNCTION__, array('data' => $a), $this->database->getName(), $this->getName());
-
-        $retval = parent::createDBRef($a);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function deleteIndex($keys)
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, __FUNCTION__, array('keys' => $keys), $this->database->getName(), $this->getName());
-
-        $retval = parent::deleteIndex($keys);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function deleteIndexes()
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, __FUNCTION__, array(), $this->database->getName(), $this->getName());
-
-        $retval = parent::deleteIndexes();
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function drop()
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, __FUNCTION__, array(), $this->database->getName(), $this->getName());
-
-        $retval = parent::drop();
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function ensureIndex(array $keys, array $options = array())
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, __FUNCTION__, array(
-            'keys' => $keys,
-            'options' => $options,
-        ), $this->database->getName(), $this->getName());
-
-        $retval = parent::ensureIndex($keys, $options);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function getDBRef(array $reference)
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, __FUNCTION__, array('reference' => $reference), $this->database->getName(), $this->getName());
-
-        $retval = parent::getDBRef($reference);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function group($keys, array $initial, $reduce, array $options = array())
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, __FUNCTION__, array(
-            'keys' => $keys,
-            'initial' => $initial,
-            'reduce' => $reduce,
-            'options' => $options,
-        ), $this->database->getName(), $this->getName());
-
-        $retval = parent::group($keys, $initial, $reduce, $options);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function insert(array &$a, array $options = array())
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, __FUNCTION__, array(
-            'data' => $a,
-            'options' => $options,
-        ), $this->database->getName(), $this->getName());
-
-        $retval = parent::insert($a, $options);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function remove(array $query, array $options = array())
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, __FUNCTION__, array(
-            'query' => $query,
-            'options' => $options,
-        ), $this->database->getName(), $this->getName());
-
-        $retval = parent::remove($query, $options);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function save(array &$a, array $options = array())
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, __FUNCTION__, array(
-            'data' => $a,
-            'options' => $options,
-        ), $this->database->getName(), $this->getName());
-
-        $retval = parent::save($a, $options);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function validate($scanData = false)
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_COLLECTION, __FUNCTION__, array('scanData' => $scanData), $this->database->getName(), $this->getName());
-
-        $retval = parent::validate($scanData);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @override */
-    protected function wrapCursor(\MongoCursor $cursor, $query, $fields)
-    {
-        return new LoggableCursor($cursor, $this->logger, $this->database->getName(), $this->getName(), $query, $fields);
+        return $cursor;
     }
 }

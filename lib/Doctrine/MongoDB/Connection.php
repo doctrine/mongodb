@@ -246,16 +246,20 @@ class Connection
     /**
      * Method which wraps a MongoDB with a Doctrine\MongoDB\Database instance.
      *
-     * @param MongoDB $database
-     * @return Database $database
+     * @param MongoDB $delegate The inner object
+     *
+     * @return Database
      */
-    protected function wrapDatabase(\MongoDB $database)
+    protected function wrapDatabase(\MongoDB $delegate)
     {
-        $logger = $this->config->getLogger();
+        if (!$logger = $this->config->getLogger()) {
+            return new Database($delegate, $this->eventManager, $this->cmd);
+        }
 
-        return $logger
-            ? new LoggableDatabase($database, $this->eventManager, $this->cmd, $logger)
-            : new Database($database, $this->eventManager, $this->cmd);
+        $db = new LoggableDatabase($delegate, $this->eventManager, $this->cmd);
+        $db->setLogger($logger);
+
+        return $db;
     }
 
     /** @proxy */

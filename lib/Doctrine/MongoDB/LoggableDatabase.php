@@ -19,8 +19,7 @@
 
 namespace Doctrine\MongoDB;
 
-use Doctrine\Common\EventManager,
-    Doctrine\MongoDB\Logging\MethodLogger;
+use Doctrine\MongoDB\Logging\MethodLogger;
 
 /**
  * Wrapper for the PHP MongoDB class.
@@ -41,126 +40,45 @@ class LoggableDatabase extends Database
     protected $logger;
 
     /**
-     * Create a new MongoDB instance which wraps a PHP MongoDB instance.
+     * Sets the logger.
      *
-     * @param MongoDB $mongoDB  The MongoDB instance to wrap.
-     * @param EventManager $evm  The EventManager instance.
-     * @param string $cmd  The MongoDB cmd character.
-     * @param MethodLogger $logger A logger
+     * @param MethodLogger $logger The logger
      */
-    public function __construct(\MongoDB $mongoDB, EventManager $evm, $cmd, MethodLogger $logger)
+    public function setLogger(MethodLogger $logger)
     {
-        parent::__construct($mongoDB, $evm, $cmd);
-
         $this->logger = $logger;
-    }
-
-    /** @proxy */
-    public function authenticate($username, $password)
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_DATABASE, __FUNCTION__, array('username' => $username), $this->getName());
-
-        $retval = parent::authenticate($username, $password);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function command(array $data)
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_DATABASE, __FUNCTION__, array('data' => $data), $this->getName());
-
-        $retval = parent::command($data);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function createCollection($name, $capped = false, $size = 0, $max = 0)
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_DATABASE, __FUNCTION__, array(
-            'name' => $name,
-            'capped' => $capped,
-            'size' => $size,
-            'max' => $max,
-        ), $this->getName());
-
-        $retval = parent::createCollection($name, $capped, $size, $max);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function createDBRef($collection, $a)
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_DATABASE, __FUNCTION__, array(
-            'collection' => $collection,
-            'data' => $a,
-        ), $this->getName());
-
-        $retval = parent::createDBRef($collection, $a);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function drop()
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_DATABASE, __FUNCTION__, array(), $this->getName());
-
-        $retval = parent::drop();
-
-        $this->logger->stopMethod();
-
-        return $return;
-    }
-
-    /** @proxy */
-    public function execute($code, array $args = array())
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_DATABASE, __FUNCTION__, array(
-            'code' => $code,
-            'args' => $args,
-        ), $this->getName());
-
-        $retval = parent::execute($code, $args);
-
-        $this->logger->stopMethod();
-
-        return $retval;
-    }
-
-    /** @proxy */
-    public function getDBRef(array $ref)
-    {
-        $this->logger->startMethod(MethodLogger::CONTEXT_DATABASE, __FUNCTION__, array('ref' => $ref), $this->getName());
-
-        $retval = parent::getDBRef($ref);
-
-        $this->logger->stopMethod();
-
-        return $retval;
     }
 
     /**
      * Method which wraps a MongoCollection with a Doctrine\MongoDB\Collection instance.
      *
-     * @param MongoCollection $collection
-     * @return Collection $coll
+     * @param MongoCollection $delegate
+     *
+     * @return Collection
      */
-    protected function wrapCollection(\MongoCollection $collection)
+    protected function wrapCollection(\MongoCollection $delegate)
     {
-        return new LoggableCollection(
-            $collection, $this, $this->eventManager, $this->cmd, $this->logger
-        );
+        if (!$this->logger) {
+            return parent::wrapCollection($delegate);
+        }
+
+        $collection = new LoggableCollection($delegate, $this, $this->eventManager, $this->cmd);
+        $collection->setLogger($this->logger);
+
+        return $collection;
     }
 
+    /** @override */
+    protected function callDelegate($method, array $arguments = array())
+    {
+        if (!$this->logger) {
+            return parent::callDelegate($method, $arguments);
+        }
+
+        $this->logger->startMethod(MethodLogger::CONTEXT_DATABASE, $method, $arguments, $this->getName());
+        $result = parent::callDelegate($method, $arguments);
+        $this->logger->stopMethod();
+
+        return $result;
+    }
 }
