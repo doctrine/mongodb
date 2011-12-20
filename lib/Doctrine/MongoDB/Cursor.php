@@ -60,7 +60,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function current()
     {
-        $current = $this->callDelegate('current');
+        $current = $this->callDelegate('current', array(), true);
         if ($current instanceof \MongoGridFSFile) {
             $document = $current->file;
             $document['file'] = new GridFSFile($current);
@@ -84,7 +84,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function explain()
     {
-        return $this->callDelegate('explain');
+        return $this->callDelegate('explain', array(), true);
     }
 
     /** @proxy */
@@ -97,7 +97,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function getNext()
     {
-        $next = $this->callDelegate('getNext');
+        $next = $this->callDelegate('getNext', array(), true);
         if ($next instanceof \MongoGridFSFile) {
             $document = $next->file;
             $document['file'] = new GridFSFile($next);
@@ -109,7 +109,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function hasNext()
     {
-        return $this->callDelegate('hasNext');
+        return $this->callDelegate('hasNext', array(), true);
     }
 
     /** @proxy */
@@ -135,13 +135,13 @@ class Cursor implements Iterator
     /** @proxy */
     public function rewind()
     {
-        return $this->callDelegate('rewind');
+        return $this->callDelegate('rewind', array(), true);
     }
 
     /** @proxy */
     public function next()
     {
-        return $this->callDelegate('next');
+        return $this->callDelegate('next', array(), true);
     }
 
     /** @proxy */
@@ -153,7 +153,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function count($foundOnly = false)
     {
-        return $this->callDelegate('count', array('foundOnly' => $foundOnly));
+        return $this->callDelegate('count', array('foundOnly' => $foundOnly), true);
     }
 
     /** @proxy */
@@ -257,20 +257,27 @@ class Cursor implements Iterator
 
     /**
      * Calls a method on the inner cursor.
+     *
+     * @param string $method The method to call
+     * @param array $arguments Arguments for that method
+     * @param boolean $retry Whether to retry the method
+     *
+     * @return mixed The method return value
      */
-    protected function callDelegate($method, array $arguments = array())
+    protected function callDelegate($method, array $arguments = array(), $retry = false)
     {
-        if ($this->numRetries) {
-            for ($i = 0; $i <= $this->numRetries; $i++) {
-                try {
-                    return call_user_func_array(array($this->mongoCursor, $method), $arguments);
-                } catch (\MongoException $e) {
-                    sleep(1);
-                }
-            }
-            throw $e;
-        } else {
+        if (!$retry || !$this->numRetries) {
             return call_user_func_array(array($this->mongoCursor, $method), $arguments);
         }
+
+        for ($i = 0; $i <= $this->numRetries; $i++) {
+            try {
+                return call_user_func_array(array($this->mongoCursor, $method), $arguments);
+            } catch (\MongoException $e) {
+                sleep(1);
+            }
+        }
+
+        throw $e;
     }
 }

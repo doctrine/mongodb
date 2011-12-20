@@ -265,7 +265,7 @@ class Collection
         return $this->callDelegate('findOne', array(
             'query'  => $query,
             'fields' => $fields,
-        ));
+        ), true);
     }
 
     public function findAndRemove(array $query, array $options = array())
@@ -437,7 +437,7 @@ class Collection
             'query' => $query,
             'limit' => $limit,
             'skip'  => $skip,
-        ));
+        ), true);
     }
 
     /** @proxy */
@@ -527,7 +527,7 @@ class Collection
 
     protected function doGetDBRef(array $ref)
     {
-        return $this->callDelegate('getDBRef', array('ref' => $ref));
+        return $this->callDelegate('getDBRef', array('ref' => $ref), true);
     }
 
     /** @proxy */
@@ -553,7 +553,7 @@ class Collection
             'initial' => $initial,
             'reduce'  => $reduce,
             'options' => $options,
-        ));
+        ), true);
 
         return new ArrayIterator($result);
     }
@@ -578,7 +578,7 @@ class Collection
         $result = $this->callDelegate('insert', array(
             'data'    => $a,
             'options' => $options,
-        ));
+        ), true);
 
         // process lastArguments
         if (isset($this->lastArguments['data']['_id'])) {
@@ -633,7 +633,7 @@ class Collection
         $result = $this->callDelegate('save', array(
             'data'    => $a,
             'options' => $options,
-        ));
+        ), true);
 
         if (isset($this->lastArguments['data']['_id'])) {
             $a['_id'] = $this->lastArguments['data']['_id'];
@@ -645,7 +645,7 @@ class Collection
     /** @proxy */
     public function validate($scanData = false)
     {
-        return $this->callDelegate('validate', array('scanData' => $scanData));
+        return $this->callDelegate('validate', array('scanData' => $scanData), true);
     }
 
     /** @proxy */
@@ -656,13 +656,23 @@ class Collection
 
     /**
      * Calls a method on the inner collection.
+     *
+     * @param string $method The method to call
+     * @param array $arguments Arguments for that method
+     * @param boolean $retry Whether to retry the method
+     *
+     * @return mixed The method return value
      */
-    protected function callDelegate($method, array $arguments = array())
+    protected function callDelegate($method, array $arguments = array(), $retry = false)
     {
         $this->lastArguments = $arguments;
-        $lastArguments =& $this->lastArguments;
-        $mongoCollection = $this->mongoCollection;
 
+        if (!$retry) {
+            return call_user_func_array(array($this->mongoCollection, $method), $this->lastArguments);
+        }
+
+        $mongoCollection = $this->mongoCollection;
+        $lastArguments =& $this->lastArguments;
         return $this->retry(function() use($mongoCollection, $method, &$lastArguments) {
             return call_user_func_array(array($mongoCollection, $method), $lastArguments);
         });
@@ -670,17 +680,18 @@ class Collection
 
     protected function retry(\Closure $retry)
     {
-        if ($this->numRetries) {
-            for ($i = 0; $i <= $this->numRetries; $i++) {
-                try {
-                    return $retry();
-                } catch (\MongoException $e) {
-                    sleep(1);
-                }
-            }
-            throw $e;
-        } else {
+        if (!$this->numRetries) {
             return $retry();
         }
+
+        for ($i = 0; $i <= $this->numRetries; $i++) {
+            try {
+                return $retry();
+            } catch (\MongoException $e) {
+                sleep(1);
+            }
+        }
+
+        throw $e;
     }
 }

@@ -105,7 +105,7 @@ class Database
     /** @proxy */
     public function command(array $data)
     {
-        return $this->callDelegate('command', array('data' => $data));
+        return $this->callDelegate('command', array('data' => $data), true);
     }
 
     /** @proxy */
@@ -291,20 +291,27 @@ class Database
 
     /**
      * Calls a method on the inner database.
+     *
+     * @param string $method The method to call
+     * @param array $arguments Arguments for that method
+     * @param boolean $retry Whether to retry the method
+     *
+     * @return mixed The method return value
      */
-    protected function callDelegate($method, array $arguments = array())
+    protected function callDelegate($method, array $arguments = array(), $retry = false)
     {
-        if ($this->numRetries) {
-            for ($i = 0; $i <= $this->numRetries; $i++) {
-                try {
-                    return call_user_func_array(array($this->mongoDB, $method), $arguments);
-                } catch (\MongoException $e) {
-                    sleep(1);
-                }
-            }
-            throw $e;
-        } else {
+        if (!$retry || !$this->numRetries) {
             return call_user_func_array(array($this->mongoDB, $method), $arguments);
         }
+
+        for ($i = 0; $i <= $this->numRetries; $i++) {
+            try {
+                return call_user_func_array(array($this->mongoDB, $method), $arguments);
+            } catch (\MongoException $e) {
+                sleep(1);
+            }
+        }
+
+        throw $e;
     }
 }
