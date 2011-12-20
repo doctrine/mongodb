@@ -91,22 +91,11 @@ class Connection
                 $this->eventManager->dispatchEvent(Events::preConnect, new EventArgs($this));
             }
 
-            $numRetries = $this->config->getRetryConnect();
-            if ($numRetries) {
-                for ($i = 0; $i <= $numRetries; $i++) {
-                    try {
-                        $this->initializeMongo();
-                        break;
-                    } catch (\MongoConnectionException $e) {
-                        if ($i === $numRetries) {
-                            throw $e;
-                        }
-                        sleep(1);
-                    }
-                }
-            } else {
-                $this->initializeMongo();
-            }
+            $server  = $this->server;
+            $options = $this->options;
+            $this->mongo = $this->retry(function() use($server, $options) {
+                return new \Mongo($server ?: 'mongodb://localhost:27017', $options);
+            });
 
             if ($this->eventManager->hasListeners(Events::postConnect)) {
                 $this->eventManager->dispatchEvent(Events::postConnect, new EventArgs($this));
@@ -195,7 +184,11 @@ class Connection
     public function connect()
     {
         $this->initialize();
-        return $this->mongo->connect();
+
+        $mongo = $this->mongo;
+        return $this->retry(function() use($mongo) {
+            return $mongo->connect();
+        });
     }
 
     /** @proxy */
@@ -274,16 +267,21 @@ class Connection
         return $db;
     }
 
-    /**
-     * Initialize new Mongo instance.
-     */
-    protected function initializeMongo()
+    protected function retry(\Closure $retry)
     {
-        if ($this->server) {
-            $this->mongo = new \Mongo($this->server, $this->options);
-        } else {
-            $this->mongo = new \Mongo();
+        if (!$numRetries = $this->config->getRetryConnect()) {
+            return $retry();
         }
+
+        for ($i = 0; $i <= $numRetries; $i++) {
+            try {
+                return $retry();
+            } catch (\MongoException $e) {
+                sleep(1);
+            }
+        }
+
+        throw $e;
     }
 
     /** @proxy */
