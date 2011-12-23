@@ -16,6 +16,17 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Mongo', $conn->getMongo());
     }
 
+    public function testLog()
+    {
+        $conn = new Connection();
+        $called = false;
+        $conn->getConfiguration()->setLoggerCallable(function($msg) use (&$called) {
+            $called = $msg;
+        });
+        $conn->log(array('test'));
+        $this->assertEquals(array('test'), $called);
+    }
+
     public function testClose()
     {
         $mockMongo = $this->getMockMongo();

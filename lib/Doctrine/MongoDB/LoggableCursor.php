@@ -19,8 +19,6 @@
 
 namespace Doctrine\MongoDB;
 
-use Doctrine\MongoDB\Logging\MethodLogger;
-
 /**
  * Wrapper for the PHP MongoCursor class.
  *
@@ -29,28 +27,14 @@ use Doctrine\MongoDB\Logging\MethodLogger;
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  */
-class LoggableCursor extends Cursor
+class LoggableCursor extends Cursor implements Loggable
 {
     /**
-     * A logger.
+     * A callable for logging statements.
      *
-     * @var MethodLogger
+     * @var mixed
      */
-    protected $logger;
-
-    /**
-     * The database name.
-     *
-     * @var string
-     */
-    protected $databaseName;
-
-    /**
-     * The collection name.
-     *
-     * @var string
-     */
-    protected $collectionName;
+    protected $loggerCallable;
 
     /**
      * The query array that was used when creating this cursor.
@@ -66,67 +50,118 @@ class LoggableCursor extends Cursor
      */
     protected $fields = array();
 
-    public function getLogger()
+    /**
+     * Create a new MongoCursor which wraps around a given PHP MongoCursor.
+     *
+     * @param MongoCursor $mongoCursor The cursor being wrapped.
+     * @param mixed $loggerCallable Logger callable.
+     * @param array $query The query array that was used to create this cursor.
+     * @param array $query The fields selected on this cursor.
+     */
+    public function __construct(\MongoCursor $mongoCursor, $loggerCallable, array $query, array $fields)
     {
-        return $this->logger;
+        if ( ! is_callable($loggerCallable)) {
+            throw new \InvalidArgumentException('$loggerCallable must be a valid callback');
+        }
+        parent::__construct($mongoCursor);
+        $this->loggerCallable = $loggerCallable;
+        $this->query = $query;
+        $this->fields = $fields;
     }
 
-    public function setLogger(MethodLogger $logger)
+    /**
+     * Gets the logger callable.
+     *
+     * @return mixed The logger callable
+     */
+    public function getLoggerCallable()
     {
-        $this->logger = $logger;
+        return $this->loggerCallable;
     }
 
-    public function getDatabaseName()
-    {
-        return $this->databaseName;
-    }
-
-    public function setDatabaseName($databaseName)
-    {
-        $this->databaseName = $databaseName;
-    }
-
-    public function getCollectionName()
-    {
-        return $this->collectionName;
-    }
-
-    public function setCollectionName($collectionName)
-    {
-        $this->collectionName = $collectionName;
-    }
-
+    /**
+     * Gets the query array that was used when creating this cursor.
+     *
+     * @return array $query
+     */
     public function getQuery()
     {
         return $this->query;
     }
 
-    public function setQuery(array $query)
-    {
-        $this->query = $query;
-    }
-
+    /**
+     * Gets the array of fields that were selected when creating this cursor.
+     *
+     * @return array $fields
+     */
     public function getFields()
     {
         return $this->fields;
     }
 
-    public function setFields(array $fields)
+    /**
+     * Log something using the configured logger callable.
+     *
+     * @param array $log The array of data to log.
+     */
+    public function log(array $log)
     {
-        $this->fields = $fields;
+        $log['query'] = $this->query;
+        $log['fields'] = $this->fields;
+        call_user_func_array($this->loggerCallable, array($log));
     }
 
-    /** @override */
-    protected function callDelegate($method, array $arguments = array())
+    /** @proxy */
+    public function sort($fields)
     {
-        if (!$this->logger) {
-            return parent::callDelegate($method, $arguments);
-        }
+        $this->log(array(
+            'sort' => true,
+            'sortFields' => $fields
+        ));
 
-        $this->logger->startMethod(MethodLogger::CONTEXT_CURSOR, $method, $arguments, $this->databaseName, $this->collectionName, $this->query, $this->fields);
-        $result = parent::callDelegate($method, $arguments);
-        $this->logger->stopMethod();
+        return parent::sort($fields);
+    }
 
-        return $result;
+    /** @proxy */
+    public function skip($num)
+    {
+        $this->log(array(
+            'skip' => true,
+            'skipNum' => $num,
+        ));
+
+        return parent::skip($num);
+    }
+
+    /** @proxy */
+    public function limit($num)
+    {
+        $this->log(array(
+            'limit' => true,
+            'limitNum' => $num,
+        ));
+
+        return parent::limit($num);
+    }
+
+    /** @proxy */
+    public function hint(array $keyPattern)
+    {
+        $this->log(array(
+            'hint' => true,
+            'keyPattern' => $keyPattern,
+        ));
+
+        return parent::hint($keyPattern);
+    }
+
+    /** @proxy */
+    public function snapshot()
+    {
+        $this->log(array(
+            'snapshot' => true,
+        ));
+
+        return parent::snapshot();
     }
 }

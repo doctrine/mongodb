@@ -11,6 +11,26 @@ use PHPUnit_Framework_TestCase;
 
 class CollectionTest extends PHPUnit_Framework_TestCase
 {
+    public function testLog()
+    {
+        $mockMongoCollection = $this->getMockMongoCollection();
+        $mockMongoCollection->expects($this->once())
+            ->method('getName')
+            ->will($this->returnValue('collection'));
+
+        $mockDatabase = $this->getMockDatabase();
+        $mockDatabase->expects($this->once())
+            ->method('getName')
+            ->will($this->returnValue('db'));
+
+        $called = false;
+        $coll = $this->getTestCollection($mockMongoCollection, $mockDatabase, function($msg) use (&$called) {
+            $called = $msg;
+        });
+        $coll->log(array('test' => 'test'));
+        $this->assertEquals(array('collection' => 'collection', 'db' => 'db', 'test' => 'test'), $called);
+    }
+
     public function testBatchInsert()
     {
         $mockMongoCollection = $this->getMockMongoCollection();
@@ -351,8 +371,11 @@ class CollectionTest extends PHPUnit_Framework_TestCase
         return $this->getMock('Doctrine\MongoDB\Database', array(), array(), '', false, false);
     }
 
-    private function getTestCollection(MongoCollection $mongoCollection, Database $db)
+    private function getTestCollection(MongoCollection $mongoCollection, Database $db, $loggerCallable = null)
     {
-        return new Collection($mongoCollection, $db, new EventManager(), '$');
+        if (null === $loggerCallable) {
+            return new Collection($mongoCollection, $db, new EventManager(), '$');
+        }
+        return new LoggableCollection($mongoCollection, $db, new EventManager(), '$', $loggerCallable);
     }
 }

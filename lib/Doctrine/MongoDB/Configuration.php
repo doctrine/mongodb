@@ -19,8 +19,6 @@
 
 namespace Doctrine\MongoDB;
 
-use Doctrine\MongoDB\Logging\MethodLogger;
-
 /**
  * Configuration
  *
@@ -36,30 +34,27 @@ class Configuration
      *
      * @var array $attributes
      */
-    protected $attributes = array(
-        'mongoCmd' => '$',
-        'retryConnect' => 0,
-        'retryQuery' => 0,
-    );
+    protected $attributes = array('mongoCmd' => '$');
 
     /**
-     * Set the logger.
+     * Set the logger callable.
      *
-     * @param MethodLogger $logger The logger.
+     * @param mixed $loggerCallable The logger callable.
      */
-    public function setLogger(MethodLogger $logger)
+    public function setLoggerCallable($loggerCallable)
     {
-        $this->attributes['logger'] = $logger;
+        $this->attributes['loggerCallable'] = $loggerCallable;
     }
 
     /**
-     * Gets the logger.
+     * Gets the logger callable.
      *
-     * @return MethodLogger $logger The logger.
+     * @return mixed $loggerCallable The logger callable.
      */
-    public function getLogger()
+    public function getLoggerCallable()
     {
-        return isset($this->attributes['logger']) ? $this->attributes['logger'] : null;
+        return isset($this->attributes['loggerCallable']) ?
+                $this->attributes['loggerCallable'] : null;
     }
 
     /**
@@ -78,45 +73,5 @@ class Configuration
     public function setMongoCmd($cmd)
     {
         $this->attributes['mongoCmd'] = $cmd;
-    }
-
-    /**
-     * Get number of times to retry connect when errors occur.
-     *
-     * @return integer The number of times to retry.
-     */
-    public function getRetryConnect()
-    {
-        return $this->attributes['retryConnect'];
-    }
-
-    /**
-     * Set number of times to retry connect when errors occur.
-     *
-     * @param boolean|integer $retryConnect
-     */
-    public function setRetryConnect($retryConnect)
-    {
-        $this->attributes['retryConnect'] = (integer) $retryConnect;
-    }
-
-    /**
-     * Get number of times to retry queries when
-     *
-     * @return integer The number of times to retry queries.
-     */
-    public function getRetryQuery()
-    {
-        return $this->attributes['retryQuery'];
-    }
-
-    /**
-     * Set true/false whether or not to retry connect upon failure or number of times to retry.
-     *
-     * @param boolean|integer $retryQuery True/false or number of times to retry queries.
-     */
-    public function setRetryQuery($retryQuery)
-    {
-        $this->attributes['retryQuery'] = (integer) $retryQuery;
     }
 }

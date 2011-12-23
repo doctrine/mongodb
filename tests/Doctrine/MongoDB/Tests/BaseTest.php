@@ -13,6 +13,9 @@ abstract class BaseTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $config = new Configuration();
+        $config->setLoggerCallable(function($msg) {
+            //print_r($msg);
+        });
         $this->conn = new Connection(null, array(), $config);
     }
 

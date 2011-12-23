@@ -91,11 +91,11 @@ class Connection
                 $this->eventManager->dispatchEvent(Events::preConnect, new EventArgs($this));
             }
 
-            $server  = $this->server;
-            $options = $this->options;
-            $this->mongo = $this->retry(function() use($server, $options) {
-                return new \Mongo($server ?: 'mongodb://localhost:27017', $options);
-            });
+            if ($this->server) {
+                $this->mongo = new \Mongo($this->server, $this->options);
+            } else {
+                $this->mongo = new \Mongo();
+            }
 
             if ($this->eventManager->hasListeners(Events::postConnect)) {
                 $this->eventManager->dispatchEvent(Events::postConnect, new EventArgs($this));
@@ -131,6 +131,16 @@ class Connection
     public function isConnected()
     {
         return $this->mongo !== null && $this->mongo instanceof \Mongo && $this->mongo->connected;
+    }
+
+    /**
+     * Log something using the configured logger callable.
+     *
+     * @param array $log The array of data to log.
+     */
+    public function log(array $log)
+    {
+        call_user_func_array($this->config->getLoggerCallable(), array($log));
     }
 
     /**
@@ -184,11 +194,7 @@ class Connection
     public function connect()
     {
         $this->initialize();
-
-        $mongo = $this->mongo;
-        return $this->retry(function() use($mongo) {
-            return $mongo->connect();
-        });
+        return $this->mongo->connect();
     }
 
     /** @proxy */
@@ -250,38 +256,19 @@ class Connection
     /**
      * Method which wraps a MongoDB with a Doctrine\MongoDB\Database instance.
      *
-     * @param MongoDB $delegate The inner object
-     *
-     * @return Database
+     * @param MongoDB $database
+     * @return Database $database
      */
-    protected function wrapDatabase(\MongoDB $delegate)
+    protected function wrapDatabase(\MongoDB $database)
     {
-        $numRetries = $this->config->getRetryQuery();
-        if (!$logger = $this->config->getLogger()) {
-            return new Database($delegate, $this->eventManager, $this->cmd, $numRetries);
+        if (null !== $this->config->getLoggerCallable()) {
+            return new LoggableDatabase(
+                $database, $this->eventManager, $this->cmd, $this->config->getLoggerCallable()
+            );
         }
-
-        $db = new LoggableDatabase($delegate, $this->eventManager, $this->cmd, $numRetries);
-        $db->setLogger($logger);
-
-        return $db;
-    }
-
-    protected function retry(\Closure $retry)
-    {
-        if (!$numRetries = $this->config->getRetryConnect()) {
-            return $retry();
-        }
-
-        for ($i = 0; $i <= $numRetries; $i++) {
-            try {
-                return $retry();
-            } catch (\MongoException $e) {
-                sleep(1);
-            }
-        }
-
-        throw $e;
+        return new Database(
+            $database, $this->eventManager, $this->cmd
+        );
     }
 
     /** @proxy */
