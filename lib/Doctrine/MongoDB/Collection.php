@@ -67,6 +67,23 @@ class Collection
     protected $cmd;
 
     /**
+     * The last arguments passed to the delegate.
+     *
+     * These are stashed after each call so anything changed by reference can
+     * be processed.
+     *
+     * @var array
+     */
+    protected $lastArguments;
+
+    /**
+     * Number of times to retry queries.
+     *
+     * @var mixed
+     */
+    protected $numRetries;
+
+    /**
      * Create a new MongoCollection instance that wraps a PHP MongoCollection instance
      * for a given ClassMetadata instance.
      *
@@ -74,13 +91,15 @@ class Collection
      * @param Database $database The Database instance.
      * @param EventManager $evm The EventManager instance.
      * @param string $cmd Mongo cmd character.
+     * @param boolean|integer $numRetries Number of times to retry queries.
      */
-    public function __construct(\MongoCollection $mongoCollection, Database $database, EventManager $evm, $cmd)
+    public function __construct(\MongoCollection $mongoCollection, Database $database, EventManager $evm, $cmd, $numRetries = 0)
     {
         $this->mongoCollection = $mongoCollection;
         $this->database = $database;
         $this->eventManager = $evm;
         $this->cmd = $cmd;
+        $this->numRetries = (integer) $numRetries;
     }
 
     /** @proxy */
@@ -143,7 +162,19 @@ class Collection
 
     protected function doBatchInsert(array &$a, array $options = array())
     {
-        return $this->mongoCollection->batchInsert($a, $options);
+        $result = $this->callDelegate('batchInsert', array(
+            'data'    => $a,
+            'options' => $options,
+        ));
+
+        // process lastArguments
+        foreach ($this->lastArguments['data'] as $i => $doc) {
+            if (isset($doc['_id'])) {
+                $a[$i]['_id'] = $doc['_id'];
+            }
+        }
+
+        return $result;
     }
 
     /** @override */
@@ -167,7 +198,19 @@ class Collection
         if (is_scalar($query)) {
             $query = array('_id' => $query);
         }
-        return $this->mongoCollection->update($query, $newObj, $options);
+
+        $result = $this->callDelegate('update', array(
+            'query'   => $query,
+            'newObj'  => $newObj,
+            'options' => $options,
+        ));
+
+        // // uncomment when $newObj is passed by reference (see GH-36)
+        // if (isset($this->lastArguments['newObj']['_id'])) {
+        //     $newObj['_id'] = $this->lastArguments['newObj']['_id'];
+        // }
+
+        return $result;
     }
 
     /** @override */
@@ -188,13 +231,17 @@ class Collection
 
     protected function doFind(array $query, array $fields)
     {
-        $cursor = $this->mongoCollection->find($query, $fields);
+        $cursor = $this->callDelegate('find', array(
+            'query'  => $query,
+            'fields' => $fields,
+        ));
+
         return $this->wrapCursor($cursor, $query, $fields);
     }
 
     protected function wrapCursor(\MongoCursor $cursor, $query, $fields)
     {
-        return new Cursor($cursor);
+        return new Cursor($cursor, $this->numRetries);
     }
 
     /** @override */
@@ -215,7 +262,10 @@ class Collection
 
     protected function doFindOne(array $query, array $fields)
     {
-        return $this->mongoCollection->findOne($query, $fields);
+        return $this->callDelegate('findOne', array(
+            'query'  => $query,
+            'fields' => $fields,
+        ), true);
     }
 
     public function findAndRemove(array $query, array $options = array())
@@ -247,7 +297,10 @@ class Collection
             $document = $result['value'];
             if ($this->mongoCollection instanceof \MongoGridFS) {
                 // Remove the file data from the chunks collection
-                $this->mongoCollection->chunks->remove(array('files_id' => $document['_id']), $options);
+                $mongoCollection = $this->mongoCollection;
+                $this->retry(function() use ($mongoCollection, $document, $options) {
+                    return $mongoCollection->chunks->remove(array('files_id' => $document['_id']), $options);
+                });
             }
         }
         return $document;
@@ -372,13 +425,19 @@ class Collection
             return new ArrayIterator($result['results']);
         }
 
-        return $this->database->selectCollection($result['result'])->find();
+        return $this->retry(function() use ($database, $command, $result) {
+            return $database->selectCollection($result['result'])->find();
+        });
     }
 
     /** @proxy */
     public function count(array $query = array(), $limit = 0, $skip = 0)
     {
-        return $this->mongoCollection->count($query, $limit, $skip);
+        return $this->callDelegate('count', array(
+            'query' => $query,
+            'limit' => $limit,
+            'skip'  => $skip,
+        ), true);
     }
 
     /** @proxy */
@@ -399,19 +458,19 @@ class Collection
 
     protected function doCreateDBRef(array $a)
     {
-        return $this->mongoCollection->createDBRef($a);
+        return $this->callDelegate('createDBRef', array('data' => $a));
     }
 
     /** @proxy */
     public function deleteIndex($keys)
     {
-        return $this->mongoCollection->deleteIndex($keys);
+        return $this->callDelegate('deleteIndex', array('keys' => $keys));
     }
 
     /** @proxy */
     public function deleteIndexes()
     {
-        return $this->mongoCollection->deleteIndexes();
+        return $this->callDelegate('deleteIndexes');
     }
 
     /** @proxy */
@@ -432,13 +491,16 @@ class Collection
 
     protected function doDrop()
     {
-        return $this->mongoCollection->drop();
+        return $this->callDelegate('drop');
     }
 
     /** @proxy */
     public function ensureIndex(array $keys, array $options = array())
     {
-        return $this->mongoCollection->ensureIndex($keys, $options);
+        return $this->callDelegate('ensureIndex', array(
+            'keys'    => $keys,
+            'options' => $options,
+        ));
     }
 
     /** @proxy */
@@ -448,13 +510,13 @@ class Collection
     }
 
     /** @proxy */
-    public function getDBRef(array $reference)
+    public function getDBRef(array $ref)
     {
         if ($this->eventManager->hasListeners(Events::preGetDBRef)) {
-            $this->eventManager->dispatchEvent(Events::preGetDBRef, new EventArgs($this, $reference));
+            $this->eventManager->dispatchEvent(Events::preGetDBRef, new EventArgs($this, $ref));
         }
 
-        $result = $this->doGetDBRef($reference);
+        $result = $this->doGetDBRef($ref);
 
         if ($this->eventManager->hasListeners(Events::postGetDBRef)) {
             $this->eventManager->dispatchEvent(Events::postGetDBRef, new EventArgs($this, $result));
@@ -463,9 +525,9 @@ class Collection
         return $result;
     }
 
-    protected function doGetDBRef(array $reference)
+    protected function doGetDBRef(array $ref)
     {
-        return $this->mongoCollection->getDBRef($reference);
+        return $this->callDelegate('getDBRef', array('ref' => $ref), true);
     }
 
     /** @proxy */
@@ -486,7 +548,13 @@ class Collection
 
     protected function doGroup($keys, array $initial, $reduce, array $options)
     {
-        $result = $this->mongoCollection->group($keys, $initial, $reduce, $options);
+        $result = $this->callDelegate('group', array(
+            'keys'    => $keys,
+            'initial' => $initial,
+            'reduce'  => $reduce,
+            'options' => $options,
+        ), true);
+
         return new ArrayIterator($result);
     }
 
@@ -507,11 +575,16 @@ class Collection
 
     protected function doInsert(array &$a, array $options)
     {
-        $document = $a;
-        $result = $this->mongoCollection->insert($document, $options);
-        if ($result && isset($document['_id'])) {
-            $a['_id'] = $document['_id'];
+        $result = $this->callDelegate('insert', array(
+            'data'    => $a,
+            'options' => $options,
+        ), true);
+
+        // process lastArguments
+        if (isset($this->lastArguments['data']['_id'])) {
+            $a['_id'] = $this->lastArguments['data']['_id'];
         }
+
         return $result;
     }
 
@@ -533,7 +606,10 @@ class Collection
 
     protected function doRemove(array $query, array $options)
     {
-        return $this->mongoCollection->remove($query, $options);
+        return $this->callDelegate('remove', array(
+            'query'   => $query,
+            'options' => $options,
+        ));
     }
 
     /** @proxy */
@@ -554,18 +630,68 @@ class Collection
 
     protected function doSave(array &$a, array $options)
     {
-        return $this->mongoCollection->save($a, $options);
+        $result = $this->callDelegate('save', array(
+            'data'    => $a,
+            'options' => $options,
+        ), true);
+
+        if (isset($this->lastArguments['data']['_id'])) {
+            $a['_id'] = $this->lastArguments['data']['_id'];
+        }
+
+        return $result;
     }
 
     /** @proxy */
     public function validate($scanData = false)
     {
-        return $this->mongoCollection->validate($scanData);
+        return $this->callDelegate('validate', array('scanData' => $scanData), true);
     }
 
     /** @proxy */
     public function __toString()
     {
         return $this->mongoCollection->__toString();
+    }
+
+    /**
+     * Calls a method on the inner collection.
+     *
+     * @param string $method The method to call
+     * @param array $arguments Arguments for that method
+     * @param boolean $retry Whether to retry the method
+     *
+     * @return mixed The method return value
+     */
+    protected function callDelegate($method, array $arguments = array(), $retry = false)
+    {
+        $this->lastArguments = $arguments;
+
+        if (!$retry) {
+            return call_user_func_array(array($this->mongoCollection, $method), $this->lastArguments);
+        }
+
+        $mongoCollection = $this->mongoCollection;
+        $lastArguments =& $this->lastArguments;
+        return $this->retry(function() use($mongoCollection, $method, &$lastArguments) {
+            return call_user_func_array(array($mongoCollection, $method), $lastArguments);
+        });
+    }
+
+    protected function retry(\Closure $retry)
+    {
+        if (!$this->numRetries) {
+            return $retry();
+        }
+
+        for ($i = 0; $i <= $this->numRetries; $i++) {
+            try {
+                return $retry();
+            } catch (\MongoException $e) {
+                sleep(1);
+            }
+        }
+
+        throw $e;
     }
 }

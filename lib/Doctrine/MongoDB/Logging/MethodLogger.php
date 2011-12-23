@@ -17,22 +17,35 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\MongoDB;
+namespace Doctrine\MongoDB\Logging;
 
 /**
- * GridFS
+ * Describes a method logger.
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
- * @link        www.doctrine-project.org
- * @since       1.0
- * @author      Bulat Shakirzyanov <mallluhuct@gmail.com>
+ * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @link    www.doctrine-project.org
+ * @since   1.0
+ * @author  Kris Wallsmith <kris.wallsmith@gmail.com>
  */
-interface Loggable
+interface MethodLogger
 {
+    const CONTEXT_DATABASE = 'database';
+    const CONTEXT_COLLECTION = 'collection';
+    const CONTEXT_CURSOR = 'cursor';
+
     /**
-     * Log something using the configured logger callable.
+     * Logs a method call.
      *
-     * @param array $log The array of data to log.
+     * @param string $context    The method context
+     * @param string $method     The method name
+     * @param array  $arguments  The method arguments
+     * @param string $database   The database name
+     * @param string $collection The collection name
      */
-    function log(array $log);
+    function startMethod($context, $method, array $arguments = array(), $database = null, $collection = null);
+
+    /**
+     * Logs the end of the current method call.
+     */
+    function stopMethod();
 }
