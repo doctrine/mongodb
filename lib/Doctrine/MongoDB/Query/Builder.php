@@ -78,6 +78,7 @@ class Builder
         'near' => array(),
         'new' => false,
         'upsert' => false,
+        'multiple' => false,
     );
 
     /**
@@ -180,7 +181,7 @@ class Builder
         $this->query['type'] = Query::TYPE_FIND;
         return $this;
     }
-    
+
     public function count()
     {
         $this->query['type'] = Query::TYPE_COUNT;
@@ -229,6 +230,12 @@ class Builder
     public function update()
     {
         $this->query['type'] = Query::TYPE_UPDATE;
+        return $this;
+    }
+
+    public function multiple($bool = true)
+    {
+        $this->query['multiple'] = $bool;
         return $this;
     }
 
