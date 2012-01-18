@@ -158,9 +158,6 @@ class BuilderTest extends BaseTest
     {
         $coll = $this->conn->selectCollection('db', 'users');
 
-        $expression1 = array('firstName' => 'Kris');
-        $expression2 = array('firstName' => 'Chris');
-
         $qb = $coll->createQueryBuilder();
         $qb->addOr($qb->expr()->field('firstName')->equals('Kris'));
         $qb->addOr($qb->expr()->field('firstName')->equals('Chris'));
@@ -221,6 +218,38 @@ class BuilderTest extends BaseTest
         $this->assertEquals($expected, $qb->getQueryArray());
     }
 
+    public function testUpsertUpdateQuery()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->update()
+            ->upsert(true)
+            ->field('username')->set('jwage');
+
+        $expected = array(
+            '$set' => array(
+                'username' => 'jwage'
+            )
+        );
+        $this->assertEquals($expected, $qb->getNewObj());
+        $this->assertTrue($qb->debug('upsert'));
+    }
+
+    public function testMultipleUpdateQuery()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->update()
+            ->multiple(true)
+            ->field('username')->set('jwage');
+
+        $expected = array(
+            '$set' => array(
+                'username' => 'jwage'
+            )
+        );
+        $this->assertEquals($expected, $qb->getNewObj());
+        $this->assertTrue($qb->debug('multiple'));
+    }
+
     public function testComplexUpdateQuery()
     {
         $qb = $this->getTestQueryBuilder()
@@ -246,7 +275,6 @@ class BuilderTest extends BaseTest
             ->update()
             ->field('hits')->inc(5)
             ->field('username')->equals('boo');
-        $query = $qb->getQuery();
 
         $expected = array(
             'username' => 'boo'

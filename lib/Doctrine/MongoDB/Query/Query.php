@@ -176,6 +176,9 @@ class Query implements IteratorAggregate
                 if ($this->query['upsert']) {
                     $this->options['upsert'] = $this->query['upsert'];
                 }
+                if ($this->query['multiple']) {
+                    $this->options['multiple'] = $this->query['multiple'];
+                }
                 return $this->collection->update($this->query['query'], $this->query['newObj'], $this->options);
 
             case self::TYPE_REMOVE:
@@ -206,7 +209,7 @@ class Query implements IteratorAggregate
                     $this->options['num'] = $this->query['limit'];
                 }
                 return $this->collection->near($this->query['near'], $this->query['query'], $this->options);
-                
+
             case self::TYPE_COUNT:
                 return $this->collection->count($this->query['query']);
         }
