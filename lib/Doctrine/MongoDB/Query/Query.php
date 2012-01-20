@@ -19,11 +19,12 @@
 
 namespace Doctrine\MongoDB\Query;
 
-use Doctrine\MongoDB\IteratorAggregate;
-use Doctrine\MongoDB\Iterator;
-use Doctrine\MongoDB\Database;
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Cursor;
+use Doctrine\MongoDB\Database;
+use Doctrine\MongoDB\EagerCursor;
+use Doctrine\MongoDB\IteratorAggregate;
+use Doctrine\MongoDB\Iterator;
 
 /**
  * Query is responsible for executing and returning the results from queries built by the
@@ -142,8 +143,7 @@ class Query implements IteratorAggregate
                     $this->query['query'][$this->cmd . 'where'] = $this->query['mapReduce']['reduce'];
                 }
                 $cursor = $this->collection->find($this->query['query'], $this->query['select']);
-                $this->prepareCursor($cursor);
-                return $cursor;
+                return $this->prepareCursor($cursor);
 
             case self::TYPE_FIND_AND_UPDATE:
                 if ($this->query['sort']) {
@@ -193,7 +193,7 @@ class Query implements IteratorAggregate
                 $cursor = $this->collection->mapReduce($this->query['mapReduce']['map'], $this->query['mapReduce']['reduce'], $this->query['mapReduce']['out'], $this->query['query'], $options);
 
                 if ($cursor instanceof Cursor) {
-                    $this->prepareCursor($cursor);
+                    $cursor = $this->prepareCursor($cursor);
                 }
 
                 return $cursor;
@@ -225,6 +225,10 @@ class Query implements IteratorAggregate
         foreach ($this->query['hints'] as $keyPattern) {
             $cursor->hint($keyPattern);
         }
+        if ($this->query['eagerCursor'] === true) {
+            $cursor = new EagerCursor($cursor);
+        }
+        return $cursor;
     }
 
     /**
