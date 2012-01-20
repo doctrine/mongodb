@@ -70,6 +70,7 @@ class Builder
         'immortal' => false,
         'snapshot' => false,
         'slaveOkay' => false,
+        'eagerCursor' => false,
         'mapReduce' => array(
             'map' => null,
             'reduce' => null,
@@ -131,6 +132,18 @@ class Builder
     public function slaveOkay($bool = true)
     {
         $this->query['slaveOkay'] = $bool;
+        return $this;
+    }
+
+    /**
+     * Set eager cursor.
+     *
+     * @param bool $bool
+     * @return Builder
+     */
+    public function eagerCursor($bool = true)
+    {
+        $this->query['eagerCursor'] = $bool;
         return $this;
     }
 
