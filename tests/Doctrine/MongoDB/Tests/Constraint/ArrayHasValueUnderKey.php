@@ -12,7 +12,7 @@ class ArrayHasValueUnderKey extends \PHPUnit_Framework_Constraint
         $this->value = $value;
     }
 
-    public function evaluate($other)
+    public function evaluate($other, $description = '', $returnResult = FALSE)
     {
         if (!isset($other[$this->key])) {
             return false;
