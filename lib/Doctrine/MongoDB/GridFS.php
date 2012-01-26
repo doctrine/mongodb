@@ -30,9 +30,18 @@ namespace Doctrine\MongoDB;
 class GridFS extends Collection
 {
     /** @override */
+    public function getMongoCollection()
+    {
+        return $this->database->getMongoDB()->getGridFS($this->name);
+    }
+
+    /** @override */
     protected function doFindOne(array $query = array(), array $fields = array())
     {
-        $file = $this->mongoCollection->findOne($query, $fields);
+        $collection = $this;
+        $file = $this->retry(function() use ($collection, $query, $fields) {
+            return $collection->getMongoCollection()->findOne($query, $fields);
+        });
         if ($file) {
             $document = $file->file;
             $document['file'] = new GridFSFile($file);
@@ -83,7 +92,7 @@ class GridFS extends Collection
             } elseif (empty($newObj[$this->cmd.'set'])) {
                 $newObj[$this->cmd.'set'] = new \stdClass();
             }
-            $this->mongoCollection->update($query, $newObj, $options);
+            $this->getMongoCollection()->update($query, $newObj, $options);
         }
         return $newObj;
     }
@@ -139,12 +148,12 @@ class GridFS extends Collection
             $file = new GridFSFile($file);
         }
         if ($file->hasUnpersistedFile()) {
-            $id = $this->mongoCollection->storeFile($file->getFilename(), $document, $options);
+            $id = $this->getMongoCollection()->storeFile($file->getFilename(), $document, $options);
         } else {
-            $id = $this->mongoCollection->storeBytes($file->getBytes(), $document, $options);
+            $id = $this->getMongoCollection()->storeBytes($file->getBytes(), $document, $options);
         }
         $document = array_merge(array('_id' => $id), $document);
-        $file->setMongoGridFSFile(new \MongoGridFSFile($this->mongoCollection, $document));
+        $file->setMongoGridFSFile(new \MongoGridFSFile($this->getMongoCollection(), $document));
         return $file;
     }
 }

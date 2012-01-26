@@ -45,19 +45,20 @@ class LoggableCollection extends Collection implements Loggable
      * Create a new MongoCollection instance that wraps a PHP MongoCollection instance
      * for a given ClassMetadata instance.
      *
-     * @param MongoCollection $mongoCollection The MongoCollection instance.
+     * @param Connection $connection The Doctrine Connection instance.
+     * @param string $name The name of the collection.
      * @param Database $database The Database instance.
      * @param EventManager $evm The EventManager instance.
      * @param string $cmd Mongo cmd character.
      * @param Closure $loggerCallable The logger callable.
      */
-    public function __construct(\MongoCollection $mongoCollection, Database $database, EventManager $evm, $cmd, $loggerCallable)
+    public function __construct(Connection $connection, $name, Database $database, EventManager $evm, $cmd, $loggerCallable)
     {
         if ( ! is_callable($loggerCallable)) {
             throw new \InvalidArgumentException('$loggerCallable must be a valid callback');
         }
         $this->loggerCallable = $loggerCallable;
-        parent::__construct($mongoCollection, $database, $evm, $cmd);
+        parent::__construct($connection, $name, $database, $evm, $cmd);
     }
 
     /**
@@ -264,6 +265,6 @@ class LoggableCollection extends Collection implements Loggable
     /** @override */
     protected function wrapCursor(\MongoCursor $cursor, $query, $fields)
     {
-        return new LoggableCursor($cursor, $this->loggerCallable, $query, $fields);
+        return new LoggableCursor($this->connection, $this, $cursor, $this->loggerCallable, $query, $fields);
     }
 }

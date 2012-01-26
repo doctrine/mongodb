@@ -29,17 +29,81 @@ namespace Doctrine\MongoDB;
  */
 class Cursor implements Iterator
 {
+    /** The Doctrine Connection */
+    protected $connection;
+
+    /** The Doctrine Collection */
+    protected $collection;
+
     /** The PHP MongoCursor being wrapped */
     protected $mongoCursor;
+
+    /** Number of times to try operations on the cursor */
+    protected $numRetries;
+    protected $query = array();
+    protected $fields = array();
+    protected $hints = array();
+    protected $immortal = false;
+    protected $options = array();
+    protected $batchSize;
+    protected $limit;
+    protected $skip;
+    protected $slaveOkay = false;
+    protected $snapshot;
+    protected $sorts = array();
+    protected $tailable = false;
+    protected $timeout;
 
     /**
      * Create a new MongoCursor which wraps around a given PHP MongoCursor.
      *
+     * @param Connection $connection The Doctrine Connection instance.
+     * @param Collection $collection The Doctrine Collection that created this cursor.
      * @param MongoCursor $mongoCursor The cursor being wrapped.
+     * @param array $query Query object for this cursor.
+     * @param array $fields Fields to select for this cursor.
+     * @param boolean|integer $numRetries Number of times to retry queries.
      */
-    public function __construct(\MongoCursor $mongoCursor)
+    public function __construct(Connection $connection, Collection $collection, \MongoCursor $mongoCursor, array $query = array(), array $fields = array(), $numRetries = 0)
     {
+        $this->connection = $connection;
+        $this->collection = $collection;
         $this->mongoCursor = $mongoCursor;
+        $this->query = $query;
+        $this->fields = $fields;
+        $this->numRetries = (integer) $numRetries;
+    }
+
+    public function recreate()
+    {
+        $this->mongoCursor = $this->collection->getMongoCollection()->find($this->query, $this->fields);
+        foreach ($this->hints as $hint) {
+            $this->mongoCursor->hint($hint);
+        }
+        $this->mongoCursor->immortal($this->immortal);
+        foreach ($this->options as $key => $value) {
+            $this->mongoCursor->addOption($key, $value);
+        }
+        if ($this->batchSize !== null) {
+            $this->mongoCursor->batchSize($this->batchSize);
+        }
+        if ($this->limit !== null) {
+            $this->mongoCursor->limit($this->limit);
+        }
+        if ($this->skip !== null) {
+            $this->mongoCursor->skip($this->skip);
+        }
+        $this->mongoCursor->slaveOkay($this->slaveOkay);
+        if ($this->snapshot) {
+            $this->mongoCursor->snapshot();
+        }
+        foreach ($this->sorts as $sort) {
+            $this->mongoCursor->sort($sort);
+        }
+        $this->mongoCursor->tailable($this->tailable);
+        if ($this->timeout !== null) {
+            $this->mongoCursor->timeout($this->timeout);
+        }
     }
 
     /**
@@ -79,12 +143,16 @@ class Cursor implements Iterator
     /** @proxy */
     public function explain()
     {
-        return $this->mongoCursor->explain();
+        $cursor = $this;
+        return $this->retry(function() use ($cursor) {
+            return $cursor->getMongoCursor()->explain();
+        }, true);
     }
 
     /** @proxy */
     public function fields(array $f)
     {
+        $this->fields = $f;
         $this->mongoCursor->fields($f);
         return $this;
     }
@@ -92,7 +160,10 @@ class Cursor implements Iterator
     /** @proxy */
     public function getNext()
     {
-        $next = $this->mongoCursor->getNext();
+        $cursor = $this;
+        $next = $this->retry(function() use ($cursor) {
+            return $cursor->getMongoCursor()->getNext();
+        }, false);
         if ($next instanceof \MongoGridFSFile) {
             $document = $next->file;
             $document['file'] = new GridFSFile($next);
@@ -104,12 +175,16 @@ class Cursor implements Iterator
     /** @proxy */
     public function hasNext()
     {
-        return $this->mongoCursor->hasNext();
+        $cursor = $this;
+        return $this->retry(function() use ($cursor) {
+            return $cursor->getMongoCursor()->hasNext();
+        }, false);
     }
 
     /** @proxy */
     public function hint(array $keyPattern)
     {
+        $this->hints[] = $keyPattern;
         $this->mongoCursor->hint($keyPattern);
         return $this;
     }
@@ -117,6 +192,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function immortal($liveForever = true)
     {
+        $this->immortal = $liveForever;
         $this->mongoCursor->immortal($liveForever);
         return $this;
     }
@@ -130,13 +206,20 @@ class Cursor implements Iterator
     /** @proxy */
     public function rewind()
     {
-        return $this->mongoCursor->rewind();
+        $cursor = $this;
+        return $this->retry(function() use ($cursor) {
+            return $cursor->getMongoCursor()->rewind();
+        }, false);
     }
+
 
     /** @proxy */
     public function next()
     {
-        return $this->mongoCursor->next();
+        $cursor = $this;
+        return $this->retry(function() use ($cursor) {
+            return $cursor->getMongoCursor()->next();
+        }, false);
     }
 
     /** @proxy */
@@ -148,12 +231,16 @@ class Cursor implements Iterator
     /** @proxy */
     public function count($foundOnly = false)
     {
-        return $this->mongoCursor->count($foundOnly);
+        $cursor = $this;
+        return $this->retry(function() use ($cursor, $foundOnly) {
+            return $cursor->getMongoCursor()->count($foundOnly);
+        }, true);
     }
 
     /** @proxy */
     public function addOption($key, $value)
     {
+        $this->options[$key] = $value;
         $this->mongoCursor->addOption($key, $value);
         return $this;
     }
@@ -161,6 +248,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function batchSize($num)
     {
+        $this->batchSize = $num;
         $this->mongoCursor->batchSize($num);
         return $this;
     }
@@ -168,6 +256,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function limit($num)
     {
+        $this->limit = $num;
         $this->mongoCursor->limit($num);
         return $this;
     }
@@ -175,6 +264,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function skip($num)
     {
+        $this->skip = $num;
         $this->mongoCursor->skip($num);
         return $this;
     }
@@ -182,6 +272,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function slaveOkay($okay = true)
     {
+        $this->slaveOkay = $okay;
         $this->mongoCursor->slaveOkay($okay);
         return $this;
     }
@@ -189,6 +280,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function snapshot()
     {
+        $this->snapshot = true;
         $this->mongoCursor->snapshot();
         return $this;
     }
@@ -203,6 +295,7 @@ class Cursor implements Iterator
             $order = (int) $order;
             $fields[$fieldName] = $order;
         }
+        $this->sorts[] = $fields;
         $this->mongoCursor->sort($fields);
         return $this;
     }
@@ -210,6 +303,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function tailable($tail = true)
     {
+        $this->tailable = $tail;
         $this->mongoCursor->tailable($tail);
         return $this;
     }
@@ -217,6 +311,7 @@ class Cursor implements Iterator
     /** @proxy */
     public function timeout($ms)
     {
+        $this->timeout = $ms;
         $this->mongoCursor->timeout($ms);
         return $this;
     }
@@ -229,7 +324,10 @@ class Cursor implements Iterator
 
     public function toArray()
     {
-        return iterator_to_array($this);
+        $cursor = $this;
+        return $this->retry(function() use ($cursor) {
+            return iterator_to_array($cursor);
+        }, true);
     }
 
     /**
@@ -239,12 +337,42 @@ class Cursor implements Iterator
      */
     public function getSingleResult()
     {
-        $result = null;
-        $this->valid() ?: $this->next();
-        if ($this->valid()) {
-            $result = $this->current();
+        $originalLimit = $this->limit;
+        $this->limit(1);
+        $results = $this->toArray();
+        return $results ? current($results) : null;
+    }
+
+    protected function retry(\Closure $retry, $recreate = false)
+    {
+        if ($this->numRetries) {
+            $firstException = null;
+            for ($i = 0; $i <= $this->numRetries; $i++) {
+                $reconnect = false;
+                try {
+                    return $retry();
+                } catch (\MongoCursorTimeoutException $e) {
+                } catch (\MongoCursorException $e) {
+                } catch (\MongoConnectionException $e) {
+                    $reconnect = true;
+                }
+                if (isset($e)) {
+                    if (!$firstException) {
+                        $firstException = $e;
+                    }
+                    if ($i === $this->numRetries) {
+                        throw $firstException;
+                    }
+                    if ($recreate) {
+                        if ($reconnect) {
+                            $this->connection->initialize(true);
+                        }
+                        $this->recreate();
+                    }
+                }
+            }
+        } else {
+            return $retry();
         }
-        $this->reset();
-        return $result ? $result : null;
     }
 }

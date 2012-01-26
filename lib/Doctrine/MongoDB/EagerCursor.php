@@ -57,6 +57,7 @@ class EagerCursor implements Iterator
     {
         if ($this->initialized === false) {
             $this->data = $this->cursor->toArray();
+            unset($this->cursor);
         }
         $this->initialized = true;
     }
