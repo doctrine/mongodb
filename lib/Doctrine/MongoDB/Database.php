@@ -33,8 +33,19 @@ use Doctrine\Common\EventManager,
  */
 class Database
 {
-    /** The PHP MongoDB instance being wrapped */
-    protected $mongoDB;
+    /**
+     * Doctrine mongodb connection instance.
+     *
+     * @var Doctrine\MongoDB\Connection
+     */
+    protected $connection;
+
+    /**
+     * The name of the database
+     *
+     * @var string $Name
+     */
+    protected $name;
 
     /**
      * The event manager that is the central point of the event system.
@@ -51,17 +62,28 @@ class Database
     protected $cmd;
 
     /**
+     * Number of times to retry queries.
+     *
+     * @var mixed
+     */
+    protected $numRetries;
+
+    /**
      * Create a new MongoDB instance which wraps a PHP MongoDB instance.
      *
-     * @param MongoDB $mongoDB  The MongoDB instance to wrap.
+     * @param Connection $connection The Doctrine Connection instance.
+     * @param string $name The name of the database.
      * @param EventManager $evm  The EventManager instance.
      * @param string $cmd  The MongoDB cmd character.
+     * @param boolean|integer $numRetries Number of times to retry queries.
      */
-    public function __construct(\MongoDB $mongoDB, EventManager $evm, $cmd)
+    public function __construct(Connection $connection, $name, EventManager $evm, $cmd, $numRetries = 0)
     {
-        $this->mongoDB = $mongoDB;
+        $this->connection = $connection;
+        $this->name = $name;
         $this->eventManager = $evm;
         $this->cmd = $cmd;
+        $this->numRetries = (integer) $numRetries;
     }
 
     /**
@@ -71,7 +93,7 @@ class Database
      */
     public function getName()
     {
-        return $this->__toString();
+        return $this->name;
     }
 
     /**
@@ -81,19 +103,19 @@ class Database
      */
     public function getMongoDB()
     {
-        return $this->mongoDB;
+        return $this->connection->getMongo()->selectDB($this->name);
     }
 
     /** @proxy */
     public function authenticate($username, $password)
     {
-        return $this->mongoDB->authenticate($username, $password);
+        return $this->getMongoDB()->authenticate($username, $password);
     }
 
     /** @proxy */
     public function command(array $data)
     {
-        return $this->mongoDB->command($data);
+        return $this->getMongoDB()->command($data);
     }
 
     /** @proxy */
@@ -103,7 +125,7 @@ class Database
             $this->eventManager->dispatchEvent(Events::preCreateCollection, new CreateCollectionEventArgs($this, $name, $capped, $size, $max));
         }
 
-        $result = $this->mongoDB->createCollection($name, $capped, $size, $max);
+        $result = $this->getMongoDB()->createCollection($name, $capped, $size, $max);
 
         if ($this->eventManager->hasListeners(Events::postCreateCollection)) {
             $this->eventManager->dispatchEvent(Events::postCreateCollection, new EventArgs($this, $prefix));
@@ -115,7 +137,7 @@ class Database
     /** @proxy */
     public function createDBRef($collection, $a)
     {
-        return $this->mongoDB->createDBRef($collection, $a);
+        return $this->getMongoDB()->createDBRef($collection, $a);
     }
 
     /** @proxy */
@@ -125,7 +147,7 @@ class Database
             $this->eventManager->dispatchEvent(Events::preDropDatabase, new EventArgs($this));
         }
 
-        $result = $this->mongoDB->drop();
+        $result = $this->getMongoDB()->drop();
 
         if ($this->eventManager->hasListeners(Events::postDropDatabase)) {
             $this->eventManager->dispatchEvent(Events::postDropDatabase, new EventArgs($this));
@@ -137,31 +159,31 @@ class Database
     /** @proxy */
     public function dropCollection($coll)
     {
-        return $this->mongoDB->dropCollection($coll);
+        return $this->getMongoDB()->dropCollection($coll);
     }
 
     /** @proxy */
     public function execute($code, array $args = array())
     {
-        return $this->mongoDB->execute($code, $args);
+        return $this->getMongoDB()->execute($code, $args);
     }
 
     /** @proxy */
     public function forceError()
     {
-        return $this->mongoDB->forceError();
+        return $this->getMongoDB()->forceError();
     }
 
     /** @proxy */
     public function __get($name)
     {
-        return $this->mongoDB->__get($name);
+        return $this->getMongoDB()->__get($name);
     }
 
     /** @proxy */
     public function getDBRef(array $ref)
     {
-        return $this->mongoDB->getDBRef($ref);
+        return $this->getMongoDB()->getDBRef($ref);
     }
 
     /** @proxy */
@@ -171,8 +193,7 @@ class Database
             $this->eventManager->dispatchEvent(Events::preGetGridFS, new EventArgs($this, $prefix));
         }
 
-        $gridFS = $this->mongoDB->getGridFS($prefix);
-        $gridFS = $this->wrapGridFS($gridFS);
+        $gridFS = $this->doGetGridFs($prefix);
 
         if ($this->eventManager->hasListeners(Events::preGetGridFS)) {
             $this->eventManager->dispatchEvent(Events::preGetGridFS, new EventArgs($this, $gridFS));
@@ -181,47 +202,47 @@ class Database
         return $gridFS;
     }
 
-    protected function wrapGridFS(\MongoGridFS $gridFS)
+    protected function doGetGridFs($name)
     {
         return new GridFS(
-            $gridFS, $this, $this->eventManager, $this->cmd
+            $this->connection, $name, $this, $this->eventManager, $this->cmd
         );
     }
 
     /** @proxy */
     public function getProfilingLevel()
     {
-        return $this->mongoDB->getProfilingLevel();
+        return $this->getMongoDB()->getProfilingLevel();
     }
 
     /** @proxy */
     public function lastError()
     {
-        return $this->mongoDB->lastError();
+        return $this->getMongoDB()->lastError();
     }
 
     /** @proxy */
     public function listCollections()
     {
-        return $this->mongoDB->listCollections();
+        return $this->getMongoDB()->listCollections();
     }
 
     /** @proxy */
     public function prevError()
     {
-        return $this->mongoDB->prevError();
+        return $this->getMongoDB()->prevError();
     }
 
     /** @proxy */
     public function repair($preserveClonedFiles = false, $backupOriginalFiles = false)
     {
-        return $this->mongoDB->repair($preserveClonedFiles, $backupOriginalFiles);
+        return $this->getMongoDB()->repair($preserveClonedFiles, $backupOriginalFiles);
     }
 
     /** @proxy */
     public function resetError()
     {
-        return $this->mongoDB->resetError();
+        return $this->getMongoDB()->resetError();
     }
 
     /** @proxy */
@@ -231,8 +252,7 @@ class Database
             $this->eventManager->dispatchEvent(Events::preSelectCollection, new EventArgs($this, $name));
         }
 
-        $collection = $this->mongoDB->selectCollection($name);
-        $collection = $this->wrapCollection($collection);
+        $collection = $this->doSelectCollection($name);
 
         if ($this->eventManager->hasListeners(Events::postSelectCollection)) {
             $this->eventManager->dispatchEvent(Events::postSelectCollection, new EventArgs($this, $collection));
@@ -242,27 +262,26 @@ class Database
     }
 
     /**
-     * Method which wraps a MongoCollection with a Doctrine\MongoDB\Collection instance.
+     * Method which creates a Doctrine\MongoDB\Collection instance.
      *
-     * @param MongoCollection $collection
+     * @param string $name
      * @return Collection $coll
      */
-    protected function wrapCollection(\MongoCollection $collection)
+    protected function doSelectCollection($name)
     {
         return new Collection(
-            $collection, $this, $this->eventManager, $this->cmd
+            $this->connection, $name, $this, $this->eventManager, $this->cmd, $this->numRetries
         );
     }
 
     /** @proxy */
     public function setProfilingLevel($level)
     {
-        return $this->mongoDB->setProfilingLevel($level);
+        return $this->getMongoDB()->setProfilingLevel($level);
     }
 
-    /** @proxy */
     public function __toString()
     {
-        return $this->mongoDB->__toString();
+        return $this->name;
     }
 }

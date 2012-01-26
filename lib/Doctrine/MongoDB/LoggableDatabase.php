@@ -42,17 +42,19 @@ class LoggableDatabase extends Database implements Loggable
     /**
      * Create a new MongoDB instance which wraps a PHP MongoDB instance.
      *
-     * @param MongoDB $mongoDB  The MongoDB instance to wrap.
+     * @param Connection $connection The Doctrine Connection instance.
+     * @param string $name The name of the database.
      * @param EventManager $evm  The EventManager instance.
      * @param string $cmd  The MongoDB cmd character.
+     * @param mixed $numRetries Number of times to retry queries.
      * @param Closure $loggerCallable  Logger callback function.
      */
-    public function __construct(\MongoDB $mongoDB, EventManager $evm, $cmd, $loggerCallable)
+    public function __construct(Connection $connection, $name, EventManager $evm, $cmd, $numRetries, $loggerCallable)
     {
         if ( ! is_callable($loggerCallable)) {
             throw new \InvalidArgumentException('$loggerCallable must be a valid callback');
         }
-        parent::__construct($mongoDB, $evm, $cmd);
+        parent::__construct($connection, $name, $evm, $cmd, $numRetries);
         $this->loggerCallable = $loggerCallable;
     }
 
@@ -149,16 +151,15 @@ class LoggableDatabase extends Database implements Loggable
     }
 
     /**
-     * Method which wraps a MongoCollection with a Doctrine\MongoDB\Collection instance.
+     * Method which creates a Doctrine\MongoDB\Collection instance.
      *
-     * @param MongoCollection $collection
+     * @param string $name
      * @return Collection $coll
      */
-    protected function wrapCollection(\MongoCollection $collection)
+    protected function doSelectCollection($name)
     {
         return new LoggableCollection(
-            $collection, $this, $this->eventManager, $this->cmd, $this->loggerCallable
+            $this->connection, $name, $this, $this->eventManager, $this->cmd, $this->loggerCallable
         );
     }
-
 }

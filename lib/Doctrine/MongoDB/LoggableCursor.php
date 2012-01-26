@@ -53,17 +53,19 @@ class LoggableCursor extends Cursor implements Loggable
     /**
      * Create a new MongoCursor which wraps around a given PHP MongoCursor.
      *
+     * @param Connection $connection The Doctrine Connection instance.
+     * @param Collection $collection The Doctrine Collection that created this cursor.
      * @param MongoCursor $mongoCursor The cursor being wrapped.
      * @param mixed $loggerCallable Logger callable.
      * @param array $query The query array that was used to create this cursor.
      * @param array $query The fields selected on this cursor.
      */
-    public function __construct(\MongoCursor $mongoCursor, $loggerCallable, array $query, array $fields)
+    public function __construct(Connection $connection, Collection $collection, \MongoCursor $mongoCursor, $loggerCallable, array $query, array $fields)
     {
         if ( ! is_callable($loggerCallable)) {
             throw new \InvalidArgumentException('$loggerCallable must be a valid callback');
         }
-        parent::__construct($mongoCursor);
+        parent::__construct($connection, $collection, $mongoCursor);
         $this->loggerCallable = $loggerCallable;
         $this->query = $query;
         $this->fields = $fields;
