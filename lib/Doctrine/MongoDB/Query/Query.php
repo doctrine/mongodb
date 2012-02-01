@@ -118,6 +118,11 @@ class Query implements IteratorAggregate
         return $debug;
     }
 
+    public function getQuery()
+    {
+        return $this->query;
+    }
+
     public function getType()
     {
         return $this->query['type'];
