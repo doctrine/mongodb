@@ -992,4 +992,12 @@ class Builder
         }
         return $debug;
     }
+
+    /**
+     * Deep clone the expression object.
+     */
+    public function __clone()
+    {
+        $this->expr = clone $this->expr;
+    }
 }

@@ -350,6 +350,20 @@ class BuilderTest extends BaseTest
         $this->assertInstanceOf('Doctrine\MongoDB\IteratorAggregate', $query);
     }
 
+    public function testDeepClone()
+    {
+        $qb = $this->getTestQueryBuilder();
+
+        $qb->field('username')->equals('jwage');
+
+        $this->assertCount(1, $qb->getQueryArray());
+
+        $qb2 = clone $qb;
+        $qb2->field('firstName')->equals('Jon');
+
+        $this->assertCount(1, $qb->getQueryArray());
+    }
+
     private function getTestQueryBuilder()
     {
         return $this->conn->selectCollection('db', 'users')->createQueryBuilder();
