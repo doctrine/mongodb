@@ -6,6 +6,16 @@ use Doctrine\MongoDB\GridFSFile;
 
 class FunctionalTest extends BaseTest
 {
+    public function testIsFieldIndexed()
+    {
+        $db = $this->conn->selectDatabase('doctrine_mongodb');
+
+        $coll = $db->selectCollection('users');
+        $this->assertFalse($coll->isFieldIndexed('test'));
+        $coll->ensureIndex(array('test' => 1));
+        $this->assertTrue($coll->isFieldIndexed('test'));
+    }
+
     public function testFunctional()
     {
         $db = $this->conn->selectDatabase('doctrine_mongodb');

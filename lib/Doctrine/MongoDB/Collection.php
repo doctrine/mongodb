@@ -133,6 +133,23 @@ class Collection
     }
 
     /**
+     * Check if a given field name is indexed in mongodb.
+     *
+     * @param string $fieldName
+     * @return bool
+     */
+    public function isFieldIndexed($fieldName)
+    {
+        $indexes = $this->getIndexInfo();
+        foreach ($indexes as $index) {
+            if (isset($index['key']) && isset($index['key'][$fieldName])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Creates a new query builder instnce.
      *
      * @return Query\Builder $qb

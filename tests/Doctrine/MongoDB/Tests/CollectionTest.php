@@ -270,6 +270,34 @@ class CollectionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(true, $result);
     }
 
+    public function testIsFieldIndexedTrue()
+    {
+        $mockConnection = $this->getMockConnection();
+        $mongoCollection = $this->getMockMongoCollection();
+        $mongoCollection->expects($this->once())
+            ->method('getIndexInfo')
+            ->will($this->returnValue(array(array('key' => array('test' => 1)))));
+
+        $mockDatabase = $this->getMockDatabase();
+        $coll = $this->getTestCollection($mockConnection, $mongoCollection, $mockDatabase);
+        $result = $coll->isFieldIndexed('test');
+        $this->assertEquals(true, $result);
+    }
+
+    public function testIsFieldIndexedFalse()
+    {
+        $mockConnection = $this->getMockConnection();
+        $mongoCollection = $this->getMockMongoCollection();
+        $mongoCollection->expects($this->once())
+            ->method('getIndexInfo')
+            ->will($this->returnValue(array(array('key' => array('test' => 1)))));
+
+        $mockDatabase = $this->getMockDatabase();
+        $coll = $this->getTestCollection($mockConnection, $mongoCollection, $mockDatabase);
+        $result = $coll->isFieldIndexed('doesnt-exist');
+        $this->assertEquals(false, $result);
+    }
+
     public function testGetName()
     {
         $mockConnection = $this->getMockConnection();
