@@ -74,6 +74,26 @@ class Cursor implements Iterator
         $this->numRetries = (integer) $numRetries;
     }
 
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    public function getCollection()
+    {
+        return $this->collection;
+    }
+
+    public function getQuery()
+    {
+        return $this->query;
+    }
+
+    public function getFields()
+    {
+        return $this->fields;
+    }
+
     public function recreate()
     {
         $this->mongoCursor = $this->collection->getMongoCollection()->find($this->query, $this->fields);
