@@ -423,7 +423,7 @@ class Collection
             return new ArrayIterator($result['results']);
         }
 
-        return $database->selectCollection($result['result'])->find();
+        return $this->database->selectCollection($result['result'])->find();
     }
 
     /** @proxy */
