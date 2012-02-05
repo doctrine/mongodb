@@ -618,6 +618,18 @@ class Collection
     }
 
     /** @proxy */
+    public function setSlaveOkay($ok = true)
+    {
+        return $this->getMongoCollection()->setSlaveOkay($ok);
+    }
+
+    /** @proxy */
+    public function getSlaveOkay()
+    {
+        return $this->getMongoCollection()->getSlaveOkay();
+    }
+
+    /** @proxy */
     public function validate($scanData = false)
     {
         return $this->getMongoCollection()->validate($scanData);

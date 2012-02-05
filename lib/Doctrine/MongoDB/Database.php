@@ -210,6 +210,18 @@ class Database
     }
 
     /** @proxy */
+    public function setSlaveOkay($ok = true)
+    {
+        return $this->getMongoDB()->setSlaveOkay($ok);
+    }
+
+    /** @proxy */
+    public function getSlaveOkay()
+    {
+        return $this->getMongoDB()->getSlaveOkay();
+    }
+
+    /** @proxy */
     public function getProfilingLevel()
     {
         return $this->getMongoDB()->getProfilingLevel();
