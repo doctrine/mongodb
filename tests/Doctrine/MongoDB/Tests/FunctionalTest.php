@@ -6,6 +6,58 @@ use Doctrine\MongoDB\GridFSFile;
 
 class FunctionalTest extends BaseTest
 {
+    public function testMapReduce()
+    {
+        $data = array(
+            array(
+                'username' => 'jones',
+                'likes' => 20,
+                'text' => 'Hello world!'
+            ),
+            array(
+                'username' => 'bob',
+                'likes' => 100,
+                'text' => 'Hello world!'
+            ),
+            array(
+                'username' => 'bob',
+                'likes' => 100,
+                'text' => 'Hello world!'
+            ),
+        );
+
+        $db = $this->conn->selectDatabase('test');
+        $coll = $db->createCollection('test');
+        $coll->batchInsert($data);
+
+        $map = 'function() {
+            emit(this.username, { count: 1, likes: this.likes });
+        }';
+
+        $reduce = 'function(key, values) {
+            var result = {count: 0, likes: 0};
+
+            values.forEach(function(value) {
+              result.count += value.count;
+              result.likes += value.likes;
+            });
+
+            return result;
+        }';
+
+        $finalize = 'function (key, value) { value.test = "test"; return value; }';
+
+        $db = $this->conn->selectDatabase('test');
+        $coll = $db->createCollection('test');
+        $qb = $coll->createQueryBuilder()
+            ->map($map)->reduce($reduce)->finalize($finalize);
+        $query = $qb->getQuery();
+        $results = $query->execute();
+        $this->assertEquals(2, $results->count());
+        $result = $results->getSingleResult();
+        $this->assertEquals(array('count' => 2.0, 'likes' => 200.0, 'test' => 'test'), $result['value']);
+    }
+
     public function testIsFieldIndexed()
     {
         $db = $this->conn->selectDatabase('doctrine_mongodb');

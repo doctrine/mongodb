@@ -58,8 +58,10 @@ class BuilderTest extends BaseTest
             };
         }';
 
+        $finalize = 'function (key, value) { return value; }';
+
         $qb = $this->getTestQueryBuilder()
-            ->map($map)->reduce($reduce)
+            ->map($map)->reduce($reduce)->finalize($finalize)
             ->field('username')->equals('jwage');
 
         $this->assertEquals(Query::TYPE_MAP_REDUCE, $qb->getType());
@@ -67,7 +69,7 @@ class BuilderTest extends BaseTest
             'username' => 'jwage'
         );
         $this->assertEquals($expected, $qb->getQueryArray());
-        $this->assertEquals(array('map' => $map, 'options' => array(), 'reduce' => $reduce), $qb->debug('mapReduce'));
+        $this->assertEquals(array('map' => $map, 'options' => array('finalize' => $finalize), 'reduce' => $reduce), $qb->debug('mapReduce'));
     }
 
     public function testFindAndUpdateQuery()

@@ -686,6 +686,19 @@ class Builder
     }
 
     /**
+     * Specify a finalize operation for this query.
+     *
+     * @param string $finalize
+     * @return Builder
+     */
+    public function finalize($finalize)
+    {
+        $this->query['mapReduce']['options']['finalize'] = $finalize;
+        $this->query['type'] = Query::TYPE_MAP_REDUCE;
+        return $this;
+    }
+
+    /**
      * Specify output type for mar/reduce operation.
      *
      * @param array $out
