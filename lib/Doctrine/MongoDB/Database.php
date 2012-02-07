@@ -125,7 +125,9 @@ class Database
             $this->eventManager->dispatchEvent(Events::preCreateCollection, new CreateCollectionEventArgs($this, $name, $capped, $size, $max));
         }
 
-        $result = $this->getMongoDB()->createCollection($name, $capped, $size, $max);
+        $this->getMongoDB()->createCollection($name, $capped, $size, $max);
+
+        $result = $this->selectCollection($name);
 
         if ($this->eventManager->hasListeners(Events::postCreateCollection)) {
             $this->eventManager->dispatchEvent(Events::postCreateCollection, new EventArgs($this, $prefix));
