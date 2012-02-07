@@ -271,18 +271,6 @@ class Query implements IteratorAggregate
     }
 
     /** @inheritDoc */
-    public function first()
-    {
-        return $this->getIterator()->first();
-    }
-
-    /** @inheritDoc */
-    public function last()
-    {
-        return $this->getIterator()->last();
-    }
-
-    /** @inheritDoc */
     public function toArray()
     {
         return $this->getIterator()->toArray();
