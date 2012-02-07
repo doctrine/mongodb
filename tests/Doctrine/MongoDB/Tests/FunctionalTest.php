@@ -6,6 +6,24 @@ use Doctrine\MongoDB\GridFSFile;
 
 class FunctionalTest extends BaseTest
 {
+    public function testUpsertSetsId()
+    {
+        $db = $this->conn->selectDatabase('test');
+        $coll = $db->createCollection('test');
+        $criteria = array();
+        $newObj = array('$set' => array('test' => 'test'));
+        $coll->upsert($criteria, $newObj);
+
+        $check = $coll->findOne();
+
+        $this->assertNotNull($coll->findOne());
+
+        $coll->upsert(array('_id' => $check['_id']), array('$set' => array('boo' => 'test')));
+        $this->assertEquals(1, $coll->find()->count());
+        $check = $coll->findOne();
+        $this->assertTrue(isset($check['boo']));
+    }
+
     public function testMapReduce()
     {
         $data = array(
@@ -48,7 +66,7 @@ class FunctionalTest extends BaseTest
         $finalize = 'function (key, value) { value.test = "test"; return value; }';
 
         $db = $this->conn->selectDatabase('test');
-        $coll = $db->createCollection('test');
+        $coll = $db->selectCollection('test');
         $qb = $coll->createQueryBuilder()
             ->map($map)->reduce($reduce)->finalize($finalize);
         $query = $qb->getQuery();

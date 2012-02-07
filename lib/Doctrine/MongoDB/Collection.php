@@ -204,6 +204,12 @@ class Collection
         return $this->getMongoCollection()->update($query, $newObj, $options);
     }
 
+    public function upsert($query, array $newObj, array $options = array())
+    {
+        $options['upsert'] = true;
+        return $this->update($query, $newObj, $options);
+    }
+
     /** @override */
     public function find(array $query = array(), array $fields = array())
     {
