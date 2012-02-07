@@ -349,7 +349,7 @@ class Builder
         if ($limit !== null) {
             $slice[] = $limit;
         }
-        $this->query['select'][$fieldName][$this->cmd . 'slice'] = $slice;
+        $this->query['select'][$fieldName] = array($this->cmd . 'slice' => $slice);
         return $this;
     }
 
