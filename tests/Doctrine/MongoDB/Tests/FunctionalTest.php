@@ -8,7 +8,7 @@ class FunctionalTest extends BaseTest
 {
     public function testUpsertSetsId()
     {
-        $db = $this->conn->selectDatabase('test');
+        $db = $this->conn->selectDatabase(self::$dbName);
         $coll = $db->createCollection('test');
         $criteria = array();
         $newObj = array('$set' => array('test' => 'test'));
@@ -44,7 +44,7 @@ class FunctionalTest extends BaseTest
             ),
         );
 
-        $db = $this->conn->selectDatabase('test');
+        $db = $this->conn->selectDatabase(self::$dbName);
         $coll = $db->createCollection('test');
         $coll->batchInsert($data);
 
@@ -65,7 +65,7 @@ class FunctionalTest extends BaseTest
 
         $finalize = 'function (key, value) { value.test = "test"; return value; }';
 
-        $db = $this->conn->selectDatabase('test');
+        $db = $this->conn->selectDatabase(self::$dbName);
         $coll = $db->selectCollection('test');
         $qb = $coll->createQueryBuilder()
             ->map($map)->reduce($reduce)->finalize($finalize);
@@ -78,7 +78,7 @@ class FunctionalTest extends BaseTest
 
     public function testIsFieldIndexed()
     {
-        $db = $this->conn->selectDatabase('doctrine_mongodb');
+        $db = $this->conn->selectDatabase(self::$dbName);
 
         $coll = $db->selectCollection('users');
         $this->assertFalse($coll->isFieldIndexed('test'));
@@ -88,7 +88,7 @@ class FunctionalTest extends BaseTest
 
     public function testFunctional()
     {
-        $db = $this->conn->selectDatabase('doctrine_mongodb');
+        $db = $this->conn->selectDatabase(self::$dbName);
 
         $coll = $db->selectCollection('users');
 
@@ -103,7 +103,7 @@ class FunctionalTest extends BaseTest
 
     public function testFunctionalGridFS()
     {
-        $db = $this->conn->selectDatabase('doctrine_mongodb');
+        $db = $this->conn->selectDatabase(self::$dbName);
         $files = $db->getGridFS('files');
         $file = array(
             'title' => 'test file',

@@ -88,7 +88,7 @@ class GridFSFileTest extends BaseTest
 
     public function testFunctional()
     {
-        $db = $this->conn->selectDatabase('doctrine_mongodb');
+        $db = $this->conn->selectDatabase(self::$dbName);
 
         $path = __DIR__.'/file.txt';
         $gridFS = $db->getGridFS();
@@ -117,7 +117,7 @@ class GridFSFileTest extends BaseTest
 
     public function testStoreFile()
     {
-        $db = $this->conn->selectDatabase('doctrine_mongodb');
+        $db = $this->conn->selectDatabase(self::$dbName);
         $gridFS = $db->getGridFS();
 
         $metadata = array(
