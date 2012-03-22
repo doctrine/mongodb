@@ -15,9 +15,9 @@ class EagerCursorTest extends BaseTest
     {
         parent::setUp();
         $this->document = array('test' => 'test');
-        $this->conn->selectCollection('db', 'users')->insert($this->document);
+        $this->conn->selectCollection(self::$dbName, 'users')->insert($this->document);
 
-        $qb = $this->conn->selectCollection('db', 'users')->createQueryBuilder();
+        $qb = $this->conn->selectCollection(self::$dbName, 'users')->createQueryBuilder();
         $qb->eagerCursor(true);
         $this->test = $qb->getQuery()->execute();
     }

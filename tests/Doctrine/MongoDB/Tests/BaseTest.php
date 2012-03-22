@@ -8,26 +8,25 @@ use Doctrine\MongoDB\Connection;
 
 abstract class BaseTest extends PHPUnit_Framework_TestCase
 {
+    protected static $dbName = 'doctrine_mongodb';
+
     protected $conn;
 
     public function setUp()
     {
         $config = new Configuration();
-        $config->setLoggerCallable(function($msg) {
-            //print_r($msg);
-        });
+        $config->setLoggerCallable(function($msg) {});
         $this->conn = new Connection(null, array(), $config);
     }
 
     public function tearDown()
     {
-        $dbs = $this->conn->listDatabases();
-        foreach ($dbs['databases'] as $db) {
-            $collections = $this->conn->selectDatabase($db['name'])->listCollections();
-            foreach ($collections as $collection) {
-                $collection->drop();
-            }
+        $collections = $this->conn->selectDatabase(self::$dbName)->listCollections();
+        foreach ($collections as $collection) {
+            $collection->drop();
         }
+
         $this->conn->close();
+        unset($this->conn);
     }
 }
