@@ -6,7 +6,7 @@ class CursorFunctionalTest extends BaseTest
 {
     public function testRecreate()
     {
-        $db = $this->conn->selectDatabase('doctrine_mongodb');
+        $db = $this->conn->selectDatabase(self::$dbName);
         $coll = $db->selectCollection('users');
 
         $doc1 = array('test' => 'test');
@@ -28,7 +28,7 @@ class CursorFunctionalTest extends BaseTest
 
     public function testGetSingleResult()
     {
-        $db = $this->conn->selectDatabase('doctrine_mongodb');
+        $db = $this->conn->selectDatabase(self::$dbName);
         $coll = $db->selectCollection('users');
 
         $doc1 = array('test' => 'test', 'doc' => 1);
