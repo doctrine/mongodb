@@ -184,14 +184,12 @@ class Connection
         return $this->config;
     }
 
-    /** @proxy */
     public function close()
     {
         $this->initialize();
         return $this->mongo->close();
     }
 
-    /** @proxy */
     public function connect()
     {
         $this->initialize();
@@ -202,7 +200,6 @@ class Connection
         });
     }
 
-    /** @proxy */
     public function dropDatabase($database)
     {
         if ($this->eventManager->hasListeners(Events::preDropDatabase)) {
@@ -219,28 +216,24 @@ class Connection
         return $result;
     }
 
-    /** @proxy */
     public function __get($key)
     {
         $this->initialize();
         return $this->mongo->$key;
     }
 
-    /** @proxy */
     public function listDatabases()
     {
         $this->initialize();
         return $this->mongo->listDBs();
     }
 
-    /** @proxy */
     public function selectCollection($db, $collection)
     {
         $this->initialize();
         return $this->selectDatabase($db)->selectCollection($collection);
     }
 
-    /** @proxy */
     public function selectDatabase($name)
     {
         if ($this->eventManager->hasListeners(Events::preSelectDatabase)) {
@@ -299,7 +292,6 @@ class Connection
         throw $e;
     }
 
-    /** @proxy */
     public function __toString()
     {
         $this->initialize();
