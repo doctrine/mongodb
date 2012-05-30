@@ -123,7 +123,6 @@ class LoggableCollection extends Collection implements Loggable
         return parent::findOne($query, $fields);
     }
 
-    /** @proxy */
     public function count(array $query = array(), $limit = 0, $skip = 0)
     {
         $this->log(array(
@@ -136,7 +135,6 @@ class LoggableCollection extends Collection implements Loggable
         return parent::count($query, $limit, $skip);
     }
 
-    /** @proxy */
     public function createDBRef(array $a)
     {
         $this->log(array(
@@ -147,7 +145,6 @@ class LoggableCollection extends Collection implements Loggable
         return parent::createDBRef($a);
     }
 
-    /** @proxy */
     public function deleteIndex($keys)
     {
         $this->log(array(
@@ -158,7 +155,6 @@ class LoggableCollection extends Collection implements Loggable
         return parent::deleteIndex($keys);
     }
 
-    /** @proxy */
     public function deleteIndexes()
     {
         $this->log(array(
@@ -168,7 +164,6 @@ class LoggableCollection extends Collection implements Loggable
         return parent::deleteIndexes();
     }
 
-    /** @proxy */
     public function drop()
     {
         $this->log(array(
@@ -178,7 +173,6 @@ class LoggableCollection extends Collection implements Loggable
         return parent::drop();
     }
 
-    /** @proxy */
     public function ensureIndex(array $keys, array $options = array())
     {
         $this->log(array(
@@ -190,7 +184,6 @@ class LoggableCollection extends Collection implements Loggable
         return parent::ensureIndex($keys, $options);
     }
 
-    /** @proxy */
     public function getDBRef(array $reference)
     {
         $this->log(array(
@@ -201,7 +194,6 @@ class LoggableCollection extends Collection implements Loggable
         return parent::getDBRef($reference);
     }
 
-    /** @proxy */
     public function group($keys, array $initial, $reduce, array $options = array())
     {
         $this->log(array(
@@ -215,7 +207,6 @@ class LoggableCollection extends Collection implements Loggable
         return parent::group($keys, $initial, $reduce, $options);
     }
 
-    /** @proxy */
     public function insert(array &$a, array $options = array())
     {
         $this->log(array(
@@ -227,7 +218,6 @@ class LoggableCollection extends Collection implements Loggable
         return parent::insert($a, $options);
     }
 
-    /** @proxy */
     public function remove(array $query, array $options = array())
     {
         $this->log(array(
@@ -239,7 +229,6 @@ class LoggableCollection extends Collection implements Loggable
         return parent::remove($query, $options);
     }
 
-    /** @proxy */
     public function save(array &$a, array $options = array())
     {
         $this->log(array(
@@ -251,7 +240,6 @@ class LoggableCollection extends Collection implements Loggable
         return parent::save($a, $options);
     }
 
-    /** @proxy */
     public function validate($scanData = false)
     {
         $this->log(array(

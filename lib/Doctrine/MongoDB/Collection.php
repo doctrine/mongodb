@@ -126,7 +126,6 @@ class Collection
         return $this->database;
     }
 
-    /** @proxy */
     public function getIndexInfo()
     {
         return $this->getMongoCollection()->getIndexInfo();
@@ -432,7 +431,6 @@ class Collection
         return $this->database->selectCollection($result['result'])->find();
     }
 
-    /** @proxy */
     public function count(array $query = array(), $limit = 0, $skip = 0)
     {
         $collection = $this;
@@ -441,7 +439,6 @@ class Collection
         });
     }
 
-    /** @proxy */
     public function createDBRef(array $a)
     {
         if ($this->eventManager->hasListeners(Events::preCreateDBRef)) {
@@ -462,19 +459,16 @@ class Collection
         return $this->getMongoCollection()->createDBRef($a);
     }
 
-    /** @proxy */
     public function deleteIndex($keys)
     {
         return $this->getMongoCollection()->deleteIndex($keys);
     }
 
-    /** @proxy */
     public function deleteIndexes()
     {
         return $this->getMongoCollection()->deleteIndexes();
     }
 
-    /** @proxy */
     public function drop()
     {
         if ($this->eventManager->hasListeners(Events::preDropCollection)) {
@@ -495,19 +489,16 @@ class Collection
         return $this->getMongoCollection()->drop();
     }
 
-    /** @proxy */
     public function ensureIndex(array $keys, array $options = array())
     {
         return $this->getMongoCollection()->ensureIndex($keys, $options);
     }
 
-    /** @proxy */
     public function __get($name)
     {
         return $this->getMongoCollection()->__get($name);
     }
 
-    /** @proxy */
     public function getDBRef(array $reference)
     {
         if ($this->eventManager->hasListeners(Events::preGetDBRef)) {
@@ -531,7 +522,6 @@ class Collection
         });
     }
 
-    /** @proxy */
     public function group($keys, array $initial, $reduce, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preGroup)) {
@@ -556,7 +546,6 @@ class Collection
         return new ArrayIterator($result);
     }
 
-    /** @proxy */
     public function insert(array &$a, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preInsert)) {
@@ -581,7 +570,6 @@ class Collection
         return $result;
     }
 
-    /** @proxy */
     public function remove(array $query, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preRemove)) {
@@ -602,7 +590,6 @@ class Collection
         return $this->getMongoCollection()->remove($query, $options);
     }
 
-    /** @proxy */
     public function save(array &$a, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preSave)) {
@@ -623,25 +610,21 @@ class Collection
         return $this->getMongoCollection()->save($a, $options);
     }
 
-    /** @proxy */
     public function setSlaveOkay($ok = true)
     {
         return $this->getMongoCollection()->setSlaveOkay($ok);
     }
 
-    /** @proxy */
     public function getSlaveOkay()
     {
         return $this->getMongoCollection()->getSlaveOkay();
     }
 
-    /** @proxy */
     public function validate($scanData = false)
     {
         return $this->getMongoCollection()->validate($scanData);
     }
 
-    /** @proxy */
     public function __toString()
     {
         return $this->getMongoCollection()->__toString();

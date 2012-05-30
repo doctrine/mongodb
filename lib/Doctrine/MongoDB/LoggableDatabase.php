@@ -69,7 +69,6 @@ class LoggableDatabase extends Database implements Loggable
         call_user_func_array($this->loggerCallable, array($log));
     }
 
-    /** @proxy */
     public function authenticate($username, $password)
     {
         $this->log(array(
@@ -81,7 +80,6 @@ class LoggableDatabase extends Database implements Loggable
         return parent::authenticate($username, $password);
     }
 
-    /** @proxy */
     public function command(array $data)
     {
         $this->log(array(
@@ -92,7 +90,6 @@ class LoggableDatabase extends Database implements Loggable
         return parent::command($data);
     }
 
-    /** @proxy */
     public function createCollection($name, $capped = false, $size = 0, $max = 0)
     {
         $this->log(array(
@@ -105,7 +102,6 @@ class LoggableDatabase extends Database implements Loggable
         return parent::createCollection($name, $capped, $size, $max);
     }
 
-    /** @proxy */
     public function createDBRef($collection, $a)
     {
         $this->log(array(
@@ -117,7 +113,6 @@ class LoggableDatabase extends Database implements Loggable
         return parent::createDBRef($collection, $a);
     }
 
-    /** @proxy */
     public function drop()
     {
         $this->log(array(
@@ -127,7 +122,6 @@ class LoggableDatabase extends Database implements Loggable
         return parent::drop();
     }
 
-    /** @proxy */
     public function execute($code, array $args = array())
     {
         $this->log(array(
@@ -139,7 +133,6 @@ class LoggableDatabase extends Database implements Loggable
         return parent::execute($code, $args);
     }
 
-    /** @proxy */
     public function getDBRef(array $ref)
     {
         $this->log(array(

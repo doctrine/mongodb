@@ -106,19 +106,16 @@ class Database
         return $this->connection->getMongo()->selectDB($this->name);
     }
 
-    /** @proxy */
     public function authenticate($username, $password)
     {
         return $this->getMongoDB()->authenticate($username, $password);
     }
 
-    /** @proxy */
     public function command(array $data)
     {
         return $this->getMongoDB()->command($data);
     }
 
-    /** @proxy */
     public function createCollection($name, $capped = false, $size = 0, $max = 0)
     {
         if ($this->eventManager->hasListeners(Events::preCreateCollection)) {
@@ -136,13 +133,11 @@ class Database
         return $result;
     }
 
-    /** @proxy */
     public function createDBRef($collection, $a)
     {
         return $this->getMongoDB()->createDBRef($collection, $a);
     }
 
-    /** @proxy */
     public function drop()
     {
         if ($this->eventManager->hasListeners(Events::preDropDatabase)) {
@@ -158,37 +153,31 @@ class Database
         return $result;
     }
 
-    /** @proxy */
     public function dropCollection($coll)
     {
         return $this->getMongoDB()->dropCollection($coll);
     }
 
-    /** @proxy */
     public function execute($code, array $args = array())
     {
         return $this->getMongoDB()->execute($code, $args);
     }
 
-    /** @proxy */
     public function forceError()
     {
         return $this->getMongoDB()->forceError();
     }
 
-    /** @proxy */
     public function __get($name)
     {
         return $this->getMongoDB()->__get($name);
     }
 
-    /** @proxy */
     public function getDBRef(array $ref)
     {
         return $this->getMongoDB()->getDBRef($ref);
     }
 
-    /** @proxy */
     public function getGridFS($prefix = 'fs')
     {
         if ($this->eventManager->hasListeners(Events::preGetGridFS)) {
@@ -211,55 +200,46 @@ class Database
         );
     }
 
-    /** @proxy */
     public function setSlaveOkay($ok = true)
     {
         return $this->getMongoDB()->setSlaveOkay($ok);
     }
 
-    /** @proxy */
     public function getSlaveOkay()
     {
         return $this->getMongoDB()->getSlaveOkay();
     }
 
-    /** @proxy */
     public function getProfilingLevel()
     {
         return $this->getMongoDB()->getProfilingLevel();
     }
 
-    /** @proxy */
     public function lastError()
     {
         return $this->getMongoDB()->lastError();
     }
 
-    /** @proxy */
     public function listCollections()
     {
         return $this->getMongoDB()->listCollections();
     }
 
-    /** @proxy */
     public function prevError()
     {
         return $this->getMongoDB()->prevError();
     }
 
-    /** @proxy */
     public function repair($preserveClonedFiles = false, $backupOriginalFiles = false)
     {
         return $this->getMongoDB()->repair($preserveClonedFiles, $backupOriginalFiles);
     }
 
-    /** @proxy */
     public function resetError()
     {
         return $this->getMongoDB()->resetError();
     }
 
-    /** @proxy */
     public function selectCollection($name)
     {
         if ($this->eventManager->hasListeners(Events::preSelectCollection)) {
@@ -288,7 +268,6 @@ class Database
         );
     }
 
-    /** @proxy */
     public function setProfilingLevel($level)
     {
         return $this->getMongoDB()->setProfilingLevel($level);

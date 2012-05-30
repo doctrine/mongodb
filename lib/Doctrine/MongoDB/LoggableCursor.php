@@ -113,7 +113,6 @@ class LoggableCursor extends Cursor implements Loggable
         call_user_func_array($this->loggerCallable, array($log));
     }
 
-    /** @proxy */
     public function sort($fields)
     {
         $this->log(array(
@@ -124,7 +123,6 @@ class LoggableCursor extends Cursor implements Loggable
         return parent::sort($fields);
     }
 
-    /** @proxy */
     public function skip($num)
     {
         $this->log(array(
@@ -135,7 +133,6 @@ class LoggableCursor extends Cursor implements Loggable
         return parent::skip($num);
     }
 
-    /** @proxy */
     public function limit($num)
     {
         $this->log(array(
@@ -146,7 +143,6 @@ class LoggableCursor extends Cursor implements Loggable
         return parent::limit($num);
     }
 
-    /** @proxy */
     public function hint(array $keyPattern)
     {
         $this->log(array(
@@ -157,7 +153,6 @@ class LoggableCursor extends Cursor implements Loggable
         return parent::hint($keyPattern);
     }
 
-    /** @proxy */
     public function snapshot()
     {
         $this->log(array(
