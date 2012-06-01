@@ -356,14 +356,14 @@ class Builder
     /**
      * Add where near criteria.
      *
-     * @param string $x
-     * @param string $y
+     * @param float $x
+     * @param float $y
      * @return Builder
      */
-    public function near($value)
+    public function near($x, $y)
     {
         $this->query['type'] = Query::TYPE_GEO_LOCATION;
-        $this->query['near'][$this->currentField] = $value;
+        $this->query['near'] = array($x, $y);
         return $this;
     }
 

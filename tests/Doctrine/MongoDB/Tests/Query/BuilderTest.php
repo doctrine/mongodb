@@ -92,15 +92,20 @@ class BuilderTest extends BaseTest
     public function testGeoLocationQuery()
     {
         $qb = $this->getTestQueryBuilder()
-            ->field('x')->near(1)
-            ->field('y')->near(2)
+            ->near(1, 2)
             ->field('username')->equals('jwage');
 
         $this->assertEquals(Query::TYPE_GEO_LOCATION, $qb->getType());
+
         $expected = array(
             'username' => 'jwage'
         );
         $this->assertEquals($expected, $qb->getQueryArray());
+
+        $expected = array(1, 2);
+        $query = $qb->getQuery()->getQuery();
+        $this->assertEquals($expected, $query['near']);
+
         $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
     }
 
