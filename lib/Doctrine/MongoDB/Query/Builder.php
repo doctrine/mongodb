@@ -590,7 +590,7 @@ class Builder
 
 
     /**
-     * Set sort and erase all old sorts.
+     * Set sort.
      *
      * @param string $fieldName
      * @param string $order
