@@ -80,14 +80,15 @@ class LoggableDatabase extends Database implements Loggable
         return parent::authenticate($username, $password);
     }
 
-    public function command(array $data)
+    public function command(array $data, array $options = array())
     {
         $this->log(array(
             'command' => true,
-            'data' => $data
+            'data' => $data,
+            'options' => $options
         ));
 
-        return parent::command($data);
+        return parent::command($data, $options);
     }
 
     public function createCollection($name, $capped = false, $size = 0, $max = 0)
