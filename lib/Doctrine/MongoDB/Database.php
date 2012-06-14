@@ -111,9 +111,9 @@ class Database
         return $this->getMongoDB()->authenticate($username, $password);
     }
 
-    public function command(array $data)
+    public function command(array $data, array $options = array())
     {
-        return $this->getMongoDB()->command($data);
+        return $this->getMongoDB()->command($data, $options);
     }
 
     public function createCollection($name, $capped = false, $size = 0, $max = 0)
