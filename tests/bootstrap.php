@@ -1,14 +1,13 @@
 <?php
 
-require_once __DIR__ . '/../lib/vendor/doctrine-common/lib/Doctrine/Common/ClassLoader.php';
+$file = __DIR__.'/../vendor/autoload.php';
+if (!file_exists($file)) {
+    throw new RuntimeException('Install dependencies to run test suite.');
+}
+
+require_once $file;
 
 use Doctrine\Common\ClassLoader;
 
 $classLoader = new ClassLoader('Doctrine\MongoDB\Tests', __DIR__ . '/../tests');
-$classLoader->register();
-
-$classLoader = new ClassLoader('Doctrine\MongoDB', __DIR__ . '/../lib');
-$classLoader->register();
-
-$classLoader = new ClassLoader('Doctrine\Common', __DIR__ . '/../lib/vendor/doctrine-common/lib');
 $classLoader->register();
