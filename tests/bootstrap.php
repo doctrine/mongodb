@@ -2,12 +2,14 @@
 
 $file = __DIR__.'/../vendor/autoload.php';
 if (!file_exists($file)) {
-    throw new RuntimeException('Install dependencies to run test suite.');
+        $help = <<<'EOT'
+You must set up the project dependencies, run the following commands:
+wget http://getcomposer.org/composer.phar
+php composer.phar install
+EOT;
+
+    throw new RuntimeException($help);
 }
 
-require_once $file;
-
-use Doctrine\Common\ClassLoader;
-
-$classLoader = new ClassLoader('Doctrine\MongoDB\Tests', __DIR__ . '/../tests');
-$classLoader->register();
+$autoload = require_once $file;
+$autoload->register('Doctrine\MongoDB\Tests', __DIR__ . '/../tests');
