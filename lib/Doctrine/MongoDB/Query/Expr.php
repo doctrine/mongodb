@@ -227,6 +227,20 @@ class Expr
         return $this;
     }
 
+    public function withinPolygon(/* array($x1, $y1), array($x2, $y2), ... */)
+    {
+        if (func_num_args() < 3) {
+            throw new \InvalidArgumentException('Polygon must be defined by three points or more.');
+        }
+
+        if ($this->currentField) {
+            $this->query[$this->currentField][$this->cmd . 'within'][$this->cmd . 'polygon'] = func_get_args();
+        } else {
+            $this->query[$this->cmd . 'within'][$this->cmd . 'polygon'] = func_get_args();
+        }
+        return $this;
+    }
+
     public function set($value, $atomic = true)
     {
         $this->requiresCurrentField();

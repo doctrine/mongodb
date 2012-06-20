@@ -588,6 +588,17 @@ class Builder
         return $this;
     }
 
+    /**
+     * Add where $within $polygon query.
+     *
+     * @param array $point,... Three or more point coordinate tuples
+     * @return Builder
+     */
+    public function withinPolygon(/* array($x1, $y1), array($x2, $y2), ... */)
+    {
+        call_user_func_array(array($this->expr, 'withinPolygon'), func_get_args());
+        return $this;
+    }
 
     /**
      * Set sort.

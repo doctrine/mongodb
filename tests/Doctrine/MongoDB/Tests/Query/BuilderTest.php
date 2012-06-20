@@ -366,6 +366,30 @@ class BuilderTest extends BaseTest
         $this->assertCount(1, $qb->getQueryArray());
     }
 
+    public function testWithinPolygon()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->field('loc')->withinPolygon(array(0, 0), array(2, 0), array(0, 2));
+
+        $expected = array(
+            'loc' => array(
+                '$within' => array(
+                    '$polygon' => array(array(0, 0), array(2, 0), array(0, 2)),
+                ),
+            ),
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testWithinPolygonRequiresAtLeastThreePoints()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->field('loc')->withinPolygon(array(0, 0), array(1, 1));
+    }
+
     private function getTestQueryBuilder()
     {
         return $this->conn->selectCollection('db', 'users')->createQueryBuilder();
