@@ -366,6 +366,36 @@ class BuilderTest extends BaseTest
         $this->assertCount(1, $qb->getQueryArray());
     }
 
+    public function testWithinBox()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->field('loc')->withinBox(0, 0, 2, 2);
+
+        $expected = array(
+            'loc' => array(
+                '$within' => array(
+                    '$box' => array(array(0, 0), array(2, 2)),
+                ),
+            ),
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+    }
+
+    public function testWithinCenter()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->field('loc')->withinCenter(0, 0, 1);
+
+        $expected = array(
+            'loc' => array(
+                '$within' => array(
+                    '$center' => array(array(0, 0), 1),
+                ),
+            ),
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+    }
+
     public function testWithinPolygon()
     {
         $qb = $this->getTestQueryBuilder()
