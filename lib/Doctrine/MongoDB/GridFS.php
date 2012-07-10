@@ -70,7 +70,10 @@ class GridFS extends Collection
 
             // First do a find and remove query to remove the file metadata and chunks so
             // we can restore the file below
-            $document = $this->findAndRemove($query, $options);
+            if (null === $document = $this->findAndRemove($query, $options)) {
+                throw new \Exception("Could not find original document containing file");
+            }
+            
             unset(
                 $document['filename'],
                 $document['length'],
