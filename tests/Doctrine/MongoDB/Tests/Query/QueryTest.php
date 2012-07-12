@@ -40,6 +40,43 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $query->execute();
     }
 
+    public function testGeoNearOptionsArePassed()
+    {
+        $collection = $this->getMockCollection();
+
+        $queryArray = array(
+            'type' => Query::TYPE_GEO_LOCATION,
+            'geoNear' => array(
+                'near' => array(50, 50),
+                'distanceMultiplier' => 2.5,
+                'maxDistance' => 5,
+            ),
+            'limit' => 10,
+            'query' => array('altitude' => array('$gt' => 1)),
+        );
+
+        $query = new Query(
+            $this->getMockDatabase(),
+            $collection,
+            $queryArray,
+            array(),
+            ''
+        );
+
+        $collection->expects($this->any())
+                   ->method('geoNear')
+                   ->with(array(50, 50),
+                          array('altitude' => array('$gt' => 1)),
+                          $this->logicalAnd(
+                              new ArrayHasValueUnderKey('distanceMultiplier', 2.5),
+                              new ArrayHasValueUnderKey('maxDistance', 5),
+                              new ArrayHasValueUnderKey('num', 10)
+                          )
+                   );
+
+        $query->execute();
+    }
+
     /**
      * @return \Doctrine\MongoDB\Collection
      */
