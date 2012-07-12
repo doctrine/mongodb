@@ -354,20 +354,6 @@ class Builder
     }
 
     /**
-     * Add where near criteria.
-     *
-     * @param string $x
-     * @param string $y
-     * @return Builder
-     */
-    public function near($value)
-    {
-        $this->query['type'] = Query::TYPE_GEO_LOCATION;
-        $this->query['near'][$this->currentField] = $value;
-        return $this;
-    }
-
-    /**
      * Set the current field to operate on.
      *
      * @param string $field
@@ -556,6 +542,62 @@ class Builder
     public function mod($mod)
     {
         $this->expr->mod($mod);
+        return $this;
+    }
+
+    /**
+     * Specify a geoNear command for this query.
+     *
+     * This method sets the "near" option for the geoNear command. The "num"
+     * option may be set using limit(). The "distanceMultiplier" and
+     * "maxDistance" options may be set using their respective builder methods.
+     * Additional query criteria will be assigned to the "query" option.
+     *
+     * @param string $x
+     * @param string $y
+     * @return Builder
+     */
+    public function geoNear($x, $y)
+    {
+        $this->query['type'] = Query::TYPE_GEO_LOCATION;
+        $this->query['geoNear'] = array('near' => array($x, $y));
+        return $this;
+    }
+
+    /**
+     * Set the "distanceMultiplier" option for a geoNear command query.
+     *
+     * @param string $distanceMultiplier
+     * @return Builder
+     */
+    public function distanceMultiplier($distanceMultiplier)
+    {
+        $this->query['geoNear']['distanceMultiplier'] = $distanceMultiplier;
+        return $this;
+    }
+
+    /**
+     * Set the "maxDistance" option for a geoNear command query.
+     *
+     * @param string $maxDistance
+     * @return Builder
+     */
+    public function maxDistance($maxDistance)
+    {
+        $this->query['geoNear']['maxDistance'] = $maxDistance;
+        return $this;
+    }
+
+    /**
+     * Add where $near query.
+     *
+     * @param string $x
+     * @param string $y
+     * @return Builder
+     */
+    public function near($x, $y)
+    {
+        $this->expr->near($x, $y);
         return $this;
     }
 

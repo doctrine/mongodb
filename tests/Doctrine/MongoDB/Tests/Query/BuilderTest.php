@@ -89,21 +89,6 @@ class BuilderTest extends BaseTest
         $this->assertNull($query->execute());
     }
 
-    public function testGeoLocationQuery()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->field('x')->near(1)
-            ->field('y')->near(2)
-            ->field('username')->equals('jwage');
-
-        $this->assertEquals(Query::TYPE_GEO_LOCATION, $qb->getType());
-        $expected = array(
-            'username' => 'jwage'
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
-    }
-
     public function testGroupQuery()
     {
         $qb = $this->getTestQueryBuilder()
@@ -364,6 +349,37 @@ class BuilderTest extends BaseTest
         $qb2->field('firstName')->equals('Jon');
 
         $this->assertCount(1, $qb->getQueryArray());
+    }
+
+    public function testGeoNearQuery()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->geoNear(50, 50)
+            ->distanceMultiplier(2.5)
+            ->maxDistance(5)
+            ->field('type')->equals('restaurant')
+            ->limit(10);
+
+        $this->assertEquals(Query::TYPE_GEO_LOCATION, $qb->getType());
+
+        $expectedQuery = array('type' => 'restaurant');
+        $this->assertEquals($expectedQuery, $qb->getQueryArray());
+
+        $geoNear = $qb->debug('geoNear');
+        $this->assertEquals(array(50, 50), $geoNear['near']);
+        $this->assertEquals(2.5, $geoNear['distanceMultiplier']);
+        $this->assertEquals(5, $geoNear['maxDistance']);
+        $this->assertEquals(10, $qb->debug('limit'));
+        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
+    }
+
+    public function testNear()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->field('loc')->near(50, 50);
+
+        $expected = array('loc' => array('$near' => array(50, 50)));
+        $this->assertEquals($expected, $qb->getQueryArray());
     }
 
     public function testWithinBox()

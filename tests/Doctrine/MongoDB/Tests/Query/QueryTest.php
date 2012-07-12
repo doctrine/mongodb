@@ -6,25 +6,18 @@ use Doctrine\MongoDB\Tests\Constraint\ArrayHasValueUnderKey;
 
 class QueryTest extends \PHPUnit_Framework_TestCase
 {
-    const MAP_REDUCE_OPTION_KEY   = 'limit';
-    const MAP_REDUCE_OPTION_VALUE = 10;
-
     public function testMapReduceOptionsArePassed()
     {
         $collection = $this->getMockCollection();
-
-        $mapReduceOptions = array(
-            self::MAP_REDUCE_OPTION_KEY => self::MAP_REDUCE_OPTION_VALUE
-        );
 
         $queryArray = array(
             'type' => Query::TYPE_MAP_REDUCE,
             'mapReduce' => array(
                 'map'     => '',
                 'reduce'  => '',
-                'options' => $mapReduceOptions
+                'options' => array('limit' => 10),
             ),
-            'query'  => array()
+            'query' => array()
         );
 
         $query = new Query(
@@ -41,12 +34,43 @@ class QueryTest extends \PHPUnit_Framework_TestCase
                           $this->anything(),
                           $this->anything(),
                           $this->anything(),
+                          new ArrayHasValueUnderKey('limit', 10)
+                   );
+
+        $query->execute();
+    }
+
+    public function testGeoNearOptionsArePassed()
+    {
+        $collection = $this->getMockCollection();
+
+        $queryArray = array(
+            'type' => Query::TYPE_GEO_LOCATION,
+            'geoNear' => array(
+                'near' => array(50, 50),
+                'distanceMultiplier' => 2.5,
+                'maxDistance' => 5,
+            ),
+            'limit' => 10,
+            'query' => array('altitude' => array('$gt' => 1)),
+        );
+
+        $query = new Query(
+            $this->getMockDatabase(),
+            $collection,
+            $queryArray,
+            array(),
+            ''
+        );
+
+        $collection->expects($this->any())
+                   ->method('geoNear')
+                   ->with(array(50, 50),
+                          array('altitude' => array('$gt' => 1)),
                           $this->logicalAnd(
-                              $this->arrayHasKey(self::MAP_REDUCE_OPTION_KEY),
-                              new ArrayHasValueUnderKey(
-                                  self::MAP_REDUCE_OPTION_KEY,
-                                  self::MAP_REDUCE_OPTION_VALUE
-                              )
+                              new ArrayHasValueUnderKey('distanceMultiplier', 2.5),
+                              new ArrayHasValueUnderKey('maxDistance', 5),
+                              new ArrayHasValueUnderKey('num', 10)
                           )
                    );
 
