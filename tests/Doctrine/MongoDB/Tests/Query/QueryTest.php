@@ -6,25 +6,18 @@ use Doctrine\MongoDB\Tests\Constraint\ArrayHasValueUnderKey;
 
 class QueryTest extends \PHPUnit_Framework_TestCase
 {
-    const MAP_REDUCE_OPTION_KEY   = 'limit';
-    const MAP_REDUCE_OPTION_VALUE = 10;
-
     public function testMapReduceOptionsArePassed()
     {
         $collection = $this->getMockCollection();
-
-        $mapReduceOptions = array(
-            self::MAP_REDUCE_OPTION_KEY => self::MAP_REDUCE_OPTION_VALUE
-        );
 
         $queryArray = array(
             'type' => Query::TYPE_MAP_REDUCE,
             'mapReduce' => array(
                 'map'     => '',
                 'reduce'  => '',
-                'options' => $mapReduceOptions
+                'options' => array('limit' => 10),
             ),
-            'query'  => array()
+            'query' => array()
         );
 
         $query = new Query(
@@ -41,13 +34,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
                           $this->anything(),
                           $this->anything(),
                           $this->anything(),
-                          $this->logicalAnd(
-                              $this->arrayHasKey(self::MAP_REDUCE_OPTION_KEY),
-                              new ArrayHasValueUnderKey(
-                                  self::MAP_REDUCE_OPTION_KEY,
-                                  self::MAP_REDUCE_OPTION_VALUE
-                              )
-                          )
+                          new ArrayHasValueUnderKey('limit', 10)
                    );
 
         $query->execute();
