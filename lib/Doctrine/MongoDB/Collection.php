@@ -330,7 +330,7 @@ class Collection
     public function near(array $near, array $query = array(), array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preNear)) {
-            $this->eventManager->dispatchEvent(Events::preNear, new NearEventArgs($this, $near, $query));
+            $this->eventManager->dispatchEvent(Events::preNear, new NearEventArgs($this, $query, $near));
         }
 
         $result = $this->doNear($near, $query, $options);

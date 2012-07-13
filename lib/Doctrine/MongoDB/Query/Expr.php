@@ -207,6 +207,16 @@ class Expr
         return $this->operator($this->cmd . 'mod', $mod);
     }
 
+    public function near($x, $y)
+    {
+        if ($this->currentField) {
+            $this->query[$this->currentField][$this->cmd . 'near'] = array($x, $y);
+        } else {
+            $this->query[$this->cmd . 'near'] = array($x, $y);
+        }
+        return $this;
+    }
+
     public function withinBox($x1, $y1, $x2, $y2)
     {
         if ($this->currentField) {

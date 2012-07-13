@@ -213,7 +213,14 @@ class Query implements IteratorAggregate
                 if (isset($this->query['limit']) && $this->query['limit']) {
                     $this->options['num'] = $this->query['limit'];
                 }
-                return $this->collection->near($this->query['near'], $this->query['query'], $this->options);
+
+                foreach (array('distanceMultiplier', 'maxDistance') as $key) {
+                    if (isset($this->query['geoNear'][$key]) && $this->query['geoNear'][$key]) {
+                        $this->options[$key] = $this->query['geoNear'][$key];
+                    }
+                }
+
+                return $this->collection->near($this->query['geoNear']['near'], $this->query['query'], $this->options);
 
             case self::TYPE_COUNT:
                 return $this->collection->count($this->query['query']);
