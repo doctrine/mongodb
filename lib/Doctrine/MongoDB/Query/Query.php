@@ -144,9 +144,6 @@ class Query implements IteratorAggregate
     {
         switch ($this->query['type']) {
             case self::TYPE_FIND:
-                if (isset($this->query['mapReduce']['reduce'])) {
-                    $this->query['query'][$this->cmd . 'where'] = $this->query['mapReduce']['reduce'];
-                }
                 $cursor = $this->collection->find($this->query['query'], $this->query['select']);
                 return $this->prepareCursor($cursor);
 
