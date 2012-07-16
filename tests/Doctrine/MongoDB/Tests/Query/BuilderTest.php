@@ -38,7 +38,45 @@ class BuilderTest extends BaseTest
         $this->assertNull($qb->getQuery()->execute());
     }
 
-    public function testMapReduceQuery()
+    public function testMapReduceQueryWithSingleMethod()
+    {
+        $map = 'function() {
+            for(i = 0; i <= this.options.length; i++) {
+                emit(this.name, { count: 1 });
+            }
+        }';
+
+        $reduce = 'function(product, values) {
+            var total = 0
+            values.forEach(function(value){
+                total+= value.count;
+            });
+            return {
+                product: product,
+                options: total,
+                test: values
+            };
+        }';
+
+        $finalize = 'function (key, value) { return value; }';
+
+        $out = array('inline' => true);
+
+        $qb = $this->getTestQueryBuilder()
+            ->mapReduce($map, $reduce, $out, array('finalize' => $finalize));
+
+        $expectedMapReduce = array(
+            'map' => $map,
+            'reduce' => $reduce,
+            'out' => array('inline' => true),
+            'options' => array('finalize' => $finalize),
+        );
+
+        $this->assertEquals(Query::TYPE_MAP_REDUCE, $qb->getType());
+        $this->assertEquals($expectedMapReduce, $qb->debug('mapReduce'));
+    }
+
+    public function testMapReduceQueryWithMultipleMethodsAndQueryArray()
     {
         $map = 'function() {
             for(i = 0; i <= this.options.length; i++) {
@@ -61,15 +99,21 @@ class BuilderTest extends BaseTest
         $finalize = 'function (key, value) { return value; }';
 
         $qb = $this->getTestQueryBuilder()
-            ->map($map)->reduce($reduce)->finalize($finalize)
+            ->map($map)
+            ->reduce($reduce)
+            ->finalize($finalize)
             ->field('username')->equals('jwage');
 
-        $this->assertEquals(Query::TYPE_MAP_REDUCE, $qb->getType());
-        $expected = array(
-            'username' => 'jwage'
+        $expectedQueryArray = array('username' => 'jwage');
+        $expectedMapReduce = array(
+            'map' => $map,
+            'reduce' => $reduce,
+            'options' => array('finalize' => $finalize),
         );
-        $this->assertEquals($expected, $qb->getQueryArray());
-        $this->assertEquals(array('map' => $map, 'options' => array('finalize' => $finalize), 'reduce' => $reduce), $qb->debug('mapReduce'));
+
+        $this->assertEquals(Query::TYPE_MAP_REDUCE, $qb->getType());
+        $this->assertEquals($expectedQueryArray, $qb->getQueryArray());
+        $this->assertEquals($expectedMapReduce, $qb->debug('mapReduce'));
     }
 
     public function testFindAndUpdateQuery()
