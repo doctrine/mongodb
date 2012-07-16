@@ -190,7 +190,13 @@ class Query implements IteratorAggregate
                 return $this->collection->remove($this->query['query'], $this->options);
 
             case self::TYPE_GROUP:
-                return $this->collection->group($this->query['group']['keys'], $this->query['group']['initial'], $this->query['mapReduce']['reduce'], $this->query['query']);
+                if (!empty($this->query['query'])) {
+                    $this->query['group']['options']['condition'] = $this->query['query'];
+                }
+
+                $options = array_merge($this->options, $this->query['group']['options']);
+
+                return $this->collection->group($this->query['group']['keys'], $this->query['group']['initial'], $this->query['group']['reduce'], $options);
 
             case self::TYPE_MAP_REDUCE:
                 if (!isset($this->query['mapReduce']['out'])) {

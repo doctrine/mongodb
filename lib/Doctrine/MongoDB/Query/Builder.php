@@ -65,7 +65,12 @@ class Builder
         'sort' => array(),
         'limit' => null,
         'skip' => null,
-        'group' => array(),
+        'group' => array(
+            'keys' => null,
+            'initial' => null,
+            'reduce' => null,
+            'options' => array(),
+        ),
         'hints' => array(),
         'immortal' => false,
         'snapshot' => false,
@@ -277,17 +282,21 @@ class Builder
     /**
      * Perform an operation similar to SQL's GROUP BY command
      *
-     * @param $keys
+     * @param mixed $keys
      * @param array $initial
+     * @param string|MongoCode $reduce
+     * @param array $options
      * @return Builder
      */
-    public function group($keys, array $initial)
+    public function group($keys, array $initial, $reduce = null, array $options = array())
     {
+        $this->query['type'] = Query::TYPE_GROUP;
         $this->query['group'] = array(
             'keys' => $keys,
-            'initial' => $initial
+            'initial' => $initial,
+            'reduce' => $reduce,
+            'options' => $options,
         );
-        $this->query['type'] = Query::TYPE_GROUP;
         return $this;
     }
 
@@ -728,13 +737,23 @@ class Builder
      *
      * @param string|MongoCode $reduce
      * @return Builder
+     * @throws BadMethodCallException if the query type is unsupported
      */
     public function reduce($reduce)
     {
-        $this->query['mapReduce']['reduce'] = $reduce;
-        if (isset($this->query['mapReduce']['map']) && isset($this->query['mapReduce']['reduce'])) {
-            $this->query['type'] = Query::TYPE_MAP_REDUCE;
+        switch ($this->query['type']) {
+            case Query::TYPE_MAP_REDUCE:
+                $this->query['mapReduce']['reduce'] = $reduce;
+                break;
+
+            case Query::TYPE_GROUP:
+                $this->query['group']['reduce'] = $reduce;
+                break;
+
+            default:
+                throw new \BadMethodCallException('mapReduce(), map() or group() must be called before reduce()');
         }
+
         return $this;
     }
 
@@ -746,8 +765,19 @@ class Builder
      */
     public function finalize($finalize)
     {
-        $this->query['mapReduce']['options']['finalize'] = $finalize;
-        $this->query['type'] = Query::TYPE_MAP_REDUCE;
+        switch ($this->query['type']) {
+            case Query::TYPE_MAP_REDUCE:
+                $this->query['mapReduce']['options']['finalize'] = $finalize;
+                break;
+
+            case Query::TYPE_GROUP:
+                $this->query['group']['options']['finalize'] = $finalize;
+                break;
+
+            default:
+                throw new \BadMethodCallException('mapReduce(), map() or group() must be called before reduce()');
+        }
+
         return $this;
     }
 

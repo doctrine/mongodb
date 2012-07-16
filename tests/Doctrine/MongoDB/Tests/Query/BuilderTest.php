@@ -133,12 +133,49 @@ class BuilderTest extends BaseTest
         $this->assertNull($query->execute());
     }
 
-    public function testGroupQuery()
+    public function testGroupQueryWithSingleMethod()
     {
+        $keys = array();
+        $initial = array('count' => 0, 'sum' => 0);
+        $reduce = 'function(obj, prev) { prev.count++; prev.sum += obj.a; }';
+        $finalize = 'function(obj) { if (obj.count) { obj.avg = obj.sum / obj.count; } else { obj.avg = 0; } }';
+
         $qb = $this->getTestQueryBuilder()
-            ->group(array(), array());
+            ->group($keys, $initial, $reduce, array('finalize' => $finalize));
+
+        $expected = array(
+            'keys' => $keys,
+            'initial' => $initial,
+            'reduce' => $reduce,
+            'options' => array('finalize' => $finalize),
+        );
 
         $this->assertEquals(Query::TYPE_GROUP, $qb->getType());
+        $this->assertEquals($expected, $qb->debug('group'));
+        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
+    }
+
+    public function testGroupQueryWithMultipleMethods()
+    {
+        $keys = array();
+        $initial = array('count' => 0, 'sum' => 0);
+        $reduce = 'function(obj, prev) { prev.count++; prev.sum += obj.a; }';
+        $finalize = 'function(obj) { if (obj.count) { obj.avg = obj.sum / obj.count; } else { obj.avg = 0; } }';
+
+        $qb = $this->getTestQueryBuilder()
+            ->group($keys, $initial)
+            ->reduce($reduce)
+            ->finalize($finalize);
+
+        $expected = array(
+            'keys' => $keys,
+            'initial' => $initial,
+            'reduce' => $reduce,
+            'options' => array('finalize' => $finalize),
+        );
+
+        $this->assertEquals(Query::TYPE_GROUP, $qb->getType());
+        $this->assertEquals($expected, $qb->debug('group'));
         $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
     }
 
@@ -183,6 +220,22 @@ class BuilderTest extends BaseTest
 
         $this->assertEquals(Query::TYPE_REMOVE, $qb->getType());
         $this->assertTrue($qb->getQuery()->execute());
+    }
+
+    /**
+     * @expectedException BadMethodCallException
+     */
+    public function testFinalizeShouldThrowExceptionForUnsupportedQueryType()
+    {
+        $qb = $this->getTestQueryBuilder()->finalize('function() { }');
+    }
+
+    /**
+     * @expectedException BadMethodCallException
+     */
+    public function testReduceShouldThrowExceptionForUnsupportedQueryType()
+    {
+        $qb = $this->getTestQueryBuilder()->reduce('function() { }');
     }
 
     public function testThatOrAcceptsAnotherQuery()
@@ -334,27 +387,6 @@ class BuilderTest extends BaseTest
             'hits' => 1
         ));
         $this->assertEquals($expected, $qb->getNewObj());
-    }
-
-    public function testGroup()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->group(array(), array('count' => 0))
-            ->reduce('function (obj, prev) { prev.count++; }');
-
-        $expected = array(
-            'initial' => array(
-                'count' => 0
-            ),
-            'keys' => array()
-        );
-        $this->assertEquals($expected, $qb->debug('group'));
-
-        $expected = array(
-            'map' => null,
-            'options' => array(),
-            'reduce' => 'function (obj, prev) { prev.count++; }');
-        $this->assertEquals($expected, $qb->debug('mapReduce'));
     }
 
     public function testDateRange()
