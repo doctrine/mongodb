@@ -539,9 +539,24 @@ class Collection
 
     protected function doGroup($keys, array $initial, $reduce, array $options)
     {
+        if (is_string($reduce)) {
+            $reduce = new \MongoCode($reduce);
+        }
+
+        if (isset($options['finalize']) && is_string($options['finalize'])) {
+            $options['finalize'] = new \MongoCode($options['finalize']);
+        }
+
         $collection = $this;
         $result = $this->retry(function() use ($collection, $keys, $initial, $reduce, $options) {
-            return $collection->getMongoCollection()->group($keys, $initial, $reduce, $options);
+            /* Version 1.2.11+ of the driver yields an E_DEPRECATED notice if an
+             * empty array is passed to MongoCollection::group(), as it assumes
+             * an it is the "condition" option's value being passed instead of
+             * a well-formed options array (the actual deprecated behavior).
+             */
+            return empty($options)
+                ? $collection->getMongoCollection()->group($keys, $initial, $reduce)
+                : $collection->getMongoCollection()->group($keys, $initial, $reduce, $options);
         });
         return new ArrayIterator($result);
     }
