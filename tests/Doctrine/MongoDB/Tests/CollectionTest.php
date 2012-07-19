@@ -312,18 +312,38 @@ class CollectionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(true, $result);
     }
 
-    public function testGroup()
+    public function testGroupWithNonEmptyOptionsArray()
+    {
+        $expectedOptions = array(
+            'condition' => array(),
+            'finalize' => new \MongoCode(''),
+        );
+
+        $mockConnection = $this->getMockConnection();
+        $mongoCollection = $this->getMockMongoCollection();
+        $mongoCollection->expects($this->once())
+            ->method('group')
+            ->with(array(), array(), $this->isInstanceOf('MongoCode'), $this->equalTo($expectedOptions))
+            ->will($this->returnValue(array()));
+
+        $mockDatabase = $this->getMockDatabase();
+        $coll = $this->getTestCollection($mockConnection, $mongoCollection, $mockDatabase);
+        $result = $coll->group(array(), array(), '', array('condition' => array(), 'finalize' => ''));
+        $this->assertEquals(new \Doctrine\MongoDB\ArrayIterator(array()), $result);
+    }
+
+    public function testGroupWithEmptyOptionsArray()
     {
         $mockConnection = $this->getMockConnection();
         $mongoCollection = $this->getMockMongoCollection();
         $mongoCollection->expects($this->once())
             ->method('group')
-            ->with(array(), array(), '', array())
+            ->with(array(), array(), $this->isInstanceOf('MongoCode'))
             ->will($this->returnValue(array()));
 
         $mockDatabase = $this->getMockDatabase();
         $coll = $this->getTestCollection($mockConnection, $mongoCollection, $mockDatabase);
-        $result = $coll->group(array(), array(), '', array());
+        $result = $coll->group(array(), array(), '');
         $this->assertEquals(new \Doctrine\MongoDB\ArrayIterator(array()), $result);
     }
 

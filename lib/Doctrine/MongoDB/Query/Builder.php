@@ -65,7 +65,12 @@ class Builder
         'sort' => array(),
         'limit' => null,
         'skip' => null,
-        'group' => array(),
+        'group' => array(
+            'keys' => null,
+            'initial' => null,
+            'reduce' => null,
+            'options' => array(),
+        ),
         'hints' => array(),
         'immortal' => false,
         'snapshot' => false,
@@ -74,7 +79,7 @@ class Builder
         'mapReduce' => array(
             'map' => null,
             'reduce' => null,
-            'options' => array()
+            'options' => array(),
         ),
         'near' => array(),
         'new' => false,
@@ -277,17 +282,21 @@ class Builder
     /**
      * Perform an operation similar to SQL's GROUP BY command
      *
-     * @param $keys
+     * @param mixed $keys
      * @param array $initial
+     * @param string|MongoCode $reduce
+     * @param array $options
      * @return Builder
      */
-    public function group($keys, array $initial)
+    public function group($keys, array $initial, $reduce = null, array $options = array())
     {
+        $this->query['type'] = Query::TYPE_GROUP;
         $this->query['group'] = array(
             'keys' => $keys,
-            'initial' => $initial
+            'initial' => $initial,
+            'reduce' => $reduce,
+            'options' => $options,
         );
-        $this->query['type'] = Query::TYPE_GROUP;
         return $this;
     }
 
@@ -692,8 +701,8 @@ class Builder
     /**
      * Specify a map reduce operation for this query.
      *
-     * @param string $map
-     * @param string $reduce
+     * @param string|MongoCode $map
+     * @param string|MongoCode $reduce
      * @param array $out
      * @param array $options
      * @return Builder
@@ -713,46 +722,67 @@ class Builder
     /**
      * Specify a map operation for this query.
      *
-     * @param string $map
+     * @param string|MongoCode $map
      * @return Builder
      */
     public function map($map)
     {
-        $this->query['mapReduce']['map'] = $map;
         $this->query['type'] = Query::TYPE_MAP_REDUCE;
+        $this->query['mapReduce']['map'] = $map;
         return $this;
     }
 
     /**
      * Specify a reduce operation for this query.
      *
-     * @param string $reduce
+     * @param string|MongoCode $reduce
      * @return Builder
+     * @throws BadMethodCallException if the query type is unsupported
      */
     public function reduce($reduce)
     {
-        $this->query['mapReduce']['reduce'] = $reduce;
-        if (isset($this->query['mapReduce']['map']) && isset($this->query['mapReduce']['reduce'])) {
-            $this->query['type'] = Query::TYPE_MAP_REDUCE;
+        switch ($this->query['type']) {
+            case Query::TYPE_MAP_REDUCE:
+                $this->query['mapReduce']['reduce'] = $reduce;
+                break;
+
+            case Query::TYPE_GROUP:
+                $this->query['group']['reduce'] = $reduce;
+                break;
+
+            default:
+                throw new \BadMethodCallException('mapReduce(), map() or group() must be called before reduce()');
         }
+
         return $this;
     }
 
     /**
      * Specify a finalize operation for this query.
      *
-     * @param string $finalize
+     * @param string|MongoCode $finalize
      * @return Builder
      */
     public function finalize($finalize)
     {
-        $this->query['mapReduce']['options']['finalize'] = $finalize;
-        $this->query['type'] = Query::TYPE_MAP_REDUCE;
+        switch ($this->query['type']) {
+            case Query::TYPE_MAP_REDUCE:
+                $this->query['mapReduce']['options']['finalize'] = $finalize;
+                break;
+
+            case Query::TYPE_GROUP:
+                $this->query['group']['options']['finalize'] = $finalize;
+                break;
+
+            default:
+                throw new \BadMethodCallException('mapReduce(), map() or group() must be called before reduce()');
+        }
+
         return $this;
     }
 
     /**
-     * Specify output type for mar/reduce operation.
+     * Specify output type for map/reduce operation.
      *
      * @param array $out
      * @return Builder
@@ -760,8 +790,6 @@ class Builder
     public function out(array $out)
     {
         $this->query['mapReduce']['out'] = $out;
-        $this->query['type'] = Query::TYPE_MAP_REDUCE;
-
         return $this;
     }
 
