@@ -217,7 +217,7 @@ class Query implements IteratorAggregate
                     $this->options['num'] = $this->query['limit'];
                 }
 
-                foreach (array('distanceMultiplier', 'maxDistance') as $key) {
+                foreach (array('distanceMultiplier', 'maxDistance', 'spherical') as $key) {
                     if (isset($this->query['geoNear'][$key]) && $this->query['geoNear'][$key]) {
                         $this->options[$key] = $this->query['geoNear'][$key];
                     }
