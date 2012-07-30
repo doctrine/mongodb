@@ -598,6 +598,18 @@ class Builder
     }
 
     /**
+     * Set the "spherical" option for a geoNear command query.
+     *
+     * @param bool $spherical
+     * @return Builder
+     */
+    public function spherical($spherical = true)
+    {
+        $this->query['geoNear']['spherical'] = $spherical;
+        return $this;
+    }
+
+    /**
      * Add where $near query.
      *
      * @param string $x

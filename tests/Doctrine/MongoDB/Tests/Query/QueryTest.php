@@ -50,6 +50,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
                 'near' => array(50, 50),
                 'distanceMultiplier' => 2.5,
                 'maxDistance' => 5,
+                'spherical' => true,
             ),
             'limit' => 10,
             'query' => array('altitude' => array('$gt' => 1)),
@@ -70,6 +71,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
                           $this->logicalAnd(
                               new ArrayHasValueUnderKey('distanceMultiplier', 2.5),
                               new ArrayHasValueUnderKey('maxDistance', 5),
+                              new ArrayHasValueUnderKey('spherical', true),
                               new ArrayHasValueUnderKey('num', 10)
                           )
                    );

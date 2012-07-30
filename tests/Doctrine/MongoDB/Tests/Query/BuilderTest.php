@@ -433,6 +433,7 @@ class BuilderTest extends BaseTest
             ->geoNear(50, 50)
             ->distanceMultiplier(2.5)
             ->maxDistance(5)
+            ->spherical(true)
             ->field('type')->equals('restaurant')
             ->limit(10);
 
@@ -445,6 +446,7 @@ class BuilderTest extends BaseTest
         $this->assertEquals(array(50, 50), $geoNear['near']);
         $this->assertEquals(2.5, $geoNear['distanceMultiplier']);
         $this->assertEquals(5, $geoNear['maxDistance']);
+        $this->assertEquals(true, $geoNear['spherical']);
         $this->assertEquals(10, $qb->debug('limit'));
         $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
     }
