@@ -19,8 +19,6 @@
 
 namespace Doctrine\MongoDB;
 
-use Countable, Iterator as BaseIterator;
-
 /**
  * Iterator interface.
  *
@@ -29,7 +27,7 @@ use Countable, Iterator as BaseIterator;
  * @since       1.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  */
-interface Iterator extends BaseIterator, Countable
+interface Iterator extends \Iterator, \Countable
 {
     function toArray();
     function getSingleResult();

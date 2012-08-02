@@ -20,7 +20,7 @@
 namespace Doctrine\MongoDB;
 
 /**
- * GridFS
+ * Loggable interface
  *
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.org
