@@ -265,9 +265,9 @@ class Query implements IteratorAggregate
      *
      * @return object $document  The single document.
      */
-    public function getSingleResult(array $options = array())
+    public function getSingleResult()
     {
-        return $this->getIterator($options)->getSingleResult();
+        return $this->getIterator()->getSingleResult();
     }
 
     /**
