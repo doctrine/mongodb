@@ -334,8 +334,10 @@ class Cursor implements Iterator
     {
         $originalLimit = $this->limit;
         $this->limit(1);
-        $results = $this->toArray();
-        return $results ? current($results) : null;
+        $result = current($this->toArray()) ?: null;
+        $this->reset();
+        $this->limit($originalLimit);
+        return $result;
     }
 
     protected function retry(\Closure $retry, $recreate = false)
