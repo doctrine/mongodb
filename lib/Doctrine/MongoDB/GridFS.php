@@ -159,4 +159,16 @@ class GridFS extends Collection
         $file->setMongoGridFSFile(new \MongoGridFSFile($this->getMongoCollection(), $document));
         return $file;
     }
+
+    protected function doFindAndRemove(array $query, array $options = array())
+    {
+        $document = parent::doFindAndRemove($query, $options);
+
+        if (isset($document)) {
+            // Remove the file data from the chunks collection
+            $this->getMongoCollection()->chunks->remove(array('files_id' => $document['_id']), $options);
+        }
+
+        return $document;
+    }
 }

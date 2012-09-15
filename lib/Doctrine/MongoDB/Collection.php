@@ -286,18 +286,9 @@ class Collection
         $command['remove'] = true;
         $command = array_merge($command, $options);
 
-        $document = null;
-
         $result = $this->database->command($command);
 
-        if (isset($result['value'])) {
-            $document = $result['value'];
-            if ($this->getMongoCollection() instanceof \MongoGridFS) {
-                // Remove the file data from the chunks collection
-                $this->getMongoCollection()->chunks->remove(array('files_id' => $document['_id']), $options);
-            }
-        }
-        return $document;
+        return isset($result['value']) ? $result['value'] : null;
     }
 
     public function findAndUpdate(array $query, array $newObj, array $options = array())
