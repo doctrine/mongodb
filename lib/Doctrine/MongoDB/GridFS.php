@@ -111,18 +111,24 @@ class GridFS extends Collection
     /** @override */
     protected function doInsert(array &$a, array $options = array())
     {
-        // If file exists and is dirty then lets persist the file and store the file path or the bytes
-        if (isset($a['file'])) {
-            $file = $a['file']; // instanceof GridFSFile
-            unset($a['file']);
-            if ($file->isDirty()) {
-                $this->storeFile($file, $a, $options);
-            } else {
-                parent::doInsert($a, $options);
-            }
+        // If there is no file, perform a basic insertion
+        if (!isset($a['file'])) {
+            parent::doInsert($a, $options);
+            return;
+        }
+
+        /* If the file is dirty (i.e. it must be persisted), delegate to the
+         * storeFile() method. Otherwise, perform a basic insertion.
+         */
+        $file = $a['file']; // instanceof GridFSFile
+        unset($a['file']);
+
+        if ($file->isDirty()) {
+            $this->storeFile($file, $a, $options);
         } else {
             parent::doInsert($a, $options);
         }
+
         $a['file'] = $file;
         return $a;
     }
