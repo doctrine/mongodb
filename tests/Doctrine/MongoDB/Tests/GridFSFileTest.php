@@ -128,6 +128,36 @@ class GridFSFileTest extends BaseTest
         $this->assertTrue(isset($metadata['_id']));
     }
 
+    public function testUpdate()
+    {
+        $db = $this->conn->selectDatabase(self::$dbName);
+
+        $path = __DIR__.'/file.txt';
+        $gridFS = $db->getGridFS();
+        $file = new GridFSFile($path);
+        $document = array(
+            'title' => 'Test Title',
+            'file' => $file
+        );
+        $gridFS->insert($document);
+        $id = $document['_id'];
+
+        $document = $gridFS->findOne(array('_id' => $id));
+        $file = $document['file'];
+
+        $gridFS->update(array('_id' => $id), array('$pushAll' => array('test' => array(1, 2, 3))));
+        $check = $gridFS->findOne(array('_id' => $id));
+        $this->assertTrue(isset($check['test']));
+        $this->assertEquals(3, count($check['test']));
+        $this->assertEquals(array(1, 2, 3), $check['test']);
+
+        $gridFS->update(array('_id' => $id), array('_id' => $id));
+        $gridFS->update(array('_id' => $id), array('_id' => $id, 'boom' => true));
+        $check = $gridFS->findOne(array('_id' => $id));
+        $this->assertTrue(isset($check['test']));
+        $this->assertTrue(isset($check['boom']));
+    }
+
     private function getMockPHPGridFSFile()
     {
         return $this->getMock('MongoGridFSFile', array(), array(), '', false, false);

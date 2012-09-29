@@ -89,10 +89,10 @@ class GridFS extends Collection
 
         // Now send the original update bringing the file up to date
         if ($newObj) {
-            if ( ! isset($newObj[$this->cmd.'set'])) {
+            if (isset($newObj['_id'])) {
                 unset($newObj['_id']);
                 $newObj = array($this->cmd.'set' => $newObj);
-            } elseif (empty($newObj[$this->cmd.'set'])) {
+            } elseif (isset($newObj[$this->cmd.'set']) && empty($newObj[$this->cmd.'set'])) {
                 $newObj[$this->cmd.'set'] = new \stdClass();
             }
             $this->getMongoCollection()->update($query, $newObj, $options);
