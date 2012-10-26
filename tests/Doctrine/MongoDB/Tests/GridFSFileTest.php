@@ -154,8 +154,83 @@ class GridFSFileTest extends BaseTest
         $gridFS->update(array('_id' => $id), array('_id' => $id));
         $gridFS->update(array('_id' => $id), array('_id' => $id, 'boom' => true));
         $check = $gridFS->findOne(array('_id' => $id));
-        $this->assertTrue(isset($check['test']));
-        $this->assertTrue(isset($check['boom']));
+        $this->assertFalse(array_key_exists('test', $check));
+        $this->assertTrue($check['boom']);
+    }
+
+    public function testUpsertDocumentWithoutFile()
+    {
+        $gridFS = $this->conn->selectDatabase(self::$dbName)->getGridFS();
+
+        $gridFS->update(
+            array('id' => 123),
+            array('x' => 1),
+            array('upsert' => true, 'multiple' => false)
+        );
+
+        $document = $gridFS->findOne();
+
+        $this->assertNotNull($document);
+        $this->assertNotEquals(123, $document['_id']);
+        $this->assertEquals(1, $document['x']);
+    }
+
+    public function testUpsertDocumentWithoutFileWithId()
+    {
+        $gridFS = $this->conn->selectDatabase(self::$dbName)->getGridFS();
+
+        $gridFS->update(
+            array('x' => 1),
+            array('_id' => 123),
+            array('upsert' => true, 'multiple' => false)
+        );
+
+        $document = $gridFS->findOne(array('_id' => 123));
+
+        $this->assertNotNull($document);
+        $this->assertFalse(array_key_exists('x', $document));
+    }
+
+    public function testUpsertModifierWithoutFile()
+    {
+        $gridFS = $this->conn->selectDatabase(self::$dbName)->getGridFS();
+
+        $gridFS->update(
+            array('_id' => 123),
+            array('$set' => array('x' => 1)),
+            array('upsert' => true, 'multiple' => false)
+        );
+
+        $document = $gridFS->findOne(array('_id' => 123));
+
+        $this->assertNotNull($document);
+        $this->assertEquals(1, $document['x']);
+    }
+
+    public function testUpsert()
+    {
+        $db = $this->conn->selectDatabase(self::$dbName);
+
+        $path = __DIR__.'/file.txt';
+        $gridFS = $db->getGridFS();
+        $file = new GridFSFile($path);
+
+        $newObj = array(
+            '$set' => array(
+                'title' => 'Test Title',
+                'file' => $file,
+            ),
+        );
+        $gridFS->update(array('_id' => 123), $newObj, array('upsert' => true, 'multiple' => false));
+
+        $document = $gridFS->findOne(array('_id' => 123));
+
+        $file = $document['file'];
+
+        $this->assertFalse($file->isDirty());
+        $this->assertEquals($path, $file->getFilename());
+        $this->assertEquals(file_get_contents($path), $file->getBytes());
+        $this->assertEquals(22, $file->getSize());
     }
 
     private function getMockPHPGridFSFile()
