@@ -195,13 +195,13 @@ class GridFSFile
     /**
      * Check if the file is dirty or set isDirty by passing a boolean argument.
      *
-     * @param boolean $bool
      * @param boolean $isDirty
+     * @param boolean
      */
-    public function isDirty($bool = null)
+    public function isDirty($isDirty = null)
     {
-        if ($bool !== null) {
-            $this->isDirty = $bool;
+        if ($isDirty !== null) {
+            $this->isDirty = (boolean) $isDirty;
         }
         return $this->isDirty;
     }
@@ -213,7 +213,7 @@ class GridFSFile
      */
     public function hasUnpersistedBytes()
     {
-        return $this->isDirty && $this->bytes ? true : false;
+        return ($this->isDirty && $this->bytes);
     }
 
     /**
@@ -223,6 +223,6 @@ class GridFSFile
      */
     public function hasUnpersistedFile()
     {
-        return $this->isDirty && $this->filename ? true : false;
+        return ($this->isDirty && $this->filename);
     }
 }
