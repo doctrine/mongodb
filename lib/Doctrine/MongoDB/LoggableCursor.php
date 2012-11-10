@@ -59,13 +59,14 @@ class LoggableCursor extends Cursor implements Loggable
      * @param mixed $loggerCallable Logger callable.
      * @param array $query The query array that was used to create this cursor.
      * @param array $query The fields selected on this cursor.
+     * @param boolean|integer $numRetries Number of times to retry queries.
      */
-    public function __construct(Connection $connection, Collection $collection, \MongoCursor $mongoCursor, $loggerCallable, array $query, array $fields)
+    public function __construct(Connection $connection, Collection $collection, \MongoCursor $mongoCursor, $loggerCallable, array $query, array $fields, $numRetries = 0)
     {
         if ( ! is_callable($loggerCallable)) {
             throw new \InvalidArgumentException('$loggerCallable must be a valid callback');
         }
-        parent::__construct($connection, $collection, $mongoCursor);
+        parent::__construct($connection, $collection, $mongoCursor, $query, $fields, $numRetries);
         $this->loggerCallable = $loggerCallable;
         $this->query = $query;
         $this->fields = $fields;
