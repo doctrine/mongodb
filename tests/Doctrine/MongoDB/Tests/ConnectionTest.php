@@ -13,7 +13,7 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
         $conn = new Connection();
         $this->assertNull($conn->getMongo());
         $conn->initialize();
-        $this->assertInstanceOf('Mongo', $conn->getMongo());
+        $this->assertInstanceOf('MongoClient', $conn->getMongo());
     }
 
     public function testLog()
