@@ -92,11 +92,17 @@ class GridFS extends Collection
             if (isset($newObj['_id'])) {
                 unset($newObj['_id']);
                 $newObj = array($this->cmd.'set' => $newObj);
-            } elseif (isset($newObj[$this->cmd.'set']) && empty($newObj[$this->cmd.'set'])) {
-                $newObj[$this->cmd.'set'] = new \stdClass();
             }
-            $this->getMongoCollection()->update($query, $newObj, $options);
+
+            if (isset($newObj[$this->cmd.'set']) && empty($newObj[$this->cmd.'set'])) {
+                unset($newObj[$this->cmd.'set']);
+            }
+
+            if ($newObj) {
+                $this->getMongoCollection()->update($query, $newObj, $options);
+            }
         }
+
         return $newObj;
     }
 
