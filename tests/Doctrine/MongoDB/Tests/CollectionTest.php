@@ -391,7 +391,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
         $coll = $this->getTestCollection($mockConnection, $mongoCollection, $mockDatabase);
         $document = array();
         $result = $coll->save($document, array());
-        $this->assertEquals(true, $result);
+        $this->assertArrayHasKeyValue(array('ok' => 1.0), $result);
     }
 
     public function testValidate()
@@ -458,6 +458,14 @@ class CollectionTest extends PHPUnit_Framework_TestCase
         $collection = new TestLoggableCollectionStub($connection, $mongoCollection->getName(), $db, new EventManager(), '$', $loggerCallable);
         $collection->setMongoCollection($mongoCollection);
         return $collection;
+    }
+
+    private function assertArrayHasKeyValue($expected, $array, $message = '')
+    {
+        foreach ((array) $expected as $key => $value) {
+            $this->assertArrayHasKey($key, $expected, $message);
+            $this->assertEquals($value, $expected[$key], $message);
+        }
     }
 }
 
