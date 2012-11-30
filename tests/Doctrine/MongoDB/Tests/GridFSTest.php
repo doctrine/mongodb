@@ -6,32 +6,34 @@ use Doctrine\MongoDB\GridFSFile;
 
 class GridFSTest extends BaseTest
 {
-    public function testFunctional()
+    public function testInsertFindOneAndWrite()
     {
-        $gridFS = $this->getGridFS();
-
-        $path = __DIR__.'/file.txt';
-        $file = new GridFSFile($path);
         $document = array(
-            'title' => 'Test Title',
-            'file' => $file
+            'foo' => 'bar',
+            'file' => new GridFSFile(__FILE__),
         );
+
+        $gridFS = $this->getGridFS();
         $gridFS->insert($document);
-        $id = $document['_id'];
 
-        $document = $gridFS->findOne(array('_id' => $id));
+        $document = $gridFS->findOne(array('_id' => $document['_id']));
+
+        $this->assertTrue(isset($document['_id']));
+        $this->assertEquals('bar', $document['foo']);
+
         $file = $document['file'];
-
+        $this->assertInstanceOf('Doctrine\MongoDB\GridFSFile', $file);
         $this->assertFalse($file->isDirty());
-        $this->assertEquals($path, $file->getFilename());
-        $this->assertEquals(file_get_contents($path), $file->getBytes());
-        $this->assertEquals(22, $file->getSize());
+        $this->assertEquals(__FILE__, $file->getFilename());
+        $this->assertStringEqualsFile(__FILE__, $file->getBytes());
+        $this->assertEquals(filesize(__FILE__), $file->getSize());
 
-        $tmpPath = realpath(sys_get_temp_dir()).'/doctrine_write_test';
-        $file->write($tmpPath);
-        $this->assertTrue(file_exists($path));
-        $this->assertEquals(file_get_contents($path), file_get_contents($tmpPath));
-        unlink($tmpPath);
+        $path = tempnam(sys_get_temp_dir(), 'doctrine_write_test');
+        $this->assertNotEquals(false, $path);
+
+        $file->write($path);
+        $this->assertFileEquals(__FILE__, $path);
+        unlink($path);
     }
 
     public function testStoreFile()

@@ -65,17 +65,17 @@ class GridFS extends Collection
             unset($newObj['file']);
         }
 
-        /* Determine if $newObj includes atomic modifiers, which will tell us if
-         * we can get by with a storeFile() in some situations or if a two-step
-         * storeFile() and update() is necessary.
-         *
-         * Before we check, remove an empty $set operator we may have left
-         * behind due to extracting the file field above.
+        /* Before we inspect $newObj, remove an empty $set operator we may have
+         * left behind due to extracting the file field above.
          */
         if (empty($newObj[$this->cmd.'set'])) {
             unset($newObj[$this->cmd.'set']);
         }
 
+        /* Determine if $newObj includes atomic modifiers, which will tell us if
+         * we can get by with a storeFile() in some situations or if a two-step
+         * storeFile() and update() is necessary.
+         */
         $newObjHasModifiers = false;
 
         foreach (array_keys($newObj) as $key) {
@@ -86,8 +86,8 @@ class GridFS extends Collection
 
         // Is there a file in need of persisting?
         if (isset($file) && $file->isDirty()) {
-            /* It is impossible to update a file in GridFS so we must remove it
-             * and re-persist a new file with the same data.
+            /* It is impossible to overwrite a file's chunks in GridFS so we
+             * must remove it and re-persist a new file with the same data.
              *
              * First, use findAndRemove() to remove the file metadata and chunks
              * prior to storing the file again below. Exclude metadata fields
@@ -97,7 +97,7 @@ class GridFS extends Collection
                 'filename' => 0,
                 'length' => 0,
                 'chunkSize' => 0,
-                'uplodaDate' => 0,
+                'uploadDate' => 0,
                 'md5' => 0,
                 'file' => 0,
             )));

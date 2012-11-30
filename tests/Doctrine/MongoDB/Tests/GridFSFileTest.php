@@ -161,9 +161,4 @@ class GridFSFileTest extends BaseTest
                     ->disableOriginalConstructor()
                     ->getMock();
     }
-
-    private function getGridFS()
-    {
-        return $this->conn->selectDatabase(self::$dbName)->getGridFS();
-    }
 }
