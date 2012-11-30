@@ -195,16 +195,22 @@ class GridFS extends Collection
      */
     public function storeFile($file, array &$document, array $options = array())
     {
-        if (is_string($file)) {
+        if (!$file instanceof GridFSFile) {
             $file = new GridFSFile($file);
         }
+
         if ($file->hasUnpersistedFile()) {
             $id = $this->getMongoCollection()->storeFile($file->getFilename(), $document, $options);
         } else {
             $id = $this->getMongoCollection()->storeBytes($file->getBytes(), $document, $options);
         }
+
         $document = array_merge(array('_id' => $id), $document);
-        $file->setMongoGridFSFile(new \MongoGridFSFile($this->getMongoCollection(), $document));
+        $gridFsFile = $this->getMongoCollection()->get($id);
+
+        // TODO: Consider throwing exception if file cannot be fetched
+        $file->setMongoGridFSFile($this->getMongoCollection()->get($id));
+
         return $file;
     }
 

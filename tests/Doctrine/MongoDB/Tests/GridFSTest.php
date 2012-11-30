@@ -38,14 +38,19 @@ class GridFSTest extends BaseTest
 
     public function testStoreFile()
     {
-        $gridFS = $this->getGridFS();
+        $document = array('foo' => 'bar');
 
-        $metadata = array(
-            'test' => 'file'
-        );
-        $file = $gridFS->storeFile(__DIR__.'/file.txt', $metadata);
+        $gridFS = $this->getGridFS();
+        $file = $gridFS->storeFile(__FILE__, $document);
+
+        $this->assertTrue(isset($document['_id']));
+        $this->assertEquals('bar', $document['foo']);
+
         $this->assertInstanceOf('Doctrine\MongoDB\GridFSFile', $file);
-        $this->assertTrue(isset($metadata['_id']));
+        $this->assertFalse($file->isDirty());
+        $this->assertEquals(__FILE__, $file->getFilename());
+        $this->assertStringEqualsFile(__FILE__, $file->getBytes());
+        $this->assertEquals(filesize(__FILE__), $file->getSize());
     }
 
     public function testUpdate()
