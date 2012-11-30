@@ -144,7 +144,7 @@ class GridFSFile
         if ($this->isDirty && $this->bytes) {
             return $this->bytes;
         }
-        if ($this->filename) {
+        if ($this->isDirty && $this->filename) {
             return file_get_contents($this->filename);
         }
         if ($this->mongoGridFSFile instanceof \MongoGridFSFile) {
