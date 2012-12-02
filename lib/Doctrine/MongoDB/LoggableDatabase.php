@@ -153,7 +153,7 @@ class LoggableDatabase extends Database implements Loggable
     protected function doSelectCollection($name)
     {
         return new LoggableCollection(
-            $this->connection, $name, $this, $this->eventManager, $this->cmd, $this->loggerCallable
+            $this->connection, $name, $this, $this->eventManager, $this->cmd, $this->loggerCallable, $this->numRetries
         );
     }
 }

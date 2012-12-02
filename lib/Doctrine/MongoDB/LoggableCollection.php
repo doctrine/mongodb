@@ -51,14 +51,15 @@ class LoggableCollection extends Collection implements Loggable
      * @param EventManager $evm The EventManager instance.
      * @param string $cmd Mongo cmd character.
      * @param Closure $loggerCallable The logger callable.
+     * @param boolean|integer $numRetries Number of times to retry queries.
      */
-    public function __construct(Connection $connection, $name, Database $database, EventManager $evm, $cmd, $loggerCallable)
+    public function __construct(Connection $connection, $name, Database $database, EventManager $evm, $cmd, $loggerCallable, $numRetries = 0)
     {
         if ( ! is_callable($loggerCallable)) {
             throw new \InvalidArgumentException('$loggerCallable must be a valid callback');
         }
         $this->loggerCallable = $loggerCallable;
-        parent::__construct($connection, $name, $database, $evm, $cmd);
+        parent::__construct($connection, $name, $database, $evm, $cmd, $numRetries);
     }
 
     /**
@@ -253,6 +254,6 @@ class LoggableCollection extends Collection implements Loggable
     /** @override */
     protected function wrapCursor(\MongoCursor $cursor, $query, $fields)
     {
-        return new LoggableCursor($this->connection, $this, $cursor, $this->loggerCallable, $query, $fields);
+        return new LoggableCursor($this->connection, $this, $cursor, $this->loggerCallable, $query, $fields, $this->numRetries);
     }
 }
