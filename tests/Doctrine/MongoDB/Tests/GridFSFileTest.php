@@ -154,6 +154,7 @@ class GridFSFileTest extends BaseTest
         $gridFS->update(array('_id' => $id), array('_id' => $id));
         $gridFS->update(array('_id' => $id), array('_id' => $id, 'boom' => true));
         $check = $gridFS->findOne(array('_id' => $id));
+
         $this->assertTrue(isset($check['test']));
         $this->assertTrue(isset($check['boom']));
     }
