@@ -56,48 +56,90 @@ class GridFS extends Collection
         if (is_scalar($query)) {
             $query = array('_id' => $query);
         }
+
         $file = isset($newObj[$this->cmd.'set']['file']) ? $newObj[$this->cmd.'set']['file'] : null;
         unset($newObj[$this->cmd.'set']['file']);
+
         if ($file === null) {
             $file = isset($newObj['file']) ? $newObj['file'] : null;
             unset($newObj['file']);
         }
 
-        // Has file to be persisted
-        if (isset($file) && $file->isDirty()) {
-            // It is impossible to update a file on the grid so we have to remove it and
-            // persist a new file with the same data
+        /* Before we inspect $newObj, remove an empty $set operator we may have
+         * left behind due to extracting the file field above.
+         */
+        if (empty($newObj[$this->cmd.'set'])) {
+            unset($newObj[$this->cmd.'set']);
+        }
 
-            // First do a find and remove query to remove the file metadata and chunks so
-            // we can restore the file below
-            if (null === $document = $this->findAndRemove($query, $options)) {
-                throw new \Exception("Could not find original document containing file");
+        /* Determine if $newObj includes atomic modifiers, which will tell us if
+         * we can get by with a storeFile() in some situations or if a two-step
+         * storeFile() and update() is necessary.
+         */
+        $newObjHasModifiers = false;
+
+        foreach (array_keys($newObj) as $key) {
+            if ($this->cmd === $key[0]) {
+                $newObjHasModifiers = true;
             }
-            
-            unset(
-                $document['filename'],
-                $document['length'],
-                $document['chunkSize'],
-                $document['uploadDate'],
-                $document['md5'],
-                $document['file']
-            );
+        }
 
-            // Store the file
-            $this->storeFile($file, $document, $options);
+        // Is there a file in need of persisting?
+        if (isset($file) && $file->isDirty()) {
+            /* It is impossible to overwrite a file's chunks in GridFS so we
+             * must remove it and re-persist a new file with the same data.
+             *
+             * First, use findAndRemove() to remove the file metadata and chunks
+             * prior to storing the file again below. Exclude metadata fields
+             * from the result, since those will be reset later.
+             */
+            $document = $this->findAndRemove($query, array('fields' => array(
+                'filename' => 0,
+                'length' => 0,
+                'chunkSize' => 0,
+                'uploadDate' => 0,
+                'md5' => 0,
+                'file' => 0,
+            )));
+
+            /* If findAndRemove() returned nothing (no match or removal), create
+             * a new document with the query's "_id" if available.
+             */
+            if (!isset($document)) {
+                /* If $newObj had modifiers, we'll need to do an update later,
+                 * so default to an empty array for now. Otherwise, we can do
+                 * without that update and store $newObj now.
+                 */
+                $document = $newObjHasModifiers ? array() : $newObj;
+
+                /* If the document has no "_id" but there was one in the query
+                 * or $newObj, we can use that instead of having storeFile()
+                 * generate one.
+                 */
+                if (!isset($document['_id']) && isset($query['_id'])) {
+                    $document['_id'] = $query['_id'];
+                }
+
+                if (!isset($document['_id']) && isset($newObj['_id'])) {
+                    $document['_id'] = $newObj['_id'];
+                }
+            }
+
+            // Document will definitely have an "_id" after storing the file.
+            $this->storeFile($file, $document);
+
+            if (!$newObjHasModifiers) {
+                /* TODO: MongoCollection::update() would return a boolean if
+                 * $newObj was not empty, or an array describing the update
+                 * operation. Improvise, since we only stored the file and that
+                 * returns the "_id" field.
+                 */
+                return true;
+            }
         }
 
         // Now send the original update bringing the file up to date
-        if ($newObj) {
-            if (isset($newObj['_id'])) {
-                unset($newObj['_id']);
-                $newObj = array($this->cmd.'set' => $newObj);
-            } elseif (isset($newObj[$this->cmd.'set']) && empty($newObj[$this->cmd.'set'])) {
-                $newObj[$this->cmd.'set'] = new \stdClass();
-            }
-            $this->getMongoCollection()->update($query, $newObj, $options);
-        }
-        return $newObj;
+        return $this->getMongoCollection()->update($query, $newObj, $options);
     }
 
     /** @override */
@@ -111,18 +153,24 @@ class GridFS extends Collection
     /** @override */
     protected function doInsert(array &$a, array $options = array())
     {
-        // If file exists and is dirty then lets persist the file and store the file path or the bytes
-        if (isset($a['file'])) {
-            $file = $a['file']; // instanceof GridFSFile
-            unset($a['file']);
-            if ($file->isDirty()) {
-                $this->storeFile($file, $a, $options);
-            } else {
-                parent::doInsert($a, $options);
-            }
+        // If there is no file, perform a basic insertion
+        if (!isset($a['file'])) {
+            parent::doInsert($a, $options);
+            return;
+        }
+
+        /* If the file is dirty (i.e. it must be persisted), delegate to the
+         * storeFile() method. Otherwise, perform a basic insertion.
+         */
+        $file = $a['file']; // instanceof GridFSFile
+        unset($a['file']);
+
+        if ($file->isDirty()) {
+            $this->storeFile($file, $a, $options);
         } else {
             parent::doInsert($a, $options);
         }
+
         $a['file'] = $file;
         return $a;
     }
@@ -147,16 +195,34 @@ class GridFS extends Collection
      */
     public function storeFile($file, array &$document, array $options = array())
     {
-        if (is_string($file)) {
+        if (!$file instanceof GridFSFile) {
             $file = new GridFSFile($file);
         }
+
         if ($file->hasUnpersistedFile()) {
             $id = $this->getMongoCollection()->storeFile($file->getFilename(), $document, $options);
         } else {
             $id = $this->getMongoCollection()->storeBytes($file->getBytes(), $document, $options);
         }
+
         $document = array_merge(array('_id' => $id), $document);
-        $file->setMongoGridFSFile(new \MongoGridFSFile($this->getMongoCollection(), $document));
+        $gridFsFile = $this->getMongoCollection()->get($id);
+
+        // TODO: Consider throwing exception if file cannot be fetched
+        $file->setMongoGridFSFile($this->getMongoCollection()->get($id));
+
         return $file;
+    }
+
+    protected function doFindAndRemove(array $query, array $options = array())
+    {
+        $document = parent::doFindAndRemove($query, $options);
+
+        if (isset($document)) {
+            // Remove the file data from the chunks collection
+            $this->getMongoCollection()->chunks->remove(array('files_id' => $document['_id']), $options);
+        }
+
+        return $document;
     }
 }

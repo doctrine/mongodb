@@ -2,24 +2,13 @@
 
 namespace Doctrine\MongoDB\Tests;
 
-use Doctrine\MongoDB\Configuration;
-use Doctrine\MongoDB\Connection;
 use Doctrine\MongoDB\GridFSFile;
 
 class GridFSFileTest extends BaseTest
 {
-    public function testSetAndGetMongoGridFSFile()
-    {
-        $path = __DIR__.'/GridFSFileTest.php';
-        $file = $this->getTestGridFSFile($path);
-        $mockPHPGridFSFile = $this->getMockPHPGridFSFile();
-        $file->setMongoGridFSFile($mockPHPGridFSFile);
-        $this->assertEquals($mockPHPGridFSFile, $file->getMongoGridFSFile());
-    }
-
     public function testIsDirty()
     {
-        $file = $this->getTestGridFSFile();
+        $file = new GridFSFile();
         $this->assertFalse($file->isDirty());
         $file->isDirty(true);
         $this->assertTrue($file->isDirty());
@@ -27,21 +16,9 @@ class GridFSFileTest extends BaseTest
         $this->assertFalse($file->isDirty());
     }
 
-    public function testSetAndGetFilename()
+    public function testSetAndGetBytes()
     {
-        $path = __DIR__.'/GridFSFileTest.php';
-        $file = $this->getTestGridFSFile();
-        $this->assertFalse($file->isDirty());
-        $file->setFilename($path);
-        $this->assertTrue($file->isDirty());
-        $this->assertFalse($file->hasUnpersistedBytes());
-        $this->assertTrue($file->hasUnpersistedFile());
-        $this->assertEquals($path, $file->getFilename());
-    }
-
-    public function testSetBytes()
-    {
-        $file = $this->getTestGridFSFile();
+        $file = new GridFSFile();
         $file->setBytes('bytes');
         $this->assertTrue($file->isDirty());
         $this->assertTrue($file->hasUnpersistedBytes());
@@ -49,122 +26,139 @@ class GridFSFileTest extends BaseTest
         $this->assertEquals('bytes', $file->getBytes());
     }
 
+    public function testSetAndGetFilename()
+    {
+        $file = new GridFSFile();
+        $this->assertFalse($file->isDirty());
+        $file->setFilename(__FILE__);
+        $this->assertTrue($file->isDirty());
+        $this->assertFalse($file->hasUnpersistedBytes());
+        $this->assertTrue($file->hasUnpersistedFile());
+        $this->assertEquals(__FILE__, $file->getFilename());
+    }
+
+    public function testSetAndGetMongoGridFSFile()
+    {
+        $mongoGridFSFile = $this->getMockMongoGridFSFile();
+
+        $file = new GridFSFile();
+        $file->setMongoGridFSFile($mongoGridFSFile);
+        $this->assertSame($mongoGridFSFile, $file->getMongoGridFSFile());
+    }
+
+    public function testGetBytesWithSetBytes()
+    {
+        $file = new GridFSFile();
+        $file->setBytes('bytes');
+        $this->assertEquals('bytes', $file->getBytes());
+    }
+
+    public function testGetBytesWithSetFilename()
+    {
+        $file = new GridFSFile();
+        $file->setFilename(__FILE__);
+        $this->assertStringEqualsFile(__FILE__, $file->getBytes());
+    }
+
+    public function testGetBytesWithSetMongoGridFSFile()
+    {
+        $mongoGridFSFile = $this->getMockMongoGridFSFile();
+        $mongoGridFSFile->expects($this->once())
+            ->method('getBytes')
+            ->will($this->returnValue('bytes'));
+
+        $file = new GridFSFile();
+        $file->setMongoGridFSFile($mongoGridFSFile);
+        $this->assertEquals('bytes', $file->getBytes());
+    }
+
+    public function testGetBytesWithEmptyState()
+    {
+        $file = new GridFSFile();
+        $this->assertNull($file->getBytes());
+    }
+
     public function testWriteWithSetBytes()
     {
-        $file = $this->getTestGridFSFile();
+        $path = tempnam(sys_get_temp_dir(), 'doctrine_write_test');
+        $this->assertNotEquals(false, $path);
+
+        $file = new GridFSFile();
         $file->setBytes('bytes');
-        $path = realpath(sys_get_temp_dir()).'/doctrine_write_test';
         $file->write($path);
-        $this->assertTrue(file_exists($path));
-        $this->assertEquals('bytes', file_get_contents($path));
+        $this->assertStringEqualsFile($path, 'bytes');
         unlink($path);
     }
 
     public function testWriteWithSetFilename()
     {
-        $origPath = __DIR__.'/GridFSFileTest.php';
-        $file = $this->getTestGridFSFile();
-        $file->setFilename($origPath);
-        $path = realpath(sys_get_temp_dir()).'/doctrine_write_test';
+        $path = tempnam(sys_get_temp_dir(), 'doctrine_write_test');
+        $this->assertNotEquals(false, $path);
+
+        $file = new GridFSFile();
+        $file->setFilename(__FILE__);
         $file->write($path);
-        $this->assertTrue(file_exists($path));
-        $this->assertEquals(file_get_contents($origPath), file_get_contents($path));
+        $this->assertFileEquals(__FILE__, $path);
         unlink($path);
+    }
+
+    public function testWriteWithSetMongoGridFSFile()
+    {
+        $mongoGridFSFile = $this->getMockMongoGridFSFile();
+        $mongoGridFSFile->expects($this->once())
+            ->method('write')
+            ->with('filename');
+
+        $file = new GridFSFile();
+        $file->setMongoGridFSFile($mongoGridFSFile);
+        $file->write('filename');
+    }
+
+    /**
+     * @expectedException BadMethodCallException
+     */
+    public function testWriteWithEmptyState()
+    {
+        $file = new GridFSFile();
+        $file->write('filename');
     }
 
     public function testGetSizeWithSetBytes()
     {
-        $file = $this->getTestGridFSFile();
+        $file = new GridFSFile();
         $file->setBytes('bytes');
         $this->assertEquals(5, $file->getSize());
     }
 
     public function testGetSizeWithSetFilename()
     {
-        $file = $this->getTestGridFSFile();
-        $file->setFilename(__DIR__.'/file.txt');
-        $this->assertEquals(22, $file->getSize());
+        $file = new GridFSFile();
+        $file->setFilename(__FILE__);
+        $this->assertEquals(filesize(__FILE__), $file->getSize());
     }
 
-    public function testFunctional()
+    public function testGetSizeWithSetMongoGridFSFile()
     {
-        $db = $this->conn->selectDatabase(self::$dbName);
+        $mongoGridFSFile = $this->getMockMongoGridFSFile();
+        $mongoGridFSFile->expects($this->once())
+            ->method('getSize')
+            ->will($this->returnValue(200));
 
-        $path = __DIR__.'/file.txt';
-        $gridFS = $db->getGridFS();
-        $file = new GridFSFile($path);
-        $document = array(
-            'title' => 'Test Title',
-            'file' => $file
-        );
-        $gridFS->insert($document);
-        $id = $document['_id'];
-
-        $document = $gridFS->findOne(array('_id' => $id));
-        $file = $document['file'];
-
-        $this->assertFalse($file->isDirty());
-        $this->assertEquals($path, $file->getFilename());
-        $this->assertEquals(file_get_contents($path), $file->getBytes());
-        $this->assertEquals(22, $file->getSize());
-
-        $tmpPath = realpath(sys_get_temp_dir()).'/doctrine_write_test';
-        $file->write($tmpPath);
-        $this->assertTrue(file_exists($path));
-        $this->assertEquals(file_get_contents($path), file_get_contents($tmpPath));
-        unlink($tmpPath);
+        $file = new GridFSFile();
+        $file->setMongoGridFSFile($mongoGridFSFile);
+        $this->assertEquals(200, $file->getSize());
     }
 
-    public function testStoreFile()
+    public function testGetSizeWithEmptyState()
     {
-        $db = $this->conn->selectDatabase(self::$dbName);
-        $gridFS = $db->getGridFS();
-
-        $metadata = array(
-            'test' => 'file'
-        );
-        $file = $gridFS->storeFile(__DIR__.'/file.txt', $metadata);
-        $this->assertInstanceOf('Doctrine\MongoDB\GridFSFile', $file);
-        $this->assertTrue(isset($metadata['_id']));
+        $file = new GridFSFile();
+        $this->assertEquals(0, $file->getSize());
     }
 
-    public function testUpdate()
+    private function getMockMongoGridFSFile()
     {
-        $db = $this->conn->selectDatabase(self::$dbName);
-
-        $path = __DIR__.'/file.txt';
-        $gridFS = $db->getGridFS();
-        $file = new GridFSFile($path);
-        $document = array(
-            'title' => 'Test Title',
-            'file' => $file
-        );
-        $gridFS->insert($document);
-        $id = $document['_id'];
-
-        $document = $gridFS->findOne(array('_id' => $id));
-        $file = $document['file'];
-
-        $gridFS->update(array('_id' => $id), array('$pushAll' => array('test' => array(1, 2, 3))));
-        $check = $gridFS->findOne(array('_id' => $id));
-        $this->assertTrue(isset($check['test']));
-        $this->assertEquals(3, count($check['test']));
-        $this->assertEquals(array(1, 2, 3), $check['test']);
-
-        $gridFS->update(array('_id' => $id), array('_id' => $id));
-        $gridFS->update(array('_id' => $id), array('_id' => $id, 'boom' => true));
-        $check = $gridFS->findOne(array('_id' => $id));
-        $this->assertTrue(isset($check['test']));
-        $this->assertTrue(isset($check['boom']));
-    }
-
-    private function getMockPHPGridFSFile()
-    {
-        return $this->getMock('MongoGridFSFile', array(), array(), '', false, false);
-    }
-
-    private function getTestGridFSFile($file = null)
-    {
-        return new GridFSFile($file);
+        return $this->getMockBuilder('MongoGridFSFile')
+                    ->disableOriginalConstructor()
+                    ->getMock();
     }
 }
