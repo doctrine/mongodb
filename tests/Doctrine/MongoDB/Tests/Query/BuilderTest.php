@@ -190,7 +190,7 @@ class BuilderTest extends BaseTest
         );
         $this->assertEquals($expected, $qb->getNewObj());
         $this->assertEquals(Query::TYPE_INSERT, $qb->getType());
-        $this->assertTrue($qb->getQuery()->execute());
+        $this->assertArrayHasKeyValue(array('ok' => 1.0), $qb->getQuery()->execute());
     }
 
     public function testUpdateQuery()
@@ -209,7 +209,7 @@ class BuilderTest extends BaseTest
 
         $query = $qb->getQuery();
         $this->assertEquals(Query::TYPE_UPDATE, $query->getType());
-        $this->assertTrue($query->execute());
+        $this->assertArrayHasKeyValue(array('ok' => 1.0), $query->execute());
     }
 
     public function testRemoveQuery()
@@ -219,7 +219,7 @@ class BuilderTest extends BaseTest
             ->field('username')->equals('jwage');
 
         $this->assertEquals(Query::TYPE_REMOVE, $qb->getType());
-        $this->assertTrue($qb->getQuery()->execute());
+        $this->assertArrayHasKeyValue(array('ok' => 1.0), $qb->getQuery()->execute());
     }
 
     /**
@@ -517,5 +517,13 @@ class BuilderTest extends BaseTest
     private function getTestQueryBuilder()
     {
         return $this->conn->selectCollection('db', 'users')->createQueryBuilder();
+    }
+
+    private function assertArrayHasKeyValue($expected, $array, $message = '')
+    {
+        foreach ((array) $expected as $key => $value) {
+            $this->assertArrayHasKey($key, $expected, $message);
+            $this->assertEquals($value, $expected[$key], $message);
+        }
     }
 }

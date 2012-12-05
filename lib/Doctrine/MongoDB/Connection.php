@@ -23,7 +23,7 @@ use Doctrine\Common\EventManager,
     Doctrine\MongoDB\Event\EventArgs;
 
 /**
- * Wrapper for the PHP Mongo class.
+ * Wrapper for the PHP MongoClient class.
  *
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.org
@@ -33,7 +33,7 @@ use Doctrine\Common\EventManager,
 class Connection
 {
     /**
-     * @var Mongo $mongo
+     * @var MongoClient $mongo
      */
     protected $mongo;
 
@@ -67,14 +67,14 @@ class Connection
     protected $cmd;
 
     /**
-     * Create a new Mongo wrapper instance.
+     * Create a new MongoClient wrapper instance.
      *
      * @param mixed $server A string server name, an existing Mongo instance or can be omitted.
      * @param array $options
      */
     public function __construct($server = null, array $options = array(), Configuration $config = null, EventManager $evm = null)
     {
-        if ($server instanceof \Mongo) {
+        if ($server instanceof \MongoClient) {
             $this->mongo = $server;
         } elseif ($server !== null) {
             $this->server = $server;
@@ -95,7 +95,7 @@ class Connection
             $server  = $this->server;
             $options = $this->options;
             $this->mongo = $this->retry(function() use($server, $options) {
-                return new \Mongo($server ?: 'mongodb://localhost:27017', $options);
+                return new \MongoClient($server ?: 'mongodb://localhost:27017', $options);
             });
 
             if ($this->eventManager->hasListeners(Events::postConnect)) {
@@ -145,11 +145,11 @@ class Connection
     }
 
     /**
-     * Set the PHP Mongo instance to wrap.
+     * Set the PHP MongoClient instance to wrap.
      *
-     * @param Mongo $mongo The PHP Mongo instance
+     * @param MongoCient $mongo The PHP Mongo instance
      */
-    public function setMongo(\Mongo $mongo)
+    public function setMongo(\MongoClient $mongo)
     {
         $this->mongo = $mongo;
     }
@@ -157,7 +157,7 @@ class Connection
     /**
      * Returns the PHP Mongo instance being wrapped.
      *
-     * @return Mongo
+     * @return MongoClient
      */
     public function getMongo()
     {

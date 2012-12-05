@@ -200,16 +200,6 @@ class Database
         );
     }
 
-    public function setSlaveOkay($ok = true)
-    {
-        return $this->getMongoDB()->setSlaveOkay($ok);
-    }
-
-    public function getSlaveOkay()
-    {
-        return $this->getMongoDB()->getSlaveOkay();
-    }
-
     public function getProfilingLevel()
     {
         return $this->getMongoDB()->getProfilingLevel();

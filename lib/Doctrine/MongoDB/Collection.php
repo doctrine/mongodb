@@ -616,16 +616,6 @@ class Collection
         return $this->getMongoCollection()->save($a, $options);
     }
 
-    public function setSlaveOkay($ok = true)
-    {
-        return $this->getMongoCollection()->setSlaveOkay($ok);
-    }
-
-    public function getSlaveOkay()
-    {
-        return $this->getMongoCollection()->getSlaveOkay();
-    }
-
     public function validate($scanData = false)
     {
         return $this->getMongoCollection()->validate($scanData);
