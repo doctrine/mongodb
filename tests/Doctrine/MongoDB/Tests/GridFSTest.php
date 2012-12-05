@@ -134,6 +134,7 @@ class GridFSTest extends BaseTest
     public function testUpsert()
     {
         $gridFS = $this->getGridFS();
+        $id = new \MongoId();
 
         $path = __DIR__.'/file.txt';
         $file = new GridFSFile($path);
@@ -144,9 +145,9 @@ class GridFSTest extends BaseTest
                 'file' => $file,
             ),
         );
-        $gridFS->update(array('_id' => 123), $newObj, array('upsert' => true, 'multiple' => false));
+        $gridFS->update(array('_id' => $id), $newObj, array('upsert' => true, 'multiple' => false));
 
-        $document = $gridFS->findOne(array('_id' => 123));
+        $document = $gridFS->findOne(array('_id' => $id));
 
         $file = $document['file'];
 
