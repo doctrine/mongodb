@@ -454,9 +454,9 @@ class BuilderTest extends BaseTest
     public function testNear()
     {
         $qb = $this->getTestQueryBuilder()
-            ->field('loc')->near(50, 50);
+            ->field('loc')->near(50, 50)->maxDistance(25);
 
-        $expected = array('loc' => array('$near' => array(50, 50)));
+        $expected = array('loc' => array('$near' => array(50, 50), '$maxDistance' => 25));
         $this->assertEquals($expected, $qb->getQueryArray());
     }
 

@@ -586,14 +586,23 @@ class Builder
     }
 
     /**
-     * Set the "maxDistance" option for a geoNear command query.
+     * Set the "maxDistance" option for a geoNear command query or add
+     * $maxDistance criteria to the query.
+     *
+     * If the query type is geospatial (i.e. geoNear() was called), the
+     * "maxDistance" command option will be set; otherwise, $maxDistance will be
+     * added to the current expression.
      *
      * @param string $maxDistance
      * @return Builder
      */
     public function maxDistance($maxDistance)
     {
-        $this->query['geoNear']['maxDistance'] = $maxDistance;
+        if (Query::TYPE_GEO_LOCATION === $this->query['type']) {
+            $this->query['geoNear']['maxDistance'] = $maxDistance;
+        } else {
+            $this->expr->maxDistance($maxDistance);
+        }
         return $this;
     }
 

@@ -217,6 +217,16 @@ class Expr
         return $this;
     }
 
+    public function maxDistance($maxDistance)
+    {
+        if ($this->currentField) {
+            $this->query[$this->currentField][$this->cmd . 'maxDistance'] = $maxDistance;
+        } else {
+            $this->query[$this->cmd . 'maxDistance'] = $maxDistance;
+        }
+        return $this;
+    }
+
     public function withinBox($x1, $y1, $x2, $y2)
     {
         if ($this->currentField) {
