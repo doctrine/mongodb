@@ -610,7 +610,7 @@ class Builder
     }
 
     /**
-     * Add where $near query.
+     * Add $near criteria to the query.
      *
      * @param string $x
      * @param string $y
@@ -623,7 +623,7 @@ class Builder
     }
 
     /**
-     * Add where $within $box query.
+     * Add $withinBox criteria to the query.
      *
      * @param string $x1
      * @param string $y1
@@ -638,7 +638,7 @@ class Builder
     }
 
     /**
-     * Add where $within $center query.
+     * Add $withinCenter criteria to the query.
      *
      * @param string $x
      * @param string $y
@@ -652,7 +652,7 @@ class Builder
     }
 
     /**
-     * Add where $within $polygon query.
+     * Add $withinPolygon criteria to the query.
      *
      * @param array $point,... Three or more point coordinate tuples
      * @return Builder
