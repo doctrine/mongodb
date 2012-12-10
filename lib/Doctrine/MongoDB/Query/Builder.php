@@ -354,9 +354,9 @@ class Builder
      */
     public function selectSlice($fieldName, $skip, $limit = null)
     {
-        $slice = array($skip);
+        $slice = $skip;
         if ($limit !== null) {
-            $slice[] = $limit;
+            $slice = array($skip, $limit);
         }
         $this->query['select'][$fieldName] = array($this->cmd . 'slice' => $slice);
         return $this;
