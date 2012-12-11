@@ -616,6 +616,41 @@ class Collection
         return $this->getMongoCollection()->save($a, $options);
     }
 
+    /**
+     * Set whether secondary read queries are allowed for this collection.
+     *
+     * This method wraps setSlaveOkay() for driver versions before 1.3.0. For
+     * newer drivers, this method wraps setReadPreference() and specifies
+     * SECONDARY_PREFERRED.
+     */
+    public function setSlaveOkay($ok = true)
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            return $this->getMongoCollection()->setSlaveOkay($ok);
+        }
+
+        $prevSlaveOkay = $this->getSlaveOkay();
+        $this->getMongoCollection()->setReadPreference($ok ? \MongoClient::RP_SECONDARY_PREFERRED : \MongoClient::RP_PRIMARY);
+
+        return $prevSlaveOkay;
+    }
+
+    /**
+     * Get whether secondary read queries are allowed for this collection.
+     *
+     * This method wraps getSlaveOkay() for driver versions before 1.3.0. For
+     * newer drivers, this method considers any read preference other than
+     * PRIMARY as a true "slaveOkay" value.
+     */
+    public function getSlaveOkay()
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            return $this->getMongoCollection()->getSlaveOkay();
+        }
+
+        return \MongoClient::RP_PRIMARY !== $this->getMongoCollection()->getReadPreference();
+    }
+
     public function validate($scanData = false)
     {
         return $this->getMongoCollection()->validate($scanData);
