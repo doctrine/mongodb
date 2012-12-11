@@ -74,7 +74,7 @@ class Builder
         'hints' => array(),
         'immortal' => false,
         'snapshot' => false,
-        'slaveOkay' => false,
+        'slaveOkay' => null,
         'eagerCursor' => false,
         'mapReduce' => array(
             'map' => null,
@@ -129,7 +129,7 @@ class Builder
     }
 
     /**
-     * Set slave okaye.
+     * Set slave okay.
      *
      * @param bool $bool
      * @return Builder

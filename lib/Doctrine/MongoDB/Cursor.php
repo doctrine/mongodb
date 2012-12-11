@@ -43,15 +43,15 @@ class Cursor implements Iterator
     protected $query = array();
     protected $fields = array();
     protected $hints = array();
-    protected $immortal = false;
+    protected $immortal;
     protected $options = array();
     protected $batchSize;
     protected $limit;
     protected $skip;
-    protected $slaveOkay = false;
+    protected $slaveOkay;
     protected $snapshot;
     protected $sorts = array();
-    protected $tailable = false;
+    protected $tailable;
     protected $timeout;
 
     /**
@@ -100,7 +100,9 @@ class Cursor implements Iterator
         foreach ($this->hints as $hint) {
             $this->mongoCursor->hint($hint);
         }
-        $this->mongoCursor->immortal($this->immortal);
+        if ($this->immortal !== null) {
+            $this->mongoCursor->immortal($this->immortal);
+        }
         foreach ($this->options as $key => $value) {
             $this->mongoCursor->addOption($key, $value);
         }
@@ -113,14 +115,18 @@ class Cursor implements Iterator
         if ($this->skip !== null) {
             $this->mongoCursor->skip($this->skip);
         }
-        $this->mongoCursor->slaveOkay($this->slaveOkay);
+        if ($this->slaveOkay !== null) {
+            $this->mongoCursor->slaveOkay($this->slaveOkay);
+        }
         if ($this->snapshot) {
             $this->mongoCursor->snapshot();
         }
         foreach ($this->sorts as $sort) {
             $this->mongoCursor->sort($sort);
         }
-        $this->mongoCursor->tailable($this->tailable);
+        if ($this->tailable !== null) {
+            $this->mongoCursor->tailable($this->tailable);
+        }
         if ($this->timeout !== null) {
             $this->mongoCursor->timeout($this->timeout);
         }
@@ -203,6 +209,7 @@ class Cursor implements Iterator
 
     public function immortal($liveForever = true)
     {
+        $liveForever = (boolean) $liveForever;
         $this->immortal = $liveForever;
         $this->mongoCursor->immortal($liveForever);
         return $this;
@@ -251,6 +258,7 @@ class Cursor implements Iterator
 
     public function batchSize($num)
     {
+        $limit = (integer) $num;
         $this->batchSize = $num;
         $this->mongoCursor->batchSize($num);
         return $this;
@@ -258,6 +266,7 @@ class Cursor implements Iterator
 
     public function limit($num)
     {
+        $limit = (integer) $num;
         $this->limit = $num;
         $this->mongoCursor->limit($num);
         return $this;
@@ -265,15 +274,17 @@ class Cursor implements Iterator
 
     public function skip($num)
     {
+        $num = (integer) $num;
         $this->skip = $num;
         $this->mongoCursor->skip($num);
         return $this;
     }
 
-    public function slaveOkay($okay = true)
+    public function slaveOkay($ok = true)
     {
-        $this->slaveOkay = $okay;
-        $this->mongoCursor->slaveOkay($okay);
+        $ok = (boolean) $ok;
+        $this->slaveOkay = $ok;
+        $this->mongoCursor->slaveOkay($ok);
         return $this;
     }
 
@@ -290,8 +301,7 @@ class Cursor implements Iterator
             if (is_string($order)) {
                 $order = strtolower($order) === 'asc' ? 1 : -1;
             }
-            $order = (int) $order;
-            $fields[$fieldName] = $order;
+            $fields[$fieldName] = (integer) $order;
         }
         $this->sorts[] = $fields;
         $this->mongoCursor->sort($fields);
@@ -300,6 +310,7 @@ class Cursor implements Iterator
 
     public function tailable($tail = true)
     {
+        $tail = (boolean) $tail;
         $this->tailable = $tail;
         $this->mongoCursor->tailable($tail);
         return $this;
@@ -307,7 +318,7 @@ class Cursor implements Iterator
 
     public function timeout($ms)
     {
-        $this->timeout = $ms;
+        $this->timeout = (integer) $ms;
         $this->mongoCursor->timeout($ms);
         return $this;
     }
