@@ -19,13 +19,14 @@
 
 namespace Doctrine\MongoDB;
 
-use Doctrine\Common\EventManager,
-    Doctrine\MongoDB\Event\EventArgs,
-    Doctrine\MongoDB\Event\DistinctEventArgs,
-    Doctrine\MongoDB\Event\GroupEventArgs,
-    Doctrine\MongoDB\Event\NearEventArgs,
-    Doctrine\MongoDB\Event\MapReduceEventArgs,
-    Doctrine\MongoDB\Event\UpdateEventArgs;
+use Doctrine\Common\EventManager;
+use Doctrine\MongoDB\Event\DistinctEventArgs;
+use Doctrine\MongoDB\Event\EventArgs;
+use Doctrine\MongoDB\Event\GroupEventArgs;
+use Doctrine\MongoDB\Event\MapReduceEventArgs;
+use Doctrine\MongoDB\Event\NearEventArgs;
+use Doctrine\MongoDB\Event\UpdateEventArgs;
+use Doctrine\MongoDB\Util\ReadPreference;
 
 /**
  * Wrapper for the PHP MongoCollection class.
@@ -630,7 +631,15 @@ class Collection
         }
 
         $prevSlaveOkay = $this->getSlaveOkay();
-        $this->getMongoCollection()->setReadPreference($ok ? \MongoClient::RP_SECONDARY_PREFERRED : \MongoClient::RP_PRIMARY);
+
+        if ($ok) {
+            // Preserve existing tags for non-primary read preferences
+            $readPref = $this->getMongoCollection()->getReadPreference();
+            $tags = isset($readPref['tagsets']) ? ReadPreference::convertTagSets($readPref['tagsets']) : array();
+            $this->getMongoCollection()->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+        } else {
+            $this->getMongoCollection()->setReadPreference(\MongoClient::RP_PRIMARY);
+        }
 
         return $prevSlaveOkay;
     }
@@ -648,7 +657,9 @@ class Collection
             return $this->getMongoCollection()->getSlaveOkay();
         }
 
-        return \MongoClient::RP_PRIMARY !== $this->getMongoCollection()->getReadPreference();
+        $readPref = $this->getMongoCollection()->getReadPreference();
+
+        return \MongoClient::RP_PRIMARY !== ReadPreference::convertNumericType($readPref['type']);
     }
 
     public function validate($scanData = false)

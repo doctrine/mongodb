@@ -56,9 +56,12 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
         }
 
-        $this->mongodb->expects($this->once())
+        $this->mongodb->expects($this->exactly(2))
             ->method('getReadPreference')
-            ->will($this->returnValue(\MongoClient::RP_PRIMARY));
+            ->will($this->returnValue(array(
+                'type' => 0,
+                'type_string' => 'primary',
+            )));
 
         $this->mongodb->expects($this->once())
             ->method('setReadPreference')
@@ -68,6 +71,30 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $database = new Database($this->connection, 'test', $this->getMockEventManager(), '$');
 
         $this->assertEquals(false, $database->setSlaveOkay(true));
+    }
+
+    public function testSetSlaveOkayPreservesReadPreferenceTags()
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
+        }
+
+        $this->mongodb->expects($this->exactly(2))
+            ->method('getReadPreference')
+            ->will($this->returnValue(array(
+                'type' => 1,
+                'type_string' => 'primary preferred',
+                'tagsets' => array(array('dc:east')),
+            )));
+
+        $this->mongodb->expects($this->once())
+            ->method('setReadPreference')
+            ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
+            ->will($this->returnValue(false));
+
+        $database = new Database($this->connection, 'test', $this->getMockEventManager(), '$');
+
+        $this->assertEquals(true, $database->setSlaveOkay(true));
     }
 
     private function getMockConnection()

@@ -19,8 +19,9 @@
 
 namespace Doctrine\MongoDB;
 
-use Doctrine\Common\EventManager,
-    Doctrine\MongoDB\Event\EventArgs;
+use Doctrine\Common\EventManager;
+use Doctrine\MongoDB\Event\EventArgs;
+use Doctrine\MongoDB\Util\ReadPreference;
 
 /**
  * Wrapper for the PHP MongoDB class.
@@ -214,7 +215,15 @@ class Database
         }
 
         $prevSlaveOkay = $this->getSlaveOkay();
-        $this->getMongoDB()->setReadPreference($ok ? \MongoClient::RP_SECONDARY_PREFERRED : \MongoClient::RP_PRIMARY);
+
+        if ($ok) {
+            // Preserve existing tags for non-primary read preferences
+            $readPref = $this->getMongoDB()->getReadPreference();
+            $tags = isset($readPref['tagsets']) ? ReadPreference::convertTagSets($readPref['tagsets']) : array();
+            $this->getMongoDB()->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+        } else {
+            $this->getMongoDB()->setReadPreference(\MongoClient::RP_PRIMARY);
+        }
 
         return $prevSlaveOkay;
     }
@@ -232,7 +241,9 @@ class Database
             return $this->getMongoDB()->getSlaveOkay();
         }
 
-        return \MongoClient::RP_PRIMARY !== $this->getMongoDB()->getReadPreference();
+        $readPref = $this->getMongoDB()->getReadPreference();
+
+        return \MongoClient::RP_PRIMARY !== ReadPreference::convertNumericType($readPref['type']);
     }
 
     public function getProfilingLevel()
