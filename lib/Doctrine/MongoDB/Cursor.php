@@ -116,7 +116,7 @@ class Cursor implements Iterator
             $this->mongoCursor->skip($this->skip);
         }
         if ($this->slaveOkay !== null) {
-            $this->mongoCursor->slaveOkay($this->slaveOkay);
+            $this->setMongoCursorSlaveOkay($this->slaveOkay);
         }
         if ($this->snapshot) {
             $this->mongoCursor->snapshot();
@@ -284,8 +284,42 @@ class Cursor implements Iterator
     {
         $ok = (boolean) $ok;
         $this->slaveOkay = $ok;
-        $this->mongoCursor->slaveOkay($ok);
+        $this->setMongoCursorSlaveOkay($ok);
         return $this;
+    }
+
+    /**
+     * Set whether secondary read queries are allowed for this cursor.
+     *
+     * This method wraps setSlaveOkay() for driver versions before 1.3.0. For
+     * newer drivers, this method either wraps setReadPreference() method and
+     * specifies SECONDARY_PREFERRED or does nothing, depending on whether
+     * setReadPreference() exists.
+     *
+     * @param boolean $ok
+     */
+    public function setMongoCursorSlaveOkay($ok)
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            $this->mongoCursor->slaveOkay($ok);
+            return;
+        }
+
+        /* MongoCursor::setReadPreference() may not exist until 1.4.0. Although
+         * we could throw an exception here, it's more user-friendly to NOP.
+         */
+        if (!method_exists($this->mongoCursor, 'setReadPreference')) {
+            return;
+        }
+
+        if ($ok) {
+            // Preserve existing tags for non-primary read preferences
+            $readPref = $this->mongoCursor->getReadPreference();
+            $tags = isset($readPref['tagsets']) ? ReadPreference::convertTagSets($readPref['tagsets']) : array();
+            $this->mongoCursor->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+        } else {
+            $this->mongoCursor->setReadPreference(\MongoClient::RP_PRIMARY);
+        }
     }
 
     public function snapshot()
