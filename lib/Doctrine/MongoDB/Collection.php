@@ -19,13 +19,14 @@
 
 namespace Doctrine\MongoDB;
 
-use Doctrine\Common\EventManager,
-    Doctrine\MongoDB\Event\EventArgs,
-    Doctrine\MongoDB\Event\DistinctEventArgs,
-    Doctrine\MongoDB\Event\GroupEventArgs,
-    Doctrine\MongoDB\Event\NearEventArgs,
-    Doctrine\MongoDB\Event\MapReduceEventArgs,
-    Doctrine\MongoDB\Event\UpdateEventArgs;
+use Doctrine\Common\EventManager;
+use Doctrine\MongoDB\Event\DistinctEventArgs;
+use Doctrine\MongoDB\Event\EventArgs;
+use Doctrine\MongoDB\Event\GroupEventArgs;
+use Doctrine\MongoDB\Event\MapReduceEventArgs;
+use Doctrine\MongoDB\Event\NearEventArgs;
+use Doctrine\MongoDB\Event\UpdateEventArgs;
+use Doctrine\MongoDB\Util\ReadPreference;
 
 /**
  * Wrapper for the PHP MongoCollection class.
@@ -614,6 +615,51 @@ class Collection
     protected function doSave(array &$a, array $options)
     {
         return $this->getMongoCollection()->save($a, $options);
+    }
+
+    /**
+     * Set whether secondary read queries are allowed for this collection.
+     *
+     * This method wraps setSlaveOkay() for driver versions before 1.3.0. For
+     * newer drivers, this method wraps setReadPreference() and specifies
+     * SECONDARY_PREFERRED.
+     */
+    public function setSlaveOkay($ok = true)
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            return $this->getMongoCollection()->setSlaveOkay($ok);
+        }
+
+        $prevSlaveOkay = $this->getSlaveOkay();
+
+        if ($ok) {
+            // Preserve existing tags for non-primary read preferences
+            $readPref = $this->getMongoCollection()->getReadPreference();
+            $tags = isset($readPref['tagsets']) ? ReadPreference::convertTagSets($readPref['tagsets']) : array();
+            $this->getMongoCollection()->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+        } else {
+            $this->getMongoCollection()->setReadPreference(\MongoClient::RP_PRIMARY);
+        }
+
+        return $prevSlaveOkay;
+    }
+
+    /**
+     * Get whether secondary read queries are allowed for this collection.
+     *
+     * This method wraps getSlaveOkay() for driver versions before 1.3.0. For
+     * newer drivers, this method considers any read preference other than
+     * PRIMARY as a true "slaveOkay" value.
+     */
+    public function getSlaveOkay()
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            return $this->getMongoCollection()->getSlaveOkay();
+        }
+
+        $readPref = $this->getMongoCollection()->getReadPreference();
+
+        return \MongoClient::RP_PRIMARY !== ReadPreference::convertNumericType($readPref['type']);
     }
 
     public function validate($scanData = false)

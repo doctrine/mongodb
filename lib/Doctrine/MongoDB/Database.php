@@ -19,8 +19,9 @@
 
 namespace Doctrine\MongoDB;
 
-use Doctrine\Common\EventManager,
-    Doctrine\MongoDB\Event\EventArgs;
+use Doctrine\Common\EventManager;
+use Doctrine\MongoDB\Event\EventArgs;
+use Doctrine\MongoDB\Util\ReadPreference;
 
 /**
  * Wrapper for the PHP MongoDB class.
@@ -198,6 +199,51 @@ class Database
         return new GridFS(
             $this->connection, $name, $this, $this->eventManager, $this->cmd
         );
+    }
+
+    /**
+     * Set whether secondary read queries are allowed for this database.
+     *
+     * This method wraps setSlaveOkay() for driver versions before 1.3.0. For
+     * newer drivers, this method wraps setReadPreference() and specifies
+     * SECONDARY_PREFERRED.
+     */
+    public function setSlaveOkay($ok = true)
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            return $this->getMongoDB()->setSlaveOkay($ok);
+        }
+
+        $prevSlaveOkay = $this->getSlaveOkay();
+
+        if ($ok) {
+            // Preserve existing tags for non-primary read preferences
+            $readPref = $this->getMongoDB()->getReadPreference();
+            $tags = isset($readPref['tagsets']) ? ReadPreference::convertTagSets($readPref['tagsets']) : array();
+            $this->getMongoDB()->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+        } else {
+            $this->getMongoDB()->setReadPreference(\MongoClient::RP_PRIMARY);
+        }
+
+        return $prevSlaveOkay;
+    }
+
+    /**
+     * Get whether secondary read queries are allowed for this database.
+     *
+     * This method wraps getSlaveOkay() for driver versions before 1.3.0. For
+     * newer drivers, this method considers any read preference other than
+     * PRIMARY as a true "slaveOkay" value.
+     */
+    public function getSlaveOkay()
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            return $this->getMongoDB()->getSlaveOkay();
+        }
+
+        $readPref = $this->getMongoDB()->getReadPreference();
+
+        return \MongoClient::RP_PRIMARY !== ReadPreference::convertNumericType($readPref['type']);
     }
 
     public function getProfilingLevel()

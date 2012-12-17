@@ -69,12 +69,12 @@ class Connection
     /**
      * Create a new MongoClient wrapper instance.
      *
-     * @param mixed $server A string server name, an existing Mongo instance or can be omitted.
+     * @param mixed $server A string server name, an existing MongoClient or Mongo instance, or null
      * @param array $options
      */
     public function __construct($server = null, array $options = array(), Configuration $config = null, EventManager $evm = null)
     {
-        if ($server instanceof \MongoClient) {
+        if ($server instanceof \MongoClient || $server instanceof \Mongo) {
             $this->mongo = $server;
         } elseif ($server !== null) {
             $this->server = $server;
@@ -95,6 +95,10 @@ class Connection
             $server  = $this->server;
             $options = $this->options;
             $this->mongo = $this->retry(function() use($server, $options) {
+                if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+                    return new \Mongo($server ?: 'mongodb://localhost:27017', $options);
+                }
+
                 return new \MongoClient($server ?: 'mongodb://localhost:27017', $options);
             });
 
@@ -147,10 +151,14 @@ class Connection
     /**
      * Set the PHP MongoClient instance to wrap.
      *
-     * @param MongoCient $mongo The PHP Mongo instance
+     * @param MongoClient $mongo The PHP Mongo instance
      */
-    public function setMongo(\MongoClient $mongo)
+    public function setMongo($mongo)
     {
+        if ( ! ($mongo instanceof \MongoClient || $mongo instanceof \Mongo)) {
+            throw new \InvalidArgumentException('MongoClient or Mongo instance required');
+        }
+
         $this->mongo = $mongo;
     }
 
