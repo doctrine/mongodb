@@ -61,4 +61,21 @@ class CursorTest extends BaseTest
         $cursor = $collection->createQueryBuilder()->getQuery()->execute();
         $this->assertNull($cursor->getSingleResult());
     }
+
+    public function testToArray()
+    {
+        $this->assertEquals(
+            array(
+                (string) $this->doc1['_id'] => $this->doc1,
+                (string) $this->doc2['_id'] => $this->doc2,
+                (string) $this->doc3['_id'] => $this->doc3
+            ),
+            $this->cursor->toArray()
+        );
+    }
+
+    public function testToArrayWithoutKeys()
+    {
+        $this->assertEquals(array($this->doc1, $this->doc2, $this->doc3), $this->cursor->toArray(false));
+    }
 }
