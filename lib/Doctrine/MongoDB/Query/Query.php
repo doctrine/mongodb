@@ -23,8 +23,8 @@ use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Cursor;
 use Doctrine\MongoDB\Database;
 use Doctrine\MongoDB\EagerCursor;
-use Doctrine\MongoDB\IteratorAggregate;
 use Doctrine\MongoDB\Iterator;
+use Doctrine\MongoDB\IteratorAggregate;
 
 /**
  * Query is responsible for executing and returning the results from queries built by the
@@ -236,16 +236,23 @@ class Query implements IteratorAggregate
         $cursor->skip($this->query['skip']);
         $cursor->sort($this->query['sort']);
         $cursor->immortal($this->query['immortal']);
-        $cursor->slaveOkay($this->query['slaveOkay']);
+
+        if (null !== $this->query['slaveOkay']) {
+            $cursor->slaveOkay($this->query['slaveOkay']);
+        }
+
         if ($this->query['snapshot']) {
             $cursor->snapshot();
         }
+
         foreach ($this->query['hints'] as $keyPattern) {
             $cursor->hint($keyPattern);
         }
+
         if ($this->query['eagerCursor'] === true) {
             $cursor = new EagerCursor($cursor);
         }
+
         return $cursor;
     }
 

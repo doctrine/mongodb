@@ -8,8 +8,24 @@ use Mongo;
 
 class ConnectionTest extends PHPUnit_Framework_TestCase
 {
-    public function testInitialize()
+    public function testInitializeMongo()
     {
+        if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {
+            $this->markTestSkipped('This test is not applicable to driver versions >= 1.3.0');
+        }
+
+        $conn = new Connection();
+        $this->assertNull($conn->getMongo());
+        $conn->initialize();
+        $this->assertInstanceOf('Mongo', $conn->getMongo());
+    }
+
+    public function testInitializeMongoClient()
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
+        }
+
         $conn = new Connection();
         $this->assertNull($conn->getMongo());
         $conn->initialize();
@@ -25,6 +41,49 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
         });
         $conn->log(array('test'));
         $this->assertEquals(array('test'), $called);
+    }
+
+    public function testSetMongo()
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {
+            $this->markTestSkipped('This test is not applicable to driver versions >= 1.3.0');
+        }
+
+        $mongo = $this->getMockBuilder('Mongo')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $conn = new Connection();
+        $conn->setMongo($mongo);
+        $this->assertSame($mongo, $conn->getMongo());
+    }
+
+    public function testSetMongoClient()
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
+        }
+
+        $mongoClient = $this->getMockBuilder('MongoClient')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $conn = new Connection();
+        $conn->setMongo($mongoClient);
+        $this->assertSame($mongoClient, $conn->getMongo());
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testSetMongoShouldThrowExceptionForInvalidArgument()
+    {
+        $mongoDB = $this->getMockBuilder('MongoDB')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $conn = new Connection();
+        $conn->setMongo($mongoDB);
     }
 
     public function testClose()

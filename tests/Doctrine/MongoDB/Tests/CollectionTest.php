@@ -394,6 +394,79 @@ class CollectionTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKeyValue(array('ok' => 1.0), $result);
     }
 
+    public function testGetSetSlaveOkay()
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {
+            $this->markTestSkipped('This test is not applicable to driver versions >= 1.3.0');
+        }
+
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->once())
+            ->method('getSlaveOkay')
+            ->will($this->returnValue(false));
+
+        $mongoCollection->expects($this->once())
+            ->method('setSlaveOkay')
+            ->with(true)
+            ->will($this->returnValue(false));
+
+        $collection = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+
+        $this->assertEquals(false, $collection->getSlaveOkay());
+        $this->assertEquals(false, $collection->setSlaveOkay(true));
+    }
+
+    public function testGetSetSlaveOkayReadPreferences()
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
+        }
+
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->exactly(2))
+            ->method('getReadPreference')
+            ->will($this->returnValue(array(
+                'type' => 0,
+                'type_string' => 'primary',
+            )));
+
+        $mongoCollection->expects($this->once())
+            ->method('setReadPreference')
+            ->with(\MongoClient::RP_SECONDARY_PREFERRED);
+
+        $collection = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+
+        $this->assertEquals(false, $collection->setSlaveOkay(true));
+    }
+
+    public function testSetSlaveOkayPreservesReadPreferenceTags()
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
+        }
+
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->exactly(2))
+            ->method('getReadPreference')
+            ->will($this->returnValue(array(
+                'type' => 1,
+                'type_string' => 'primary preferred',
+                'tagsets' => array(array('dc:east')),
+            )));
+
+        $mongoCollection->expects($this->once())
+            ->method('setReadPreference')
+            ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
+            ->will($this->returnValue(false));
+
+        $collection = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+
+        $this->assertEquals(true, $collection->setSlaveOkay(true));
+    }
+
     public function testValidate()
     {
         $mockConnection = $this->getMockConnection();
