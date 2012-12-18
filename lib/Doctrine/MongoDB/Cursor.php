@@ -362,11 +362,11 @@ class Cursor implements Iterator
         return $this->mongoCursor->valid();
     }
 
-    public function toArray()
+    public function toArray($useKeys = true)
     {
         $cursor = $this;
-        return $this->retry(function() use ($cursor) {
-            return iterator_to_array($cursor);
+        return $this->retry(function() use ($cursor, $useKeys) {
+            return iterator_to_array($cursor, $useKeys);
         }, true);
     }
 
