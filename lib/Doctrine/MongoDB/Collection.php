@@ -543,8 +543,8 @@ class Collection
         $result = $this->retry(function() use ($collection, $keys, $initial, $reduce, $options) {
             /* Version 1.2.11+ of the driver yields an E_DEPRECATED notice if an
              * empty array is passed to MongoCollection::group(), as it assumes
-             * an it is the "condition" option's value being passed instead of
-             * a well-formed options array (the actual deprecated behavior).
+             * it is the "condition" option's value being passed instead of a
+             * well-formed options array (the actual deprecated behavior).
              */
             return empty($options)
                 ? $collection->getMongoCollection()->group($keys, $initial, $reduce)
