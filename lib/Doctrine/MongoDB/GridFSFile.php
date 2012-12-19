@@ -21,8 +21,8 @@ namespace Doctrine\MongoDB;
 
 /**
  * File is a wrapper around the native PHP MongoGridFSFile class and allows you
- * to use an instance of this class to persist new files as well as represent existing already
- * persisted files using the MongoGridFS.
+ * to use an instance of this class to persist new files as well as represent
+ * existing, already persisted files using the MongoGridFS.
  *
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.com

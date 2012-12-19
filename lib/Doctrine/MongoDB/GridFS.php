@@ -20,7 +20,10 @@
 namespace Doctrine\MongoDB;
 
 /**
- * GridFS
+ * Wrapper for the PHP MongoGridFS class
+ *
+ * This class does not proxy all of the MongoGridFS methods; however, the
+ * MongoGridFS object is accessible if those methods are required.
  *
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.org
