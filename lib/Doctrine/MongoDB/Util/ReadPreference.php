@@ -75,11 +75,11 @@ final class ReadPreference
      *
      * Example input:
      *
-     *     [['dc:east','use:reporting'],['dc:west'],[]]
+     *     [['dc:east', 'use:reporting'], ['dc:west'], []]
      *
      * Example output:
      *
-     *     [{dc:'east', use:'reporting'},{dc:'west'},{}]
+     *     [['dc' => 'east', 'use' => 'reporting'], ['dc' => 'west'], []]
      *
      * @param array $tagSets
      * @return array
@@ -87,6 +87,14 @@ final class ReadPreference
     public static function convertTagSets(array $tagSets)
     {
         return array_map(function(array $tagSet) {
+            /* If the tag set does not contain a zeroth element, or that element
+             * does not contain a colon character, we can assume this tag set is
+             * already in the format expected by setReadPreference().
+             */
+            if (!isset($tagSet[0]) || false === strpos($tagSet[0], ':')) {
+                return $tagSet;
+            }
+
             $result = array();
 
             foreach ($tagSet as $tagAndValue) {

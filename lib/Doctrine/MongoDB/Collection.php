@@ -635,7 +635,7 @@ class Collection
         if ($ok) {
             // Preserve existing tags for non-primary read preferences
             $readPref = $this->getMongoCollection()->getReadPreference();
-            $tags = isset($readPref['tagsets']) ? ReadPreference::convertTagSets($readPref['tagsets']) : array();
+            $tags = !empty($readPref['tagsets']) ? ReadPreference::convertTagSets($readPref['tagsets']) : array();
             $this->getMongoCollection()->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
         } else {
             $this->getMongoCollection()->setReadPreference(\MongoClient::RP_PRIMARY);

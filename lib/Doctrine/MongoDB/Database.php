@@ -219,7 +219,7 @@ class Database
         if ($ok) {
             // Preserve existing tags for non-primary read preferences
             $readPref = $this->getMongoDB()->getReadPreference();
-            $tags = isset($readPref['tagsets']) ? ReadPreference::convertTagSets($readPref['tagsets']) : array();
+            $tags = !empty($readPref['tagsets']) ? ReadPreference::convertTagSets($readPref['tagsets']) : array();
             $this->getMongoDB()->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
         } else {
             $this->getMongoDB()->setReadPreference(\MongoClient::RP_PRIMARY);
