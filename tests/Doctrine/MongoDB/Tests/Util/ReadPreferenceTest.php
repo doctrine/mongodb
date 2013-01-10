@@ -7,6 +7,14 @@ use Doctrine\MongoDB\Util\ReadPreference;
 class ReadPreferenceTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testConvertNumericTypeShouldThrowExceptionForInvalidType()
+    {
+        ReadPreference::convertNumericType(-1);
+    }
+
+    /**
      * @dataProvider provideTagSets
      */
     public function testConvertTagSets($tagSet, $expected)

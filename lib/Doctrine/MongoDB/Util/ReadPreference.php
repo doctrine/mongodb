@@ -60,7 +60,7 @@ final class ReadPreference
     public static function convertNumericType($type)
     {
         if (!isset(self::$types[$type])) {
-            throw new InvalidArgumentException('Unknown read preference type: ' . $type);
+            throw new \InvalidArgumentException('Unknown read preference type: ' . $type);
         }
 
         return self::$types[$type];
