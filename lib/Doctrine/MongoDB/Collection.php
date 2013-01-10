@@ -659,7 +659,11 @@ class Collection
 
         $readPref = $this->getMongoCollection()->getReadPreference();
 
-        return \MongoClient::RP_PRIMARY !== ReadPreference::convertNumericType($readPref['type']);
+        if (is_numeric($readPref['type'])) {
+            $readPref['type'] = ReadPreference::convertNumericType($readPref['type']);
+        }
+
+        return \MongoClient::RP_PRIMARY !== $readPref['type'];
     }
 
     public function validate($scanData = false)

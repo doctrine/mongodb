@@ -20,7 +20,11 @@
 namespace Doctrine\MongoDB\Util;
 
 /**
- * Static class containing methods for parsing read preferences.
+ * Utility class for converting read preferences.
+ *
+ * This is necessary for versions of the driver <=1.3.2, where values returned
+ * by getReadPreference() are not consistent with those expected by
+ * setReadPreference(). See: https://jira.mongodb.org/browse/PHP-638.
  *
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.org
@@ -32,10 +36,9 @@ final class ReadPreference
     /**
      * Read preference types.
      *
-     * The numeric indexes correspond to the values for each read preference
-     * returned by getReadPreference() methods. Meanwhile, setReadPreference()
-     * expects the string constants. This array is used to translate between
-     * both formats.
+     * The indexes correspond to the numeric values for each read preference
+     * returned by getReadPreference() methods, while the values correspond to
+     * the string constants expected by setReadPreference() methods.
      */
     private static $types = array(
         \MongoClient::RP_PRIMARY,
@@ -60,7 +63,7 @@ final class ReadPreference
     public static function convertNumericType($type)
     {
         if (!isset(self::$types[$type])) {
-            throw new \InvalidArgumentException('Unknown read preference type: ' . $type);
+            throw new \InvalidArgumentException('Unknown numeric read preference type: ' . $type);
         }
 
         return self::$types[$type];
