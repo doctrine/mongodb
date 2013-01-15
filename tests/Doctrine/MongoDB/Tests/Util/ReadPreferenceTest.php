@@ -9,7 +9,7 @@ class ReadPreferenceTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            $this->markTestSkipped('Requires PHP mongo version 1.3.0');
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
         }
     }
 
