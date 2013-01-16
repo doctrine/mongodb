@@ -19,6 +19,8 @@
 
 namespace Doctrine\MongoDB;
 
+use Doctrine\MongoDB\Util\ReadPreference;
+
 /**
  * Wrapper for the PHP MongoCursor class.
  *
