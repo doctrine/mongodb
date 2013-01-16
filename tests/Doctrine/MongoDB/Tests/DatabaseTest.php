@@ -56,6 +56,9 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
         }
 
+        $this->mongodb->expects($this->never())->method('getSlaveOkay');
+        $this->mongodb->expects($this->never())->method('setSlaveOkay');
+
         $this->mongodb->expects($this->exactly(2))
             ->method('getReadPreference')
             ->will($this->returnValue(array(

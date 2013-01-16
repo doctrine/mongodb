@@ -425,6 +425,9 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
         $mongoCollection = $this->getMockMongoCollection();
 
+        $mongoCollection->expects($this->never())->method('getSlaveOkay');
+        $mongoCollection->expects($this->never())->method('setSlaveOkay');
+
         $mongoCollection->expects($this->exactly(2))
             ->method('getReadPreference')
             ->will($this->returnValue(array(
