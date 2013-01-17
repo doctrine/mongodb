@@ -4,35 +4,11 @@ namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Connection;
-use Doctrine\MongoDB\LoggableCollection;
 use Doctrine\MongoDB\Database;
 use Doctrine\Common\EventManager;
-use MongoCollection;
-use PHPUnit_Framework_TestCase;
 
-class CollectionTest extends PHPUnit_Framework_TestCase
+class CollectionTest extends \PHPUnit_Framework_TestCase
 {
-    public function testLog()
-    {
-        $mockConnection = $this->getMockConnection();
-        $mongoCollection = $this->getMockMongoCollection();
-        $mongoCollection->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('collection'));
-
-        $mockDatabase = $this->getMockDatabase();
-        $mockDatabase->expects($this->once())
-            ->method('getName')
-            ->will($this->returnValue('db'));
-
-        $called = false;
-        $coll = $this->getTestCollection($mockConnection, $mongoCollection, $mockDatabase, function($msg) use (&$called) {
-            $called = $msg;
-        });
-        $coll->log(array('test' => 'test'));
-        $this->assertEquals(array('collection' => 'collection', 'db' => 'db', 'test' => 'test'), $called);
-    }
-
     public function testBatchInsert()
     {
         $mockConnection = $this->getMockConnection();
@@ -501,37 +477,35 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
     private function getMockMongoCursor()
     {
-        return $this->getMock('MongoCursor', array(), array(), '', false, false);
+        return $this->getMockBuilder('MongoCursor')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
     private function getMockMongoCollection()
     {
-        return $this->getMock('MongoCollection', array(), array(), '', false, false);
-    }
-
-    private function getMockMongoDB()
-    {
-        return $this->getMock('MongoDB', array(), array(), '', false, false);
+        return $this->getMockBuilder('MongoCollection')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
     private function getMockDatabase()
     {
-        return $this->getMock('Doctrine\MongoDB\Database', array(), array(), '', false, false);
+        return $this->getMockBuilder('Doctrine\MongoDB\Database')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
     private function getMockConnection()
     {
-        return $this->getMock('Doctrine\MongoDB\Connection', array(), array(), '', false, false);
+        return $this->getMockBuilder('Doctrine\MongoDB\Connection')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
-    private function getTestCollection(Connection $connection, MongoCollection $mongoCollection, Database $db, $loggerCallable = null)
+    private function getTestCollection(Connection $connection, \MongoCollection $mongoCollection, Database $db)
     {
-        if (null === $loggerCallable) {
-            $collection = new TestCollectionStub($connection, $mongoCollection->getName(), $db, new EventManager(), '$');
-            $collection->setMongoCollection($mongoCollection);
-            return $collection;
-        }
-        $collection = new TestLoggableCollectionStub($connection, $mongoCollection->getName(), $db, new EventManager(), '$', $loggerCallable);
+        $collection = new TestCollectionStub($connection, $mongoCollection->getName(), $db, new EventManager(), '$');
         $collection->setMongoCollection($mongoCollection);
         return $collection;
     }
@@ -542,19 +516,6 @@ class CollectionTest extends PHPUnit_Framework_TestCase
             $this->assertArrayHasKey($key, $expected, $message);
             $this->assertEquals($value, $expected[$key], $message);
         }
-    }
-}
-
-class TestLoggableCollectionStub extends LoggableCollection
-{
-    public function setMongoCollection($mongoCollection)
-    {
-        $this->mongoCollection = $mongoCollection;
-    }
-
-    public function getMongoCollection()
-    {
-        return $this->mongoCollection;
     }
 }
 
