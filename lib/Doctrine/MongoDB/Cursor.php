@@ -387,6 +387,20 @@ class Cursor implements Iterator
         return $result;
     }
 
+    public function getReadPreference()
+    {
+        return $this->getMongoDB()->getReadPreference();
+    }
+
+    public function setReadPreference($readPreference, array $tags = null)
+    {
+        if (isset($tags)) {
+            return $this->mongoCursor->setReadPreference($readPreference, $tags);
+        }
+
+        return $this->mongoCursor->setReadPreference($readPreference);
+    }
+
     protected function retry(\Closure $retry, $recreate = false)
     {
         if ($this->numRetries) {

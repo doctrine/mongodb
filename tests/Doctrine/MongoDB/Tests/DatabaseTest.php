@@ -100,6 +100,28 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(true, $database->setSlaveOkay(true));
     }
 
+    public function testSetReadPreference()
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
+        }
+
+        $this->mongodb->expects($this->at(0))
+            ->method('setReadPreference')
+            ->with(\MongoClient::RP_PRIMARY)
+            ->will($this->returnValue(true));
+
+        $this->mongodb->expects($this->at(1))
+            ->method('setReadPreference')
+            ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
+            ->will($this->returnValue(true));
+
+        $database = new Database($this->connection, 'test', $this->getMockEventManager(), '$');
+
+        $this->assertTrue($database->setReadPreference(\MongoClient::RP_PRIMARY));
+        $this->assertTrue($database->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
+    }
+
     private function getMockConnection()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Connection')

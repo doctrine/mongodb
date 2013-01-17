@@ -490,6 +490,30 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(true, $collection->setSlaveOkay(true));
     }
 
+    public function testSetReadPreference()
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
+        }
+
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->at(1))
+            ->method('setReadPreference')
+            ->with(\MongoClient::RP_PRIMARY)
+            ->will($this->returnValue(true));
+
+        $mongoCollection->expects($this->at(2))
+            ->method('setReadPreference')
+            ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
+            ->will($this->returnValue(true));
+
+        $collection = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+
+        $this->assertTrue($collection->setReadPreference(\MongoClient::RP_PRIMARY));
+        $this->assertTrue($collection->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
+    }
+
     public function testValidate()
     {
         $mongoCollection = $this->getMockMongoCollection();

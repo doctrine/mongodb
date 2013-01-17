@@ -250,6 +250,20 @@ class Database
         return \MongoClient::RP_PRIMARY !== $readPref['type'];
     }
 
+    public function getReadPreference()
+    {
+        return $this->getMongoDB()->getReadPreference();
+    }
+
+    public function setReadPreference($readPreference, array $tags = null)
+    {
+        if (isset($tags)) {
+            return $this->getMongoDB()->setReadPreference($readPreference, $tags);
+        }
+
+        return $this->getMongoDB()->setReadPreference($readPreference);
+    }
+
     public function getProfilingLevel()
     {
         return $this->getMongoDB()->getProfilingLevel();
