@@ -167,6 +167,30 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
         $this->assertSame($mockMongoDB, $result->getMongoDB());
     }
 
+    public function testSetReadPreference()
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
+        }
+
+        $mongoClient = $this->getMockMongoClient();
+
+        $mongoClient->expects($this->at(0))
+            ->method('setReadPreference')
+            ->with(\MongoClient::RP_PRIMARY)
+            ->will($this->returnValue(true));
+
+        $mongoClient->expects($this->at(1))
+            ->method('setReadPreference')
+            ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
+            ->will($this->returnValue(true));
+
+        $conn = $this->getTestConnection($mongoClient);
+
+        $this->assertTrue($conn->setReadPreference(\MongoClient::RP_PRIMARY));
+        $this->assertTrue($conn->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
+    }
+
     public function testToString()
     {
         $mockMongo = $this->getMockMongo();
@@ -178,14 +202,21 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Test', (string) $conn);
     }
 
-    private function getTestConnection(Mongo $mongo)
+    private function getTestConnection($mongo)
     {
-        return new \Doctrine\MongoDB\Connection($mongo);
+        return new Connection($mongo);
     }
 
     private function getMockMongo()
     {
         return $this->getMock('Mongo', array(), array(), '', false, false);
+    }
+
+    private function getMockMongoClient()
+    {
+        return $this->getMockBuilder('MongoClient')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
     private function getMockMongoDB()

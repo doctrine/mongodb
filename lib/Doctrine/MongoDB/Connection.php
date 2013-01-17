@@ -258,6 +258,20 @@ class Connection
         return $database;
     }
 
+    public function getReadPreference()
+    {
+        return $this->mongo->getReadPreference();
+    }
+
+    public function setReadPreference($readPreference, array $tags = null)
+    {
+        if (isset($tags)) {
+            return $this->mongo->setReadPreference($readPreference, $tags);
+        }
+
+        return $this->mongo->setReadPreference($readPreference);
+    }
+
     /**
      * Method which creates a Doctrine\MongoDB\Database instance.
      *

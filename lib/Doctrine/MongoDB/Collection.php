@@ -666,6 +666,20 @@ class Collection
         return \MongoClient::RP_PRIMARY !== $readPref['type'];
     }
 
+    public function getReadPreference()
+    {
+        return $this->getMongoCollection()->getReadPreference();
+    }
+
+    public function setReadPreference($readPreference, array $tags = null)
+    {
+        if (isset($tags)) {
+            return $this->getMongoCollection()->setReadPreference($readPreference, $tags);
+        }
+
+        return $this->getMongoCollection()->setReadPreference($readPreference);
+    }
+
     public function validate($scanData = false)
     {
         return $this->getMongoCollection()->validate($scanData);
