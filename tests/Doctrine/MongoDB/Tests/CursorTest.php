@@ -184,6 +184,30 @@ class CursorTest extends BaseTest
         $cursor->slaveOkay(true);
     }
 
+    public function testSetReadPreference()
+    {
+        if (!method_exists('MongoCursor', 'setReadPreference')) {
+            $this->markTestSkipped('This test is not applicable to drivers without MongoCursor::setReadPreference()');
+        }
+
+        $mongoCursor = $this->getMockMongoCursor();
+
+        $mongoCursor->expects($this->at(0))
+            ->method('setReadPreference')
+            ->with(\MongoClient::RP_PRIMARY)
+            ->will($this->returnValue(true));
+
+        $mongoCursor->expects($this->at(1))
+            ->method('setReadPreference')
+            ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
+            ->will($this->returnValue(true));
+
+        $cursor = $this->getTestCursor($this->getMockConnection(), $this->getMockCollection(), $mongoCursor);
+
+        $this->assertTrue($cursor->setReadPreference(\MongoClient::RP_PRIMARY));
+        $this->assertTrue($cursor->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
+    }
+
     private function getMockMongoCursor()
     {
         return $this->getMockBuilder('MongoCursor')
