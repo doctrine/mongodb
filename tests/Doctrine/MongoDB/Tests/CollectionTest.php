@@ -9,6 +9,8 @@ use Doctrine\Common\EventManager;
 
 class CollectionTest extends \PHPUnit_Framework_TestCase
 {
+    const collectionName = 'collection';
+
     public function testBatchInsert()
     {
         $docs = array(array('x' => 1, 'y' => 2));
@@ -87,26 +89,20 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $query = array('completed' => true);
 
         $command = array(
-            'findandmodify' => 'collection',
+            'findandmodify' => self::collectionName,
             'query' => $query,
             'remove' => true,
         );
 
         $document = array('_id' => 1, 'completed' => true);
 
-        $mongoCollection = $this->getMockMongoCollection();
         $database = $this->getMockDatabase();
-
-        $mongoCollection->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('collection'));
-
         $database->expects($this->once())
             ->method('command')
             ->with($command)
             ->will($this->returnValue(array('value' => $document)));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $database);
+        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
 
         $this->assertEquals($document, $coll->findAndRemove($query));
     }
@@ -118,7 +114,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $options = array('new' => true);
 
         $command = array(
-            'findandmodify' => 'collection',
+            'findandmodify' => self::collectionName,
             'query' => $query,
             'update' => $newObj,
             'new' => true,
@@ -126,19 +122,13 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $document = array('_id' => 1, 'inprogress' => true);
 
-        $mongoCollection = $this->getMockMongoCollection();
         $database = $this->getMockDatabase();
-
-        $mongoCollection->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('collection'));
-
         $database->expects($this->once())
             ->method('command')
             ->with($command)
             ->will($this->returnValue(array('value' => $document)));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $database);
+        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
 
         $this->assertEquals($document, $coll->findAndUpdate($query, $newObj, $options));
     }
@@ -303,15 +293,9 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testGetName()
     {
-        $mongoCollection = $this->getMockMongoCollection();
+        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $this->getMockDatabase());
 
-        $mongoCollection->expects($this->once())
-            ->method('getName')
-            ->will($this->returnValue('collection'));
-
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
-
-        $this->assertEquals('collection', $coll->getName());
+        $this->assertEquals(self::collectionName, $coll->getName());
     }
 
     public function testGroupWithNonEmptyOptionsArray()
@@ -533,11 +517,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $mongoCollection->expects($this->once())
             ->method('__toString')
-            ->will($this->returnValue('collection'));
+            ->will($this->returnValue(self::collectionName));
 
         $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
 
-        $this->assertEquals('collection', $coll->__toString());
+        $this->assertEquals(self::collectionName, $coll->__toString());
     }
 
     private function getMockMongoCursor()
@@ -549,9 +533,15 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     private function getMockMongoCollection()
     {
-        return $this->getMockBuilder('MongoCollection')
+        $mongoCollection = $this->getMockBuilder('MongoCollection')
             ->disableOriginalConstructor()
             ->getMock();
+
+        $mongoCollection->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue(self::collectionName));
+
+        return $mongoCollection;
     }
 
     private function getMockDatabase()
