@@ -2,10 +2,11 @@
 
 namespace Doctrine\MongoDB\Tests;
 
+use Doctrine\Common\EventManager;
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Connection;
 use Doctrine\MongoDB\Database;
-use Doctrine\Common\EventManager;
+use MongoCollection;
 
 class CollectionTest extends \PHPUnit_Framework_TestCase
 {
@@ -23,7 +24,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with($docs, $options)
             ->will($this->returnValue(true));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertEquals($docs, $coll->batchInsert($docs, $options));
     }
@@ -41,7 +42,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with($criteria, $newObj, $options)
             ->will($this->returnValue(true));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertTrue($coll->update($criteria, $newObj, $options));
     }
@@ -59,7 +60,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with($query, $fields)
             ->will($this->returnValue($mongoCursor));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
         $result = $coll->find($query, $fields);
 
         $this->assertInstanceOf('Doctrine\MongoDB\Cursor', $result);
@@ -79,7 +80,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with($query, $fields)
             ->will($this->returnValue($document));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertEquals($document, $coll->findOne($query, $fields));
     }
@@ -144,7 +145,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with($query, 1, 1)
             ->will($this->returnValue(1));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertEquals(1, $coll->count($query, 1, 1));
     }
@@ -158,7 +159,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with(array(), 0, 0)
             ->will($this->returnValue(1));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertEquals(1, $coll->count());
     }
@@ -175,7 +176,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with($document)
             ->will($this->returnValue($dbRef));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertEquals($dbRef, $coll->createDBRef($document));
     }
@@ -188,7 +189,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with('foo')
             ->will($this->returnValue(array()));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertEquals(array(), $coll->deleteIndex('foo'));
     }
@@ -200,7 +201,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->method('deleteIndexes')
             ->will($this->returnValue(array()));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertEquals(array(), $coll->deleteIndexes());
     }
@@ -212,7 +213,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->method('drop')
             ->will($this->returnValue(true));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
         $result = $coll->drop();
         $this->assertEquals(true, $result);
     }
@@ -229,7 +230,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with($keys, $options)
             ->will($this->returnValue(true));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertTrue($coll->ensureIndex($keys, $options));
     }
@@ -246,7 +247,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with($dbRef)
             ->will($this->returnValue($document));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertEquals($document, $coll->getDBRef($dbRef));
     }
@@ -263,7 +264,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->method('getIndexInfo')
             ->will($this->returnValue($indexInfo));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertEquals($expectedResult, $coll->isFieldIndexed($field));
     }
@@ -293,7 +294,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testGetName()
     {
-        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $this->getMockDatabase());
+        $coll = $this->getTestCollection();
 
         $this->assertEquals(self::collectionName, $coll->getName());
     }
@@ -317,7 +318,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             }))
             ->will($this->returnValue($grouped));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
         $result = $coll->group($keys, $initial, '', $options);
 
         $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $result);
@@ -340,7 +341,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with($keys, $initial, $this->isInstanceOf('MongoCode'))
             ->will($this->returnValue($grouped));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
         $result = $coll->group($keys, $initial, '');
 
         $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $result);
@@ -359,7 +360,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with($document, $options)
             ->will($this->returnValue(true));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertTrue($coll->insert($document, $options));
     }
@@ -376,7 +377,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with($criteria, $options)
             ->will($this->returnValue(true));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertTrue($coll->remove($criteria, $options));
     }
@@ -393,7 +394,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with($document, $options)
             ->will($this->returnValue(true));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertTrue($coll->save($document, $options));
     }
@@ -415,7 +416,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with(true)
             ->will($this->returnValue(false));
 
-        $collection = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $collection = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertEquals(false, $collection->getSlaveOkay());
         $this->assertEquals(false, $collection->setSlaveOkay(true));
@@ -443,7 +444,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->method('setReadPreference')
             ->with(\MongoClient::RP_SECONDARY_PREFERRED);
 
-        $collection = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $collection = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertEquals(false, $collection->setSlaveOkay(true));
     }
@@ -469,7 +470,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
             ->will($this->returnValue(false));
 
-        $collection = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $collection = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertEquals(true, $collection->setSlaveOkay(true));
     }
@@ -492,7 +493,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
             ->will($this->returnValue(true));
 
-        $collection = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $collection = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertTrue($collection->setReadPreference(\MongoClient::RP_PRIMARY));
         $this->assertTrue($collection->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
@@ -506,7 +507,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->method('validate')
             ->will($this->returnValue(true));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertTrue($coll->validate());
     }
@@ -519,36 +520,9 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->method('__toString')
             ->will($this->returnValue(self::collectionName));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertEquals(self::collectionName, $coll->__toString());
-    }
-
-    private function getMockMongoCursor()
-    {
-        return $this->getMockBuilder('MongoCursor')
-            ->disableOriginalConstructor()
-            ->getMock();
-    }
-
-    private function getMockMongoCollection()
-    {
-        $mongoCollection = $this->getMockBuilder('MongoCollection')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $mongoCollection->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue(self::collectionName));
-
-        return $mongoCollection;
-    }
-
-    private function getMockDatabase()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Database')
-            ->disableOriginalConstructor()
-            ->getMock();
     }
 
     private function getMockConnection()
@@ -558,10 +532,50 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->getMock();
     }
 
-    private function getTestCollection(Connection $connection, \MongoCollection $mongoCollection, Database $db)
+    private function getMockDatabase()
     {
-        $collection = new TestCollectionStub($connection, $mongoCollection->getName(), $db, new EventManager(), '$');
-        $collection->setMongoCollection($mongoCollection);
+        return $this->getMockBuilder('Doctrine\MongoDB\Database')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    private function getMockEventManager()
+    {
+        return $this->getMockBuilder('Doctrine\Common\EventManager')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    private function getMockMongoCollection()
+    {
+        $mc = $this->getMockBuilder('MongoCollection')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mc->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue(self::collectionName));
+
+        return $mc;
+    }
+
+    private function getMockMongoCursor()
+    {
+        return $this->getMockBuilder('MongoCursor')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    private function getTestCollection(Connection $c = null, MongoCollection $mc = null, Database $db = null, EventManager $em = null)
+    {
+        $c = $c ?: $this->getMockConnection();
+        $mc = $mc ?: $this->getMockMongoCollection();
+        $db = $db ?: $this->getMockDatabase();
+        $em = $em ?: $this->getMockEventManager();
+
+        $collection = new TestCollectionStub($c, $mc->getName(), $db, $em, '$');
+        $collection->setMongoCollection($mc);
+
         return $collection;
     }
 }
