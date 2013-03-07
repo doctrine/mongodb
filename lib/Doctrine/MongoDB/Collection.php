@@ -20,6 +20,7 @@
 namespace Doctrine\MongoDB;
 
 use Doctrine\Common\EventManager;
+use Doctrine\MongoDB\Event\AggregateEventArgs;
 use Doctrine\MongoDB\Event\DistinctEventArgs;
 use Doctrine\MongoDB\Event\EventArgs;
 use Doctrine\MongoDB\Event\GroupEventArgs;
@@ -157,6 +158,48 @@ class Collection
     public function createQueryBuilder()
     {
         return new Query\Builder($this->database, $this, $this->cmd);
+    }
+
+    /** @override */
+    public function aggregate(array $pipeline /* , array $op, ... */)
+    {
+        /* If the single array argument contains a zeroth index, consider it an
+         * array of pipeline operators. Otherwise, assume that each argument is
+         * a pipeline operator.
+         */
+        if ( ! array_key_exists(0, $pipeline)) {
+            $pipeline = func_get_args();
+        }
+
+        if ($this->eventManager->hasListeners(Events::preAggregate)) {
+            $this->eventManager->dispatchEvent(Events::preAggregate, new AggregateEventArgs($this, $pipeline));
+        }
+
+        $result = $this->doAggregate($pipeline);
+
+        if ($this->eventManager->hasListeners(Events::postAggregate)) {
+            $this->eventManager->dispatchEvent(Events::postAggregate, new EventArgs($this, $result));
+        }
+
+        return $result;
+    }
+
+    protected function doAggregate(array $pipeline)
+    {
+        $command = array();
+        $command['aggregate'] = $this->getMongoCollection()->getName();
+        $command['pipeline'] = $pipeline;
+
+        $database = $this->database;
+        $result = $this->retry(function() use ($database, $command) {
+            return $database->command($command);
+        });
+
+        if ( ! $result['ok']) {
+            throw new \RuntimeException($result['errmsg']);
+        }
+
+        return new ArrayIterator(isset($result['result']) ? $result['result'] : array());
     }
 
     /** @override */

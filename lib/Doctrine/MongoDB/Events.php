@@ -35,6 +35,9 @@ final class Events
 {
     private function __construct() {}
 
+    const preAggregate = 'collectionPreAggregate';
+    const postAggregate = 'collectionPostAggregate';
+
     const preBatchInsert = 'collectionPreBatchInsert';
     const postBatchInsert = 'collectionPostBatchInsert';
 
