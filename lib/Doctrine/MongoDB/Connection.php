@@ -145,7 +145,9 @@ class Connection
      */
     public function log(array $log)
     {
-        call_user_func_array($this->config->getLoggerCallable(), array($log));
+        if (null !== $this->config->getLoggerCallable()) {
+            call_user_func_array($this->config->getLoggerCallable(), array($log));
+        }
     }
 
     /**

@@ -43,6 +43,14 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array('test'), $called);
     }
 
+    public function testLogShouldDoNothingWithoutLoggerCallable()
+    {
+        $conn = new Connection();
+        $conn->log(array('test'));
+
+        $this->assertNull($conn->getConfiguration()->getLoggerCallable());
+    }
+
     public function testSetMongo()
     {
         if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {
