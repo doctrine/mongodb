@@ -317,12 +317,16 @@ class Builder
     /**
      * The fields to select.
      *
-     * @param string $fieldName
+     * @param string|array $fieldName
      * @return Builder
      */
     public function select($fieldName = null)
     {
-        $select = func_get_args();
+        if (is_array($fieldName)) {
+            $select = $fieldName;
+        } else {
+            $select = func_get_args();
+        }
         foreach ($select as $fieldName) {
             $this->query['select'][$fieldName] = 1;
         }
