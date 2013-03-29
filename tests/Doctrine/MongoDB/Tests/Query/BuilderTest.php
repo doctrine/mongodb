@@ -526,6 +526,18 @@ class BuilderTest extends BaseTest
         $this->assertEquals($expected, $qb->debug('select'));
     }
 
+    public function testExclude()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->exclude('foo', 'bar');
+
+        $expected = array(
+            'foo' => 0,
+            'bar' => 0
+        );
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
     private function getTestQueryBuilder()
     {
         return $this->conn->selectCollection('db', 'users')->createQueryBuilder();
