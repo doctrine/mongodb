@@ -538,6 +538,15 @@ class BuilderTest extends BaseTest
         $this->assertEquals($expected, $qb->debug('select'));
     }
 
+    public function testSelectWithEmptyArray()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->select(array());
+
+        $expected = array();
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
     public function testSelectWithNothing()
     {
         $qb = $this->getTestQueryBuilder()
@@ -568,6 +577,15 @@ class BuilderTest extends BaseTest
             'foo' => 0,
             'bar' => 0
         );
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
+    public function testExcludeWithEmptyArray()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->exclude(array());
+
+        $expected = array();
         $this->assertEquals($expected, $qb->debug('select'));
     }
 
