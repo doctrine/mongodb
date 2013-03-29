@@ -514,88 +514,66 @@ class BuilderTest extends BaseTest
             ->field('loc')->withinPolygon(array(0, 0), array(1, 1));
     }
 
-    public function testSelect()
+    /**
+     * @dataProvider provideSelectProjections
+     */
+    public function testSelect(array $args, array $expected)
     {
-        $qb = $this->getTestQueryBuilder()
-            ->select('foo', 'bar');
+        $qb = $this->getTestQueryBuilder();
+        call_user_func_array(array($qb, 'select'), $args);
 
-        $expected = array(
-            'foo' => 1,
-            'bar' => 1
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
+    public function provideSelectProjections()
+    {
+        return $this->provideProjections(true);
+    }
+
+    /**
+     * @dataProvider provideExcludeProjections
+     */
+    public function testExclude(array $args, array $expected)
+    {
+        $qb = $this->getTestQueryBuilder();
+        call_user_func_array(array($qb, 'exclude'), $args);
+
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
+    public function provideExcludeProjections()
+    {
+        return $this->provideProjections(false);
+    }
+
+    /**
+     * Provide arguments for select() and exclude() tests.
+     *
+     * @param bool $include Whether the field should be included or excluded
+     * @return array
+     */
+    private function provideProjections($include)
+    {
+        $project = $include ? 1 : 0;
+
+        return array(
+            'multiple arguments' => array(
+                array('foo', 'bar'),
+                array('foo' => $project, 'bar' => $project),
+            ),
+            'no arguments' => array(
+                array(),
+                array(),
+            ),
+            'array argument' => array(
+                array(array('foo', 'bar')),
+                array('foo' => $project, 'bar' => $project),
+            ),
+            'empty array' => array(
+                array(array()),
+                array(),
+            ),
         );
-        $this->assertEquals($expected, $qb->debug('select'));
-    }
-
-    public function testSelectWithArray()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->select(array('foo', 'bar'));
-
-        $expected = array(
-            'foo' => 1,
-            'bar' => 1
-        );
-        $this->assertEquals($expected, $qb->debug('select'));
-    }
-
-    public function testSelectWithEmptyArray()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->select(array());
-
-        $expected = array();
-        $this->assertEquals($expected, $qb->debug('select'));
-    }
-
-    public function testSelectWithNothing()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->select();
-
-        $expected = array();
-        $this->assertEquals($expected, $qb->debug('select'));
-    }
-
-    public function testExclude()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->exclude('foo', 'bar');
-
-        $expected = array(
-            'foo' => 0,
-            'bar' => 0
-        );
-        $this->assertEquals($expected, $qb->debug('select'));
-    }
-
-    public function testExcludeWithArray()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->exclude(array('foo', 'bar'));
-
-        $expected = array(
-            'foo' => 0,
-            'bar' => 0
-        );
-        $this->assertEquals($expected, $qb->debug('select'));
-    }
-
-    public function testExcludeWithEmptyArray()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->exclude(array());
-
-        $expected = array();
-        $this->assertEquals($expected, $qb->debug('select'));
-    }
-
-    public function testExcludeWithNothing()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->exclude();
-
-        $expected = array();
-        $this->assertEquals($expected, $qb->debug('select'));
     }
 
     private function getTestQueryBuilder()

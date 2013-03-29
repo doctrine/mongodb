@@ -322,33 +322,29 @@ class Builder
      */
     public function select($fieldName = null)
     {
-        if (is_array($fieldName)) {
-            $select = $fieldName;
-        } else {
-            $select = func_get_args();
-        }
-        foreach ($select as $fieldName) {
+        $fieldNames = is_array($fieldName) ? $fieldName : func_get_args();
+
+        foreach ($fieldNames as $fieldName) {
             $this->query['select'][$fieldName] = 1;
         }
+
         return $this;
     }
 
     /**
-     * The fields not to select.
+     * The fields to exclude.
      *
      * @param string|array $fieldName
      * @return Builder
      */
     public function exclude($fieldName = null)
     {
-        if (is_array($fieldName)) {
-            $select = $fieldName;
-        } else {
-            $select = func_get_args();
-        }
-        foreach ($select as $fieldName) {
+        $fieldNames = is_array($fieldName) ? $fieldName : func_get_args();
+
+        foreach ($fieldNames as $fieldName) {
             $this->query['select'][$fieldName] = 0;
         }
+
         return $this;
     }
 
