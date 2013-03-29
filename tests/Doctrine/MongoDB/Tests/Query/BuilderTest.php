@@ -514,6 +514,90 @@ class BuilderTest extends BaseTest
             ->field('loc')->withinPolygon(array(0, 0), array(1, 1));
     }
 
+    public function testSelect()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->select('foo', 'bar');
+
+        $expected = array(
+            'foo' => 1,
+            'bar' => 1
+        );
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
+    public function testSelectWithArray()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->select(array('foo', 'bar'));
+
+        $expected = array(
+            'foo' => 1,
+            'bar' => 1
+        );
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
+    public function testSelectWithEmptyArray()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->select(array());
+
+        $expected = array();
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
+    public function testSelectWithNothing()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->select();
+
+        $expected = array();
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
+    public function testExclude()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->exclude('foo', 'bar');
+
+        $expected = array(
+            'foo' => 0,
+            'bar' => 0
+        );
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
+    public function testExcludeWithArray()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->exclude(array('foo', 'bar'));
+
+        $expected = array(
+            'foo' => 0,
+            'bar' => 0
+        );
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
+    public function testExcludeWithEmptyArray()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->exclude(array());
+
+        $expected = array();
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
+    public function testExcludeWithNothing()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->exclude();
+
+        $expected = array();
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
     private function getTestQueryBuilder()
     {
         return $this->conn->selectCollection('db', 'users')->createQueryBuilder();
