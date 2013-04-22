@@ -44,7 +44,7 @@ class Cursor implements Iterator
     protected $numRetries;
     protected $query = array();
     protected $fields = array();
-    protected $hints = array();
+    protected $hint;
     protected $immortal;
     protected $options = array();
     protected $batchSize;
@@ -52,7 +52,7 @@ class Cursor implements Iterator
     protected $skip;
     protected $slaveOkay;
     protected $snapshot;
-    protected $sorts = array();
+    protected $sort;
     protected $tailable;
     protected $timeout;
 
@@ -99,8 +99,8 @@ class Cursor implements Iterator
     public function recreate()
     {
         $this->mongoCursor = $this->collection->getMongoCollection()->find($this->query, $this->fields);
-        foreach ($this->hints as $hint) {
-            $this->mongoCursor->hint($hint);
+        if ($this->hint !== null) {
+            $this->mongoCursor->hint($this->hint);
         }
         if ($this->immortal !== null) {
             $this->mongoCursor->immortal($this->immortal);
@@ -123,8 +123,8 @@ class Cursor implements Iterator
         if ($this->snapshot) {
             $this->mongoCursor->snapshot();
         }
-        foreach ($this->sorts as $sort) {
-            $this->mongoCursor->sort($sort);
+        if ($this->sort !== null) {
+            $this->mongoCursor->sort($this->sort);
         }
         if ($this->tailable !== null) {
             $this->mongoCursor->tailable($this->tailable);
@@ -204,7 +204,7 @@ class Cursor implements Iterator
 
     public function hint(array $keyPattern)
     {
-        $this->hints[] = $keyPattern;
+        $this->hint = $keyPattern;
         $this->mongoCursor->hint($keyPattern);
         return $this;
     }
@@ -339,7 +339,7 @@ class Cursor implements Iterator
             }
             $fields[$fieldName] = (integer) $order;
         }
-        $this->sorts[] = $fields;
+        $this->sort = $fields;
         $this->mongoCursor->sort($fields);
         return $this;
     }
