@@ -204,12 +204,64 @@ class CursorTest extends BaseTest
 
         $cursor = $this->getTestCursor($this->getMockConnection(), $this->getMockCollection(), $mongoCursor);
 
-        $this->assertTrue($cursor->setReadPreference(\MongoClient::RP_PRIMARY));
-        $this->assertTrue($cursor->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
+        $this->assertSame($cursor, $cursor->setReadPreference(\MongoClient::RP_PRIMARY));
+        $this->assertSame($cursor, $cursor->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
+    }
+
+    /**
+     * In practice, MongoCursor::setReadPreference() will raise an E_WARNING
+     * before we throw an exception.
+     *
+     * @expectedException InvalidArgumentException
+     */
+    public function testSetReadPreferenceExceptionForInvalidReadPreference()
+    {
+        if (!method_exists('MongoCursor', 'setReadPreference')) {
+            $this->markTestSkipped('This test is not applicable to drivers without MongoCursor::setReadPreference()');
+        }
+
+        $mongoCursor = $this->getMockMongoCursor();
+
+        $mongoCursor->expects($this->once())
+            ->method('setReadPreference')
+            ->with('InvalidReadPreference')
+            ->will($this->returnValue(false));
+
+        $cursor = $this->getTestCursor($this->getMockConnection(), $this->getMockCollection(), $mongoCursor);
+
+        $cursor->setReadPreference('InvalidReadPreference');
+    }
+
+    /**
+     * In practice, MongoCursor::setReadPreference() will raise an E_WARNING
+     * before we throw an exception.
+     *
+     * @expectedException InvalidArgumentException
+     */
+    public function testSetReadPreferenceExceptionForInvalidTags()
+    {
+        if (!method_exists('MongoCursor', 'setReadPreference')) {
+            $this->markTestSkipped('This test is not applicable to drivers without MongoCursor::setReadPreference()');
+        }
+
+        $mongoCursor = $this->getMockMongoCursor();
+
+        $mongoCursor->expects($this->once())
+            ->method('setReadPreference')
+            ->with(\MongoClient::RP_PRIMARY, array(array('dc' => 'east')))
+            ->will($this->returnValue(false));
+
+        $cursor = $this->getTestCursor($this->getMockConnection(), $this->getMockCollection(), $mongoCursor);
+
+        $cursor->setReadPreference(\MongoClient::RP_PRIMARY, array(array('dc' => 'east')));
     }
 
     public function testRecreate()
     {
+        if (!method_exists('MongoCursor', 'setReadPreference')) {
+            $this->markTestSkipped('This test requires MongoCursor::setReadPreference()');
+        }
+
         $self = $this;
 
         $setCursorExpectations = function($mongoCursor) use ($self) {
@@ -234,7 +286,14 @@ class CursorTest extends BaseTest
             $mongoCursor->expects($this->once())
                 ->method('skip')
                 ->with(0);
-            // Skip testing of slaveOkay, since it varies by driver version
+            $mongoCursor->expects($this->at(7))
+                ->method('setReadPreference')
+                ->with(\MongoClient::RP_PRIMARY)
+                ->will($this->returnValue(true));
+            $mongoCursor->expects($this->at(8))
+                ->method('setReadPreference')
+                ->with(\MongoClient::RP_NEAREST, array(array('dc' => 'east')))
+                ->will($this->returnValue(true));
             $mongoCursor->expects($this->once())
                 ->method('snapshot');
             $mongoCursor->expects($this->once())
@@ -275,6 +334,8 @@ class CursorTest extends BaseTest
             ->batchSize(10)
             ->limit(20)
             ->skip(0)
+            ->slaveOkay(false)
+            ->setReadPreference(\MongoClient::RP_NEAREST, array(array('dc' => 'east')))
             ->snapshot()
             ->sort(array('x' => -1))
             ->tailable(false)
