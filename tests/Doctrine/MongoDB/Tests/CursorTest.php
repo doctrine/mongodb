@@ -265,44 +265,44 @@ class CursorTest extends BaseTest
         $self = $this;
 
         $setCursorExpectations = function($mongoCursor) use ($self) {
-            $mongoCursor->expects($this->once())
+            $mongoCursor->expects($self->once())
                 ->method('hint')
                 ->with(array('x' => 1));
-            $mongoCursor->expects($this->once())
+            $mongoCursor->expects($self->once())
                 ->method('immortal')
                 ->with(false);
-            $mongoCursor->expects($this->at(2))
+            $mongoCursor->expects($self->at(2))
                 ->method('addOption')
                 ->with('$min', array('x' => 9000));
-            $mongoCursor->expects($this->at(3))
+            $mongoCursor->expects($self->at(3))
                 ->method('addOption')
                 ->with('$max', array('x' => 9999));
-            $mongoCursor->expects($this->once())
+            $mongoCursor->expects($self->once())
                 ->method('batchSize')
                 ->with(10);
-            $mongoCursor->expects($this->once())
+            $mongoCursor->expects($self->once())
                 ->method('limit')
                 ->with(20);
-            $mongoCursor->expects($this->once())
+            $mongoCursor->expects($self->once())
                 ->method('skip')
                 ->with(0);
-            $mongoCursor->expects($this->at(7))
+            $mongoCursor->expects($self->at(7))
                 ->method('setReadPreference')
                 ->with(\MongoClient::RP_PRIMARY)
-                ->will($this->returnValue(true));
-            $mongoCursor->expects($this->at(8))
+                ->will($self->returnValue(true));
+            $mongoCursor->expects($self->at(8))
                 ->method('setReadPreference')
                 ->with(\MongoClient::RP_NEAREST, array(array('dc' => 'east')))
-                ->will($this->returnValue(true));
-            $mongoCursor->expects($this->once())
+                ->will($self->returnValue(true));
+            $mongoCursor->expects($self->once())
                 ->method('snapshot');
-            $mongoCursor->expects($this->once())
+            $mongoCursor->expects($self->once())
                 ->method('sort')
                 ->with(array('x' => -1));
-            $mongoCursor->expects($this->once())
+            $mongoCursor->expects($self->once())
                 ->method('tailable')
                 ->with(false);
-            $mongoCursor->expects($this->once())
+            $mongoCursor->expects($self->once())
                 ->method('timeout')
                 ->with(1000);
         };
