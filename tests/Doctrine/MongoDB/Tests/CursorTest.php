@@ -208,9 +208,91 @@ class CursorTest extends BaseTest
         $this->assertTrue($cursor->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
     }
 
+    public function testRecreate()
+    {
+        $self = $this;
+
+        $setCursorExpectations = function($mongoCursor) use ($self) {
+            $mongoCursor->expects($this->once())
+                ->method('hint')
+                ->with(array('x' => 1));
+            $mongoCursor->expects($this->once())
+                ->method('immortal')
+                ->with(false);
+            $mongoCursor->expects($this->at(2))
+                ->method('addOption')
+                ->with('$min', array('x' => 9000));
+            $mongoCursor->expects($this->at(3))
+                ->method('addOption')
+                ->with('$max', array('x' => 9999));
+            $mongoCursor->expects($this->once())
+                ->method('batchSize')
+                ->with(10);
+            $mongoCursor->expects($this->once())
+                ->method('limit')
+                ->with(20);
+            $mongoCursor->expects($this->once())
+                ->method('skip')
+                ->with(0);
+            // Skip testing of slaveOkay, since it varies by driver version
+            $mongoCursor->expects($this->once())
+                ->method('snapshot');
+            $mongoCursor->expects($this->once())
+                ->method('sort')
+                ->with(array('x' => -1));
+            $mongoCursor->expects($this->once())
+                ->method('tailable')
+                ->with(false);
+            $mongoCursor->expects($this->once())
+                ->method('timeout')
+                ->with(1000);
+        };
+
+        $mongoCursor = $this->getMockMongoCursor();
+        $recreatedMongoCursor = $this->getMockMongoCursor();
+
+        $setCursorExpectations($mongoCursor);
+        $setCursorExpectations($recreatedMongoCursor);
+
+        $mongoCollection = $this->getMockCollection();
+        $mongoCollection->expects($this->once())
+            ->method('find')
+            ->with(array('x' => 9500), array())
+            ->will($this->returnValue($recreatedMongoCursor));
+
+        $collection = $this->getMockCollection();
+        $collection->expects($this->once())
+            ->method('getMongoCollection')
+            ->will($this->returnValue($mongoCollection));
+
+        $cursor = $this->getTestCursor($this->getMockConnection(), $collection, $mongoCursor, array('x' => 9500));
+
+        $cursor
+            ->hint(array('x' => 1))
+            ->immortal(false)
+            ->addOption('$min', array('x' => 9000))
+            ->addOption('$max', array('x' => 9999))
+            ->batchSize(10)
+            ->limit(20)
+            ->skip(0)
+            ->snapshot()
+            ->sort(array('x' => -1))
+            ->tailable(false)
+            ->timeout(1000);
+
+        $cursor->recreate();
+    }
+
     private function getMockMongoCursor()
     {
         return $this->getMockBuilder('MongoCursor')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    private function getMockMongoCollection()
+    {
+        return $this->getMockBuilder('MongoCollection')
             ->disableOriginalConstructor()
             ->getMock();
     }
@@ -229,8 +311,8 @@ class CursorTest extends BaseTest
             ->getMock();
     }
 
-    private function getTestCursor(Connection $connection, Collection $collection, \MongoCursor $mongoCursor)
+    private function getTestCursor(Connection $connection, Collection $collection, \MongoCursor $mongoCursor, $query = array())
     {
-        return new Cursor($connection, $collection, $mongoCursor);
+        return new Cursor($connection, $collection, $mongoCursor, $query);
     }
 }
