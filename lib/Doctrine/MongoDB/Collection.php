@@ -215,7 +215,7 @@ class Collection
             $this->eventManager->dispatchEvent(Events::postBatchInsert, new EventArgs($this, $result));
         }
 
-        return $a;
+        return $result;
     }
 
     protected function doBatchInsert(array &$a, array $options = array())

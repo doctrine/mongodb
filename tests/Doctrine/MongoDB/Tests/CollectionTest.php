@@ -117,7 +117,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
-        $this->assertEquals($docs, $coll->batchInsert($docs, $options));
+        $this->assertTrue($coll->batchInsert($docs, $options));
     }
 
     public function testUpdate()
