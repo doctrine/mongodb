@@ -367,6 +367,22 @@ class Builder
     }
 
     /**
+     * Select a matching embedded document from an array field.
+     *
+     * @param string $fieldName
+     * @param array|Expr $expression
+     * @return Builder
+     */
+    public function selectElemMatch($fieldName, $expression)
+    {
+        if ($expression instanceof Expr) {
+            $expression = $expression->getQuery();
+        }
+        $this->query['select'][$fieldName] = array($this->cmd . 'elemMatch' => $expression);
+        return $this;
+    }
+
+    /**
      * Set the current field to operate on.
      *
      * @param string $field

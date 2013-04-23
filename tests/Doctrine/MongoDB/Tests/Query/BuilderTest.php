@@ -576,6 +576,26 @@ class BuilderTest extends BaseTest
         );
     }
 
+    public function testSelectElemMatchWithArray()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->selectElemMatch('addresses', array('state' => 'ny'));
+
+        $expected = array('addresses' => array('$elemMatch' => array('state' => 'ny')));
+
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
+    public function testSelectElemMatchWithExpr()
+    {
+        $qb = $this->getTestQueryBuilder();
+        $qb->selectElemMatch('addresses', $qb->expr()->field('state')->equals('ny'));
+
+        $expected = array('addresses' => array('$elemMatch' => array('state' => 'ny')));
+
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
     private function getTestQueryBuilder()
     {
         return $this->conn->selectCollection('db', 'users')->createQueryBuilder();
