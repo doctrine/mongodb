@@ -93,7 +93,7 @@ class Expr
         return $this;
     }
 
-    public function equals($value, array $options = array())
+    public function equals($value)
     {
         if ($this->currentField) {
             $this->query[$this->currentField] = $value;
