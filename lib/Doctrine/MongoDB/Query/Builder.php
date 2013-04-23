@@ -820,7 +820,7 @@ class Builder
                 break;
 
             default:
-                throw new \BadMethodCallException('mapReduce(), map() or group() must be called before reduce()');
+                throw new \BadMethodCallException('mapReduce(), map() or group() must be called before finalize()');
         }
 
         return $this;
@@ -1002,7 +1002,7 @@ class Builder
      *         ->addOr($qb->expr()->field('first_name')->equals('Kris'))
      *         ->addOr($qb->expr()->field('first_name')->equals('Chris'));
      *
-     * @param array|QueryBuilder $expression
+     * @param array|Expr $expression
      * @return Builder
      */
     public function addOr($expression)
@@ -1021,8 +1021,8 @@ class Builder
      *         ->addAnd($qb->expr()->field('first_name')->equals('Kris'))
      *         ->addAnd($qb->expr()->field('first_name')->equals('Chris'));
      *
-     * @param array|QueryBuilder $expression
-     * @return Query
+     * @param array|Expr $expression
+     * @return Builder
      */
     public function addAnd($expression)
     {
@@ -1040,7 +1040,7 @@ class Builder
      *         ->field('phonenumbers')
      *         ->elemMatch($qb->expr()->field('phonenumber')->equals('6155139185'));
      *
-     * @param array|QueryBuilder $expression
+     * @param array|Expr $expression
      * @return Builder
      */
     public function elemMatch($expression)
@@ -1057,7 +1057,7 @@ class Builder
      *     $qb = $this->createQueryBuilder('User');
      *     $qb->field('id')->not($qb->expr()->in(1));
      *
-     * @param array|QueryBuilder $expression
+     * @param array|Expr $expression
      * @return Builder
      */
     public function not($expression)
@@ -1102,7 +1102,7 @@ class Builder
      * Gets the Query executable.
      *
      * @param array $options
-     * @return Query $query
+     * @return Query
      */
     public function getQuery(array $options = array())
     {
@@ -1116,7 +1116,7 @@ class Builder
      * Gets an array of information about this query builder for debugging.
      *
      * @param string $name
-     * @return array $debug
+     * @return array
      */
     public function debug($name = null)
     {
