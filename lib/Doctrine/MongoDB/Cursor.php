@@ -44,15 +44,17 @@ class Cursor implements Iterator
     protected $numRetries;
     protected $query = array();
     protected $fields = array();
-    protected $hints = array();
+    protected $hint;
     protected $immortal;
     protected $options = array();
     protected $batchSize;
     protected $limit;
+    protected $readPreference;
+    protected $readPreferenceTags;
     protected $skip;
     protected $slaveOkay;
     protected $snapshot;
-    protected $sorts = array();
+    protected $sort;
     protected $tailable;
     protected $timeout;
 
@@ -99,8 +101,8 @@ class Cursor implements Iterator
     public function recreate()
     {
         $this->mongoCursor = $this->collection->getMongoCollection()->find($this->query, $this->fields);
-        foreach ($this->hints as $hint) {
-            $this->mongoCursor->hint($hint);
+        if ($this->hint !== null) {
+            $this->mongoCursor->hint($this->hint);
         }
         if ($this->immortal !== null) {
             $this->mongoCursor->immortal($this->immortal);
@@ -120,11 +122,19 @@ class Cursor implements Iterator
         if ($this->slaveOkay !== null) {
             $this->setMongoCursorSlaveOkay($this->slaveOkay);
         }
+        // Set read preferences after slaveOkay, since they may be more specific
+        if ($this->readPreference !== null) {
+            if ($this->readPreferenceTags !== null) {
+                $this->mongoCursor->setReadPreference($this->readPreference, $this->readPreferenceTags);
+            } else {
+                $this->mongoCursor->setReadPreference($this->readPreference);
+            }
+        }
         if ($this->snapshot) {
             $this->mongoCursor->snapshot();
         }
-        foreach ($this->sorts as $sort) {
-            $this->mongoCursor->sort($sort);
+        if ($this->sort !== null) {
+            $this->mongoCursor->sort($this->sort);
         }
         if ($this->tailable !== null) {
             $this->mongoCursor->tailable($this->tailable);
@@ -204,7 +214,7 @@ class Cursor implements Iterator
 
     public function hint(array $keyPattern)
     {
-        $this->hints[] = $keyPattern;
+        $this->hint = $keyPattern;
         $this->mongoCursor->hint($keyPattern);
         return $this;
     }
@@ -339,7 +349,7 @@ class Cursor implements Iterator
             }
             $fields[$fieldName] = (integer) $order;
         }
-        $this->sorts[] = $fields;
+        $this->sort = $fields;
         $this->mongoCursor->sort($fields);
         return $this;
     }
@@ -392,13 +402,34 @@ class Cursor implements Iterator
         return $this->getMongoDB()->getReadPreference();
     }
 
+    /**
+     * Set the read preference.
+     *
+     * This method returns the Cursor object to allow method chaining, unlike
+     * the base MongoCursor method, which returns a boolean value indicating
+     * success or failure.
+     *
+     * @param string $readPreference
+     * @param array  $tags
+     * @return Cursor
+     * @throws InvalidArgumentException if MongoCursor::setReadPreference() fails
+     */
     public function setReadPreference($readPreference, array $tags = null)
     {
-        if (isset($tags)) {
-            return $this->mongoCursor->setReadPreference($readPreference, $tags);
+        $this->readPreference = $readPreference;
+        $this->readPreferenceTags = $tags;
+
+        if ($tags !== null) {
+            $retval = $this->mongoCursor->setReadPreference($readPreference, $tags);
+        } else {
+            $retval = $this->mongoCursor->setReadPreference($readPreference);
         }
 
-        return $this->mongoCursor->setReadPreference($readPreference);
+        if ($retval !== true) {
+            throw new \InvalidArgumentException('Invalid arguments for MongoCursor::setReadPreference()');
+        }
+
+        return $this;
     }
 
     protected function retry(\Closure $retry, $recreate = false)
