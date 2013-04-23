@@ -576,6 +576,26 @@ class BuilderTest extends BaseTest
         );
     }
 
+    public function testSelectSliceWithCount()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->selectSlice('tags', 10);
+
+        $expected = array('tags' => array('$slice' => 10));
+
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
+    public function testSelectSliceWithSkipAndLimit()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->selectSlice('tags', -5, 5);
+
+        $expected = array('tags' => array('$slice' => array(-5, 5)));
+
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
     public function testSelectElemMatchWithArray()
     {
         $qb = $this->getTestQueryBuilder()

@@ -349,18 +349,22 @@ class Builder
     }
 
     /**
-     * Select a slice of an embedded document.
+     * Select a slice of an array.
+     *
+     * The $countOrSkip parameter has two very different meanings, depending on
+     * whether or not $limit is provided. See the MongoDB documentation for more
+     * information.
      *
      * @param string $fieldName
-     * @param integer $skip
-     * @param integer $limit
+     * @param integer $countOrSkip Count parameter, or skip if limit is specified
+     * @param integer $limit       Limit parameter used in conjunction with skip
      * @return Builder
      */
-    public function selectSlice($fieldName, $skip, $limit = null)
+    public function selectSlice($fieldName, $countOrSkip, $limit = null)
     {
-        $slice = $skip;
+        $slice = $countOrSkip;
         if ($limit !== null) {
-            $slice = array($skip, $limit);
+            $slice = array($slice, $limit);
         }
         $this->query['select'][$fieldName] = array($this->cmd . 'slice' => $slice);
         return $this;
