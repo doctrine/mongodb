@@ -37,7 +37,7 @@ class EventArgs extends BaseEventArgs
     public function __construct($invoker, &$data = null)
     {
         $this->invoker = $invoker;
-        $this->data = $data;
+        $this->data =& $data;
     }
 
     public function getInvoker()
@@ -48,5 +48,10 @@ class EventArgs extends BaseEventArgs
     public function getData()
     {
         return $this->data;
+    }
+
+    public function setData($data)
+    {
+        $this->data = $data;
     }
 }
