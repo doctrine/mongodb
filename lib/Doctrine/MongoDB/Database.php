@@ -117,13 +117,33 @@ class Database
         return $this->getMongoDB()->command($data, $options);
     }
 
-    public function createCollection($name, $capped = false, $size = 0, $max = 0)
+    /**
+     * Create a collection.
+     *
+     * @param string        $name            Collection name
+     * @param boolean|array $cappedOrOptions Capped collection indicator or an
+     *                                       options array (for driver 1.4+)
+     * @param integer       $size            Storage size for fixed collections
+     *                                       (ignored if options array is used)
+     * @param integer       $max             Max documents for fixed collections
+     *                                       (ignored if options array is used)
+     * @return Collection
+     */
+    public function createCollection($name, $cappedOrOptions = false, $size = 0, $max = 0)
     {
+        $options = is_array($cappedOrOptions)
+            ? array_merge(array('capped' => false, 'size' => 0, 'max' => 0), $cappedOrOptions)
+            : array('capped' => $cappedOrOptions, 'size' => $size, 'max' => $max);
+
         if ($this->eventManager->hasListeners(Events::preCreateCollection)) {
-            $this->eventManager->dispatchEvent(Events::preCreateCollection, new CreateCollectionEventArgs($this, $name, $capped, $size, $max));
+            $this->eventManager->dispatchEvent(Events::preCreateCollection, new CreateCollectionEventArgs($this, $name, $options));
         }
 
-        $this->getMongoDB()->createCollection($name, $capped, $size, $max);
+        if (version_compare(phpversion('mongo'), '1.4.0', '>=')) {
+            $this->getMongoDB()->createCollection($name, $options);
+        } else {
+            $this->getMongoDB()->createCollection($name, $options['capped'], $options['size'], $options['max']);
+        }
 
         $result = $this->selectCollection($name);
 
