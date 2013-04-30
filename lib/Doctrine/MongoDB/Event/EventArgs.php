@@ -34,7 +34,7 @@ class EventArgs extends BaseEventArgs
     private $invoker;
     private $data;
 
-    public function __construct($invoker, &$data = null)
+    public function __construct($invoker, $data = null)
     {
         $this->invoker = $invoker;
         $this->data = $data;

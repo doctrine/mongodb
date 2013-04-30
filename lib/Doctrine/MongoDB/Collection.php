@@ -227,7 +227,7 @@ class Collection
     public function update($query, array $newObj, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preUpdate)) {
-            $this->eventManager->dispatchEvent(Events::preUpdate, new UpdateEventArgs($this, $query, $newObj));
+            $this->eventManager->dispatchEvent(Events::preUpdate, new UpdateEventArgs($this, $query, $newObj, $options));
         }
 
         $result = $this->doUpdate($query, $newObj, $options);
@@ -338,7 +338,7 @@ class Collection
     public function findAndUpdate(array $query, array $newObj, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preFindAndUpdate)) {
-            $this->eventManager->dispatchEvent(Events::preFindAndUpdate, new UpdateEventArgs($this, $query, $query));
+            $this->eventManager->dispatchEvent(Events::preFindAndUpdate, new UpdateEventArgs($this, $query, $newObj, $options));
         }
 
         $document = $this->doFindAndUpdate($query, $newObj, $options);
@@ -365,7 +365,7 @@ class Collection
     public function near(array $near, array $query = array(), array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preNear)) {
-            $this->eventManager->dispatchEvent(Events::preNear, new NearEventArgs($this, $query, $near));
+            $this->eventManager->dispatchEvent(Events::preNear, new NearEventArgs($this, $query, $near, $options));
         }
 
         $result = $this->doNear($near, $query, $options);
@@ -395,6 +395,9 @@ class Collection
     public function distinct($field, array $query = array(), array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preDistinct)) {
+            /* The distinct command currently does not have options beyond field
+             * and query, so do not include it in the event args.
+             */
             $this->eventManager->dispatchEvent(Events::preDistinct, new DistinctEventArgs($this, $field, $query));
         }
 
@@ -425,7 +428,7 @@ class Collection
     public function mapReduce($map, $reduce, array $out = array('inline' => true), array $query = array(), array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preMapReduce)) {
-            $this->eventManager->dispatchEvent(Events::preMapReduce, new MapReduceEventArgs($this, $map, $reduce, $out, $query));
+            $this->eventManager->dispatchEvent(Events::preMapReduce, new MapReduceEventArgs($this, $map, $reduce, $out, $query, $options));
         }
 
         $result = $this->doMapReduce($map, $reduce, $out, $query, $options);
@@ -560,7 +563,7 @@ class Collection
     public function group($keys, array $initial, $reduce, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preGroup)) {
-            $this->eventManager->dispatchEvent(Events::preGroup, new GroupEventArgs($this, $keys, $initial, $reduce));
+            $this->eventManager->dispatchEvent(Events::preGroup, new GroupEventArgs($this, $keys, $initial, $reduce, $options));
         }
 
         $result = $this->doGroup($keys, $initial, $reduce, $options);
