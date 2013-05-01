@@ -19,41 +19,32 @@
 
 namespace Doctrine\MongoDB\Event;
 
-use Doctrine\Common\EventArgs as BaseEventArgs;
-
 /**
- * Event args for generic queries.
+ * Mutable event args for query and command results.
  *
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.com
- * @since       1.0
- * @author      Jonathan H. Wage <jonwage@gmail.com>
+ * @since       1.1
+ * @author      Jeremy Mikola <jmikola@gmail.com>
  */
-class EventArgs extends BaseEventArgs
+class MutableEventArgs extends EventArgs
 {
-    private $invoker;
-    private $data;
-    private $options;
-
-    public function __construct($invoker, $data = null, array $options = array())
-    {
-        $this->invoker = $invoker;
-        $this->data = $data;
-        $this->options = $options;
-    }
-
-    public function getInvoker()
-    {
-        return $this->invoker;
-    }
+    private $changedData;
+    private $isDataChanged = false;
 
     public function getData()
     {
-        return $this->data;
+        return $this->isDataChanged ? $this->changedData : parent::getData();
     }
 
-    public function getOptions()
+    public function setData($data)
     {
-        return $this->options;
+        $this->isDataChanged = parent::getData() !== $data;
+        $this->changedData = $this->isDataChanged ? $data : null;
+    }
+
+    public function isDataChanged()
+    {
+        return $this->isDataChanged;
     }
 }
