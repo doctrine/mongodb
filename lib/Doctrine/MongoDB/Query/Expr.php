@@ -237,6 +237,36 @@ class Expr
         return $this;
     }
 
+    /**
+     * Queries $geoIntersects with a polygon GeoJSON as a lat/lng aligned rectangle.
+     * 
+     * The rectangle is constructed from only for coordinates in the cardinal
+     * directions, also known als south/west and north/east combinations.
+     * 
+     * @param float $lngTop the top longitude coordinate
+     * @param float $lngBottom the bottom longitude coordinate
+     * @param float $latLeft the left latitude coordinate
+     * @param float $latRight the right latitude coordinate
+     * @return Expr
+     */
+    public function geoIntersectsBox($lngTop, $lngBottom, $latLeft, $latRight)
+    {
+        $rectangle = array(array(
+            array($lngTop, $latLeft),
+            array($lngTop, $latRight),
+            array($lngBottom, $latRight),
+            array($lngBottom, $latLeft),
+            array($lngTop, $latLeft),
+        ));
+
+        if ($this->currentField) {
+            $this->query[$this->currentField][$this->cmd . 'geoIntersects'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => $rectangle);
+        } else {
+            $this->query[$this->cmd . 'geoIntersects'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => $rectangle);
+        }
+        return $this;
+    }
+
     public function withinCenter($x, $y, $radius)
     {
         if ($this->currentField) {

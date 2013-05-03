@@ -734,6 +734,21 @@ class Builder
     }
 
     /**
+     * Add $geoIntersects criteria with box geometry to the query.
+     * 
+     * @param float $lngTop the top longitude coordinate
+     * @param float $lngBottom the bottom longitude coordinate
+     * @param float $latLeft the left latitude coordinate
+     * @param float $latRight the right latitude coordinate
+     * @return Builder
+     */
+    public function geoIntersectsBox($lngTop, $lngBottom, $latLeft, $latRight)
+    {
+        $this->expr->geoIntersectsBox($lngTop, $lngBottom, $latLeft, $latRight);
+        return $this;
+    }
+
+    /**
      * Add $withinCenter criteria to the query.
      *
      * @param string $x
