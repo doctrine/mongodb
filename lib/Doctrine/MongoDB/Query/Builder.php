@@ -1031,6 +1031,24 @@ class Builder
     }
 
     /**
+     * Adds a "nor" expression to the current query.
+     *
+     * You can create the expression using the expr() method:
+     *
+     *     $qb = $this->createQueryBuilder('User');
+     *     $qb
+     *         ->addNor($qb->expr()->field('first_name')->equals('Kris')->field('first_name')->equals('Chris'));
+     *
+     * @param array|QueryBuilder $expression
+     * @return Query
+     */
+    public function addNor($expression)
+    {
+        $this->expr->addNor($expression);
+        return $this;
+    }
+
+    /**
      * Adds an "elemMatch" expression to the current query.
      *
      * You can create the expression using the expr() method:

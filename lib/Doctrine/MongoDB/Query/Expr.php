@@ -374,6 +374,15 @@ class Expr
         return $this;
     }
 
+    public function addNor($expression)
+    {
+        if ($expression instanceof Expr) {
+            $expression = $expression->getQuery();
+        }
+        $this->query[$this->cmd . 'nor'][] = $expression;
+        return $this;
+    }
+
     public function elemMatch($expression)
     {
         if ($expression instanceof Expr) {
