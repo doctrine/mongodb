@@ -560,6 +560,30 @@ class BuilderTest extends BaseTest
             ->field('loc')->geoWithinPolygon(array(0, 0), array(1, 1), array(2, 2));
     }
 
+    public function testGeoWithinBox()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->field('loc')->geoWithinBox(0, 0, 2, 2);
+
+        $expected = array(
+            'loc' => array(
+                '$geoWithin' => array(
+                    '$geometry' => array(
+                        'type' => 'Polygon',
+                        'coordinates' => array(array(
+                            array(0, 0),
+                            array(0, 2),
+                            array(2, 2),
+                            array(2, 0),
+                            array(0, 0),
+                        )),
+                    ),
+                ),
+            ),
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+    }
+
     public function testGeoIntersectsPoint()
     {
         $qb = $this->getTestQueryBuilder()
