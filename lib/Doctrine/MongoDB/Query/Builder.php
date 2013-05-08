@@ -760,6 +760,18 @@ class Builder
     }
 
     /**
+     * Add $geoWithin with a GeoJSON polygon criteria to the query.
+     * 
+     * @param array $point,... Four or more lng/lat coordinate tuples
+     * @return Builder
+     */
+    public function geoWithinPolygon(/* array($x1, $y1), array($x2, $y2), ... */)
+    {
+        call_user_func_array(array($this->expr, 'geoWithinPolygon'), func_get_args());
+        return $this;
+    }
+
+    /**
      * Queries $geoIntersects with a polygon GeoJSON as a lat/lng aligned rectangle.
      * 
      * The rectangle is constructed only from coordinates in the cardinal
