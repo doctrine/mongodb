@@ -488,6 +488,35 @@ class BuilderTest extends BaseTest
         );
         $this->assertEquals($expected, $qb->getQueryArray());
     }
+    
+    public function testGeoIntersectsBox()
+    {
+        $lngTop = 0;
+        $lngBottom = 2;
+        $latLeft = 0;
+        $latRight = 2;
+
+        $qb = $this->getTestQueryBuilder()
+            ->field('loc')->geoIntersectsBox($lngTop, $lngBottom, $latLeft, $latRight);
+
+        $expected = array(
+            'loc' => array(
+                '$geoIntersects' => array(
+                    '$geometry' => array(
+                        'type' => 'Polygon',
+                        'coordinates' => array(array(
+                            array($lngTop, $latLeft),
+                            array($lngTop, $latRight),
+                            array($lngBottom, $latRight),
+                            array($lngBottom, $latLeft),
+                            array($lngTop, $latLeft),
+                        )),
+                    ),
+                ),
+            ),
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+    }
 
     public function testWithinCenter()
     {
