@@ -261,6 +261,20 @@ class Expr
         return $this;
     }
 
+    public function geoWithinPolygon(/* array($x1, $y1), array($x2, $y2), ... */)
+    {
+        if (func_num_args() < 4) {
+            throw new \InvalidArgumentException('Polygon must be defined by four points or more.');
+        }
+
+        if ($this->currentField) {
+            $this->query[$this->currentField][$this->cmd . 'geoWithin'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => array(func_get_args()));
+        } else {
+            $this->query[$this->cmd . 'geoWithin'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => array(func_get_args()));
+        }
+        return $this;
+    }
+
     public function geoIntersectsBox($x1, $y1, $x2, $y2)
     {
         $rectangle = array(array(
