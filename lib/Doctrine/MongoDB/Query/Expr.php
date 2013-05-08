@@ -237,36 +237,6 @@ class Expr
         return $this;
     }
 
-    /**
-     * Queries $geoIntersects with a polygon GeoJSON as a lat/lng aligned rectangle.
-     * 
-     * The rectangle is constructed from only for coordinates in the cardinal
-     * directions, also known als south/west and north/east combinations.
-     * 
-     * @param number $lngTop the top longitude coordinate
-     * @param number $lngBottom the bottom longitude coordinate
-     * @param number $latLeft the left latitude coordinate
-     * @param number $latRight the right latitude coordinate
-     * @return Expr
-     */
-    public function geoIntersectsBox($lngTop, $lngBottom, $latLeft, $latRight)
-    {
-        $rectangle = array(array(
-            array($lngTop, $latLeft),
-            array($lngTop, $latRight),
-            array($lngBottom, $latRight),
-            array($lngBottom, $latLeft),
-            array($lngTop, $latLeft),
-        ));
-
-        if ($this->currentField) {
-            $this->query[$this->currentField][$this->cmd . 'geoIntersects'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => $rectangle);
-        } else {
-            $this->query[$this->cmd . 'geoIntersects'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => $rectangle);
-        }
-        return $this;
-    }
-
     public function withinCenter($x, $y, $radius)
     {
         if ($this->currentField) {
@@ -287,6 +257,24 @@ class Expr
             $this->query[$this->currentField][$this->cmd . 'within'][$this->cmd . 'polygon'] = func_get_args();
         } else {
             $this->query[$this->cmd . 'within'][$this->cmd . 'polygon'] = func_get_args();
+        }
+        return $this;
+    }
+
+    public function geoIntersectsBox($x1, $y1, $x2, $y2)
+    {
+        $rectangle = array(array(
+            array($x1, $y1),
+            array($x1, $y2),
+            array($x2, $y2),
+            array($x2, $y1),
+            array($x1, $y1),
+        ));
+
+        if ($this->currentField) {
+            $this->query[$this->currentField][$this->cmd . 'geoIntersects'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => $rectangle);
+        } else {
+            $this->query[$this->cmd . 'geoIntersects'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => $rectangle);
         }
         return $this;
     }
