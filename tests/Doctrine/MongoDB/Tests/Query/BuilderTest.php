@@ -488,35 +488,6 @@ class BuilderTest extends BaseTest
         );
         $this->assertEquals($expected, $qb->getQueryArray());
     }
-    
-    public function testGeoIntersectsBox()
-    {
-        $lngTop = 0;
-        $lngBottom = 2;
-        $latLeft = 0;
-        $latRight = 2;
-
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->geoIntersectsBox($lngTop, $lngBottom, $latLeft, $latRight);
-
-        $expected = array(
-            'loc' => array(
-                '$geoIntersects' => array(
-                    '$geometry' => array(
-                        'type' => 'Polygon',
-                        'coordinates' => array(array(
-                            array($lngTop, $latLeft),
-                            array($lngTop, $latRight),
-                            array($lngBottom, $latRight),
-                            array($lngBottom, $latLeft),
-                            array($lngTop, $latLeft),
-                        )),
-                    ),
-                ),
-            ),
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
-    }
 
     public function testWithinCenter()
     {
@@ -555,6 +526,30 @@ class BuilderTest extends BaseTest
     {
         $qb = $this->getTestQueryBuilder()
             ->field('loc')->withinPolygon(array(0, 0), array(1, 1));
+    }
+    
+    public function testGeoIntersectsBox()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->field('loc')->geoIntersectsBox(0, 0, 2, 2);
+
+        $expected = array(
+            'loc' => array(
+                '$geoIntersects' => array(
+                    '$geometry' => array(
+                        'type' => 'Polygon',
+                        'coordinates' => array(array(
+                            array(0, 0),
+                            array(0, 2),
+                            array(2, 2),
+                            array(2, 0),
+                            array(0, 0),
+                        )),
+                    ),
+                ),
+            ),
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
     }
 
     /**

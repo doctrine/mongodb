@@ -734,21 +734,6 @@ class Builder
     }
 
     /**
-     * Add $geoIntersects criteria with box geometry to the query.
-     * 
-     * @param float $lngTop the top longitude coordinate
-     * @param float $lngBottom the bottom longitude coordinate
-     * @param float $latLeft the left latitude coordinate
-     * @param float $latRight the right latitude coordinate
-     * @return Builder
-     */
-    public function geoIntersectsBox($lngTop, $lngBottom, $latLeft, $latRight)
-    {
-        $this->expr->geoIntersectsBox($lngTop, $lngBottom, $latLeft, $latRight);
-        return $this;
-    }
-
-    /**
      * Add $withinCenter criteria to the query.
      *
      * @param string $x
@@ -771,6 +756,24 @@ class Builder
     public function withinPolygon(/* array($x1, $y1), array($x2, $y2), ... */)
     {
         call_user_func_array(array($this->expr, 'withinPolygon'), func_get_args());
+        return $this;
+    }
+
+    /**
+     * Queries $geoIntersects with a polygon GeoJSON as a lat/lng aligned rectangle.
+     * 
+     * The rectangle is constructed only from coordinates in the cardinal
+     * directions, also known als south/west and north/east combinations.
+     * 
+     * @param float $x1 the north longitude coordinate
+     * @param float $y1 the east latitude coordinate
+     * @param float $x2 the south longitude coordinate
+     * @param float $y2 the west latitude coordinate
+     * @return Builder
+     */
+    public function geoIntersectsBox($x1, $y1, $x2, $y2)
+    {
+        $this->expr->geoIntersectsBox($x1, $y1, $x2, $y2);
         return $this;
     }
 
