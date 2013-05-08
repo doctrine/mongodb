@@ -243,10 +243,10 @@ class Expr
      * The rectangle is constructed from only for coordinates in the cardinal
      * directions, also known als south/west and north/east combinations.
      * 
-     * @param float $lngTop the top longitude coordinate
-     * @param float $lngBottom the bottom longitude coordinate
-     * @param float $latLeft the left latitude coordinate
-     * @param float $latRight the right latitude coordinate
+     * @param number $lngTop the top longitude coordinate
+     * @param number $lngBottom the bottom longitude coordinate
+     * @param number $latLeft the left latitude coordinate
+     * @param number $latRight the right latitude coordinate
      * @return Expr
      */
     public function geoIntersectsBox($lngTop, $lngBottom, $latLeft, $latRight)
