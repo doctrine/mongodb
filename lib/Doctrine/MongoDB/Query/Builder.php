@@ -685,6 +685,24 @@ class Builder
     }
 
     /**
+     * Queries $geoWithin with a polygon GeoJSON as a lat/lng aligned box.
+     * 
+     * The rectangle is constructed only from coordinates in the cardinal
+     * directions, also known als south/west and north/east combinations.
+     * 
+     * @param float $x1 the east longitude coordinate
+     * @param float $y1 the north latitude coordinate
+     * @param float $x2 the west longitude coordinate
+     * @param float $y2 the south latitude coordinate
+     * @return Builder
+     */
+    public function geoWithinBox($x1, $y1, $x2, $y2)
+    {
+        $this->expr->geoWithinPolygon(array($x1, $y1), array($x1, $y2), array($x2, $y2), array($x2, $y1), array($x1, $y1));
+        return $this;
+    }
+
+    /**
      * Add $geoIntersects with GeoJSON point criteria to the query
      * 
      * @param number $x longitude of the point
