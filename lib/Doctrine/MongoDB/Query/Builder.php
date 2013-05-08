@@ -772,20 +772,57 @@ class Builder
     }
 
     /**
-     * Queries $geoIntersects with a polygon GeoJSON as a lat/lng aligned rectangle.
+     * Add $geoIntersects with GeoJSON point criteria to the query
+     * 
+     * @param number $x longitude of the point
+     * @param number $y latitude of the point
+     * @return Builder
+     */
+    public function geoIntersectsPoint($x, $y)
+    {
+        $this->expr->geoIntersectsPoint($x, $y);
+        return $this;
+    }
+
+    /**
+     * Add $geoIntersects with GeoJSON line criteria to the query
+     * 
+     * @param array $point,... Two or more lng/lat coordinate tuples
+     * @return Builder
+     */
+    public function geoIntersectsLine(/* array($x1, $y1), array($x2, $y2), ... */)
+    {
+        call_user_func_array(array($this->expr, 'geoIntersectsLine'), func_get_args());
+        return $this;
+    }
+
+    /**
+     * Add $geoIntersects with GeoJSON polygon criteria to the query
+     * 
+     * @param array $point,... Four or more lng/lat coordinate tuples
+     * @return Builder
+     */
+    public function geoIntersectsPolygon(/* array($x1, $y1), array($x2, $y2), ... */)
+    {
+        call_user_func_array(array($this->expr, 'geoIntersectsPolygon'), func_get_args());
+        return $this;
+    }
+
+    /**
+     * Queries $geoIntersects with a polygon GeoJSON as a lat/lng aligned box.
      * 
      * The rectangle is constructed only from coordinates in the cardinal
      * directions, also known als south/west and north/east combinations.
      * 
-     * @param float $x1 the north longitude coordinate
-     * @param float $y1 the east latitude coordinate
-     * @param float $x2 the south longitude coordinate
-     * @param float $y2 the west latitude coordinate
+     * @param float $x1 the east longitude coordinate
+     * @param float $y1 the north latitude coordinate
+     * @param float $x2 the west longitude coordinate
+     * @param float $y2 the south latitude coordinate
      * @return Builder
      */
     public function geoIntersectsBox($x1, $y1, $x2, $y2)
     {
-        $this->expr->geoIntersectsBox($x1, $y1, $x2, $y2);
+        $this->expr->geoIntersectsPolygon(array($x1, $y1), array($x1, $y2), array($x2, $y2), array($x2, $y1), array($x1, $y1));
         return $this;
     }
 

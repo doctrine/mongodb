@@ -559,7 +559,87 @@ class BuilderTest extends BaseTest
         $qb = $this->getTestQueryBuilder()
             ->field('loc')->geoWithinPolygon(array(0, 0), array(1, 1), array(2, 2));
     }
-    
+
+    public function testGeoIntersectsPoint()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->field('loc')->geoIntersectsPoint(0, 0);
+
+        $expected = array(
+            'loc' => array(
+                '$geoIntersects' => array(
+                    '$geometry' => array(
+                        'type' => 'Point',
+                        'coordinates' => array(0, 0),
+                    ),
+                ),
+            ),
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+    }
+
+    public function testGeoIntersectsLine()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->field('loc')->geoIntersectsLine(array(0, 0), array(2, 0));
+
+        $expected = array(
+            'loc' => array(
+                '$geoIntersects' => array(
+                    '$geometry' => array(
+                        'type' => 'LineString',
+                        'coordinates' => array(
+                            array(0, 0),
+                            array(2, 0),
+                        ),
+                    ),
+                ),
+            ),
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testGeoIntersectsLineRequiresAtLeastTwoPoints()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->field('loc')->geoIntersectsLine(array(0, 0));
+    }
+
+    public function testGeoIntersectsPolygon()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->field('loc')->geoIntersectsPolygon(array(0, 0), array(2, 0), array(0, 2), array(0, 0));
+
+        $expected = array(
+            'loc' => array(
+                '$geoIntersects' => array(
+                    '$geometry' => array(
+                        'type' => 'Polygon',
+                        'coordinates' => array(array(
+                            array(0, 0),
+                            array(2, 0),
+                            array(0, 2),
+                            array(0, 0),
+                        )),
+                    ),
+                ),
+            ),
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testGeoIntersectsPolygonRequiresAtLeastFourPoints()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->field('loc')->geoIntersectsPolygon(array(0, 0), array(1, 1), array(2, 2));
+    }
+
     public function testGeoIntersectsBox()
     {
         $qb = $this->getTestQueryBuilder()
