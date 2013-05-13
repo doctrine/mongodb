@@ -268,6 +268,20 @@ class BuilderTest extends BaseTest
         ), $qb->getQueryArray());
     }
 
+    public function testThatNorAcceptsAnotherQuery()
+    {
+        $coll = $this->conn->selectCollection('db', 'users');
+
+        $qb = $coll->createQueryBuilder();
+        $qb->addNor($qb->expr()->field('firstName')->equals('Kris'));
+        $qb->addNor($qb->expr()->field('firstName')->equals('Chris'));
+
+        $this->assertEquals(array('$nor' => array(
+            array('firstName' => 'Kris'),
+            array('firstName' => 'Chris')
+        )), $qb->getQueryArray());
+    }
+
     public function testAddElemMatch()
     {
         $qb = $this->getTestQueryBuilder();

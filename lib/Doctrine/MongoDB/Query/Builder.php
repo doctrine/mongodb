@@ -1037,7 +1037,8 @@ class Builder
      *
      *     $qb = $this->createQueryBuilder('User');
      *     $qb
-     *         ->addNor($qb->expr()->field('first_name')->equals('Kris')->field('first_name')->equals('Chris'));
+     *         ->addNor($qb->expr()->field('first_name')->equals('Kris'))
+     *         ->addNor($qb->expr()->field('first_name')->equals('Chris'));
      *
      * @param array|QueryBuilder $expression
      * @return Query
