@@ -531,19 +531,20 @@ class BuilderTest extends BaseTest
     public function testGeoWithinPolygon()
     {
         $qb = $this->getTestQueryBuilder()
-            ->field('loc')->geoWithinPolygon(array(0, 0), array(2, 0), array(0, 2), array(0, 0));
+            ->field('loc')->geoWithinPolygon(
+                array(array(0, 0), array(0, 10), array(10, 10), array(10, 0), array(0, 0)),
+                array(array(1, 1), array(1, 2), array(2, 2), array(2, 1), array(1, 1))
+            );
 
         $expected = array(
             'loc' => array(
                 '$geoWithin' => array(
                     '$geometry' => array(
                         'type' => 'Polygon',
-                        'coordinates' => array(array(
-                            array(0, 0),
-                            array(2, 0),
-                            array(0, 2),
-                            array(0, 0),
-                        )),
+                        'coordinates' => array(
+                            array(array(0, 0), array(0, 10), array(10, 10), array(10, 0), array(0, 0)),
+                            array(array(1, 1), array(1, 2), array(2, 2), array(2, 1), array(1, 1)),
+                        ),
                     ),
                 ),
             ),
@@ -557,7 +558,7 @@ class BuilderTest extends BaseTest
     public function testGeoWithinPolygonRequiresAtLeastFourPoints()
     {
         $qb = $this->getTestQueryBuilder()
-            ->field('loc')->geoWithinPolygon(array(0, 0), array(1, 1), array(2, 2));
+            ->field('loc')->geoWithinPolygon(array(array(0, 0), array(1, 1), array(2, 2)));
     }
 
     public function testGeoWithinBox()
@@ -635,19 +636,20 @@ class BuilderTest extends BaseTest
     public function testGeoIntersectsPolygon()
     {
         $qb = $this->getTestQueryBuilder()
-            ->field('loc')->geoIntersectsPolygon(array(0, 0), array(2, 0), array(0, 2), array(0, 0));
+            ->field('loc')->geoIntersectsPolygon(
+                array(array(0, 0), array(0, 10), array(10, 10), array(10, 0), array(0, 0)),
+                array(array(1, 1), array(1, 2), array(2, 2), array(2, 1), array(1, 1))
+            );
 
         $expected = array(
             'loc' => array(
                 '$geoIntersects' => array(
                     '$geometry' => array(
                         'type' => 'Polygon',
-                        'coordinates' => array(array(
-                            array(0, 0),
-                            array(2, 0),
-                            array(0, 2),
-                            array(0, 0),
-                        )),
+                        'coordinates' => array(
+                            array(array(0, 0), array(0, 10), array(10, 10), array(10, 0), array(0, 0)),
+                            array(array(1, 1), array(1, 2), array(2, 2), array(2, 1), array(1, 1)),
+                        ),
                     ),
                 ),
             ),
@@ -661,7 +663,7 @@ class BuilderTest extends BaseTest
     public function testGeoIntersectsPolygonRequiresAtLeastFourPoints()
     {
         $qb = $this->getTestQueryBuilder()
-            ->field('loc')->geoIntersectsPolygon(array(0, 0), array(1, 1), array(2, 2));
+            ->field('loc')->geoIntersectsPolygon(array(array(0, 0), array(1, 1), array(2, 2)));
     }
 
     public function testGeoIntersectsBox()

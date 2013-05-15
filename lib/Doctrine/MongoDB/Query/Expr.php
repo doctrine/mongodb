@@ -261,16 +261,20 @@ class Expr
         return $this;
     }
 
-    public function geoWithinPolygon(/* array($x1, $y1), array($x2, $y2), ... */)
+    public function geoWithinPolygon(/* array(array($x1, $y1), ...), ... */)
     {
-        if (func_num_args() < 4) {
-            throw new \InvalidArgumentException('Polygon must be defined by four points or more.');
+        $polygons = func_get_args();
+
+        foreach ($polygons as $polygon) {
+            if (count($polygon) < 4) {
+                throw new \InvalidArgumentException('Polygon must be defined by four points or more.');
+            }
         }
 
         if ($this->currentField) {
-            $this->query[$this->currentField][$this->cmd . 'geoWithin'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => array(func_get_args()));
+            $this->query[$this->currentField][$this->cmd . 'geoWithin'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => $polygons);
         } else {
-            $this->query[$this->cmd . 'geoWithin'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => array(func_get_args()));
+            $this->query[$this->cmd . 'geoWithin'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => $polygons);
         }
         return $this;
     }
@@ -299,16 +303,20 @@ class Expr
         return $this;
     }
 
-    public function geoIntersectsPolygon(/* array($x1, $y1), array($x2, $y2), ... */)
+    public function geoIntersectsPolygon(/* array(array($x1, $y1), ...), ... */)
     {
-        if (func_num_args() < 4) {
-            throw new \InvalidArgumentException('Polygon must be defined by four points or more.');
+        $polygons = func_get_args();
+
+        foreach ($polygons as $polygon) {
+            if (count($polygon) < 4) {
+                throw new \InvalidArgumentException('Polygon must be defined by four points or more.');
+            }
         }
 
         if ($this->currentField) {
-            $this->query[$this->currentField][$this->cmd . 'geoIntersects'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => array(func_get_args()));
+            $this->query[$this->currentField][$this->cmd . 'geoIntersects'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => $polygons);
         } else {
-            $this->query[$this->cmd . 'geoIntersects'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => array(func_get_args()));
+            $this->query[$this->cmd . 'geoIntersects'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => $polygons);
         }
         return $this;
     }

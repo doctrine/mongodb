@@ -750,6 +750,11 @@ class Builder
     /**
      * Add $withinPolygon criteria to the query.
      *
+     * Point coordinates are in x, y order (easting, northing for projected
+     * coordinates, longitude, latitude for geographic coordinates).
+     *
+     * The last point coordinate is implicitly connected with the first.
+     *
      * @param array $point,... Three or more point coordinate tuples
      * @return self
      */
@@ -761,39 +766,50 @@ class Builder
 
     /**
      * Add $geoWithin with a GeoJSON polygon criteria to the query.
-     * 
-     * @param array $point,... Four or more lng/lat coordinate tuples
+     *
+     * Point coordinates are in x, y order (easting, northing for projected
+     * coordinates, longitude, latitude for geographic coordinates).
+     *
+     * Polygons are an array linear rings, which themselves are an array of
+     * points where the first and last point are identical. The first element
+     * represents the exterior ring and subsequent elements represent interior
+     * rings (i.e. holes).
+     *
+     * @param array $ring,... One or more rings (i.e. four or more points coordinate tuples)
      * @return Builder
      */
-    public function geoWithinPolygon(/* array($x1, $y1), array($x2, $y2), ... */)
+    public function geoWithinPolygon(/* array(array($x1, $y1), ...), ... */)
     {
         call_user_func_array(array($this->expr, 'geoWithinPolygon'), func_get_args());
         return $this;
     }
 
     /**
-     * Queries $geoWithin with a polygon GeoJSON as a lat/lng aligned box.
-     * 
-     * The rectangle is constructed only from coordinates in the cardinal
-     * directions, also known als south/west and north/east combinations.
-     * 
-     * @param float $x1 the east longitude coordinate
-     * @param float $y1 the north latitude coordinate
-     * @param float $x2 the west longitude coordinate
-     * @param float $y2 the south latitude coordinate
+     * Add $geoWithin with a rectangular GeoJSON polygon criteria to the query.
+     *
+     * A rectangular polygon will be constructed from a pair of coordinates
+     * (e.g. northeast and southwest points).
+     *
+     * @param float $x1
+     * @param float $y1
+     * @param float $x2
+     * @param float $y2
      * @return Builder
      */
     public function geoWithinBox($x1, $y1, $x2, $y2)
     {
-        $this->expr->geoWithinPolygon(array($x1, $y1), array($x1, $y2), array($x2, $y2), array($x2, $y1), array($x1, $y1));
+        $this->expr->geoWithinPolygon(array(array($x1, $y1), array($x1, $y2), array($x2, $y2), array($x2, $y1), array($x1, $y1)));
         return $this;
     }
 
     /**
-     * Add $geoIntersects with GeoJSON point criteria to the query
-     * 
-     * @param number $x longitude of the point
-     * @param number $y latitude of the point
+     * Add $geoIntersects with GeoJSON point criteria to the query.
+     *
+     * Point coordinates are in x, y order (easting, northing for projected
+     * coordinates, longitude, latitude for geographic coordinates).
+     *
+     * @param float $x
+     * @param float $y
      * @return Builder
      */
     public function geoIntersectsPoint($x, $y)
@@ -803,9 +819,12 @@ class Builder
     }
 
     /**
-     * Add $geoIntersects with GeoJSON line criteria to the query
-     * 
-     * @param array $point,... Two or more lng/lat coordinate tuples
+     * Add $geoIntersects with GeoJSON line criteria to the query.
+     *
+     * Point coordinates are in x, y order (easting, northing for projected
+     * coordinates, longitude, latitude for geographic coordinates).
+     *
+     * @param array $point,... Two or more point coordinate tuples
      * @return Builder
      */
     public function geoIntersectsLine(/* array($x1, $y1), array($x2, $y2), ... */)
@@ -815,32 +834,41 @@ class Builder
     }
 
     /**
-     * Add $geoIntersects with GeoJSON polygon criteria to the query
-     * 
-     * @param array $point,... Four or more lng/lat coordinate tuples
+     * Add $geoIntersects with GeoJSON polygon criteria to the query.
+     *
+     * Point coordinates are in x, y order (easting, northing for projected
+     * coordinates, longitude, latitude for geographic coordinates).
+     *
+     * Polygons are an array linear rings, which themselves are an array of
+     * points where the first and last point are identical. The first element
+     * represents the exterior ring and subsequent elements represent interior
+     * rings (i.e. holes).
+     *
+     * @param array $ring,... One or more rings (i.e. four or more points coordinate tuples)
      * @return Builder
      */
-    public function geoIntersectsPolygon(/* array($x1, $y1), array($x2, $y2), ... */)
+    public function geoIntersectsPolygon(/* array(array($x1, $y1), ...), ... */)
     {
         call_user_func_array(array($this->expr, 'geoIntersectsPolygon'), func_get_args());
         return $this;
     }
 
     /**
-     * Queries $geoIntersects with a polygon GeoJSON as a lat/lng aligned box.
-     * 
-     * The rectangle is constructed only from coordinates in the cardinal
-     * directions, also known als south/west and north/east combinations.
-     * 
-     * @param float $x1 the east longitude coordinate
-     * @param float $y1 the north latitude coordinate
-     * @param float $x2 the west longitude coordinate
-     * @param float $y2 the south latitude coordinate
+     * Add $geoIntersects with a rectangular GeoJSON polygon criteria to the
+     * query.
+     *
+     * A rectangular polygon will be constructed from a pair of coordinates
+     * (e.g. northeast and southwest points).
+     *
+     * @param float $x1
+     * @param float $y1
+     * @param float $x2
+     * @param float $y2
      * @return Builder
      */
     public function geoIntersectsBox($x1, $y1, $x2, $y2)
     {
-        $this->expr->geoIntersectsPolygon(array($x1, $y1), array($x1, $y2), array($x2, $y2), array($x2, $y1), array($x1, $y1));
+        $this->expr->geoIntersectsPolygon(array(array($x1, $y1), array($x1, $y2), array($x2, $y2), array($x2, $y1), array($x1, $y1)));
         return $this;
     }
 
