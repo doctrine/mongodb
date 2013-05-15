@@ -649,8 +649,8 @@ class Builder
      * "maxDistance" options may be set using their respective builder methods.
      * Additional query criteria will be assigned to the "query" option.
      *
-     * @param string $x
-     * @param string $y
+     * @param float $x
+     * @param float $y
      * @return self
      */
     public function geoNear($x, $y)
@@ -663,7 +663,7 @@ class Builder
     /**
      * Set the "distanceMultiplier" option for a geoNear command query.
      *
-     * @param string $distanceMultiplier
+     * @param float $distanceMultiplier
      * @return self
      */
     public function distanceMultiplier($distanceMultiplier)
@@ -680,7 +680,7 @@ class Builder
      * "maxDistance" command option will be set; otherwise, $maxDistance will be
      * added to the current expression.
      *
-     * @param string $maxDistance
+     * @param float $maxDistance
      * @return self
      */
     public function maxDistance($maxDistance)
@@ -708,8 +708,8 @@ class Builder
     /**
      * Add $near criteria to the query.
      *
-     * @param string $x
-     * @param string $y
+     * @param float $x
+     * @param float $y
      * @return self
      */
     public function near($x, $y)
@@ -721,10 +721,10 @@ class Builder
     /**
      * Add $withinBox criteria to the query.
      *
-     * @param string $x1
-     * @param string $y1
-     * @param string $x2
-     * @param string $y2
+     * @param float $x1
+     * @param float $y1
+     * @param float $x2
+     * @param float $y2
      * @return self
      */
     public function withinBox($x1, $y1, $x2, $y2)
@@ -736,9 +736,9 @@ class Builder
     /**
      * Add $withinCenter criteria to the query.
      *
-     * @param string $x
-     * @param string $y
-     * @param string $radius
+     * @param float $x
+     * @param float $y
+     * @param float $radius
      * @return self
      */
     public function withinCenter($x, $y, $radius)
