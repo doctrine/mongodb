@@ -341,6 +341,17 @@ class Cursor implements Iterator
         return $this;
     }
 
+    public function getSorts()
+    {
+        return $this->sorts;
+    }
+
+    public function setSorts($sorts)
+    {
+        $this->sorts = $sorts;
+        return $this;
+    }
+
     public function sort($fields)
     {
         foreach ($fields as $fieldName => $order) {
