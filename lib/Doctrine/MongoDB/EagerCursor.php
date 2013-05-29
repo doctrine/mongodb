@@ -20,7 +20,8 @@
 namespace Doctrine\MongoDB;
 
 /**
- * EagerCursor class.
+ * EagerCursor wraps a Cursor instance and fetches all of its results upon
+ * initialization.
  *
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.org
@@ -29,82 +30,128 @@ namespace Doctrine\MongoDB;
  */
 class EagerCursor implements Iterator
 {
-    /** @var object Doctrine\MongoDB\Cursor */
+    /**
+     * @var Cursor
+     */
     protected $cursor;
 
-    /** @var array Array of data from Cursor to iterate over */
+    /**
+     * @var array
+     */
     protected $data = array();
 
-    /** @var bool Whether or not the EagerCursor has been initialized */
+    /**
+     * @var boolean
+     */
     protected $initialized = false;
 
+    /**
+     * Constructor.
+     *
+     * @param Cursor $cursor Cursor to wrap
+     */
     public function __construct(Cursor $cursor)
     {
         $this->cursor = $cursor;
     }
 
+    /**
+     * Return the wrapped cursor.
+     *
+     * @return Cursor
+     */
     public function getCursor()
     {
         return $this->cursor;
     }
 
+    /**
+     * Return whether the internal data has been initialized.
+     *
+     * @return boolean
+     */
     public function isInitialized()
     {
         return $this->initialized;
     }
 
+    /**
+     * Initialize the internal data by converting the cursor to an array.
+     */
     public function initialize()
     {
         if ($this->initialized === false) {
             $this->data = $this->cursor->toArray();
-            unset($this->cursor);
         }
         $this->initialized = true;
     }
 
+    /**
+     * @see \Iterator::rewind()
+     */
     public function rewind()
     {
         $this->initialize();
         reset($this->data);
     }
-  
+
+    /**
+     * @see \Iterator::current()
+     */
     public function current()
     {
         $this->initialize();
         return current($this->data);
     }
-  
-    public function key() 
+
+    /**
+     * @see \Iterator::key()
+     */
+    public function key()
     {
         $this->initialize();
         return key($this->data);
     }
-  
-    public function next() 
+
+    /**
+     * @see \Iterator::next()
+     */
+    public function next()
     {
         $this->initialize();
-        return next($this->data);
+        next($this->data);
     }
-  
+
+    /**
+     * @see \Iterator::valid()
+     */
     public function valid()
     {
         $this->initialize();
-        $key = key($this->data);
-        return ($key !== NULL && $key !== FALSE);
+        return key($this->data) !== null;
     }
 
+    /**
+     * @see \Countable::count()
+     */
     public function count()
     {
         $this->initialize();
         return count($this->data);
     }
 
+    /**
+     * @see Iterator::toArray()
+     */
     public function toArray()
     {
         $this->initialize();
         return $this->data;
     }
 
+    /**
+     * @see Iterator::getSingleResult()
+     */
     public function getSingleResult()
     {
         $this->initialize();

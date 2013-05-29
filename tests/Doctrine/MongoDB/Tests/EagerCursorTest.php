@@ -2,59 +2,76 @@
 
 namespace Doctrine\MongoDB\Tests;
 
-use Doctrine\MongoDB\Configuration;
-use Doctrine\MongoDB\Connection;
-use Doctrine\MongoDB\GridFSFile;
-
 class EagerCursorTest extends BaseTest
 {
-    private $document;
-    private $test;
+    private $doc1;
+    private $doc2;
+    private $cursor;
 
     public function setUp()
     {
         parent::setUp();
-        $this->document = array('test' => 'test');
-        $this->conn->selectCollection(self::$dbName, 'users')->insert($this->document);
 
-        $qb = $this->conn->selectCollection(self::$dbName, 'users')->createQueryBuilder();
-        $qb->eagerCursor(true);
-        $this->test = $qb->getQuery()->execute();
+        $this->doc1 = array('name' => 'A');
+        $this->doc2 = array('name' => 'B');
+
+        $collection = $this->conn->selectCollection(self::$dbName, 'EagerCursorTest');
+        $collection->drop();
+        $collection->insert($this->doc1);
+        $collection->insert($this->doc2);
+
+        $this->cursor = $collection->createQueryBuilder()->eagerCursor(true)->getQuery()->execute();
     }
 
     public function testEagerCursor()
     {
-        $this->assertInstanceOf('Doctrine\MongoDB\EagerCursor', $this->test);
+        $this->assertInstanceOf('Doctrine\MongoDB\EagerCursor', $this->cursor);
     }
 
     public function testIsInitialized()
     {
-        $this->assertFalse($this->test->isInitialized());
-        $this->test->initialize();
-        $this->assertTrue($this->test->isInitialized());
+        $this->assertFalse($this->cursor->isInitialized());
+        $this->cursor->initialize();
+        $this->assertTrue($this->cursor->isInitialized());
     }
 
     public function testCount()
     {
-        $this->assertEquals(1, count($this->test));
+        $this->assertEquals(2, count($this->cursor));
+    }
+
+    public function testCountIsImplicitlyFoundOnly()
+    {
+        $this->cursor->getCursor()->limit(1);
+        $this->assertEquals(1, count($this->cursor));
     }
 
     public function testGetSingleResult()
     {
-        $this->assertEquals($this->document, $this->test->getSingleResult());
+        $this->assertEquals($this->doc1, $this->cursor->getSingleResult());
     }
 
     public function testToArray()
     {
-        $this->assertEquals(array((string) $this->document['_id'] => $this->document), $this->test->toArray());
+        $this->assertEquals(
+            array(
+                (string) $this->doc1['_id'] => $this->doc1,
+                (string) $this->doc2['_id'] => $this->doc2,
+            ),
+            $this->cursor->toArray()
+        );
     }
 
     public function testRewind()
     {
-        $this->test->toArray();
-        $this->assertFalse($this->test->next());
-        $this->test->rewind();
-        $this->assertEquals($this->document, $this->test->current());
-        $this->assertFalse($this->test->next());
+        foreach (range(1,2) as $_) {
+            $this->assertEquals($this->doc1, $this->cursor->current());
+            $this->cursor->next();
+            $this->assertEquals($this->doc2, $this->cursor->current());
+            $this->cursor->next();
+            $this->assertFalse($this->cursor->valid());
+
+            $this->cursor->rewind();
+        }
     }
 }

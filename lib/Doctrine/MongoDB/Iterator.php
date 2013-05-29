@@ -29,6 +29,17 @@ namespace Doctrine\MongoDB;
  */
 interface Iterator extends \Iterator, \Countable
 {
+    /**
+     * Return all elements as an array.
+     *
+     * @return array
+     */
     function toArray();
+
+    /**
+     * Return the first element from the result set.
+     *
+     * @return array|object|null
+     */
     function getSingleResult();
 }

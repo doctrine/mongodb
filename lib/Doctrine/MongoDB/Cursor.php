@@ -76,26 +76,49 @@ class Cursor implements Iterator
         $this->numRetries = (integer) $numRetries;
     }
 
+    /**
+     * Return the database connection for this cursor.
+     *
+     * @return Connection
+     */
     public function getConnection()
     {
         return $this->connection;
     }
 
+    /**
+     * Return the collection for this cursor.
+     *
+     * @return Collection
+     */
     public function getCollection()
     {
         return $this->collection;
     }
 
+    /**
+     * Return the query.
+     *
+     * @return array
+     */
     public function getQuery()
     {
         return $this->query;
     }
 
+    /**
+     * Return the fields (projection).
+     *
+     * @return array
+     */
     public function getFields()
     {
         return $this->fields;
     }
 
+    /**
+     * Recreates the internal MongoCursor.
+     */
     public function recreate()
     {
         $this->mongoCursor = $this->collection->getMongoCollection()->find($this->query, $this->fields);
@@ -137,13 +160,17 @@ class Cursor implements Iterator
     /**
      * Returns the MongoCursor instance being wrapped.
      *
-     * @return MongoCursor $mongoCursor The MongoCursor instance being wrapped.
+     * @return \MongoCursor $mongoCursor
      */
     public function getMongoCursor()
     {
         return $this->mongoCursor;
     }
 
+    /**
+     * @see \Iterator::current()
+     * @see \MongoCursor::current()
+     */
     public function current()
     {
         $current = $this->mongoCursor->current();
@@ -155,16 +182,26 @@ class Cursor implements Iterator
         return $current;
     }
 
+    /**
+     * @see \Iterator::key()
+     * @see \MongoCursor::dead()
+     */
     public function key()
     {
         return $this->mongoCursor->key();
     }
 
+    /**
+     * @see \MongoCursor::dead()
+     */
     public function dead()
     {
         return $this->mongoCursor->dead();
     }
 
+    /**
+     * @see \MongoCursor::explain()
+     */
     public function explain()
     {
         $cursor = $this;
@@ -173,6 +210,9 @@ class Cursor implements Iterator
         }, true);
     }
 
+    /**
+     * @see \MongoCursor::fields()
+     */
     public function fields(array $f)
     {
         $this->fields = $f;
@@ -180,6 +220,9 @@ class Cursor implements Iterator
         return $this;
     }
 
+    /**
+     * @see \MongoCursor::getNext()
+     */
     public function getNext()
     {
         $cursor = $this;
@@ -194,6 +237,9 @@ class Cursor implements Iterator
         return $next;
     }
 
+    /**
+     * @see \MongoCursor::hasNext()
+     */
     public function hasNext()
     {
         $cursor = $this;
@@ -202,6 +248,9 @@ class Cursor implements Iterator
         }, false);
     }
 
+    /**
+     * @see \MongoCursor::hint()
+     */
     public function hint(array $keyPattern)
     {
         $this->hints[] = $keyPattern;
@@ -209,6 +258,9 @@ class Cursor implements Iterator
         return $this;
     }
 
+    /**
+     * @see \MongoCursor::immortal()
+     */
     public function immortal($liveForever = true)
     {
         $liveForever = (boolean) $liveForever;
@@ -217,11 +269,18 @@ class Cursor implements Iterator
         return $this;
     }
 
+    /**
+     * @see \MongoCursor::info()
+     */
     public function info()
     {
         return $this->mongoCursor->info();
     }
 
+    /**
+     * @see \Iterator::rewind()
+     * @see \MongoCursor::rewind()
+     */
     public function rewind()
     {
         $cursor = $this;
@@ -230,6 +289,10 @@ class Cursor implements Iterator
         }, false);
     }
 
+    /**
+     * @see \Iterator::next()
+     * @see \MongoCursor::next()
+     */
     public function next()
     {
         $cursor = $this;
@@ -238,11 +301,18 @@ class Cursor implements Iterator
         }, false);
     }
 
+    /**
+     * @see \MongoCursor::reset()
+     */
     public function reset()
     {
         return $this->mongoCursor->reset();
     }
 
+    /**
+     * @see \Countable::count()
+     * @see \MongoCursor::count()
+     */
     public function count($foundOnly = false)
     {
         $cursor = $this;
@@ -251,6 +321,9 @@ class Cursor implements Iterator
         }, true);
     }
 
+    /**
+     * @see \MongoCursor::addOption()
+     */
     public function addOption($key, $value)
     {
         $this->options[$key] = $value;
@@ -258,6 +331,9 @@ class Cursor implements Iterator
         return $this;
     }
 
+    /**
+     * @see \MongoCursor::batchSize()
+     */
     public function batchSize($num)
     {
         $limit = (integer) $num;
@@ -266,6 +342,9 @@ class Cursor implements Iterator
         return $this;
     }
 
+    /**
+     * @see \MongoCursor::limit()
+     */
     public function limit($num)
     {
         $limit = (integer) $num;
@@ -274,6 +353,9 @@ class Cursor implements Iterator
         return $this;
     }
 
+    /**
+     * @see \MongoCursor::skip()
+     */
     public function skip($num)
     {
         $num = (integer) $num;
@@ -282,6 +364,9 @@ class Cursor implements Iterator
         return $this;
     }
 
+    /**
+     * @see \MongoCursor::slaveOkay()
+     */
     public function slaveOkay($ok = true)
     {
         $ok = (boolean) $ok;
@@ -324,6 +409,9 @@ class Cursor implements Iterator
         }
     }
 
+    /**
+     * @see \MongoCursor::snapshot()
+     */
     public function snapshot()
     {
         $this->snapshot = true;
@@ -331,6 +419,9 @@ class Cursor implements Iterator
         return $this;
     }
 
+    /**
+     * @see \MongoCursor::sort()
+     */
     public function sort($fields)
     {
         foreach ($fields as $fieldName => $order) {
@@ -344,6 +435,9 @@ class Cursor implements Iterator
         return $this;
     }
 
+    /**
+     * @see \MongoCursor::tailable()
+     */
     public function tailable($tail = true)
     {
         $tail = (boolean) $tail;
@@ -352,6 +446,9 @@ class Cursor implements Iterator
         return $this;
     }
 
+    /**
+     * @see \MongoCursor::timeout()
+     */
     public function timeout($ms)
     {
         $this->timeout = (integer) $ms;
@@ -359,11 +456,18 @@ class Cursor implements Iterator
         return $this;
     }
 
+    /**
+     * @see \Iterator::valid()
+     * @see \MongoCursor::valid()
+     */
     public function valid()
     {
         return $this->mongoCursor->valid();
     }
 
+    /**
+     * @see Iterator::toArray()
+     */
     public function toArray($useKeys = true)
     {
         $cursor = $this;
@@ -373,9 +477,7 @@ class Cursor implements Iterator
     }
 
     /**
-     * Get the first single result from the cursor.
-     *
-     * @return array $document  The single document.
+     * @see Iterator::getSingleResult()
      */
     public function getSingleResult()
     {
