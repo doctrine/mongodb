@@ -284,7 +284,7 @@ class Cursor implements Iterator
     public function rewind()
     {
         $cursor = $this;
-        return $this->retry(function() use ($cursor) {
+        $this->retry(function() use ($cursor) {
             return $cursor->getMongoCursor()->rewind();
         }, false);
     }
@@ -296,7 +296,7 @@ class Cursor implements Iterator
     public function next()
     {
         $cursor = $this;
-        return $this->retry(function() use ($cursor) {
+        $this->retry(function() use ($cursor) {
             return $cursor->getMongoCursor()->next();
         }, false);
     }
@@ -306,7 +306,7 @@ class Cursor implements Iterator
      */
     public function reset()
     {
-        return $this->mongoCursor->reset();
+        $this->mongoCursor->reset();
     }
 
     /**
