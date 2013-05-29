@@ -57,14 +57,14 @@ class Cursor implements Iterator
     protected $timeout;
 
     /**
-     * Create a new MongoCursor which wraps around a given PHP MongoCursor.
+     * Create a new Cursor, which wraps around a given PHP MongoCursor.
      *
-     * @param Connection $connection The Doctrine Connection instance.
-     * @param Collection $collection The Doctrine Collection that created this cursor.
-     * @param MongoCursor $mongoCursor The cursor being wrapped.
-     * @param array $query Query object for this cursor.
-     * @param array $fields Fields to select for this cursor.
-     * @param boolean|integer $numRetries Number of times to retry queries.
+     * @param Connection  $connection   Connection used to create this cursor
+     * @param Collection  $collection   Collection used to create this cursor
+     * @param MongoCursor $mongoCursor  Cursor being wrapped
+     * @param array       $query        Query criteria
+     * @param array       $fields       Selected fields (projection)
+     * @param integer     $numRetries   Number of times to retry queries
      */
     public function __construct(Connection $connection, Collection $collection, \MongoCursor $mongoCursor, array $query = array(), array $fields = array(), $numRetries = 0)
     {
@@ -97,7 +97,7 @@ class Cursor implements Iterator
     }
 
     /**
-     * Return the query.
+     * Return the query criteria.
      *
      * @return array
      */
@@ -107,7 +107,7 @@ class Cursor implements Iterator
     }
 
     /**
-     * Return the fields (projection).
+     * Return the selected fields (projection).
      *
      * @return array
      */
