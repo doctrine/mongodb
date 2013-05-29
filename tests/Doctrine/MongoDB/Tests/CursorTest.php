@@ -11,7 +11,6 @@ class CursorTest extends BaseTest
     private $doc1;
     private $doc2;
     private $doc3;
-
     private $cursor;
 
     public function setUp()
@@ -22,7 +21,8 @@ class CursorTest extends BaseTest
         $this->doc2 = array('name' => 'B');
         $this->doc3 = array('name' => 'C');
 
-        $collection = $this->conn->selectCollection(self::$dbName, 'docs');
+        $collection = $this->conn->selectCollection(self::$dbName, 'CursorTest');
+        $collection->drop();
         $collection->insert($this->doc1);
         $collection->insert($this->doc2);
         $collection->insert($this->doc3);
