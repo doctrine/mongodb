@@ -22,7 +22,7 @@ namespace Doctrine\MongoDB\Event;
 use Doctrine\Common\EventArgs as BaseEventArgs;
 
 /**
- * Aggregation event args.
+ * Event args for the aggregate command.
  *
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.com
@@ -34,10 +34,15 @@ class AggregateEventArgs extends BaseEventArgs
     private $invoker;
     private $pipeline;
 
-    public function __construct($invoker, array &$pipeline)
+    public function __construct($invoker, array $pipeline)
     {
         $this->invoker = $invoker;
         $this->pipeline = $pipeline;
+    }
+
+    public function getInvoker()
+    {
+        return $this->invoker;
     }
 
     public function getPipeline()

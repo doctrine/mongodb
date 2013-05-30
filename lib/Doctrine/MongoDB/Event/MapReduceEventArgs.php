@@ -22,7 +22,7 @@ namespace Doctrine\MongoDB\Event;
 use Doctrine\Common\EventArgs as BaseEventArgs;
 
 /**
- * Map reduce event args.
+ * Event args for the mapReduce command.
  *
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.com
@@ -36,19 +36,26 @@ class MapReduceEventArgs extends BaseEventArgs
     private $reduce;
     private $query;
     private $out;
+    private $options;
 
-    public function __construct($invoker, &$map, &$reduce, array &$out, array &$query)
+    public function __construct($invoker, $map, $reduce, array $out, array $query, array $options = array())
     {
         $this->invoker = $invoker;
         $this->map = $map;
         $this->reduce = $reduce;
         $this->out = $out;
         $this->query = $query;
+        $this->options = $options;
     }
 
-    public function getKeys()
+    public function getInvoker()
     {
-        return $this->keys;
+        return $this->invoker;
+    }
+
+    public function getMap()
+    {
+        return $this->map;
     }
 
     public function getReduce()
@@ -56,13 +63,18 @@ class MapReduceEventArgs extends BaseEventArgs
         return $this->reduce;
     }
 
+    public function getOut()
+    {
+        return $this->out;
+    }
+
     public function getQuery()
     {
         return $this->query;
     }
 
-    public function getOut()
+    public function getOptions()
     {
-        return $this->out;
+        return $this->options;
     }
 }

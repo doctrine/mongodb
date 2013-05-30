@@ -29,6 +29,44 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($this->mongodb));
     }
 
+    public function testCreateCollectionWithMultipleArguments()
+    {
+        if (version_compare(phpversion('mongo'), '1.4.0', '>=')) {
+            $this->mongodb->expects($this->once())
+                ->method('createCollection')
+                ->with('foo', array('capped' => true, 'size' => 10485760, 'max' => 0));
+        } else {
+            $this->mongodb->expects($this->once())
+                ->method('createCollection')
+                ->with('foo', true, 10485760, 0);
+        }
+
+        $database = new Database($this->connection, 'test', $this->getMockEventManager(), '$');
+        $collection = $database->createCollection('foo', true, 10485760, 0);
+
+        $this->assertInstanceOf('Doctrine\MongoDB\Collection', $collection);
+        $this->assertEquals('foo', $collection->getName());
+    }
+
+    public function testCreateCollectionWithOptionsArgument()
+    {
+        if (version_compare(phpversion('mongo'), '1.4.0', '>=')) {
+            $this->mongodb->expects($this->once())
+                ->method('createCollection')
+                ->with('foo', array('capped' => true, 'size' => 10485760, 'autoIndexId' => false, 'max' => 0));
+        } else {
+            $this->mongodb->expects($this->once())
+                ->method('createCollection')
+                ->with('foo', true, 10485760, 0);
+        }
+
+        $database = new Database($this->connection, 'test', $this->getMockEventManager(), '$');
+        $collection = $database->createCollection('foo', array('capped' => true, 'size' => 10485760, 'autoIndexId' => false));
+
+        $this->assertInstanceOf('Doctrine\MongoDB\Collection', $collection);
+        $this->assertEquals('foo', $collection->getName());
+    }
+
     public function testGetSetSlaveOkay()
     {
         if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {

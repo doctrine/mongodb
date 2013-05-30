@@ -19,55 +19,32 @@
 
 namespace Doctrine\MongoDB\Event;
 
-use Doctrine\Common\EventArgs as BaseEventArgs;
-
 /**
- * Event args for group command.
+ * Mutable event args for query and command results.
  *
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.com
- * @since       1.0
- * @author      Jonathan H. Wage <jonwage@gmail.com>
+ * @since       1.1
+ * @author      Jeremy Mikola <jmikola@gmail.com>
  */
-class GroupEventArgs extends BaseEventArgs
+class MutableEventArgs extends EventArgs
 {
-    private $invoker;
-    private $keys;
-    private $initial;
-    private $reduce;
-    private $options;
+    private $changedData;
+    private $isDataChanged = false;
 
-    public function __construct($invoker, $keys, array $initial, $reduce, array $options = array())
+    public function getData()
     {
-        $this->invoker = $invoker;
-        $this->keys = $keys;
-        $this->initial = $initial;
-        $this->reduce = $reduce;
-        $this->options = $options;
+        return $this->isDataChanged ? $this->changedData : parent::getData();
     }
 
-    public function getInvoker()
+    public function setData($data)
     {
-        return $this->invoker;
+        $this->isDataChanged = parent::getData() !== $data;
+        $this->changedData = $this->isDataChanged ? $data : null;
     }
 
-    public function getKeys()
+    public function isDataChanged()
     {
-        return $this->keys;
-    }
-
-    public function getInitial()
-    {
-        return $this->initial;
-    }
-
-    public function getReduce()
-    {
-        return $this->reduce;
-    }
-
-    public function getOptions()
-    {
-        return $this->options;
+        return $this->isDataChanged;
     }
 }

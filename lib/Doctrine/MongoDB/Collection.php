@@ -23,8 +23,10 @@ use Doctrine\Common\EventManager;
 use Doctrine\MongoDB\Event\AggregateEventArgs;
 use Doctrine\MongoDB\Event\DistinctEventArgs;
 use Doctrine\MongoDB\Event\EventArgs;
+use Doctrine\MongoDB\Event\FindEventArgs;
 use Doctrine\MongoDB\Event\GroupEventArgs;
 use Doctrine\MongoDB\Event\MapReduceEventArgs;
+use Doctrine\MongoDB\Event\MutableEventArgs;
 use Doctrine\MongoDB\Event\NearEventArgs;
 use Doctrine\MongoDB\Event\UpdateEventArgs;
 use Doctrine\MongoDB\Util\ReadPreference;
@@ -178,7 +180,9 @@ class Collection
         $result = $this->doAggregate($pipeline);
 
         if ($this->eventManager->hasListeners(Events::postAggregate)) {
-            $this->eventManager->dispatchEvent(Events::postAggregate, new EventArgs($this, $result));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postAggregate, $eventArgs);
+            $result = $eventArgs->getData();
         }
 
         return $result;
@@ -206,13 +210,15 @@ class Collection
     public function batchInsert(array &$a, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preBatchInsert)) {
-            $this->eventManager->dispatchEvent(Events::preBatchInsert, new EventArgs($this, $a));
+            $this->eventManager->dispatchEvent(Events::preBatchInsert, new EventArgs($this, $a, $options));
         }
 
         $result = $this->doBatchInsert($a, $options);
 
         if ($this->eventManager->hasListeners(Events::postBatchInsert)) {
-            $this->eventManager->dispatchEvent(Events::postBatchInsert, new EventArgs($this, $result));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postBatchInsert, $eventArgs);
+            $result = $eventArgs->getData();
         }
 
         return $result;
@@ -227,7 +233,7 @@ class Collection
     public function update($query, array $newObj, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preUpdate)) {
-            $this->eventManager->dispatchEvent(Events::preUpdate, new UpdateEventArgs($this, $query, $newObj));
+            $this->eventManager->dispatchEvent(Events::preUpdate, new UpdateEventArgs($this, $query, $newObj, $options));
         }
 
         $result = $this->doUpdate($query, $newObj, $options);
@@ -257,13 +263,15 @@ class Collection
     public function find(array $query = array(), array $fields = array())
     {
         if ($this->eventManager->hasListeners(Events::preFind)) {
-            $this->eventManager->dispatchEvent(Events::preFind, new EventArgs($this, $query));
+            $this->eventManager->dispatchEvent(Events::preFind, new FindEventArgs($this, $query, $fields));
         }
 
         $result = $this->doFind($query, $fields);
 
         if ($this->eventManager->hasListeners(Events::postFind)) {
-            $this->eventManager->dispatchEvent(Events::postFind, new EventArgs($this, $result));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postFind, $eventArgs);
+            $result = $eventArgs->getData();
         }
 
         return $result;
@@ -287,13 +295,15 @@ class Collection
     public function findOne(array $query = array(), array $fields = array())
     {
         if ($this->eventManager->hasListeners(Events::preFindOne)) {
-            $this->eventManager->dispatchEvent(Events::preFindOne, new EventArgs($this, $query));
+            $this->eventManager->dispatchEvent(Events::preFindOne, new FindEventArgs($this, $query, $fields));
         }
 
         $result = $this->doFindOne($query, $fields);
 
         if ($this->eventManager->hasListeners(Events::postFindOne)) {
-            $this->eventManager->dispatchEvent(Events::postFindOne, new EventArgs($this, $result));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postFindOne, $eventArgs);
+            $result = $eventArgs->getData();
         }
 
         return $result;
@@ -310,16 +320,18 @@ class Collection
     public function findAndRemove(array $query, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preFindAndRemove)) {
-            $this->eventManager->dispatchEvent(Events::preFindAndRemove, new EventArgs($this, $query));
+            $this->eventManager->dispatchEvent(Events::preFindAndRemove, new EventArgs($this, $query, $options));
         }
 
-        $document = $this->doFindAndRemove($query, $options);
+        $result = $this->doFindAndRemove($query, $options);
 
         if ($this->eventManager->hasListeners(Events::postFindAndRemove)) {
-            $this->eventManager->dispatchEvent(Events::postFindAndRemove, new EventArgs($this, $document));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postFindAndRemove, $eventArgs);
+            $result = $eventArgs->getData();
         }
 
-        return $document;
+        return $result;
     }
 
     protected function doFindAndRemove(array $query, array $options = array())
@@ -338,16 +350,18 @@ class Collection
     public function findAndUpdate(array $query, array $newObj, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preFindAndUpdate)) {
-            $this->eventManager->dispatchEvent(Events::preFindAndUpdate, new UpdateEventArgs($this, $query, $query));
+            $this->eventManager->dispatchEvent(Events::preFindAndUpdate, new UpdateEventArgs($this, $query, $newObj, $options));
         }
 
-        $document = $this->doFindAndUpdate($query, $newObj, $options);
+        $result = $this->doFindAndUpdate($query, $newObj, $options);
 
         if ($this->eventManager->hasListeners(Events::postFindAndUpdate)) {
-            $this->eventManager->dispatchEvent(Events::postFindAndUpdate, new EventArgs($this, $document));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postFindAndUpdate, $eventArgs);
+            $result = $eventArgs->getData();
         }
 
-        return $document;
+        return $result;
     }
 
     protected function doFindAndUpdate(array $query, array $newObj, array $options)
@@ -365,13 +379,15 @@ class Collection
     public function near(array $near, array $query = array(), array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preNear)) {
-            $this->eventManager->dispatchEvent(Events::preNear, new NearEventArgs($this, $query, $near));
+            $this->eventManager->dispatchEvent(Events::preNear, new NearEventArgs($this, $query, $near, $options));
         }
 
         $result = $this->doNear($near, $query, $options);
 
         if ($this->eventManager->hasListeners(Events::postNear)) {
-            $this->eventManager->dispatchEvent(Events::postNear, new EventArgs($this, $result));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postNear, $eventArgs);
+            $result = $eventArgs->getData();
         }
 
         return $result;
@@ -395,13 +411,18 @@ class Collection
     public function distinct($field, array $query = array(), array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preDistinct)) {
+            /* The distinct command currently does not have options beyond field
+             * and query, so do not include it in the event args.
+             */
             $this->eventManager->dispatchEvent(Events::preDistinct, new DistinctEventArgs($this, $field, $query));
         }
 
         $result = $this->doDistinct($field, $query, $options);
 
         if ($this->eventManager->hasListeners(Events::postDistinct)) {
-            $this->eventManager->dispatchEvent(Events::postDistinct, new EventArgs($this, $result));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postDistinct, $eventArgs);
+            $result = $eventArgs->getData();
         }
 
         return $result;
@@ -425,13 +446,15 @@ class Collection
     public function mapReduce($map, $reduce, array $out = array('inline' => true), array $query = array(), array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preMapReduce)) {
-            $this->eventManager->dispatchEvent(Events::preMapReduce, new MapReduceEventArgs($this, $map, $reduce, $out, $query));
+            $this->eventManager->dispatchEvent(Events::preMapReduce, new MapReduceEventArgs($this, $map, $reduce, $out, $query, $options));
         }
 
         $result = $this->doMapReduce($map, $reduce, $out, $query, $options);
 
         if ($this->eventManager->hasListeners(Events::postMapReduce)) {
-            $this->eventManager->dispatchEvent(Events::postMapReduce, new EventArgs($this, $result));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postMapReduce, $eventArgs);
+            $result = $eventArgs->getData();
         }
 
         return $result;
@@ -543,7 +566,9 @@ class Collection
         $result = $this->doGetDBRef($reference);
 
         if ($this->eventManager->hasListeners(Events::postGetDBRef)) {
-            $this->eventManager->dispatchEvent(Events::postGetDBRef, new EventArgs($this, $result));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postGetDBRef, $eventArgs);
+            $result = $eventArgs->getData();
         }
 
         return $result;
@@ -560,13 +585,15 @@ class Collection
     public function group($keys, array $initial, $reduce, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preGroup)) {
-            $this->eventManager->dispatchEvent(Events::preGroup, new GroupEventArgs($this, $keys, $initial, $reduce));
+            $this->eventManager->dispatchEvent(Events::preGroup, new GroupEventArgs($this, $keys, $initial, $reduce, $options));
         }
 
         $result = $this->doGroup($keys, $initial, $reduce, $options);
 
         if ($this->eventManager->hasListeners(Events::postGroup)) {
-            $this->eventManager->dispatchEvent(Events::postGroup, new EventArgs($this, $result));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postGroup, $eventArgs);
+            $result = $eventArgs->getData();
         }
 
         return $result;
@@ -599,13 +626,15 @@ class Collection
     public function insert(array &$a, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preInsert)) {
-            $this->eventManager->dispatchEvent(Events::preInsert, new EventArgs($this, $a));
+            $this->eventManager->dispatchEvent(Events::preInsert, new EventArgs($this, $a, $options));
         }
 
         $result = $this->doInsert($a, $options);
 
         if ($this->eventManager->hasListeners(Events::postInsert)) {
-            $this->eventManager->dispatchEvent(Events::postInsert, new EventArgs($this, $result));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postInsert, $eventArgs);
+            $result = $eventArgs->getData();
         }
         return $result;
     }
@@ -623,7 +652,7 @@ class Collection
     public function remove(array $query, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preRemove)) {
-            $this->eventManager->dispatchEvent(Events::preRemove, new EventArgs($this, $query));
+            $this->eventManager->dispatchEvent(Events::preRemove, new EventArgs($this, $query, $options));
         }
 
         $result = $this->doRemove($query, $options);
@@ -643,13 +672,15 @@ class Collection
     public function save(array &$a, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preSave)) {
-            $this->eventManager->dispatchEvent(Events::preSave, new EventArgs($this, $a));
+            $this->eventManager->dispatchEvent(Events::preSave, new EventArgs($this, $a, $options));
         }
 
         $result = $this->doSave($a, $options);
 
         if ($this->eventManager->hasListeners(Events::postSave)) {
-            $this->eventManager->dispatchEvent(Events::postSave, new EventArgs($this, $result));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postSave, $eventArgs);
+            $result = $eventArgs->getData();
         }
 
         return $result;

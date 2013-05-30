@@ -3,13 +3,9 @@
 namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\Common\EventManager;
-use Doctrine\MongoDB\ArrayIterator;
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Connection;
 use Doctrine\MongoDB\Database;
-use Doctrine\MongoDB\Events;
-use Doctrine\MongoDB\Event\AggregateEventArgs;
-use Doctrine\MongoDB\Event\EventArgs;
 use MongoCollection;
 
 class CollectionTest extends \PHPUnit_Framework_TestCase
@@ -54,34 +50,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $result);
         $this->assertEquals($aggregated, $result->toArray());
-    }
-
-    public function testAggregateDispatchesEvents()
-    {
-        $pipeline = array(array('$match' => array('_id' => 'bar')));
-        $aggregated = array(array('_id' => 'bar'));
-
-        $eventManager = $this->getMockEventManager();
-
-        $database = $this->getMockDatabase();
-        $database->expects($this->once())
-            ->method('command')
-            ->with(array('aggregate' => self::collectionName, 'pipeline' => $pipeline))
-            ->will($this->returnValue(array('ok' => 1, 'result' => $aggregated)));
-
-        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database, $eventManager);
-
-        $this->expectEvents($eventManager, array(
-            array(Events::preAggregate, new AggregateEventArgs($coll, $pipeline)),
-            array(Events::postAggregate, $this->callback(function($v) use ($coll, $aggregated) {
-                return $v instanceof EventArgs &&
-                    $v->getInvoker() === $coll &&
-                    $v->getData() instanceof ArrayIterator &&
-                    $v->getData()->toArray() === $aggregated;
-            })),
-        ));
-
-        $result = $coll->aggregate($pipeline);
     }
 
     /**
@@ -614,33 +582,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
 
         $this->assertEquals(self::collectionName, $coll->__toString());
-    }
-
-    /**
-     * Expect events to be dispatched by the event manager in the given order.
-     *
-     * @param EventManager $em     EventManager mock
-     * @param array        $events Tuple of event name and dispatch argument
-     */
-    private function expectEvents(EventManager $em, array $events)
-    {
-        /* Each event should be a tuple consisting of the event name and the
-         * dispatched argument (e.g. EventArgs).
-         *
-         * For each event, expect a call to hasListeners() immediately followed
-         * by a call to dispatchEvent(). The dispatch argument is passed as-is
-         * to with(), so constraints may be used (e.g. callback).
-         */
-        foreach ($events as $i => $event) {
-            $em->expects($this->at($i * 2))
-                ->method('hasListeners')
-                ->with($event[0])
-                ->will($this->returnValue(true));
-
-            $em->expects($this->at($i * 2 + 1))
-                ->method('dispatchEvent')
-                ->with($event[0], $event[1]);
-        }
     }
 
     private function getMockConnection()

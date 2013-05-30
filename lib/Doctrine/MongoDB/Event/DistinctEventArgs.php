@@ -22,7 +22,7 @@ namespace Doctrine\MongoDB\Event;
 use Doctrine\Common\EventArgs as BaseEventArgs;
 
 /**
- * Distinct event args.
+ * Event args for the distinct command.
  *
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.com
@@ -33,13 +33,18 @@ class DistinctEventArgs extends BaseEventArgs
 {
     private $invoker;
     private $field;
-    private $query = array();
+    private $query;
 
-    public function __construct($invoker, &$field, array &$query)
+    public function __construct($invoker, $field, array $query)
     {
         $this->invoker = $invoker;
         $this->field = $field;
         $this->query = $query;
+    }
+
+    public function getInvoker()
+    {
+        return $this->invoker;
     }
 
     public function getField()
