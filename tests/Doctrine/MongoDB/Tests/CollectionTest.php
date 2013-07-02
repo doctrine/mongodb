@@ -312,7 +312,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Collection::getIndexInfo
+     * @covers Doctrine\MongoDB\Collection::getIndexInfo
      * @dataProvider provideIsFieldIndex
      */
     public function testIsFieldIndexed($indexInfo, $field, $expectedResult)
