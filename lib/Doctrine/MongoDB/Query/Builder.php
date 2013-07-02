@@ -47,13 +47,6 @@ class Builder
     protected $collection;
 
     /**
-     * The current field we are operating on.
-     *
-     * @var string
-     */
-    protected $currentField;
-
-    /**
      * Array containing the query data.
      *
      * @var array
@@ -394,7 +387,6 @@ class Builder
      */
     public function field($field)
     {
-        $this->currentField = $field;
         $this->expr->field($field);
         return $this;
     }
