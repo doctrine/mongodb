@@ -2,42 +2,11 @@
 
 namespace Doctrine\MongoDB\Tests\Query;
 
-use Doctrine\MongoDB\Tests\BaseTest;
 use Doctrine\MongoDB\Query\Builder;
 use Doctrine\MongoDB\Query\Query;
 
-class BuilderTest extends BaseTest
+class BuilderTest extends \PHPUnit_Framework_TestCase
 {
-    public function testDistinctFieldQuery()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->distinct('count')
-            ->field('username')->equals('distinct_test');
-
-        $expected = array(
-            'username' => 'distinct_test'
-        );
-        $query = $qb->getQuery();
-        $this->assertInstanceOf('Doctrine\MongoDB\Query\Query', $query);
-        $this->assertEquals(Query::TYPE_DISTINCT_FIELD, $query->getType());
-        $this->assertEquals($expected, $qb->getQueryArray());
-        $this->assertInstanceof('Doctrine\MongoDB\ArrayIterator', $query->execute());
-    }
-
-    public function testFindAndRemoveQuery()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->findAndRemove()
-            ->field('username')->equals('jwage');
-
-        $this->assertEquals(Query::TYPE_FIND_AND_REMOVE, $qb->getType());
-        $expected = array(
-            'username' => 'jwage'
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
-        $this->assertNull($qb->getQuery()->execute());
-    }
-
     public function testMapReduceQueryWithSingleMethod()
     {
         $map = 'function() {
@@ -116,112 +85,6 @@ class BuilderTest extends BaseTest
         $this->assertEquals($expectedMapReduce, $qb->debug('mapReduce'));
     }
 
-    public function testFindAndUpdateQuery()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->findAndRemove()
-            ->field('username')->equals('jwage');
-
-        $this->assertEquals(Query::TYPE_FIND_AND_REMOVE, $qb->getType());
-        $expected = array(
-            'username' => 'jwage'
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
-
-        $query = $qb->getQuery();
-        $this->assertEquals(Query::TYPE_FIND_AND_REMOVE, $query->getType());
-        $this->assertNull($query->execute());
-    }
-
-    public function testGroupQueryWithSingleMethod()
-    {
-        $keys = array();
-        $initial = array('count' => 0, 'sum' => 0);
-        $reduce = 'function(obj, prev) { prev.count++; prev.sum += obj.a; }';
-        $finalize = 'function(obj) { if (obj.count) { obj.avg = obj.sum / obj.count; } else { obj.avg = 0; } }';
-
-        $qb = $this->getTestQueryBuilder()
-            ->group($keys, $initial, $reduce, array('finalize' => $finalize));
-
-        $expected = array(
-            'keys' => $keys,
-            'initial' => $initial,
-            'reduce' => $reduce,
-            'options' => array('finalize' => $finalize),
-        );
-
-        $this->assertEquals(Query::TYPE_GROUP, $qb->getType());
-        $this->assertEquals($expected, $qb->debug('group'));
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
-    }
-
-    public function testGroupQueryWithMultipleMethods()
-    {
-        $keys = array();
-        $initial = array('count' => 0, 'sum' => 0);
-        $reduce = 'function(obj, prev) { prev.count++; prev.sum += obj.a; }';
-        $finalize = 'function(obj) { if (obj.count) { obj.avg = obj.sum / obj.count; } else { obj.avg = 0; } }';
-
-        $qb = $this->getTestQueryBuilder()
-            ->group($keys, $initial)
-            ->reduce($reduce)
-            ->finalize($finalize);
-
-        $expected = array(
-            'keys' => $keys,
-            'initial' => $initial,
-            'reduce' => $reduce,
-            'options' => array('finalize' => $finalize),
-        );
-
-        $this->assertEquals(Query::TYPE_GROUP, $qb->getType());
-        $this->assertEquals($expected, $qb->debug('group'));
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
-    }
-
-    public function testInsertQuery()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->insert()
-            ->field('username')->set('jwage');
-
-        $expected = array(
-            'username' => 'jwage'
-        );
-        $this->assertEquals($expected, $qb->getNewObj());
-        $this->assertEquals(Query::TYPE_INSERT, $qb->getType());
-        $this->assertArrayHasKeyValue(array('ok' => 1.0), $qb->getQuery()->execute());
-    }
-
-    public function testUpdateQuery()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->update()
-            ->field('username')->set('jwage');
-
-        $expected = array(
-            '$set' => array(
-                'username' => 'jwage'
-            )
-        );
-        $this->assertEquals($expected, $qb->getNewObj());
-        $this->assertEquals(Query::TYPE_UPDATE, $qb->getType());
-
-        $query = $qb->getQuery();
-        $this->assertEquals(Query::TYPE_UPDATE, $query->getType());
-        $this->assertArrayHasKeyValue(array('ok' => 1.0), $query->execute());
-    }
-
-    public function testRemoveQuery()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->remove()
-            ->field('username')->equals('jwage');
-
-        $this->assertEquals(Query::TYPE_REMOVE, $qb->getType());
-        $this->assertArrayHasKeyValue(array('ok' => 1.0), $qb->getQuery()->execute());
-    }
-
     /**
      * @expectedException BadMethodCallException
      */
@@ -240,9 +103,7 @@ class BuilderTest extends BaseTest
 
     public function testThatOrAcceptsAnotherQuery()
     {
-        $coll = $this->conn->selectCollection('db', 'users');
-
-        $qb = $coll->createQueryBuilder();
+        $qb = $this->getTestQueryBuilder();
         $qb->addOr($qb->expr()->field('firstName')->equals('Kris'));
         $qb->addOr($qb->expr()->field('firstName')->equals('Chris'));
 
@@ -254,9 +115,7 @@ class BuilderTest extends BaseTest
 
     public function testThatAndAcceptsAnotherQuery()
     {
-        $coll = $this->conn->selectCollection('db', 'users');
-
-        $qb = $coll->createQueryBuilder();
+        $qb = $this->getTestQueryBuilder();
         $qb->addAnd($qb->expr()->field('hits')->gte(1));
         $qb->addAnd($qb->expr()->field('hits')->lt(5));
 
@@ -270,9 +129,7 @@ class BuilderTest extends BaseTest
 
     public function testThatNorAcceptsAnotherQuery()
     {
-        $coll = $this->conn->selectCollection('db', 'users');
-
-        $qb = $coll->createQueryBuilder();
+        $qb = $this->getTestQueryBuilder();
         $qb->addNor($qb->expr()->field('firstName')->equals('Kris'));
         $qb->addNor($qb->expr()->field('firstName')->equals('Chris'));
 
@@ -439,30 +296,6 @@ class BuilderTest extends BaseTest
         $qb2->field('firstName')->equals('Jon');
 
         $this->assertCount(1, $qb->getQueryArray());
-    }
-
-    public function testGeoNearQuery()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->geoNear(50, 50)
-            ->distanceMultiplier(2.5)
-            ->maxDistance(5)
-            ->spherical(true)
-            ->field('type')->equals('restaurant')
-            ->limit(10);
-
-        $this->assertEquals(Query::TYPE_GEO_NEAR, $qb->getType());
-
-        $expectedQuery = array('type' => 'restaurant');
-        $this->assertEquals($expectedQuery, $qb->getQueryArray());
-
-        $geoNear = $qb->debug('geoNear');
-        $this->assertEquals(array(50, 50), $geoNear['near']);
-        $this->assertEquals(2.5, $geoNear['distanceMultiplier']);
-        $this->assertEquals(5, $geoNear['maxDistance']);
-        $this->assertEquals(true, $geoNear['spherical']);
-        $this->assertEquals(10, $qb->debug('limit'));
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
     }
 
     public function testNear()
@@ -794,14 +627,20 @@ class BuilderTest extends BaseTest
 
     private function getTestQueryBuilder()
     {
-        return $this->conn->selectCollection('db', 'users')->createQueryBuilder();
+        return new Builder($this->getMockDatabase(), $this->getMockCollection(), '$');
     }
 
-    private function assertArrayHasKeyValue($expected, $array, $message = '')
+    private function getMockCollection()
     {
-        foreach ((array) $expected as $key => $value) {
-            $this->assertArrayHasKey($key, $expected, $message);
-            $this->assertEquals($value, $expected[$key], $message);
-        }
+        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    private function getMockDatabase()
+    {
+        return $this->getMockBuilder('Doctrine\MongoDB\Database')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 }
