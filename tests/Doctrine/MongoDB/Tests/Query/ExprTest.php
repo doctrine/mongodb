@@ -23,15 +23,27 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('$op' => 'value'), $expr->getQuery());
     }
 
-    public function testMaxDistanceWithNearAndGeoJsonPoint()
+    /**
+     * @dataProvider provideGeoJsonPoint
+     */
+    public function testMaxDistanceWithNearAndGeoJsonPoint($point, array $expected)
     {
-        $json = array('type' => 'Point', 'coordinates' => array(1, 2));
-
         $expr = new Expr('$');
-        $expr->near($this->getMockPoint($json));
+        $expr->near($point);
 
         $this->assertSame($expr, $expr->maxDistance(1));
-        $this->assertEquals(array('$near' => array('$geometry' => $json, '$maxDistance' => 1)), $expr->getQuery());
+        $this->assertEquals(array('$near' => $expected + array('$maxDistance' => 1)), $expr->getQuery());
+    }
+
+    public function provideGeoJsonPoint()
+    {
+        $json = array(array('type' => 'Point', 'coordinates' => array(1, 2)));
+        $expected = array('$geometry' => $json);
+
+        return array(
+            'array' => array($json, $expected),
+            'object' => array($this->getMockPoint($json), $expected),
+        );
     }
 
     public function testMaxDistanceWithNearAndLegacyCoordinates()
@@ -72,13 +84,15 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr->maxDistance(1);
     }
 
-    public function testNearWithGeoJsonPoint()
+    /**
+     * @dataProvider provideGeoJsonPoint
+     */
+    public function testNearWithGeoJsonPoint($point, array $expected)
     {
-        $json = array('type' => 'Point', 'coordinates' => array(1, 2));
         $expr = new Expr('$');
 
-        $this->assertSame($expr, $expr->near($this->getMockPoint($json)));
-        $this->assertEquals(array('$near' => array('$geometry' => $json)), $expr->getQuery());
+        $this->assertSame($expr, $expr->near($point));
+        $this->assertEquals(array('$near' => $expected), $expr->getQuery());
     }
 
     public function testNearWithLegacyCoordinates()
@@ -89,13 +103,15 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('$near' => array(1, 2)), $expr->getQuery());
     }
 
-    public function testNearSphereWithGeoJsonPoint()
+    /**
+     * @dataProvider provideGeoJsonPoint
+     */
+    public function testNearSphereWithGeoJsonPoint($point, array $expected)
     {
-        $json = array('type' => 'Point', 'coordinates' => array(1, 2));
         $expr = new Expr('$');
 
-        $this->assertSame($expr, $expr->nearSphere($this->getMockPoint($json)));
-        $this->assertEquals(array('$nearSphere' => array('$geometry' => $json)), $expr->getQuery());
+        $this->assertSame($expr, $expr->nearSphere($point));
+        $this->assertEquals(array('$nearSphere' => $expected), $expr->getQuery());
     }
 
     public function testNearSphereWithLegacyCoordinates()
@@ -106,26 +122,41 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('$nearSphere' => array(1, 2)), $expr->getQuery());
     }
 
-    public function testGeoWithin()
+    /**
+     * @dataProvider provideGeoJsonPolygon
+     */
+    public function testGeoIntersects($geometry, array $expected)
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->geoIntersects($geometry));
+        $this->assertEquals(array('$geoIntersects' => $expected), $expr->getQuery());
+    }
+
+    public function provideGeoJsonPolygon()
     {
         $json = array(
             'type' => 'Polygon',
             'coordinates' => array(array(array(0, 0), array(1, 1), array(1, 0), array(0, 0))),
         );
 
-        $expr = new Expr('$');
+        $expected = array('$geometry' => $json);
 
-        $this->assertSame($expr, $expr->geoWithin($this->getMockPolygon($json)));
-        $this->assertEquals(array('$geoWithin' => array('$geometry' => $json)), $expr->getQuery());
+        return array(
+            'array' => array($json, $expected),
+            'object' => array($this->getMockPolygon($json), $expected),
+        );
     }
 
-    public function testGeoIntersects()
+    /**
+     * @dataProvider provideGeoJsonPolygon
+     */
+    public function testGeoWithin($geometry, array $expected)
     {
-        $json = array('type' => 'Point', 'coordinates' => array(1, 2));
         $expr = new Expr('$');
 
-        $this->assertSame($expr, $expr->geoIntersects($this->getMockPoint($json)));
-        $this->assertEquals(array('$geoIntersects' => array('$geometry' => $json)), $expr->getQuery());
+        $this->assertSame($expr, $expr->geoWithin($geometry));
+        $this->assertEquals(array('$geoWithin' => $expected), $expr->getQuery());
     }
 
     public function testGeoWithinBox()

@@ -253,19 +253,24 @@ class Expr
     /**
      * Add $near criteria to the expression.
      *
-     * A GeoJSON Point may be provided as the first parameter for 2dsphere
-     * queries.
+     * A GeoJSON point may be provided as the first and only argument for
+     * 2dsphere queries. This single parameter may be a GeoJSON point object or
+     * an array corresponding to the point's JSON representation.
      *
      * @see Expr::near()
      * @see http://docs.mongodb.org/manual/reference/operator/near/
-     * @param float|Point $x
+     * @param float|array|Point $x
      * @param float $y
      * @return self
      */
     public function near($x, $y = null)
     {
         if ($x instanceof Point) {
-            return $this->operator($this->cmd . 'near', array($this->cmd . 'geometry' => $x->jsonSerialize()));
+            $x = $x->jsonSerialize();
+        }
+
+        if (is_array($x)) {
+            return $this->operator($this->cmd . 'near', array($this->cmd . 'geometry' => $x));
         }
 
         return $this->operator($this->cmd . 'near', array($x, $y));
@@ -274,19 +279,24 @@ class Expr
     /**
      * Add $nearSphere criteria to the expression.
      *
-     * A GeoJSON Point may be provided as the first parameter for 2dsphere
-     * queries.
+     * A GeoJSON point may be provided as the first and only argument for
+     * 2dsphere queries. This single parameter may be a GeoJSON point object or
+     * an array corresponding to the point's JSON representation.
      *
      * @see Expr::nearSphere()
      * @see http://docs.mongodb.org/manual/reference/operator/nearSphere/
-     * @param float|Point $x
+     * @param float|array|Point $x
      * @param float $y
      * @return self
      */
     public function nearSphere($x, $y = null)
     {
         if ($x instanceof Point) {
-            return $this->operator($this->cmd . 'nearSphere', array($this->cmd . 'geometry' => $x->jsonSerialize()));
+            $x = $x->jsonSerialize();
+        }
+
+        if (is_array($x)) {
+            return $this->operator($this->cmd . 'nearSphere', array($this->cmd . 'geometry' => $x));
         }
 
         return $this->operator($this->cmd . 'nearSphere', array($x, $y));
@@ -295,29 +305,39 @@ class Expr
     /**
      * Add $geoIntersects criteria with a GeoJSON geometry to the expression.
      *
+     * The geometry parameter GeoJSON object or an array corresponding to the
+     * geometry's JSON representation.
+     *
      * @see http://docs.mongodb.org/manual/reference/operator/geoIntersects/
-     * @param Geometry $geometry
+     * @param array|Geometry $geometry
      * @return self
      */
-    public function geoIntersects(Geometry $geometry)
+    public function geoIntersects($geometry)
     {
-        $shape = array($this->cmd . 'geometry' => $geometry->jsonSerialize());
+        if ($geometry instanceof Geometry) {
+            $geometry = $geometry->jsonSerialize();
+        }
 
-        return $this->operator($this->cmd . 'geoIntersects', $shape);
+        return $this->operator($this->cmd . 'geoIntersects', array($this->cmd . 'geometry' => $geometry));
     }
 
     /**
      * Add $geoWithin criteria with a GeoJSON geometry to the expression.
      *
+     * The geometry parameter GeoJSON object or an array corresponding to the
+     * geometry's JSON representation.
+     *
      * @see http://docs.mongodb.org/manual/reference/operator/geoIntersects/
-     * @param Geometry $geometry
+     * @param array|Geometry $geometry
      * @return self
      */
-    public function geoWithin(Geometry $geometry)
+    public function geoWithin($geometry)
     {
-        $shape = array($this->cmd . 'geometry' => $geometry->jsonSerialize());
+        if ($geometry instanceof Geometry) {
+            $geometry = $geometry->jsonSerialize();
+        }
 
-        return $this->operator($this->cmd . 'geoWithin', $shape);
+        return $this->operator($this->cmd . 'geoWithin', array($this->cmd . 'geometry' => $geometry));
     }
 
     /**

@@ -20,7 +20,7 @@
         "jmikola/geojson": "~1.0@dev"
     },
     "suggest": {
-        "jmikola/geojson": "Allows 2dsphere support in query builder"
+        "jmikola/geojson": "Support GeoJSON geometry objects in 2dsphere queries"
     },
     "autoload": {
         "psr-0": { "Doctrine\\MongoDB": "lib/" }

@@ -730,12 +730,13 @@ class Builder
     /**
      * Add $near criteria to the query.
      *
-     * A GeoJSON Point may be provided as the first parameter for 2dsphere
-     * queries.
+     * A GeoJSON point may be provided as the first and only argument for
+     * 2dsphere queries. This single parameter may be a GeoJSON point object or
+     * an array corresponding to the point's JSON representation.
      *
      * @see Expr::near()
      * @see http://docs.mongodb.org/manual/reference/operator/near/
-     * @param float|Point $x
+     * @param float|array|Point $x
      * @param float $y
      * @return self
      */
@@ -748,12 +749,13 @@ class Builder
     /**
      * Add $nearSphere criteria to the query.
      *
-     * A GeoJSON Point may be provided as the first parameter for 2dsphere
-     * queries.
+     * A GeoJSON point may be provided as the first and only argument for
+     * 2dsphere queries. This single parameter may be a GeoJSON point object or
+     * an array corresponding to the point's JSON representation.
      *
      * @see Expr::nearSphere()
      * @see http://docs.mongodb.org/manual/reference/operator/nearSphere/
-     * @param float|Point $x
+     * @param float|array|Point $x
      * @param float $y
      * @return self
      */
@@ -842,12 +844,15 @@ class Builder
     /**
      * Add $geoIntersects criteria with a GeoJSON geometry to the query.
      *
-     * @see Expr::geoIntersects
+     * The geometry parameter GeoJSON object or an array corresponding to the
+     * geometry's JSON representation.
+     *
+     * @see Expr::geoIntersects()
      * @see http://docs.mongodb.org/manual/reference/operator/geoIntersects/
-     * @param Geometry $geometry
+     * @param array|Geometry $geometry
      * @return self
      */
-    public function geoIntersects(Geometry $geometry)
+    public function geoIntersects($geometry)
     {
         $this->expr->geoIntersects($geometry);
         return $this;
@@ -856,9 +861,12 @@ class Builder
     /**
      * Add $geoWithin criteria with a GeoJSON geometry to the query.
      *
+     * The geometry parameter GeoJSON object or an array corresponding to the
+     * geometry's JSON representation.
+     *
      * @see Expr::geoWithin()
      * @see http://docs.mongodb.org/manual/reference/operator/geoWithin/
-     * @param Geometry $geometry
+     * @param array|Geometry $geometry
      * @return self
      */
     public function geoWithin(Geometry $geometry)
