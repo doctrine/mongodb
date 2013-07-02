@@ -298,6 +298,70 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(1, $qb->getQueryArray());
     }
 
+    /**
+     * @dataProvider provideProxiedExprMethods
+     */
+    public function testProxiedExprMethods($method, array $args = array())
+    {
+        $expr = $this->getMockExpr();
+        $invocationMocker = $expr->expects($this->once())->method($method);
+        call_user_func_array(array($invocationMocker, 'with'), $args);
+
+        $qb = $this->getStubQueryBuilder();
+        $qb->setExpr($expr);
+
+        $this->assertSame($qb, call_user_func_array(array($qb, $method), $args));
+    }
+
+    public function provideProxiedExprMethods()
+    {
+        return array(
+            'field()' => array('field', array('fieldName')),
+            'equals()' => array('equals', array('value')),
+            'where()' => array('where', array('this.fieldName == 1')),
+            'in()' => array('in', array(array('value1', 'value2'))),
+            'notIn()' => array('notIn', array(array('value1', 'value2'))),
+            'notEqual()' => array('notEqual', array('value')),
+            'gt()' => array('gt', array(1)),
+            'gte()' => array('gte', array(1)),
+            'lt()' => array('gt', array(1)),
+            'lte()' => array('gte', array(1)),
+            'range()' => array('range', array(0, 1)),
+            'size()' => array('size', array(1)),
+            'exists()' => array('exists', array(true)),
+            'type()' => array('type', array(7)),
+            'all()' => array('all', array(array('value1', 'value2'))),
+            'mod()' => array('mod', array(2)),
+            'near()' => array('near', array(1, 2)),
+            'nearSphere()' => array('nearSphere', array(1, 2)),
+            'withinBox()' => array('withinBox', array(1, 2, 3, 4)),
+            'withinCenter()' => array('withinCenter', array(1, 2, 3)),
+            'withinCenterSphere()' => array('withinCenterSphere', array(1, 2, 3)),
+            'withinPolygon()' => array('withinPolygon', array(array(0, 0), array(1, 1), array(1, 0))),
+            'geoIntersects()' => array('geoIntersects', array($this->getMockGeometry())),
+            'geoWithin()' => array('geoWithin', array($this->getMockGeometry())),
+            'geoWithinBox()' => array('geoWithinBox', array(1, 2, 3, 4)),
+            'geoWithinCenter()' => array('geoWithinCenter', array(1, 2, 3)),
+            'geoWithinCenterSphere()' => array('geoWithinCenterSphere', array(1, 2, 3)),
+            'geoWithinPolygon()' => array('geoWithinPolygon', array(array(0, 0), array(1, 1), array(1, 0))),
+            'inc()' => array('inc', array(1)),
+            'unsetField()' => array('unsetField'),
+            'push()' => array('push', array('value')),
+            'pushAll()' => array('pushAll', array(array('value1', 'value2'))),
+            'addToSet()' => array('addToSet', array('value')),
+            'addManyToSet()' => array('addManyToSet', array(array('value1', 'value2'))),
+            'popFirst()' => array('popFirst'),
+            'popLast()' => array('popLast'),
+            'pull()' => array('pull', array('value')),
+            'pullAll()' => array('pullAll', array(array('value1', 'value2'))),
+            'addAnd()' => array('addAnd', array($this->getMockExpr())),
+            'addOr()' => array('addOr', array($this->getMockExpr())),
+            'addNor()' => array('addNor', array($this->getMockExpr())),
+            'elemMatch()' => array('elemMatch', array($this->getMockExpr())),
+            'not()' => array('not', array($this->getMockExpr())),
+        );
+    }
+
     public function testGeoNear()
     {
         $qb = $this->getTestQueryBuilder();
@@ -460,6 +524,11 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $qb->debug('select'));
     }
 
+    private function getStubQueryBuilder()
+    {
+        return new BuilderStub($this->getMockDatabase(), $this->getMockCollection(), '$');
+    }
+
     private function getTestQueryBuilder()
     {
         return new Builder($this->getMockDatabase(), $this->getMockCollection(), '$');
@@ -475,6 +544,20 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     private function getMockDatabase()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Database')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    private function getMockExpr()
+    {
+        return $this->getMockBuilder('Doctrine\MongoDB\Query\Expr')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    private function getMockGeometry()
+    {
+        return $this->getMockBuilder('GeoJson\Geometry\Geometry')
             ->disableOriginalConstructor()
             ->getMock();
     }
