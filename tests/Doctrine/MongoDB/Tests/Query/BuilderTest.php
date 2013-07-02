@@ -451,7 +451,7 @@ class BuilderTest extends BaseTest
             ->field('type')->equals('restaurant')
             ->limit(10);
 
-        $this->assertEquals(Query::TYPE_GEO_LOCATION, $qb->getType());
+        $this->assertEquals(Query::TYPE_GEO_NEAR, $qb->getType());
 
         $expectedQuery = array('type' => 'restaurant');
         $this->assertEquals($expectedQuery, $qb->getQueryArray());

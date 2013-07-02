@@ -45,7 +45,7 @@ class Query implements IteratorAggregate
     const TYPE_GROUP           = 7;
     const TYPE_MAP_REDUCE      = 8;
     const TYPE_DISTINCT_FIELD  = 9;
-    const TYPE_GEO_LOCATION    = 10;
+    const TYPE_GEO_NEAR        = 10;
     const TYPE_COUNT           = 11;
 
     /**
@@ -243,7 +243,7 @@ class Query implements IteratorAggregate
             case self::TYPE_DISTINCT_FIELD:
                 return $this->collection->distinct($this->query['distinctField'], $this->query['query'], $this->options);
 
-            case self::TYPE_GEO_LOCATION:
+            case self::TYPE_GEO_NEAR:
                 if (isset($this->query['limit']) && $this->query['limit']) {
                     $this->options['num'] = $this->query['limit'];
                 }

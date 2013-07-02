@@ -655,7 +655,7 @@ class Builder
      */
     public function geoNear($x, $y)
     {
-        $this->query['type'] = Query::TYPE_GEO_LOCATION;
+        $this->query['type'] = Query::TYPE_GEO_NEAR;
         $this->query['geoNear'] = array('near' => array($x, $y));
         return $this;
     }
@@ -685,7 +685,7 @@ class Builder
      */
     public function maxDistance($maxDistance)
     {
-        if (Query::TYPE_GEO_LOCATION === $this->query['type']) {
+        if (Query::TYPE_GEO_NEAR === $this->query['type']) {
             $this->query['geoNear']['maxDistance'] = $maxDistance;
         } else {
             $this->expr->maxDistance($maxDistance);

@@ -45,7 +45,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $collection = $this->getMockCollection();
 
         $queryArray = array(
-            'type' => Query::TYPE_GEO_LOCATION,
+            'type' => Query::TYPE_GEO_NEAR,
             'geoNear' => array(
                 'near' => array(50, 50),
                 'distanceMultiplier' => 2.5,
