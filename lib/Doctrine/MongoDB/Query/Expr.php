@@ -19,6 +19,11 @@
 
 namespace Doctrine\MongoDB\Query;
 
+use GeoJson\Geometry\Geometry;
+use GeoJson\Geometry\Point;
+use BadMethodCallException;
+use InvalidArgumentException;
+
 /**
  * Fluent interface for building query and update expressions.
  *
@@ -207,118 +212,281 @@ class Expr
         return $this->operator($this->cmd . 'mod', $mod);
     }
 
-    public function near($x, $y)
-    {
-        if ($this->currentField) {
-            $this->query[$this->currentField][$this->cmd . 'near'] = array($x, $y);
-        } else {
-            $this->query[$this->cmd . 'near'] = array($x, $y);
-        }
-        return $this;
-    }
 
+    /**
+     * Set the $maxDistance option for $near or $nearSphere criteria.
+     *
+     * This method must be called after near() or nearSphere(), since placement
+     * of the $maxDistance option depends on whether a GeoJSON point or legacy
+     * coordinates were provided for $near/$nearSphere.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/maxDistance/
+     * @param float $maxDistance
+     * @return self
+     * @throws BadMethodCallException if the query does not already have $near or $nearSphere criteria
+     */
     public function maxDistance($maxDistance)
     {
         if ($this->currentField) {
-            $this->query[$this->currentField][$this->cmd . 'maxDistance'] = $maxDistance;
+            $query = &$this->query[$this->currentField];
         } else {
-            $this->query[$this->cmd . 'maxDistance'] = $maxDistance;
+            $query = &$this->query;
         }
+
+        if ( ! isset($query[$this->cmd . 'near']) && ! isset($query[$this->cmd . 'nearSphere'])) {
+            throw new BadMethodCallException(
+                'This method requires a $near or $nearSphere operator (call near() or nearSphere() first)'
+            );
+        }
+
+        if (isset($query[$this->cmd . 'near'][$this->cmd . 'geometry'])) {
+            $query[$this->cmd . 'near'][$this->cmd . 'maxDistance'] = $maxDistance;
+        } elseif (isset($query[$this->cmd . 'nearSphere'][$this->cmd . 'geometry'])) {
+            $query[$this->cmd . 'nearSphere'][$this->cmd . 'maxDistance'] = $maxDistance;
+        } else {
+            $query[$this->cmd . 'maxDistance'] = $maxDistance;
+        }
+
         return $this;
     }
 
+    /**
+     * Add $near criteria to the expression.
+     *
+     * A GeoJSON Point may be provided as the first parameter for 2dsphere
+     * queries.
+     *
+     * @see Expr::near()
+     * @see http://docs.mongodb.org/manual/reference/operator/near/
+     * @param float|Point $x
+     * @param float $y
+     * @return self
+     */
+    public function near($x, $y = null)
+    {
+        if ($x instanceof Point) {
+            return $this->operator($this->cmd . 'near', array($this->cmd . 'geometry' => $x->jsonSerialize()));
+        }
+
+        return $this->operator($this->cmd . 'near', array($x, $y));
+    }
+
+    /**
+     * Add $nearSphere criteria to the expression.
+     *
+     * A GeoJSON Point may be provided as the first parameter for 2dsphere
+     * queries.
+     *
+     * @see Expr::nearSphere()
+     * @see http://docs.mongodb.org/manual/reference/operator/nearSphere/
+     * @param float|Point $x
+     * @param float $y
+     * @return self
+     */
+    public function nearSphere($x, $y = null)
+    {
+        if ($x instanceof Point) {
+            return $this->operator($this->cmd . 'nearSphere', array($this->cmd . 'geometry' => $x->jsonSerialize()));
+        }
+
+        return $this->operator($this->cmd . 'nearSphere', array($x, $y));
+    }
+
+    /**
+     * Add $geoIntersects criteria with a GeoJSON geometry to the expression.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/geoIntersects/
+     * @param Geometry $geometry
+     * @return self
+     */
+    public function geoIntersects(Geometry $geometry)
+    {
+        $shape = array($this->cmd . 'geometry' => $geometry->jsonSerialize());
+
+        return $this->operator($this->cmd . 'geoIntersects', $shape);
+    }
+
+    /**
+     * Add $geoWithin criteria with a GeoJSON geometry to the expression.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/geoIntersects/
+     * @param Geometry $geometry
+     * @return self
+     */
+    public function geoWithin(Geometry $geometry)
+    {
+        $shape = array($this->cmd . 'geometry' => $geometry->jsonSerialize());
+
+        return $this->operator($this->cmd . 'geoWithin', $shape);
+    }
+
+    /**
+     * Add $geoWithin criteria with a $box shape to the expression.
+     *
+     * A rectangular polygon will be constructed from a pair of coordinates
+     * corresponding to the bottom left and top right corners.
+     *
+     * Note: the $box operator only supports legacy coordinate pairs and 2d
+     * indexes. This cannot be used with 2dsphere indexes and GeoJSON shapes.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/box/
+     * @param float $x1
+     * @param float $y1
+     * @param float $x2
+     * @param float $y2
+     * @return self
+     */
+    public function geoWithinBox($x1, $y1, $x2, $y2)
+    {
+        $shape = array($this->cmd . 'box' => array(array($x1, $y1), array($x2, $y2)));
+
+        return $this->operator($this->cmd . 'geoWithin', $shape);
+    }
+
+    /**
+     * Add $geoWithin criteria with a $center shape to the expression.
+     *
+     * Note: the $center operator only supports legacy coordinate pairs and 2d
+     * indexes. This cannot be used with 2dsphere indexes and GeoJSON shapes.
+     *
+     * @see Expr::geoWithinCenter()
+     * @see http://docs.mongodb.org/manual/reference/operator/center/
+     * @param float $x
+     * @param float $y
+     * @param float $radius
+     * @return self
+     */
+    public function geoWithinCenter($x, $y, $radius)
+    {
+        $shape = array($this->cmd . 'center' => array(array($x, $y), $radius));
+
+        return $this->operator($this->cmd . 'geoWithin', $shape);
+    }
+
+    /**
+     * Add $geoWithin criteria with a $centerSphere shape to the expression.
+     *
+     * Note: the $centerSphere operator supports both 2d and 2dsphere indexes.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/centerSphere/
+     * @param float $x
+     * @param float $y
+     * @param float $radius
+     * @return self
+     */
+    public function geoWithinCenterSphere($x, $y, $radius)
+    {
+        $shape = array($this->cmd . 'centerSphere' => array(array($x, $y), $radius));
+
+        return $this->operator($this->cmd . 'geoWithin', $shape);
+    }
+
+    /**
+     * Add $geoWithin criteria with a $polygon shape to the expression.
+     *
+     * Point coordinates are in x, y order (easting, northing for projected
+     * coordinates, longitude, latitude for geographic coordinates).
+     *
+     * The last point coordinate is implicitly connected with the first.
+     *
+     * Note: the $polygon operator only supports legacy coordinate pairs and 2d
+     * indexes. This cannot be used with 2dsphere indexes and GeoJSON shapes.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/polygon/
+     * @param array $point,... Three or more point coordinate tuples
+     * @return self
+     * @throws InvalidArgumentException if less than three points are given
+     */
+    public function geoWithinPolygon(/* array($x1, $y1), ... */)
+    {
+        if (func_num_args() < 3) {
+            throw new InvalidArgumentException('Polygon must be defined by three or more points.');
+        }
+
+        $shape = array($this->cmd . 'polygon' => func_get_args());
+
+        return $this->operator($this->cmd . 'geoWithin', $shape);
+    }
+
+    /**
+     * Add $within criteria with a $box shape to the expression.
+     *
+     * @deprecated 1.1 MongoDB 2.4 deprecated $within in favor of $geoWithin
+     * @see Expr::geoWithinBox()
+     * @see http://docs.mongodb.org/manual/reference/operator/box/
+     * @param float $x1
+     * @param float $y1
+     * @param float $x2
+     * @param float $y2
+     * @return self
+     */
     public function withinBox($x1, $y1, $x2, $y2)
     {
-        if ($this->currentField) {
-            $this->query[$this->currentField][$this->cmd . 'within'][$this->cmd . 'box'] = array(array($x1, $y1), array($x2, $y2));
-        } else {
-            $this->query[$this->cmd . 'within'][$this->cmd . 'box'] = array(array($x1, $y1), array($x2, $y2));
-        }
-        return $this;
+        $shape = array($this->cmd . 'box' => array(array($x1, $y1), array($x2, $y2)));
+
+        return $this->operator($this->cmd . 'within', $shape);
     }
 
+    /**
+     * Add $within criteria with a $center shape to the expression.
+     *
+     * @deprecated 1.1 MongoDB 2.4 deprecated $within in favor of $geoWithin
+     * @see Expr::geoWithinCenter()
+     * @see http://docs.mongodb.org/manual/reference/operator/center/
+     * @param float $x
+     * @param float $y
+     * @param float $radius
+     * @return self
+     */
     public function withinCenter($x, $y, $radius)
     {
-        if ($this->currentField) {
-            $this->query[$this->currentField][$this->cmd . 'within'][$this->cmd . 'center'] = array(array($x, $y), $radius);
-        } else {
-            $this->query[$this->cmd . 'within'][$this->cmd . 'center'] = array(array($x, $y), $radius);
-        }
-        return $this;
+        $shape = array($this->cmd . 'center' => array(array($x, $y), $radius));
+
+        return $this->operator($this->cmd . 'within', $shape);
     }
 
+    /**
+     * Add $within criteria with a $centerSphere shape to the expression.
+     *
+     * @deprecated 1.1 MongoDB 2.4 deprecated $within in favor of $geoWithin
+     * @see Expr::geoWithinCenterSphere()
+     * @see http://docs.mongodb.org/manual/reference/operator/centerSphere/
+     * @param float $x
+     * @param float $y
+     * @param float $radius
+     * @return self
+     */
+    public function withinCenterSphere($x, $y, $radius)
+    {
+        $shape = array($this->cmd . 'centerSphere' => array(array($x, $y), $radius));
+
+        return $this->operator($this->cmd . 'within', $shape);
+    }
+
+    /**
+     * Add $within criteria with a $polygon shape to the expression.
+     *
+     * Point coordinates are in x, y order (easting, northing for projected
+     * coordinates, longitude, latitude for geographic coordinates).
+     *
+     * The last point coordinate is implicitly connected with the first.
+     *
+     * @deprecated 1.1 MongoDB 2.4 deprecated $within in favor of $geoWithin
+     * @see Expr::geoWithinPolygon()
+     * @see http://docs.mongodb.org/manual/reference/operator/polygon/
+     * @param array $point,... Three or more point coordinate tuples
+     * @return self
+     * @throws InvalidArgumentException if less than three points are given
+     */
     public function withinPolygon(/* array($x1, $y1), array($x2, $y2), ... */)
     {
         if (func_num_args() < 3) {
-            throw new \InvalidArgumentException('Polygon must be defined by three points or more.');
+            throw new InvalidArgumentException('Polygon must be defined by three or more points.');
         }
 
-        if ($this->currentField) {
-            $this->query[$this->currentField][$this->cmd . 'within'][$this->cmd . 'polygon'] = func_get_args();
-        } else {
-            $this->query[$this->cmd . 'within'][$this->cmd . 'polygon'] = func_get_args();
-        }
-        return $this;
-    }
+        $shape = array($this->cmd . 'polygon' => func_get_args());
 
-    public function geoWithinPolygon(/* array(array($x1, $y1), ...), ... */)
-    {
-        $polygons = func_get_args();
-
-        foreach ($polygons as $polygon) {
-            if (count($polygon) < 4) {
-                throw new \InvalidArgumentException('Polygon must be defined by four points or more.');
-            }
-        }
-
-        if ($this->currentField) {
-            $this->query[$this->currentField][$this->cmd . 'geoWithin'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => $polygons);
-        } else {
-            $this->query[$this->cmd . 'geoWithin'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => $polygons);
-        }
-        return $this;
-    }
-
-    public function geoIntersectsPoint($x, $y)
-    {
-        if ($this->currentField) {
-            $this->query[$this->currentField][$this->cmd . 'geoIntersects'][$this->cmd . 'geometry'] = array('type' => 'Point', 'coordinates' => array($x, $y));
-        } else {
-            $this->query[$this->cmd . 'geoIntersects'][$this->cmd . 'geometry'] = array('type' => 'Point', 'coordinates' => array($x, $y));
-        }
-        return $this;
-    }
-
-    public function geoIntersectsLine(/* array($x1, $y1), array($x2, $y2), ... */)
-    {
-        if (func_num_args() < 2) {
-            throw new \InvalidArgumentException('Line must be defined by two points or more.');
-        }
-
-        if ($this->currentField) {
-            $this->query[$this->currentField][$this->cmd . 'geoIntersects'][$this->cmd . 'geometry'] = array('type' => 'LineString', 'coordinates' => func_get_args());
-        } else {
-            $this->query[$this->cmd . 'geoIntersects'][$this->cmd . 'geometry'] = array('type' => 'LineString', 'coordinates' => func_get_args());
-        }
-        return $this;
-    }
-
-    public function geoIntersectsPolygon(/* array(array($x1, $y1), ...), ... */)
-    {
-        $polygons = func_get_args();
-
-        foreach ($polygons as $polygon) {
-            if (count($polygon) < 4) {
-                throw new \InvalidArgumentException('Polygon must be defined by four points or more.');
-            }
-        }
-
-        if ($this->currentField) {
-            $this->query[$this->currentField][$this->cmd . 'geoIntersects'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => $polygons);
-        } else {
-            $this->query[$this->cmd . 'geoIntersects'][$this->cmd . 'geometry'] = array('type' => 'Polygon', 'coordinates' => $polygons);
-        }
-        return $this;
+        return $this->operator($this->cmd . 'within', $shape);
     }
 
     public function set($value, $atomic = true)

@@ -298,229 +298,64 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(1, $qb->getQueryArray());
     }
 
-    public function testNear()
+    public function testGeoNear()
     {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->near(50, 50)->maxDistance(25);
+        $qb = $this->getTestQueryBuilder();
 
-        $expected = array('loc' => array('$near' => array(50, 50), '$maxDistance' => 25));
-        $this->assertEquals($expected, $qb->getQueryArray());
+        $this->assertSame($qb, $qb->geoNear(1, 2));
+        $this->assertEquals(Query::TYPE_GEO_NEAR, $qb->getType());
+        $this->assertEquals(array('near' => array(1, 2)), $qb->debug('geoNear'));
     }
 
-    public function testWithinBox()
+    public function testDistanceMultipler()
     {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->withinBox(0, 0, 2, 2);
+        $qb = $this->getTestQueryBuilder();
+        $qb->geoNear(1, 2);
 
-        $expected = array(
-            'loc' => array(
-                '$within' => array(
-                    '$box' => array(array(0, 0), array(2, 2)),
-                ),
-            ),
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
-    }
-
-    public function testWithinCenter()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->withinCenter(0, 0, 1);
-
-        $expected = array(
-            'loc' => array(
-                '$within' => array(
-                    '$center' => array(array(0, 0), 1),
-                ),
-            ),
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
-    }
-
-    public function testWithinPolygon()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->withinPolygon(array(0, 0), array(2, 0), array(0, 2));
-
-        $expected = array(
-            'loc' => array(
-                '$within' => array(
-                    '$polygon' => array(array(0, 0), array(2, 0), array(0, 2)),
-                ),
-            ),
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
+        $this->assertSame($qb, $qb->distanceMultiplier(1));
+        $this->assertArrayHasKeyValue(array('distanceMultipler' => 1), $qb->debug('geoNear'));
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException BadMethodCallException
      */
-    public function testWithinPolygonRequiresAtLeastThreePoints()
+    public function testDistanceMultiplerRequiresGeoNearCommand()
     {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->withinPolygon(array(0, 0), array(1, 1));
+        $qb = $this->getTestQueryBuilder();
+        $qb->distanceMultiplier(1);
     }
 
-    public function testGeoWithinPolygon()
+    public function testMaxDistanceWithGeoNearCommand()
     {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->geoWithinPolygon(
-                array(array(0, 0), array(0, 10), array(10, 10), array(10, 0), array(0, 0)),
-                array(array(1, 1), array(1, 2), array(2, 2), array(2, 1), array(1, 1))
-            );
+        $qb = $this->getTestQueryBuilder();
+        $qb->geoNear(1, 2);
 
-        $expected = array(
-            'loc' => array(
-                '$geoWithin' => array(
-                    '$geometry' => array(
-                        'type' => 'Polygon',
-                        'coordinates' => array(
-                            array(array(0, 0), array(0, 10), array(10, 10), array(10, 0), array(0, 0)),
-                            array(array(1, 1), array(1, 2), array(2, 2), array(2, 1), array(1, 1)),
-                        ),
-                    ),
-                ),
-            ),
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
+        $this->assertSame($qb, $qb->maxDistance(1));
+        $this->assertArrayHasKeyValue(array('maxDistance' => 1), $qb->debug('geoNear'));
+    }
+
+    public function testSpherical()
+    {
+        $qb = $this->getTestQueryBuilder();
+        $qb->geoNear(1, 2);
+
+        $this->assertSame($qb, $qb->spherical());
+        $this->assertArrayHasKeyValue(array('spherical' => true), $qb->debug('geoNear'));
+
+        $this->assertSame($qb, $qb->spherical(false));
+        $this->assertArrayHasKeyValue(array('spherical' => false), $qb->debug('geoNear'));
+
+        $this->assertSame($qb, $qb->spherical(true));
+        $this->assertArrayHasKeyValue(array('spherical' => true), $qb->debug('geoNear'));
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException BadMethodCallException
      */
-    public function testGeoWithinPolygonRequiresAtLeastFourPoints()
+    public function testSphericalRequiresGeoNearCommand()
     {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->geoWithinPolygon(array(array(0, 0), array(1, 1), array(2, 2)));
-    }
-
-    public function testGeoWithinBox()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->geoWithinBox(0, 0, 2, 2);
-
-        $expected = array(
-            'loc' => array(
-                '$geoWithin' => array(
-                    '$geometry' => array(
-                        'type' => 'Polygon',
-                        'coordinates' => array(array(
-                            array(0, 0),
-                            array(0, 2),
-                            array(2, 2),
-                            array(2, 0),
-                            array(0, 0),
-                        )),
-                    ),
-                ),
-            ),
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
-    }
-
-    public function testGeoIntersectsPoint()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->geoIntersectsPoint(0, 0);
-
-        $expected = array(
-            'loc' => array(
-                '$geoIntersects' => array(
-                    '$geometry' => array(
-                        'type' => 'Point',
-                        'coordinates' => array(0, 0),
-                    ),
-                ),
-            ),
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
-    }
-
-    public function testGeoIntersectsLine()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->geoIntersectsLine(array(0, 0), array(2, 0));
-
-        $expected = array(
-            'loc' => array(
-                '$geoIntersects' => array(
-                    '$geometry' => array(
-                        'type' => 'LineString',
-                        'coordinates' => array(
-                            array(0, 0),
-                            array(2, 0),
-                        ),
-                    ),
-                ),
-            ),
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testGeoIntersectsLineRequiresAtLeastTwoPoints()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->geoIntersectsLine(array(0, 0));
-    }
-
-    public function testGeoIntersectsPolygon()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->geoIntersectsPolygon(
-                array(array(0, 0), array(0, 10), array(10, 10), array(10, 0), array(0, 0)),
-                array(array(1, 1), array(1, 2), array(2, 2), array(2, 1), array(1, 1))
-            );
-
-        $expected = array(
-            'loc' => array(
-                '$geoIntersects' => array(
-                    '$geometry' => array(
-                        'type' => 'Polygon',
-                        'coordinates' => array(
-                            array(array(0, 0), array(0, 10), array(10, 10), array(10, 0), array(0, 0)),
-                            array(array(1, 1), array(1, 2), array(2, 2), array(2, 1), array(1, 1)),
-                        ),
-                    ),
-                ),
-            ),
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testGeoIntersectsPolygonRequiresAtLeastFourPoints()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->geoIntersectsPolygon(array(array(0, 0), array(1, 1), array(2, 2)));
-    }
-
-    public function testGeoIntersectsBox()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->geoIntersectsBox(0, 0, 2, 2);
-
-        $expected = array(
-            'loc' => array(
-                '$geoIntersects' => array(
-                    '$geometry' => array(
-                        'type' => 'Polygon',
-                        'coordinates' => array(array(
-                            array(0, 0),
-                            array(0, 2),
-                            array(2, 2),
-                            array(2, 0),
-                            array(0, 0),
-                        )),
-                    ),
-                ),
-            ),
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
+        $qb = $this->getTestQueryBuilder();
+        $qb->spherical();
     }
 
     /**
@@ -642,5 +477,13 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         return $this->getMockBuilder('Doctrine\MongoDB\Database')
             ->disableOriginalConstructor()
             ->getMock();
+    }
+
+    private function assertArrayHasKeyValue($expected, $array, $message = '')
+    {
+        foreach ((array) $expected as $key => $value) {
+            $this->assertArrayHasKey($key, $expected, $message);
+            $this->assertEquals($value, $expected[$key], $message);
+        }
     }
 }
