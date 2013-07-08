@@ -39,13 +39,13 @@ class LoggableCursor extends Cursor implements Loggable
     /**
      * Create a new LoggableCursor, which wraps around a given PHP MongoCursor.
      *
-     * @param Connection  $connection     Connection used to create this cursor
-     * @param Collection  $collection     Collection used to create this cursor
-     * @param MongoCursor $mongoCursor    Cursor being wrapped
-     * @param callable    $loggerCallable Logger callable
-     * @param array       $query          Query criteria
-     * @param array       $fields         Selected fields (projection)
-     * @param integer     $numRetries     Number of times to retry queries
+     * @param Connection   $connection     Connection used to create this cursor
+     * @param Collection   $collection     Collection used to create this cursor
+     * @param \MongoCursor $mongoCursor    Cursor being wrapped
+     * @param callable     $loggerCallable Logger callable
+     * @param array        $query          Query criteria
+     * @param array        $fields         Selected fields (projection)
+     * @param integer      $numRetries     Number of times to retry queries
      */
     public function __construct(Connection $connection, Collection $collection, \MongoCursor $mongoCursor, $loggerCallable, array $query, array $fields, $numRetries = 0)
     {

@@ -47,7 +47,7 @@ class LoggableDatabase extends Database implements Loggable
      * @param EventManager $evm  The EventManager instance.
      * @param string $cmd  The MongoDB cmd character.
      * @param mixed $numRetries Number of times to retry queries.
-     * @param Closure $loggerCallable  Logger callback function.
+     * @param \Closure $loggerCallable  Logger callback function.
      */
     public function __construct(Connection $connection, $name, EventManager $evm, $cmd, $numRetries, $loggerCallable)
     {

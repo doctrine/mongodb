@@ -90,7 +90,7 @@ class Builder
     /**
      * Holds a Query\Expr instance used for generating query expressions using the operators.
      *
-     * @var Query\Expr $expr
+     * @var Expr $expr
      */
     protected $expr;
 
@@ -277,7 +277,7 @@ class Builder
      *
      * @param mixed $keys
      * @param array $initial
-     * @param string|MongoCode $reduce
+     * @param string|\MongoCode $reduce
      * @param array $options
      * @return Builder
      */
@@ -738,8 +738,8 @@ class Builder
     /**
      * Specify a map reduce operation for this query.
      *
-     * @param string|MongoCode $map
-     * @param string|MongoCode $reduce
+     * @param string|\MongoCode $map
+     * @param string|\MongoCode $reduce
      * @param array $out
      * @param array $options
      * @return Builder
@@ -759,7 +759,7 @@ class Builder
     /**
      * Specify a map operation for this query.
      *
-     * @param string|MongoCode $map
+     * @param string|\MongoCode $map
      * @return Builder
      */
     public function map($map)
@@ -772,9 +772,9 @@ class Builder
     /**
      * Specify a reduce operation for this query.
      *
-     * @param string|MongoCode $reduce
+     * @param string|\MongoCode $reduce
      * @return Builder
-     * @throws BadMethodCallException if the query type is unsupported
+     * @throws \BadMethodCallException if the query type is unsupported
      */
     public function reduce($reduce)
     {
@@ -797,7 +797,7 @@ class Builder
     /**
      * Specify a finalize operation for this query.
      *
-     * @param string|MongoCode $finalize
+     * @param string|\MongoCode $finalize
      * @return Builder
      */
     public function finalize($finalize)
@@ -1032,7 +1032,7 @@ class Builder
      *         ->addNor($qb->expr()->field('first_name')->equals('Kris'))
      *         ->addNor($qb->expr()->field('first_name')->equals('Chris'));
      *
-     * @param array|QueryBuilder $expression
+     * @param array|Builder $expression
      * @return Query
      */
     public function addNor($expression)
