@@ -50,7 +50,7 @@ class LoggableCollection extends Collection implements Loggable
      * @param Database $database The Database instance.
      * @param EventManager $evm The EventManager instance.
      * @param string $cmd Mongo cmd character.
-     * @param Closure $loggerCallable The logger callable.
+     * @param \Closure $loggerCallable The logger callable.
      * @param boolean|integer $numRetries Number of times to retry queries.
      */
     public function __construct(Connection $connection, $name, Database $database, EventManager $evm, $cmd, $loggerCallable, $numRetries = 0)

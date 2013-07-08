@@ -45,7 +45,7 @@ class Collection
     /**
      * The Doctrine Connection object.
      *
-     * @var Doctrine\MongoDB\Connection
+     * @var \Doctrine\MongoDB\Connection
      */
     protected $connection;
 
@@ -66,7 +66,7 @@ class Collection
     /**
      * The event manager that is the central point of the event system.
      *
-     * @var Doctrine\Common\EventManager
+     * @var \Doctrine\Common\EventManager
      */
     protected $eventManager;
 

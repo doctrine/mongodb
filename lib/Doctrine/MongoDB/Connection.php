@@ -33,7 +33,7 @@ use Doctrine\Common\EventManager,
 class Connection
 {
     /**
-     * @var MongoClient $mongo
+     * @var \MongoClient $mongo
      */
     protected $mongo;
 
@@ -48,14 +48,14 @@ class Connection
     protected $options = array();
 
     /**
-     * @var Doctrine\MongoDB\Configuration
+     * @var \Doctrine\MongoDB\Configuration
      */
     protected $config;
 
     /**
      * The event manager that is the central point of the event system.
      *
-     * @var Doctrine\Common\EventManager
+     * @var \Doctrine\Common\EventManager
      */
     protected $eventManager;
 
@@ -153,7 +153,7 @@ class Connection
     /**
      * Set the PHP MongoClient instance to wrap.
      *
-     * @param MongoClient $mongo The PHP Mongo instance
+     * @param \MongoClient $mongo The PHP Mongo instance
      */
     public function setMongo($mongo)
     {
@@ -167,7 +167,7 @@ class Connection
     /**
      * Returns the PHP Mongo instance being wrapped.
      *
-     * @return MongoClient
+     * @return \MongoClient
      */
     public function getMongo()
     {
@@ -177,7 +177,7 @@ class Connection
     /**
      * Gets the EventManager used by the Connection.
      *
-     * @return Doctrine\Common\EventManager
+     * @return \Doctrine\Common\EventManager
      */
     public function getEventManager()
     {
@@ -187,7 +187,7 @@ class Connection
     /**
      * Gets the Configuration used by the Connection.
      *
-     * @return Doctrine\MongoDB\Configuration
+     * @return \Doctrine\MongoDB\Configuration
      */
     public function getConfiguration()
     {

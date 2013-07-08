@@ -37,7 +37,7 @@ class Database
     /**
      * Doctrine mongodb connection instance.
      *
-     * @var Doctrine\MongoDB\Connection
+     * @var \Doctrine\MongoDB\Connection
      */
     protected $connection;
 
@@ -51,7 +51,7 @@ class Database
     /**
      * The event manager that is the central point of the event system.
      *
-     * @var Doctrine\Common\EventManager
+     * @var \Doctrine\Common\EventManager
      */
     protected $eventManager;
 
@@ -100,7 +100,7 @@ class Database
     /**
      * Get the MongoDB instance being wrapped.
      *
-     * @return MongoDB $mongoDB
+     * @return \MongoDB $mongoDB
      */
     public function getMongoDB()
     {
