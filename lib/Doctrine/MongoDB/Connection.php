@@ -19,58 +19,69 @@
 
 namespace Doctrine\MongoDB;
 
-use Doctrine\Common\EventManager,
-    Doctrine\MongoDB\Event\EventArgs;
+use Doctrine\Common\EventManager;
+use Doctrine\MongoDB\Event\EventArgs;
 
 /**
  * Wrapper for the PHP MongoClient class.
  *
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
- * @link        www.doctrine-project.org
- * @since       1.0
- * @author      Jonathan H. Wage <jonwage@gmail.com>
+ * @since  1.0
+ * @author Jonathan H. Wage <jonwage@gmail.com>
  */
 class Connection
 {
     /**
-     * @var \MongoClient $mongo
+     * The PHP MongoClient instance being wrapped.
+     *
+     * @var \MongoClient
      */
     protected $mongo;
 
     /**
-     * @var string $server
+     * Server string used to construct the MongoClient instance (optional).
+     *
+     * @var string
      */
     protected $server;
 
     /**
-     * @var array $options
+     * Options used to construct the MongoClient instance (optional).
+     *
+     * @var array
      */
     protected $options = array();
 
     /**
-     * @var \Doctrine\MongoDB\Configuration
+     * The Configuration for this connection.
+     *
+     * @var Configuration
      */
     protected $config;
 
     /**
-     * The event manager that is the central point of the event system.
+     * The EventManager used to dispatch events.
      *
      * @var \Doctrine\Common\EventManager
      */
     protected $eventManager;
 
     /**
-     * Mongo command prefix
+     * MongoDB command prefix.
      *
      * @var string
      */
     protected $cmd;
 
     /**
-     * Create a new MongoClient wrapper instance.
+     * Constructor.
      *
-     * @param mixed $server A string server name, an existing MongoClient or Mongo instance, or null
-     * @param array $options
+     * If $server is an existing MongoClient instance, the $options parameter
+     * will not be used.
+     *
+     * @param string|\MongoClient $server  Server string or MongoClient instance
+     * @param array               $options MongoClient constructor options
+     * @param Configuration       $config  Configuration instance
+     * @param EventManager        $evm     EventManager instance
      */
     public function __construct($server = null, array $options = array(), Configuration $config = null, EventManager $evm = null)
     {
@@ -85,6 +96,13 @@ class Connection
         $this->cmd = $this->config->getMongoCmd();
     }
 
+    /**
+     * Construct a new MongoClient instance.
+     *
+     * This method will dispatch preConnect and postConnect events.
+     *
+     * @param boolean $reinitialize
+     */
     public function initialize($reinitialize = false)
     {
         if ($reinitialize === true || $this->mongo === null) {
@@ -109,7 +127,7 @@ class Connection
     }
 
     /**
-     * Returns current server string if one was set.
+     * Get the server string.
      *
      * @return string|null
      */
@@ -119,7 +137,7 @@ class Connection
     }
 
     /**
-     * Gets the status of the connection.
+     * Gets the $status property of the wrapped MongoClient instance.
      *
      * @return string
      */
@@ -139,9 +157,9 @@ class Connection
     }
 
     /**
-     * Log something using the configured logger callable.
+     * Log something using the configured logger callable (if available).
      *
-     * @param array $log The array of data to log.
+     * @param array $log
      */
     public function log(array $log)
     {
@@ -153,7 +171,7 @@ class Connection
     /**
      * Set the PHP MongoClient instance to wrap.
      *
-     * @param \MongoClient $mongo The PHP Mongo instance
+     * @param \MongoClient $mongo
      */
     public function setMongo($mongo)
     {
@@ -165,7 +183,7 @@ class Connection
     }
 
     /**
-     * Returns the PHP Mongo instance being wrapped.
+     * Get the PHP MongoClient instance being wrapped.
      *
      * @return \MongoClient
      */
@@ -175,7 +193,7 @@ class Connection
     }
 
     /**
-     * Gets the EventManager used by the Connection.
+     * Get the EventManager used by this Connection.
      *
      * @return \Doctrine\Common\EventManager
      */
@@ -185,21 +203,33 @@ class Connection
     }
 
     /**
-     * Gets the Configuration used by the Connection.
+     * Get the Configuration used by this Connection.
      *
-     * @return \Doctrine\MongoDB\Configuration
+     * @return Configuration
      */
     public function getConfiguration()
     {
         return $this->config;
     }
 
+    /**
+     * Wrapper method for MongoClient::close().
+     *
+     * @see http://php.net/manual/en/mongoclient.close.php
+     * @return boolean
+     */
     public function close()
     {
         $this->initialize();
         return $this->mongo->close();
     }
 
+    /**
+     * Wrapper method for MongoClient::connect().
+     *
+     * @see http://php.net/manual/en/mongoclient.connect.php
+     * @return boolean
+     */
     public function connect()
     {
         $this->initialize();
@@ -210,6 +240,15 @@ class Connection
         });
     }
 
+    /**
+     * Wrapper method for MongoClient::dropDB().
+     *
+     * This method will dispatch preDropDatabase and postDropDatabase events.
+     *
+     * @see http://php.net/manual/en/mongoclient.dropdb.php
+     * @param string $database
+     * @return array
+     */
     public function dropDatabase($database)
     {
         if ($this->eventManager->hasListeners(Events::preDropDatabase)) {
@@ -226,24 +265,55 @@ class Connection
         return $result;
     }
 
-    public function __get($key)
+    /**
+     * Wrapper method for MongoClient::__get().
+     *
+     * @see http://php.net/manual/en/mongoclient.get.php
+     * @param string $database
+     * @return \MongoDB
+     */
+    public function __get($database)
     {
         $this->initialize();
-        return $this->mongo->$key;
+        return $this->mongo->$database;
     }
 
+    /**
+     * Wrapper method for MongoClient::listDBs().
+     *
+     * @see http://php.net/manual/en/mongoclient.listdbs.php
+     * @return array
+     */
     public function listDatabases()
     {
         $this->initialize();
         return $this->mongo->listDBs();
     }
 
+    /**
+     * Wrapper method for MongoClient::selectCollection().
+     *
+     * @see http://php.net/manual/en/mongoclient.selectcollection.php
+     * @param string $db
+     * @param string $collection
+     * @return Collection
+     */
     public function selectCollection($db, $collection)
     {
         $this->initialize();
         return $this->selectDatabase($db)->selectCollection($collection);
     }
 
+    /**
+     * Wrapper method for MongoClient::selectDatabase().
+     *
+     * This method will dispatch preSelectDatabase and postSelectDatabase
+     * events.
+     *
+     * @see http://php.net/manual/en/mongoclient.selectdatabase.php
+     * @param string $name
+     * @return Database
+     */
     public function selectDatabase($name)
     {
         if ($this->eventManager->hasListeners(Events::preSelectDatabase)) {
@@ -260,11 +330,25 @@ class Connection
         return $database;
     }
 
+    /**
+     * Wrapper method for MongoClient::getReadPreference().
+     *
+     * @see http://php.net/manual/en/mongoclient.getreadpreference.php
+     * @return array
+     */
     public function getReadPreference()
     {
         return $this->mongo->getReadPreference();
     }
 
+    /**
+     * Wrapper method for MongoClient::setReadPreference().
+     *
+     * @see http://php.net/manual/en/mongoclient.setreadpreference.php
+     * @param string $readPreference
+     * @param array  $tags
+     * @return boolean
+     */
     public function setReadPreference($readPreference, array $tags = null)
     {
         if (isset($tags)) {
@@ -275,10 +359,12 @@ class Connection
     }
 
     /**
-     * Method which creates a Doctrine\MongoDB\Database instance.
+     * Creates a Database instance.
+     *
+     * If a logger callable was defined, a LoggableDatabase will be returned.
      *
      * @param string $name
-     * @return Database $database
+     * @return Database
      */
     protected function wrapDatabase($name)
     {
@@ -288,11 +374,18 @@ class Connection
                 $this, $name, $this->eventManager, $this->cmd, $numRetries, $this->config->getLoggerCallable()
             );
         }
-        return new Database(
-            $this, $name, $this->eventManager, $this->cmd, $numRetries
-        );
+        return new Database($this, $name, $this->eventManager, $this->cmd, $numRetries);
     }
 
+    /**
+     * Conditionally retry a closure if it yields an exception.
+     *
+     * If the closure does not return successfully within the configured number
+     * of retries, its first exception will be thrown.
+     *
+     * @param \Closure $retry
+     * @return mixed
+     */
     protected function retry(\Closure $retry)
     {
         if (!$numRetries = $this->config->getRetryConnect()) {
@@ -316,6 +409,12 @@ class Connection
         throw $e;
     }
 
+    /**
+     * Wrapper method for MongoClient::__toString().
+     *
+     * @see http://php.net/manual/en/mongoclient.tostring.php
+     * @return string
+     */
     public function __toString()
     {
         $this->initialize();

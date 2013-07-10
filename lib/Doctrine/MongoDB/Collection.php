@@ -41,28 +41,28 @@ use Doctrine\MongoDB\Util\ReadPreference;
 class Collection
 {
     /**
-     * The Doctrine Connection object.
+     * The Connection instance used to create Cursors.
      *
      * @var Connection
      */
     protected $connection;
 
     /**
-     * The name of the collection.
+     * The collection name.
      *
      * @var string $name
      */
     protected $name;
 
     /**
-     * The Database instance this collection belongs to.
+     * The Database instance to which this collection belongs.
      *
      * @var Database
      */
     protected $database;
 
     /**
-     * The Doctrine EventManager used to dispatch events.
+     * The EventManager used to dispatch events.
      *
      * @var \Doctrine\Common\EventManager
      */
@@ -85,12 +85,12 @@ class Collection
     /**
      * Constructor.
      *
-     * @param Connection $connection The Doctrine Connection instance.
-     * @param string $name The name of the collection.
-     * @param Database $database The Database instance.
-     * @param EventManager $evm The EventManager instance.
-     * @param string $cmd Mongo cmd character.
-     * @param boolean|integer $numRetries Number of times to retry queries.
+     * @param Connection      $connection Connection used to create Cursors
+     * @param string          $name       The collection name
+     * @param Database        $database   Database to which this collection belongs
+     * @param EventManager    $evm        EventManager instance
+     * @param string          $cmd        MongoDB command prefix
+     * @param boolean|integer $numRetries Number of times to retry queries
      */
     public function __construct(Connection $connection, $name, Database $database, EventManager $evm, $cmd, $numRetries = 0)
     {
@@ -113,7 +113,7 @@ class Collection
     }
 
     /**
-     * Returns the wrapped MongoCollection instance.
+     * Return a new MongoCollection instance for this collection.
      *
      * @return \MongoCollection
      */
@@ -207,7 +207,12 @@ class Collection
     }
 
     /**
+     * Execute the aggregate command.
+     *
      * @see Collection::aggregate()
+     * @param array $pipeline
+     * @return ArrayIterator
+     * @throws \RuntimeException if the command fails
      */
     protected function doAggregate(array $pipeline)
     {
@@ -255,7 +260,12 @@ class Collection
     }
 
     /**
+     * Execute the batchInsert query.
+     *
      * @see Collection::batchInsert()
+     * @param array $a
+     * @param array $options
+     * @return array|boolean
      */
     protected function doBatchInsert(array &$a, array $options = array())
     {
@@ -289,7 +299,13 @@ class Collection
     }
 
     /**
+     * Execute the update query.
+     *
      * @see Collection::update()
+     * @param array $query
+     * @param array $newObj
+     * @param array $options
+     * @return array|boolean
      */
     protected function doUpdate($query, array $newObj, array $options)
     {
@@ -345,7 +361,12 @@ class Collection
     }
 
     /**
+     * Execute the find query.
+     *
      * @see Collection::find()
+     * @param array $query
+     * @param array $fields
+     * @return Cursor
      */
     protected function doFind(array $query, array $fields)
     {
@@ -397,7 +418,12 @@ class Collection
     }
 
     /**
+     * Execute the findOne query.
+     *
      * @see Collection::findOne()
+     * @param array $query
+     * @param array $fields
+     * @return array|null
      */
     protected function doFindOne(array $query, array $fields)
     {
@@ -435,7 +461,12 @@ class Collection
     }
 
     /**
+     * Execute the findAndModify command with the remove option.
+     *
      * @see Collection::findAndRemove()
+     * @param array $query
+     * @param array $options
+     * @return array|null
      */
     protected function doFindAndRemove(array $query, array $options = array())
     {
@@ -479,7 +510,13 @@ class Collection
     }
 
     /**
+     * Execute the findAndModify command with the update option.
+     *
      * @see Collection::findAndUpdate()
+     * @param array $query
+     * @param array $newObj
+     * @param array $options
+     * @return array|null
      */
     protected function doFindAndUpdate(array $query, array $newObj, array $options)
     {
@@ -522,7 +559,13 @@ class Collection
     }
 
     /**
+     * Execute the geoNear command.
+     *
      * @see Collection::near()
+     * @param array $near
+     * @param array $query
+     * @param array $options
+     * @return ArrayIterator
      */
     protected function doNear(array $near, array $query, array $options)
     {
@@ -572,7 +615,13 @@ class Collection
     }
 
     /**
+     * Execute the distinct command.
+     *
      * @see Collection::distinct()
+     * @param array $field
+     * @param array $query
+     * @param array $options
+     * @return ArrayIterator
      */
     protected function doDistinct($field, array $query, array $options)
     {
@@ -620,7 +669,15 @@ class Collection
     }
 
     /**
+     * Execute the mapReduce command.
+     *
      * @see Collection::mapReduce()
+     * @param string|\MongoCode $map
+     * @param string|\MongoCode $reduce
+     * @param array             $out
+     * @param array             $query
+     * @param array             $options
+     * @return ArrayIterator
      */
     protected function doMapReduce($map, $reduce, array $out, array $query, array $options)
     {
@@ -692,7 +749,11 @@ class Collection
     }
 
     /**
+     * Creates a database reference.
+     *
      * @see Collection::createDBRef()
+     * @param array $a
+     * @return array
      */
     protected function doCreateDBRef(array $a)
     {
@@ -747,7 +808,10 @@ class Collection
     }
 
     /**
+     * Drops the collection.
+     *
      * @see Collection::drop()
+     * @return array
      */
     protected function doDrop()
     {
@@ -806,7 +870,11 @@ class Collection
     }
 
     /**
+     * Resolves a database reference.
+     *
      * @see Collection::getDBRef()
+     * @param array $reference
+     * @return array|null
      */
     protected function doGetDBRef(array $reference)
     {
@@ -847,7 +915,14 @@ class Collection
     }
 
     /**
+     * Execute the group command.
+     *
      * @see Collection::group()
+     * @param string|array|\MongoCode $keys
+     * @param array                   $initial
+     * @param string|\MongoCode       $reduce
+     * @param array                   $options
+     * @return ArrayIterator
      */
     protected function doGroup($keys, array $initial, $reduce, array $options)
     {
@@ -900,7 +975,12 @@ class Collection
     }
 
     /**
+     * Execute the insert query.
+     *
      * @see Collection::insert()
+     * @param array $a
+     * @param array $options
+     * @return array|boolean
      */
     protected function doInsert(array &$a, array $options)
     {
@@ -938,7 +1018,12 @@ class Collection
     }
 
     /**
+     * Execute the remove query.
+     *
      * @see Collection::remove()
+     * @param array $query
+     * @param array $options
+     * @return array|boolean
      */
     protected function doRemove(array $query, array $options)
     {
@@ -973,7 +1058,12 @@ class Collection
     }
 
     /**
+     * Execute the save query.
+     *
      * @see Collection::save()
+     * @param array $a
+     * @param array $options
+     * @return array|boolean
      */
     protected function doSave(array &$a, array $options)
     {
