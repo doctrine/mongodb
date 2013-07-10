@@ -20,19 +20,17 @@
 namespace Doctrine\MongoDB;
 
 /**
- * Loggable interface
+ * Loggable interface.
  *
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
- * @link        www.doctrine-project.org
- * @since       1.0
- * @author      Bulat Shakirzyanov <mallluhuct@gmail.com>
+ * @since  1.0
+ * @author Bulat Shakirzyanov <mallluhuct@gmail.com>
  */
 interface Loggable
 {
     /**
      * Log something using the configured logger callable.
      *
-     * @param array $log The array of data to log.
+     * @param array $log
      */
-    function log(array $log);
+    public function log(array $log);
 }
