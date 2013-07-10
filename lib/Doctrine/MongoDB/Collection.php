@@ -34,18 +34,16 @@ use Doctrine\MongoDB\Util\ReadPreference;
 /**
  * Wrapper for the PHP MongoCollection class.
  *
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
- * @link        www.doctrine-project.org
- * @since       1.0
- * @author      Jonathan H. Wage <jonwage@gmail.com>
- * @author      Bulat Shakirzyanov <mallluhuct@gmail.com>
+ * @since  1.0
+ * @author Jonathan H. Wage <jonwage@gmail.com>
+ * @author Bulat Shakirzyanov <mallluhuct@gmail.com>
  */
 class Collection
 {
     /**
      * The Doctrine Connection object.
      *
-     * @var \Doctrine\MongoDB\Connection
+     * @var Connection
      */
     protected $connection;
 
@@ -64,14 +62,14 @@ class Collection
     protected $database;
 
     /**
-     * The event manager that is the central point of the event system.
+     * The Doctrine EventManager used to dispatch events.
      *
      * @var \Doctrine\Common\EventManager
      */
     protected $eventManager;
 
     /**
-     * Mongo command prefix
+     * MongoDB command prefix.
      *
      * @var string
      */
@@ -80,13 +78,12 @@ class Collection
     /**
      * Number of times to retry queries.
      *
-     * @var mixed
+     * @var integer
      */
     protected $numRetries;
 
     /**
-     * Create a new MongoCollection instance that wraps a PHP MongoCollection instance
-     * for a given ClassMetadata instance.
+     * Constructor.
      *
      * @param Connection $connection The Doctrine Connection instance.
      * @param string $name The name of the collection.
@@ -105,6 +102,11 @@ class Collection
         $this->numRetries = (integer) $numRetries;
     }
 
+    /**
+     * Return the name of this collection.
+     *
+     * @return string
+     */
     public function getName()
     {
         return $this->name;
@@ -121,25 +123,31 @@ class Collection
     }
 
     /**
-     * Gets the database this collection belongs to.
+     * Gets the database for this collection.
      *
-     * @return Database $database
+     * @return Database
      */
     public function getDatabase()
     {
         return $this->database;
     }
 
+    /**
+     * Wrapper method for MongoCollection::getIndexInfo().
+     *
+     * @see http://php.net/manual/en/mongocollection.getindexinfo.php
+     * @return array
+     */
     public function getIndexInfo()
     {
         return $this->getMongoCollection()->getIndexInfo();
     }
 
     /**
-     * Check if a given field name is indexed in mongodb.
+     * Check if a given field name is indexed in MongoDB.
      *
      * @param string $fieldName
-     * @return bool
+     * @return boolean
      */
     public function isFieldIndexed($fieldName)
     {
@@ -153,16 +161,26 @@ class Collection
     }
 
     /**
-     * Creates a new query builder instnce.
+     * Creates a new query builder instance.
      *
-     * @return Query\Builder $qb
+     * @return \Doctrine\MongoDB\Query\Builder
      */
     public function createQueryBuilder()
     {
         return new Query\Builder($this->database, $this, $this->cmd);
     }
 
-    /** @override */
+    /**
+     * Invokes the aggregate command.
+     *
+     * This method will dispatch preAggregate and postAggregate events.
+     *
+     * @see http://php.net/manual/en/mongocollection.aggregate.php
+     * @see http://docs.mongodb.org/manual/reference/command/aggregate/
+     * @param array $pipeline Array of pipeline operators, or the first operator
+     * @param array $op,...   Additional operators (if $pipeline was the first)
+     * @return ArrayIterator
+     */
     public function aggregate(array $pipeline /* , array $op, ... */)
     {
         /* If the single array argument contains a zeroth index, consider it an
@@ -188,6 +206,9 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::aggregate()
+     */
     protected function doAggregate(array $pipeline)
     {
         $command = array();
@@ -206,7 +227,16 @@ class Collection
         return new ArrayIterator(isset($result['result']) ? $result['result'] : array());
     }
 
-    /** @override */
+    /**
+     * Wrapper method for MongoCollection::batchInsert().
+     *
+     * This method will dispatch preBatchInsert and postBatchInsert events.
+     *
+     * @see http://php.net/manual/en/mongocollection.batchinsert.php
+     * @param array $a       Array of documents (arrays/objects) to insert
+     * @param array $options
+     * @return array|boolean
+     */
     public function batchInsert(array &$a, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preBatchInsert)) {
@@ -224,12 +254,25 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::batchInsert()
+     */
     protected function doBatchInsert(array &$a, array $options = array())
     {
         return $this->getMongoCollection()->batchInsert($a, $options);
     }
 
-    /** @override */
+    /**
+     * Wrapper method for MongoCollection::update().
+     *
+     * This method will dispatch preUpdate and postUpdate events.
+     *
+     * @see http://php.net/manual/en/mongocollection.update.php
+     * @param array $query
+     * @param array $newObj
+     * @param array $options
+     * @return array|boolean
+     */
     public function update($query, array $newObj, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preUpdate)) {
@@ -245,6 +288,9 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::update()
+     */
     protected function doUpdate($query, array $newObj, array $options)
     {
         if (is_scalar($query)) {
@@ -253,13 +299,34 @@ class Collection
         return $this->getMongoCollection()->update($query, $newObj, $options);
     }
 
+    /**
+     * Invokes {@link Collection::update()} with the upsert option.
+     *
+     * This method will dispatch preUpdate and postUpdate events.
+     *
+     * @see Collection::update()
+     * @see http://php.net/manual/en/mongocollection.update.php
+     * @param array $query
+     * @param array $newObj
+     * @param array $options
+     * @return array|boolean
+     */
     public function upsert($query, array $newObj, array $options = array())
     {
         $options['upsert'] = true;
         return $this->update($query, $newObj, $options);
     }
 
-    /** @override */
+    /**
+     * Wrapper method for MongoCollection::find().
+     *
+     * This method will dispatch preFind and postFind events.
+     *
+     * @see http://php.net/manual/en/mongocollection.find.php
+     * @param array $query
+     * @param array $fields
+     * @return Cursor
+     */
     public function find(array $query = array(), array $fields = array())
     {
         if ($this->eventManager->hasListeners(Events::preFind)) {
@@ -277,6 +344,9 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::find()
+     */
     protected function doFind(array $query, array $fields)
     {
         $collection = $this;
@@ -286,12 +356,29 @@ class Collection
         return $this->wrapCursor($cursor, $query, $fields);
     }
 
+    /**
+     * Wraps a MongoCursor instance with a Cursor.
+     *
+     * @param \MongoCursor $cursor
+     * @param array        $query
+     * @param array        $fields
+     * @return Cursor
+     */
     protected function wrapCursor(\MongoCursor $cursor, $query, $fields)
     {
         return new Cursor($this->connection, $this, $cursor, $query, $fields, $this->numRetries);
     }
 
-    /** @override */
+    /**
+     * Wrapper method for MongoCollection::findOne().
+     *
+     * This method will dispatch preFindOne and postFindOne events.
+     *
+     * @see http://php.net/manual/en/mongocollection.findone.php
+     * @param array $query
+     * @param array $fields
+     * @return array|null
+     */
     public function findOne(array $query = array(), array $fields = array())
     {
         if ($this->eventManager->hasListeners(Events::preFindOne)) {
@@ -309,6 +396,9 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::findOne()
+     */
     protected function doFindOne(array $query, array $fields)
     {
         $collection = $this;
@@ -317,6 +407,16 @@ class Collection
         });
     }
 
+    /**
+     * Invokes the findAndModify command with the remove option.
+     *
+     * This method will dispatch preFindAndRemove and postFindAndRemove events.
+     *
+     * @see http://docs.mongodb.org/manual/reference/command/findAndModify/
+     * @param array $query
+     * @param array $options
+     * @return array|null
+     */
     public function findAndRemove(array $query, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preFindAndRemove)) {
@@ -334,6 +434,9 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::findAndRemove()
+     */
     protected function doFindAndRemove(array $query, array $options = array())
     {
         $command = array();
@@ -347,6 +450,17 @@ class Collection
         return isset($result['value']) ? $result['value'] : null;
     }
 
+    /**
+     * Invokes the findAndModify command with the update option.
+     *
+     * This method will dispatch preFindAndUpdate and postFindAndUpdate events.
+     *
+     * @see http://docs.mongodb.org/manual/reference/command/findAndModify/
+     * @param array $query
+     * @param array $newObj
+     * @param array $options
+     * @return array|null
+     */
     public function findAndUpdate(array $query, array $newObj, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preFindAndUpdate)) {
@@ -364,6 +478,9 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::findAndUpdate()
+     */
     protected function doFindAndUpdate(array $query, array $newObj, array $options)
     {
         $command = array();
@@ -376,6 +493,17 @@ class Collection
         return isset($result['value']) ? $result['value'] : null;
     }
 
+    /**
+     * Invokes the geoNear command.
+     *
+     * This method will dispatch preNear and postNear events.
+     *
+     * @see http://docs.mongodb.org/manual/reference/command/geoNear/
+     * @param array $near
+     * @param array $query
+     * @param array $options
+     * @return ArrayIterator
+     */
     public function near(array $near, array $query = array(), array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preNear)) {
@@ -393,6 +521,9 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::near()
+     */
     protected function doNear(array $near, array $query, array $options)
     {
         $command = array();
@@ -408,6 +539,18 @@ class Collection
         return new ArrayIterator(isset($result['results']) ? $result['results'] : array());
     }
 
+    /**
+     * Invokes the distinct command.
+     *
+     * This method will dispatch preDistinct and postDistinct events.
+     *
+     * @see http://php.net/manual/en/mongocollection.distinct.php
+     * @see http://docs.mongodb.org/manual/reference/command/distinct/
+     * @param array $field
+     * @param array $query
+     * @param array $options
+     * @return ArrayIterator
+     */
     public function distinct($field, array $query = array(), array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preDistinct)) {
@@ -428,6 +571,9 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::distinct()
+     */
     protected function doDistinct($field, array $query, array $options)
     {
         $command = array();
@@ -443,6 +589,19 @@ class Collection
         return new ArrayIterator(isset($result['values']) ? $result['values'] : array());
     }
 
+    /**
+     * Invokes the mapReduce command.
+     *
+     * This method will dispatch preMapReduce and postMapReduce events.
+     *
+     * @see http://docs.mongodb.org/manual/reference/command/mapReduce/
+     * @param string|\MongoCode $map
+     * @param string|\MongoCode $reduce
+     * @param array             $out
+     * @param array             $query
+     * @param array             $options
+     * @return ArrayIterator
+     */
     public function mapReduce($map, $reduce, array $out = array('inline' => true), array $query = array(), array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preMapReduce)) {
@@ -460,6 +619,9 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::mapReduce()
+     */
     protected function doMapReduce($map, $reduce, array $out, array $query, array $options)
     {
         if (is_string($map)) {
@@ -489,6 +651,16 @@ class Collection
         return $this->database->selectCollection($result['result'])->find();
     }
 
+    /**
+     * Invokes the count command.
+     *
+     * @see http://php.net/manual/en/mongocollection.count.php
+     * @see http://docs.mongodb.org/manual/reference/command/count/
+     * @param array   $query
+     * @param integer $limit
+     * @param integer $skip
+     * @return ArrayIterator
+     */
     public function count(array $query = array(), $limit = 0, $skip = 0)
     {
         $collection = $this;
@@ -497,6 +669,13 @@ class Collection
         });
     }
 
+    /**
+     * Wrapper method for MongoCollection::createDBRef().
+     *
+     * @see http://php.net/manual/en/mongocollection.createdbref.php
+     * @param array $a
+     * @return array
+     */
     public function createDBRef(array $a)
     {
         if ($this->eventManager->hasListeners(Events::preCreateDBRef)) {
@@ -512,21 +691,46 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::createDBRef()
+     */
     protected function doCreateDBRef(array $a)
     {
         return $this->getMongoCollection()->createDBRef($a);
     }
 
+    /**
+     * Wrapper method for MongoCollection::deleteIndex().
+     *
+     * @see http://php.net/manual/en/mongocollection.deleteindex.php
+     * @param array|string $keys
+     * @return array
+     */
     public function deleteIndex($keys)
     {
         return $this->getMongoCollection()->deleteIndex($keys);
     }
 
+    /**
+     * Wrapper method for MongoCollection::deleteIndexes().
+     *
+     * @see http://php.net/manual/en/mongocollection.deleteindexes.php
+     * @return array
+     */
     public function deleteIndexes()
     {
         return $this->getMongoCollection()->deleteIndexes();
     }
 
+    /**
+     * Wrapper method for MongoCollection::drop().
+     *
+     * This method will dispatch preDropCollection and postDropCollection
+     * events.
+     *
+     * @see http://php.net/manual/en/mongocollection.drop.php
+     * @return array
+     */
     public function drop()
     {
         if ($this->eventManager->hasListeners(Events::preDropCollection)) {
@@ -542,21 +746,48 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::drop()
+     */
     protected function doDrop()
     {
         return $this->getMongoCollection()->drop();
     }
 
+    /**
+     * Wrapper method for MongoCollection::ensureIndex().
+     *
+     * @see http://php.net/manual/en/mongocollection.ensureindex.php
+     * @param array $keys
+     * @param array $options
+     * @return array|boolean
+     */
     public function ensureIndex(array $keys, array $options = array())
     {
         return $this->getMongoCollection()->ensureIndex($keys, $options);
     }
 
+    /**
+     * Wrapper method for MongoCollection::__get().
+     *
+     * @see http://php.net/manual/en/mongocollection.get.php
+     * @param string $name
+     * @return \MongoCollection
+     */
     public function __get($name)
     {
         return $this->getMongoCollection()->__get($name);
     }
 
+    /**
+     * Wrapper method for MongoCollection::getDBRef().
+     *
+     * This method will dispatch preGetDBRef and postGetDBRef events.
+     *
+     * @see http://php.net/manual/en/mongocollection.getdbref.php
+     * @param array $reference
+     * @return array|null
+     */
     public function getDBRef(array $reference)
     {
         if ($this->eventManager->hasListeners(Events::preGetDBRef)) {
@@ -574,6 +805,9 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::getDBRef()
+     */
     protected function doGetDBRef(array $reference)
     {
         $collection = $this;
@@ -582,6 +816,19 @@ class Collection
         });
     }
 
+    /**
+     * Invokes the group command.
+     *
+     * This method will dispatch preGroup and postGroup events.
+     *
+     * @see http://www.php.net/manual/en/mongocollection.group.php
+     * @see http://docs.mongodb.org/manual/reference/command/group/
+     * @param string|array|\MongoCode $keys
+     * @param array                   $initial
+     * @param string|\MongoCode       $reduce
+     * @param array                   $options
+     * @return ArrayIterator
+     */
     public function group($keys, array $initial, $reduce, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preGroup)) {
@@ -599,6 +846,9 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::group()
+     */
     protected function doGroup($keys, array $initial, $reduce, array $options)
     {
         if (is_string($reduce)) {
@@ -623,6 +873,16 @@ class Collection
         return new ArrayIterator($result);
     }
 
+    /**
+     * Wrapper method for MongoCollection::insert().
+     *
+     * This method will dispatch preInsert and postInsert events.
+     *
+     * @see http://php.net/manual/en/mongocollection.insert.php
+     * @param array $a       Document to insert
+     * @param array $options
+     * @return array|boolean
+     */
     public function insert(array &$a, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preInsert)) {
@@ -639,6 +899,9 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::insert()
+     */
     protected function doInsert(array &$a, array $options)
     {
         $document = $a;
@@ -649,6 +912,16 @@ class Collection
         return $result;
     }
 
+    /**
+     * Wrapper method for MongoCollection::remove().
+     *
+     * This method will dispatch preRemove and postRemove events.
+     *
+     * @see http://php.net/manual/en/mongocollection.remove.php
+     * @param array $query
+     * @param array $options
+     * @return array|boolean
+     */
     public function remove(array $query, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preRemove)) {
@@ -664,11 +937,24 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::remove()
+     */
     protected function doRemove(array $query, array $options)
     {
         return $this->getMongoCollection()->remove($query, $options);
     }
 
+    /**
+     * Wrapper method for MongoCollection::save().
+     *
+     * This method will dispatch preSave and postSave events.
+     *
+     * @see http://php.net/manual/en/mongocollection.remove.php
+     * @param array $a       Document to save
+     * @param array $options
+     * @return array|boolean
+     */
     public function save(array &$a, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preSave)) {
@@ -686,6 +972,9 @@ class Collection
         return $result;
     }
 
+    /**
+     * @see Collection::save()
+     */
     protected function doSave(array &$a, array $options)
     {
         return $this->getMongoCollection()->save($a, $options);
@@ -697,6 +986,11 @@ class Collection
      * This method wraps setSlaveOkay() for driver versions before 1.3.0. For
      * newer drivers, this method wraps setReadPreference() and specifies
      * SECONDARY_PREFERRED.
+     *
+     * @see http://php.net/manual/en/mongocollection.setreadpreference.php
+     * @see http://php.net/manual/en/mongocollection.setslaveokay.php
+     * @param boolean $ok
+     * @return boolean Previous slaveOk value
      */
     public function setSlaveOkay($ok = true)
     {
@@ -724,6 +1018,10 @@ class Collection
      * This method wraps getSlaveOkay() for driver versions before 1.3.0. For
      * newer drivers, this method considers any read preference other than
      * PRIMARY as a true "slaveOkay" value.
+     *
+     * @see http://php.net/manual/en/mongocollection.getreadpreference.php
+     * @see http://php.net/manual/en/mongocollection.getslaveokay.php
+     * @return boolean
      */
     public function getSlaveOkay()
     {
@@ -740,11 +1038,25 @@ class Collection
         return \MongoClient::RP_PRIMARY !== $readPref['type'];
     }
 
+    /**
+     * Wrapper method for MongoCollection::getReadPreference().
+     *
+     * @see http://php.net/manual/en/mongocollection.getreadpreference.php
+     * @return array
+     */
     public function getReadPreference()
     {
         return $this->getMongoCollection()->getReadPreference();
     }
 
+    /**
+     * Wrapper method for MongoCollection::setReadPreference().
+     *
+     * @see http://php.net/manual/en/mongocollection.setreadpreference.php
+     * @param string $readPreference
+     * @param array  $tags
+     * @return boolean
+     */
     public function setReadPreference($readPreference, array $tags = null)
     {
         if (isset($tags)) {
@@ -754,16 +1066,40 @@ class Collection
         return $this->getMongoCollection()->setReadPreference($readPreference);
     }
 
+    /**
+     * Wrapper method for MongoCollection::validate().
+     *
+     * @see http://php.net/manual/en/mongocollection.validate.php
+     * @param string $scanData
+     * @return array
+     */
     public function validate($scanData = false)
     {
         return $this->getMongoCollection()->validate($scanData);
     }
 
+    /**
+     * Wrapper method for MongoCollection::__toString().
+     *
+     * @see http://www.php.net/manual/en/mongocollection.--tostring.php
+     * @return string
+     */
     public function __toString()
     {
         return $this->getMongoCollection()->__toString();
     }
 
+    /**
+     * Conditionally retry a closure if it yields an exception.
+     *
+     * If the closure does not return successfully within the configured number
+     * of retries, its first exception will be thrown.
+     *
+     * This method should not be used for write operations.
+     *
+     * @param \Closure $retry
+     * @return mixed
+     */
     protected function retry(\Closure $retry)
     {
         if ($this->numRetries) {
