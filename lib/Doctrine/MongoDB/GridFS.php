@@ -20,25 +20,39 @@
 namespace Doctrine\MongoDB;
 
 /**
- * Wrapper for the PHP MongoGridFS class
+ * Wrapper for the PHP MongoGridFS class.
  *
  * This class does not proxy all of the MongoGridFS methods; however, the
  * MongoGridFS object is accessible if those methods are required.
  *
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
- * @link        www.doctrine-project.org
- * @since       1.0
- * @author      Jonathan H. Wage <jonwage@gmail.com>
+ * @since  1.0
+ * @author Jonathan H. Wage <jonwage@gmail.com>
  */
 class GridFS extends Collection
 {
-    /** @override */
+    /**
+     * Return a new MongoGridFS instance for this collection.
+     *
+     * @see Collection::getMongoCollection()
+     * @return \MongoGridFS
+     */
     public function getMongoCollection()
     {
         return $this->database->getMongoDB()->getGridFS($this->name);
     }
 
-    /** @override */
+    /**
+     * Execute the findOne query.
+     *
+     * This method returns the file document, unlike the base MongoGridFS
+     * method, which returns a MongoGridFSFile instance. Instead, the document's
+     * "file" field will contain an equivalent GridFSFile instance.
+     *
+     * @see Collection::doFindOne()
+     * @param array $query
+     * @param array $fields
+     * @return array|null
+     */
     protected function doFindOne(array $query = array(), array $fields = array())
     {
         $collection = $this;
@@ -53,7 +67,15 @@ class GridFS extends Collection
         return $file;
     }
 
-    /** @override */
+    /**
+     * Execute the update query and persist its GridFSFile if necessary.
+     *
+     * @see Collection::doFindOne()
+     * @param array $query
+     * @param array $newObj
+     * @param array $options
+     * @return array|null
+     */
     protected function doUpdate($query, array $newObj, array $options = array())
     {
         if (is_scalar($query)) {
@@ -145,7 +167,13 @@ class GridFS extends Collection
         return $this->getMongoCollection()->update($query, $newObj, $options);
     }
 
-    /** @override */
+    /**
+     * Execute the batchInsert query.
+     *
+     * @see Collection::doBatchInsert()
+     * @param array $a
+     * @param array $options
+     */
     protected function doBatchInsert(array &$a, array $options = array())
     {
         foreach ($a as $key => &$array) {
@@ -153,11 +181,18 @@ class GridFS extends Collection
         }
     }
 
-    /** @override */
+    /**
+     * Execute the insert query and persist the GridFSFile if necessary.
+     *
+     * @see Collection::doInsert()
+     * @param array $a
+     * @param array $options
+     * @return mixed
+     */
     protected function doInsert(array &$a, array $options = array())
     {
         // If there is no file, perform a basic insertion
-        if (!isset($a['file'])) {
+        if ( ! isset($a['file'])) {
             parent::doInsert($a, $options);
             return;
         }
@@ -178,7 +213,14 @@ class GridFS extends Collection
         return $a;
     }
 
-    /** @override */
+    /**
+     * Execute the save query and persist the GridFSFile if necessary.
+     *
+     * @see Collection::doSave()
+     * @param array $a
+     * @param array $options
+     * @return mixed
+     */
     protected function doSave(array &$a, array $options = array())
     {
         if (isset($a['_id'])) {
@@ -189,16 +231,21 @@ class GridFS extends Collection
     }
 
     /**
-     * Store a file on the mongodb grid file system.
+     * Wrapper method for MongoGridFS::storeFile().
      *
-     * @param string|GridFSFile $file String path to a file or a GridFSFile object.
-     * @param object $document
-     * @param array $options
-     * @return GridFSFile $file
+     * This method returns the GridFSFile object, unlike the base MongoGridFS
+     * method, which returns the "_id" field of the saved document. The "_id"
+     * will be set on the $document parameter, which is passed by reference.
+     *
+     * @see http://php.net/manual/en/mongogridfs.storefile.php
+     * @param string|GridFSFile $file     String filename or a GridFSFile object
+     * @param array             $document
+     * @param array             $options
+     * @return GridFSFile
      */
     public function storeFile($file, array &$document, array $options = array())
     {
-        if (!$file instanceof GridFSFile) {
+        if ( ! $file instanceof GridFSFile) {
             $file = new GridFSFile($file);
         }
 
@@ -217,6 +264,15 @@ class GridFS extends Collection
         return $file;
     }
 
+    /**
+     * Execute the findAndModify command with the remove option and delete any
+     * chunks for the document.
+     *
+     * @see Collection::doFindAndRemove()
+     * @param array $query
+     * @param array $options
+     * @return array|null
+     */
     protected function doFindAndRemove(array $query, array $options = array())
     {
         $document = parent::doFindAndRemove($query, $options);

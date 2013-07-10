@@ -20,19 +20,18 @@
 namespace Doctrine\MongoDB;
 
 /**
- * File is a wrapper around the native PHP MongoGridFSFile class and allows you
- * to use an instance of this class to persist new files as well as represent
- * existing, already persisted files using the MongoGridFS.
+ * Wrapper for the PHP MongoGridFSFile class.
  *
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
- * @link        www.doctrine-project.com
- * @since       1.0
- * @author      Jonathan H. Wage <jonwage@gmail.com>
+ * Files may be dirty, which means that they must be persisted to the database.
+ * Clean files are assumed to be in sync with the database.
+ *
+ * @since  1.0
+ * @author Jonathan H. Wage <jonwage@gmail.com>
  */
 class GridFSFile
 {
     /**
-     * Stores \MongoGridFSFile instance.
+     * The PHP MongoGridFSFile instance being wrapped.
      *
      * @var \MongoGridFSFile
      */
@@ -53,17 +52,19 @@ class GridFSFile
     private $bytes;
 
     /**
-     * Whether or not the file is dirty and needs to be persisted.
+     * Whether or not the file is dirty (i.e in need of persistence).
      *
      * @var string
      */
     private $isDirty = false;
 
     /**
-     * Constructs a new dirty file that needs persisting or wraps an existing PHP \MongoGridFSFile
-     * instance and does not need persistence unless changed and becomes dirty.
+     * Constructor.
      *
-     * @param string|\MongoGridFSFile $file
+     * If the $file parameter is a MongoGridFSFile instance, this file will not
+     * initially be marked as dirty (i.e. in need of persistence).
+     *
+     * @param string|\MongoGridFSFile $file String filename or a GridFSFile object
      */
     public function __construct($file = null)
     {
@@ -77,7 +78,7 @@ class GridFSFile
     }
 
     /**
-     * Sets the persistent MongoGridFSFile instance
+     * Set the PHP MongoGridFSFile instance to wrap and mark the file as clean.
      *
      * @param \MongoGridFSFile $mongoGridFSFile
      */
@@ -88,7 +89,7 @@ class GridFSFile
     }
 
     /**
-     * Gets the persistent MongoGridFSFile instance
+     * Get the PHP MongoGridFSFile instance being wrapped.
      *
      * @return \MongoGridFSFile
      */
@@ -98,7 +99,7 @@ class GridFSFile
     }
 
     /**
-     * Set a new filename to be persisted and marks the file as dirty.
+     * Set the filename to be persisted and mark the file as dirty.
      *
      * @param string $filename
      */
@@ -109,22 +110,25 @@ class GridFSFile
     }
 
     /**
-     * Gets the filename for this file.
+     * Get the filename for this file.
      *
-     * @return string $filename
+     * @return string|null
      */
     public function getFilename()
     {
         if ($this->isDirty && $this->filename) {
             return $this->filename;
-        } elseif ($this->mongoGridFSFile instanceof \MongoGridFSFile && $filename = $this->mongoGridFSFile->getFilename()) {
+        }
+
+        if ($this->mongoGridFSFile instanceof \MongoGridFSFile && $filename = $this->mongoGridFSFile->getFilename()) {
             return $filename;
         }
+
         return $this->filename;
     }
 
     /**
-     * Sets new bytes to be persisted and marks the file as dirty.
+     * Set the bytes to be persisted and mark the file as dirty.
      *
      * @param string $bytes
      */
@@ -135,9 +139,9 @@ class GridFSFile
     }
 
     /**
-     * Gets the bytes for this file.
+     * Get the bytes for this file.
      *
-     * @return string $bytes
+     * @return string|null
      */
     public function getBytes()
     {
@@ -154,9 +158,9 @@ class GridFSFile
     }
 
     /**
-     * Gets the size of this file.
+     * Get the size of this file.
      *
-     * @return integer $size
+     * @return integer
      */
     public function getSize()
     {
@@ -173,10 +177,11 @@ class GridFSFile
     }
 
     /**
-     * Writes this file to the given filename path.
+     * Writes this file to the path indicated by $filename.
      *
      * @param string $filename
-     * @return boolean TRUE if successful, and FALSE otherwise.
+     * @return integer Number of bytes written
+     * @throws \BadMethodCallException if nothing can be written
      */
     public function write($filename)
     {
@@ -193,10 +198,13 @@ class GridFSFile
     }
 
     /**
-     * Check if the file is dirty or set isDirty by passing a boolean argument.
+     * Check whether the file is dirty.
+     *
+     * If $isDirty is not null, the dirty state will be set before its new value
+     * is returned.
      *
      * @param boolean $isDirty
-     * @param boolean
+     * @return boolean
      */
     public function isDirty($isDirty = null)
     {
@@ -207,7 +215,7 @@ class GridFSFile
     }
 
     /**
-     * Checks whether the file has some unpersisted bytes.
+     * Check whether there are unpersisted bytes.
      *
      * @return boolean
      */
@@ -217,7 +225,7 @@ class GridFSFile
     }
 
     /**
-     * Checks whether the file has a unpersisted file.
+     * Check whether there is an unpersisted file.
      *
      * @return boolean
      */
