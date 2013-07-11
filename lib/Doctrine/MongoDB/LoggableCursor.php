@@ -68,7 +68,7 @@ class LoggableCursor extends Cursor implements Loggable
      * Log something using the configured logger callable.
      *
      * @see Loggable::log()
-     * @param array $log
+     * @param array $data
      */
     public function log(array $data)
     {

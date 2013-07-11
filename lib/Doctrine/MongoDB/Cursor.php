@@ -655,7 +655,7 @@ class Cursor implements Iterator
      * If the closure does not return successfully within the configured number
      * of retries, its first exception will be thrown.
      *
-     * The $recreate paramater may be used to reinitialize the Connection (i.e.
+     * The $recreate parameter may be used to reinitialize the Connection (i.e.
      * recreate its MongoClient) and recreate the wrapped MongoCursor before
      * retry attempts.
      *
