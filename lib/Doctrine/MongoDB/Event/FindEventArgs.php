@@ -33,6 +33,13 @@ class FindEventArgs extends BaseEventArgs
     private $query;
     private $fields;
 
+    /**
+     * Constructor.
+     *
+     * @param object $invoker
+     * @param array  $options
+     * @param array  $fields
+     */
     public function __construct($invoker, array $query, array $fields)
     {
         $this->invoker = $invoker;

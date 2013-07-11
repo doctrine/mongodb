@@ -34,6 +34,14 @@ class UpdateEventArgs extends BaseEventArgs
     private $newObj;
     private $options;
 
+    /**
+     * Constructor.
+     *
+     * @param object $invoker
+     * @param array  $query
+     * @param array  $newObj
+     * @param array  $options
+     */
     public function __construct($invoker, array $query, array $newObj, array $options = array())
     {
         $this->invoker = $invoker;

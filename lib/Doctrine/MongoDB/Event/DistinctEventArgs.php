@@ -33,6 +33,13 @@ class DistinctEventArgs extends BaseEventArgs
     private $field;
     private $query;
 
+    /**
+     * Constructor.
+     *
+     * @param object $invoker
+     * @param string $field
+     * @param array  $query
+     */
     public function __construct($invoker, $field, array $query)
     {
         $this->invoker = $invoker;

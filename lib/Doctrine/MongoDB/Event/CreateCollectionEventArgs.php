@@ -34,17 +34,14 @@ class CreateCollectionEventArgs extends BaseEventArgs
     private $options;
 
     /**
-     * Create a collection.
+     * Constructor.
      *
-     * @todo Remove support for capped, size and max parameters in 2.0
-     * @param string        $name            Collection name
-     * @param boolean|array $cappedOrOptions Capped collection indicator or an
-     *                                       options array (for driver 1.4+)
-     * @param integer       $size            Storage size for fixed collections
-     *                                       (ignored if options array is used)
-     * @param integer       $max             Max documents for fixed collections
-     *                                       (ignored if options array is used)
-     * @return Collection
+     * @todo Remove support for separate capped, size and max parameters in 2.0
+     * @param object        $invoker
+     * @param string        $name
+     * @param boolean|array $cappedOrOptions
+     * @param integer       $size
+     * @param integer       $max
      */
     public function __construct($invoker, $name, $cappedOrOptions, $size = 0, $max = 0)
     {

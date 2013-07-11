@@ -36,6 +36,16 @@ class MapReduceEventArgs extends BaseEventArgs
     private $out;
     private $options;
 
+    /**
+     * Constructor.
+     *
+     * @param object            $invoker
+     * @param string|\MongoCode $map
+     * @param string|\MongoCode $reduce
+     * @param array             $out
+     * @param array             $query
+     * @param array             $options
+     */
     public function __construct($invoker, $map, $reduce, array $out, array $query, array $options = array())
     {
         $this->invoker = $invoker;
