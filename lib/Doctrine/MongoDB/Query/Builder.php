@@ -21,6 +21,9 @@ namespace Doctrine\MongoDB\Query;
 
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Database;
+use GeoJson\Geometry\Geometry;
+use GeoJson\Geometry\Point;
+use BadMethodCallException;
 
 /**
  * Fluent interface for building Query objects.
@@ -649,13 +652,13 @@ class Builder
      * "maxDistance" options may be set using their respective builder methods.
      * Additional query criteria will be assigned to the "query" option.
      *
-     * @param string $x
-     * @param string $y
+     * @param float $x
+     * @param float $y
      * @return self
      */
     public function geoNear($x, $y)
     {
-        $this->query['type'] = Query::TYPE_GEO_LOCATION;
+        $this->query['type'] = Query::TYPE_GEO_NEAR;
         $this->query['geoNear'] = array('near' => array($x, $y));
         return $this;
     }
@@ -663,11 +666,16 @@ class Builder
     /**
      * Set the "distanceMultiplier" option for a geoNear command query.
      *
-     * @param string $distanceMultiplier
+     * @param float $distanceMultiplier
      * @return self
+     * @throws BadMethodCallException if the query is not a $geoNear command
      */
     public function distanceMultiplier($distanceMultiplier)
     {
+        if ($this->query['type'] !== Query::TYPE_GEO_NEAR) {
+            throw new BadMethodCallException('This method requires a $geoNear command (call geoNear() first)');
+        }
+
         $this->query['geoNear']['distanceMultiplier'] = $distanceMultiplier;
         return $this;
     }
@@ -680,12 +688,21 @@ class Builder
      * "maxDistance" command option will be set; otherwise, $maxDistance will be
      * added to the current expression.
      *
-     * @param string $maxDistance
+     * If the query uses GeoJSON points, $maxDistance will be interpreted in
+     * meters. If legacy point coordinates are used, $maxDistance will be
+     * interpreted in radians.
+     *
+     * @see Expr::maxDistance()
+     * @see http://docs.mongodb.org/manual/reference/command/geoNear/
+     * @see http://docs.mongodb.org/manual/reference/operator/maxDistance/
+     * @see http://docs.mongodb.org/manual/reference/operator/near/
+     * @see http://docs.mongodb.org/manual/reference/operator/nearSphere/
+     * @param float $maxDistance
      * @return self
      */
     public function maxDistance($maxDistance)
     {
-        if (Query::TYPE_GEO_LOCATION === $this->query['type']) {
+        if (Query::TYPE_GEO_NEAR === $this->query['type']) {
             $this->query['geoNear']['maxDistance'] = $maxDistance;
         } else {
             $this->expr->maxDistance($maxDistance);
@@ -698,9 +715,14 @@ class Builder
      *
      * @param bool $spherical
      * @return self
+     * @throws BadMethodCallException if the query is not a $geoNear command
      */
     public function spherical($spherical = true)
     {
+        if ($this->query['type'] !== Query::TYPE_GEO_NEAR) {
+            throw new BadMethodCallException('This method requires a $geoNear command (call geoNear() first)');
+        }
+
         $this->query['geoNear']['spherical'] = $spherical;
         return $this;
     }
@@ -708,23 +730,52 @@ class Builder
     /**
      * Add $near criteria to the query.
      *
-     * @param string $x
-     * @param string $y
+     * A GeoJSON point may be provided as the first and only argument for
+     * 2dsphere queries. This single parameter may be a GeoJSON point object or
+     * an array corresponding to the point's JSON representation.
+     *
+     * @see Expr::near()
+     * @see http://docs.mongodb.org/manual/reference/operator/near/
+     * @param float|array|Point $x
+     * @param float $y
      * @return self
      */
-    public function near($x, $y)
+    public function near($x, $y = null)
     {
         $this->expr->near($x, $y);
         return $this;
     }
 
     /**
-     * Add $withinBox criteria to the query.
+     * Add $nearSphere criteria to the query.
      *
-     * @param string $x1
-     * @param string $y1
-     * @param string $x2
-     * @param string $y2
+     * A GeoJSON point may be provided as the first and only argument for
+     * 2dsphere queries. This single parameter may be a GeoJSON point object or
+     * an array corresponding to the point's JSON representation.
+     *
+     * @see Expr::nearSphere()
+     * @see http://docs.mongodb.org/manual/reference/operator/nearSphere/
+     * @param float|array|Point $x
+     * @param float $y
+     * @return self
+     */
+    public function nearSphere($x, $y = null)
+    {
+        $this->expr->nearSphere($x, $y);
+        return $this;
+    }
+
+    /**
+     * Add $within criteria with a $box shape to the query.
+     *
+     * @deprecated 1.1 MongoDB 2.4 deprecated $within in favor of $geoWithin
+     * @see Builder::geoWithinBox()
+     * @see Expr::withinBox()
+     * @see http://docs.mongodb.org/manual/reference/operator/box/
+     * @param float $x1
+     * @param float $y1
+     * @param float $x2
+     * @param float $y2
      * @return self
      */
     public function withinBox($x1, $y1, $x2, $y2)
@@ -734,11 +785,15 @@ class Builder
     }
 
     /**
-     * Add $withinCenter criteria to the query.
+     * Add $within criteria with a $center shape to the query.
      *
-     * @param string $x
-     * @param string $y
-     * @param string $radius
+     * @deprecated 1.1 MongoDB 2.4 deprecated $within in favor of $geoWithin
+     * @see Builder::geoWithinCenter()
+     * @see Expr::withinCenter()
+     * @see http://docs.mongodb.org/manual/reference/operator/center/
+     * @param float $x
+     * @param float $y
+     * @param float $radius
      * @return self
      */
     public function withinCenter($x, $y, $radius)
@@ -748,14 +803,157 @@ class Builder
     }
 
     /**
-     * Add $withinPolygon criteria to the query.
+     * Add $within criteria with a $centerSphere shape to the query.
      *
+     * @deprecated 1.1 MongoDB 2.4 deprecated $within in favor of $geoWithin
+     * @see Builder::geoWithinCenterSphere()
+     * @see Expr::withinCenterSphere()
+     * @see http://docs.mongodb.org/manual/reference/operator/centerSphere/
+     * @param float $x
+     * @param float $y
+     * @param float $radius
+     * @return self
+     */
+    public function withinCenterSphere($x, $y, $radius)
+    {
+        $this->expr->withinCenterSphere($x, $y, $radius);
+        return $this;
+    }
+
+    /**
+     * Add $within criteria with a $polygon shape to the query.
+     *
+     * Point coordinates are in x, y order (easting, northing for projected
+     * coordinates, longitude, latitude for geographic coordinates).
+     *
+     * The last point coordinate is implicitly connected with the first.
+     *
+     * @deprecated 1.1 MongoDB 2.4 deprecated $within in favor of $geoWithin
+     * @see Builder::geoWithinPolygon()
+     * @see Expr::withinPolygon()
+     * @see http://docs.mongodb.org/manual/reference/operator/polygon/
      * @param array $point,... Three or more point coordinate tuples
      * @return self
      */
     public function withinPolygon(/* array($x1, $y1), array($x2, $y2), ... */)
     {
         call_user_func_array(array($this->expr, 'withinPolygon'), func_get_args());
+        return $this;
+    }
+
+    /**
+     * Add $geoIntersects criteria with a GeoJSON geometry to the query.
+     *
+     * The geometry parameter GeoJSON object or an array corresponding to the
+     * geometry's JSON representation.
+     *
+     * @see Expr::geoIntersects()
+     * @see http://docs.mongodb.org/manual/reference/operator/geoIntersects/
+     * @param array|Geometry $geometry
+     * @return self
+     */
+    public function geoIntersects($geometry)
+    {
+        $this->expr->geoIntersects($geometry);
+        return $this;
+    }
+
+    /**
+     * Add $geoWithin criteria with a GeoJSON geometry to the query.
+     *
+     * The geometry parameter GeoJSON object or an array corresponding to the
+     * geometry's JSON representation.
+     *
+     * @see Expr::geoWithin()
+     * @see http://docs.mongodb.org/manual/reference/operator/geoWithin/
+     * @param array|Geometry $geometry
+     * @return self
+     */
+    public function geoWithin(Geometry $geometry)
+    {
+        $this->expr->geoWithin($geometry);
+        return $this;
+    }
+
+    /**
+     * Add $geoWithin criteria with a $box shape to the query.
+     *
+     * A rectangular polygon will be constructed from a pair of coordinates
+     * corresponding to the bottom left and top right corners.
+     *
+     * Note: the $box operator only supports legacy coordinate pairs and 2d
+     * indexes. This cannot be used with 2dsphere indexes and GeoJSON shapes.
+     *
+     * @see Expr::geoWithinBox()
+     * @see http://docs.mongodb.org/manual/reference/operator/box/
+     * @param float $x1
+     * @param float $y1
+     * @param float $x2
+     * @param float $y2
+     * @return self
+     */
+    public function geoWithinBox($x1, $y1, $x2, $y2)
+    {
+        $this->expr->geoWithinBox($x1, $y1, $x2, $y2);
+        return $this;
+    }
+
+    /**
+     * Add $geoWithin criteria with a $center shape to the query.
+     *
+     * Note: the $center operator only supports legacy coordinate pairs and 2d
+     * indexes. This cannot be used with 2dsphere indexes and GeoJSON shapes.
+     *
+     * @see Expr::geoWithinCenter()
+     * @see http://docs.mongodb.org/manual/reference/operator/center/
+     * @param float $x
+     * @param float $y
+     * @param float $radius
+     * @return self
+     */
+    public function geoWithinCenter($x, $y, $radius)
+    {
+        $this->expr->geoWithinCenter($x, $y, $radius);
+        return $this;
+    }
+
+    /**
+     * Add $geoWithin criteria with a $centerSphere shape to the query.
+     *
+     * Note: the $centerSphere operator supports both 2d and 2dsphere indexes.
+     *
+     * @see Expr::geoWithinCenterSphere()
+     * @see http://docs.mongodb.org/manual/reference/operator/centerSphere/
+     * @param float $x
+     * @param float $y
+     * @param float $radius
+     * @return self
+     */
+    public function geoWithinCenterSphere($x, $y, $radius)
+    {
+        $this->expr->geoWithinCenterSphere($x, $y, $radius);
+        return $this;
+    }
+
+    /**
+     * Add $geoWithin criteria with a $polygon shape to the query.
+     *
+     * Point coordinates are in x, y order (easting, northing for projected
+     * coordinates, longitude, latitude for geographic coordinates).
+     *
+     * The last point coordinate is implicitly connected with the first.
+     *
+     * Note: the $polygon operator only supports legacy coordinate pairs and 2d
+     * indexes. This cannot be used with 2dsphere indexes and GeoJSON shapes.
+     *
+     * @see Expr::geoWithinPolygon()
+     * @see http://docs.mongodb.org/manual/reference/operator/polygon/
+     * @param array $point,... Three or more point coordinate tuples
+     * @return self
+     */
+    public function geoWithinPolygon(/* array($x1, $y1), ... */)
+    {
+        call_user_func_array(array($this->expr, 'geoWithinPolygon'), func_get_args());
         return $this;
     }
 

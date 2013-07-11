@@ -20,6 +20,7 @@
 namespace Doctrine\MongoDB\Event;
 
 use Doctrine\Common\EventArgs as BaseEventArgs;
+use GeoJson\Geometry\Point;
 
 /**
  * Event args for the geoNear command.
@@ -37,12 +38,12 @@ class NearEventArgs extends BaseEventArgs
     /**
      * Constructor.
      *
-     * @param object $invoker
-     * @param array  $query
-     * @param array  $near
-     * @param array  $options
+     * @param object      $invoker
+     * @param array       $query
+     * @param array|Point $near
+     * @param array       $options
      */
-    public function __construct($invoker, array $query, array $near, array $options = array())
+    public function __construct($invoker, array $query, $near, array $options = array())
     {
         $this->invoker = $invoker;
         $this->near = $near;
