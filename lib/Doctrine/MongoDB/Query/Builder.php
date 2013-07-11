@@ -103,6 +103,7 @@ class Builder
      *
      * @param Database $database
      * @param Collection $collection
+     * @param string $cmd
      */
     public function __construct(Database $database, Collection $collection, $cmd)
     {
