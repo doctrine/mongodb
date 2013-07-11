@@ -23,24 +23,28 @@ namespace Doctrine\MongoDB;
  * EagerCursor wraps a Cursor instance and fetches all of its results upon
  * initialization.
  *
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
- * @link        www.doctrine-project.org
- * @since       1.0
- * @author      Jonathan H. Wage <jonwage@gmail.com>
+ * @since  1.0
+ * @author Jonathan H. Wage <jonwage@gmail.com>
  */
 class EagerCursor implements Iterator
 {
     /**
+     * The Cursor instance being wrapped.
+     *
      * @var Cursor
      */
     protected $cursor;
 
     /**
+     * The Cursor results.
+     *
      * @var array
      */
     protected $data = array();
 
     /**
+     * Whether the internal data has been initialized.
+     *
      * @var boolean
      */
     protected $initialized = false;
@@ -48,7 +52,7 @@ class EagerCursor implements Iterator
     /**
      * Constructor.
      *
-     * @param Cursor $cursor Cursor to wrap
+     * @param Cursor $cursor
      */
     public function __construct(Cursor $cursor)
     {
@@ -56,7 +60,7 @@ class EagerCursor implements Iterator
     }
 
     /**
-     * Return the wrapped cursor.
+     * Return the wrapped Cursor.
      *
      * @return Cursor
      */
@@ -76,7 +80,7 @@ class EagerCursor implements Iterator
     }
 
     /**
-     * Initialize the internal data by converting the cursor to an array.
+     * Initialize the internal data by converting the Cursor to an array.
      */
     public function initialize()
     {
@@ -87,7 +91,7 @@ class EagerCursor implements Iterator
     }
 
     /**
-     * @see \Iterator::rewind()
+     * @see http://php.net/manual/en/iterator.rewind.php
      */
     public function rewind()
     {
@@ -96,7 +100,7 @@ class EagerCursor implements Iterator
     }
 
     /**
-     * @see \Iterator::current()
+     * @see http://php.net/manual/en/iterator.current.php
      */
     public function current()
     {
@@ -105,7 +109,7 @@ class EagerCursor implements Iterator
     }
 
     /**
-     * @see \Iterator::key()
+     * @see http://php.net/manual/en/iterator.key.php
      */
     public function key()
     {
@@ -114,7 +118,7 @@ class EagerCursor implements Iterator
     }
 
     /**
-     * @see \Iterator::next()
+     * @see http://php.net/manual/en/iterator.next.php
      */
     public function next()
     {
@@ -123,7 +127,7 @@ class EagerCursor implements Iterator
     }
 
     /**
-     * @see \Iterator::valid()
+     * @see http://php.net/manual/en/iterator.valid.php
      */
     public function valid()
     {
@@ -132,7 +136,7 @@ class EagerCursor implements Iterator
     }
 
     /**
-     * @see \Countable::count()
+     * @see http://php.net/manual/en/countable.count.php
      */
     public function count()
     {

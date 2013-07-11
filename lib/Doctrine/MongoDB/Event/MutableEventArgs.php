@@ -22,10 +22,8 @@ namespace Doctrine\MongoDB\Event;
 /**
  * Mutable event args for query and command results.
  *
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
- * @link        www.doctrine-project.com
- * @since       1.1
- * @author      Jeremy Mikola <jmikola@gmail.com>
+ * @since  1.1
+ * @author Jeremy Mikola <jmikola@gmail.com>
  */
 class MutableEventArgs extends EventArgs
 {

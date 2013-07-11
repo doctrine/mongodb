@@ -26,10 +26,8 @@ namespace Doctrine\MongoDB\Util;
  * by getReadPreference() are not consistent with those expected by
  * setReadPreference(). See: https://jira.mongodb.org/browse/PHP-638.
  *
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
- * @link        www.doctrine-project.org
- * @since       1.0
- * @author      Jeremy Mikola <jmikola@gmail.com>
+ * @since  1.0
+ * @author Jeremy Mikola <jmikola@gmail.com>
  */
 final class ReadPreference
 {

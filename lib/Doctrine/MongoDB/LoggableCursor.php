@@ -20,28 +20,26 @@
 namespace Doctrine\MongoDB;
 
 /**
- * Wrapper for the PHP MongoCursor class.
+ * Wrapper for the PHP MongoCursor class with logging functionality.
  *
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
- * @link        www.doctrine-project.org
- * @since       1.0
- * @author      Jonathan H. Wage <jonwage@gmail.com>
+ * @since  1.0
+ * @author Jonathan H. Wage <jonwage@gmail.com>
  */
 class LoggableCursor extends Cursor implements Loggable
 {
     /**
-     * A callable for logging statements.
+     * The logger callable.
      *
      * @var callable
      */
     protected $loggerCallable;
 
     /**
-     * Create a new LoggableCursor, which wraps around a given PHP MongoCursor.
+     * Constructor.
      *
-     * @param Connection   $connection     Connection used to create this cursor
-     * @param Collection   $collection     Collection used to create this cursor
-     * @param \MongoCursor $mongoCursor    Cursor being wrapped
+     * @param Connection   $connection     Connection used to create this Cursor
+     * @param Collection   $collection     Collection used to create this Cursor
+     * @param \MongoCursor $mongoCursor    MongoCursor being wrapped
      * @param callable     $loggerCallable Logger callable
      * @param array        $query          Query criteria
      * @param array        $fields         Selected fields (projection)
@@ -57,9 +55,9 @@ class LoggableCursor extends Cursor implements Loggable
     }
 
     /**
-     * Gets the logger callable.
+     * Get the logger callable.
      *
-     * @return mixed The logger callable
+     * @return callable
      */
     public function getLoggerCallable()
     {
@@ -69,7 +67,8 @@ class LoggableCursor extends Cursor implements Loggable
     /**
      * Log something using the configured logger callable.
      *
-     * @param array $data
+     * @see Loggable::log()
+     * @param array $log
      */
     public function log(array $data)
     {
@@ -85,7 +84,7 @@ class LoggableCursor extends Cursor implements Loggable
     {
         $this->log(array(
             'sort' => true,
-            'sortFields' => $fields
+            'sortFields' => $fields,
         ));
 
         return parent::sort($fields);

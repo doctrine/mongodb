@@ -22,12 +22,10 @@ namespace Doctrine\MongoDB\Event;
 use Doctrine\Common\EventArgs as BaseEventArgs;
 
 /**
- * Event args for group command.
+ * Event args for the group command.
  *
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
- * @link        www.doctrine-project.com
- * @since       1.0
- * @author      Jonathan H. Wage <jonwage@gmail.com>
+ * @since  1.0
+ * @author Jonathan H. Wage <jonwage@gmail.com>
  */
 class GroupEventArgs extends BaseEventArgs
 {
