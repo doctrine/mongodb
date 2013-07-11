@@ -2,42 +2,11 @@
 
 namespace Doctrine\MongoDB\Tests\Query;
 
-use Doctrine\MongoDB\Tests\BaseTest;
 use Doctrine\MongoDB\Query\Builder;
 use Doctrine\MongoDB\Query\Query;
 
-class BuilderTest extends BaseTest
+class BuilderTest extends \PHPUnit_Framework_TestCase
 {
-    public function testDistinctFieldQuery()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->distinct('count')
-            ->field('username')->equals('distinct_test');
-
-        $expected = array(
-            'username' => 'distinct_test'
-        );
-        $query = $qb->getQuery();
-        $this->assertInstanceOf('Doctrine\MongoDB\Query\Query', $query);
-        $this->assertEquals(Query::TYPE_DISTINCT_FIELD, $query->getType());
-        $this->assertEquals($expected, $qb->getQueryArray());
-        $this->assertInstanceof('Doctrine\MongoDB\ArrayIterator', $query->execute());
-    }
-
-    public function testFindAndRemoveQuery()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->findAndRemove()
-            ->field('username')->equals('jwage');
-
-        $this->assertEquals(Query::TYPE_FIND_AND_REMOVE, $qb->getType());
-        $expected = array(
-            'username' => 'jwage'
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
-        $this->assertNull($qb->getQuery()->execute());
-    }
-
     public function testMapReduceQueryWithSingleMethod()
     {
         $map = 'function() {
@@ -116,112 +85,6 @@ class BuilderTest extends BaseTest
         $this->assertEquals($expectedMapReduce, $qb->debug('mapReduce'));
     }
 
-    public function testFindAndUpdateQuery()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->findAndRemove()
-            ->field('username')->equals('jwage');
-
-        $this->assertEquals(Query::TYPE_FIND_AND_REMOVE, $qb->getType());
-        $expected = array(
-            'username' => 'jwage'
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
-
-        $query = $qb->getQuery();
-        $this->assertEquals(Query::TYPE_FIND_AND_REMOVE, $query->getType());
-        $this->assertNull($query->execute());
-    }
-
-    public function testGroupQueryWithSingleMethod()
-    {
-        $keys = array();
-        $initial = array('count' => 0, 'sum' => 0);
-        $reduce = 'function(obj, prev) { prev.count++; prev.sum += obj.a; }';
-        $finalize = 'function(obj) { if (obj.count) { obj.avg = obj.sum / obj.count; } else { obj.avg = 0; } }';
-
-        $qb = $this->getTestQueryBuilder()
-            ->group($keys, $initial, $reduce, array('finalize' => $finalize));
-
-        $expected = array(
-            'keys' => $keys,
-            'initial' => $initial,
-            'reduce' => $reduce,
-            'options' => array('finalize' => $finalize),
-        );
-
-        $this->assertEquals(Query::TYPE_GROUP, $qb->getType());
-        $this->assertEquals($expected, $qb->debug('group'));
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
-    }
-
-    public function testGroupQueryWithMultipleMethods()
-    {
-        $keys = array();
-        $initial = array('count' => 0, 'sum' => 0);
-        $reduce = 'function(obj, prev) { prev.count++; prev.sum += obj.a; }';
-        $finalize = 'function(obj) { if (obj.count) { obj.avg = obj.sum / obj.count; } else { obj.avg = 0; } }';
-
-        $qb = $this->getTestQueryBuilder()
-            ->group($keys, $initial)
-            ->reduce($reduce)
-            ->finalize($finalize);
-
-        $expected = array(
-            'keys' => $keys,
-            'initial' => $initial,
-            'reduce' => $reduce,
-            'options' => array('finalize' => $finalize),
-        );
-
-        $this->assertEquals(Query::TYPE_GROUP, $qb->getType());
-        $this->assertEquals($expected, $qb->debug('group'));
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
-    }
-
-    public function testInsertQuery()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->insert()
-            ->field('username')->set('jwage');
-
-        $expected = array(
-            'username' => 'jwage'
-        );
-        $this->assertEquals($expected, $qb->getNewObj());
-        $this->assertEquals(Query::TYPE_INSERT, $qb->getType());
-        $this->assertArrayHasKeyValue(array('ok' => 1.0), $qb->getQuery()->execute());
-    }
-
-    public function testUpdateQuery()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->update()
-            ->field('username')->set('jwage');
-
-        $expected = array(
-            '$set' => array(
-                'username' => 'jwage'
-            )
-        );
-        $this->assertEquals($expected, $qb->getNewObj());
-        $this->assertEquals(Query::TYPE_UPDATE, $qb->getType());
-
-        $query = $qb->getQuery();
-        $this->assertEquals(Query::TYPE_UPDATE, $query->getType());
-        $this->assertArrayHasKeyValue(array('ok' => 1.0), $query->execute());
-    }
-
-    public function testRemoveQuery()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->remove()
-            ->field('username')->equals('jwage');
-
-        $this->assertEquals(Query::TYPE_REMOVE, $qb->getType());
-        $this->assertArrayHasKeyValue(array('ok' => 1.0), $qb->getQuery()->execute());
-    }
-
     /**
      * @expectedException BadMethodCallException
      */
@@ -240,9 +103,7 @@ class BuilderTest extends BaseTest
 
     public function testThatOrAcceptsAnotherQuery()
     {
-        $coll = $this->conn->selectCollection('db', 'users');
-
-        $qb = $coll->createQueryBuilder();
+        $qb = $this->getTestQueryBuilder();
         $qb->addOr($qb->expr()->field('firstName')->equals('Kris'));
         $qb->addOr($qb->expr()->field('firstName')->equals('Chris'));
 
@@ -254,9 +115,7 @@ class BuilderTest extends BaseTest
 
     public function testThatAndAcceptsAnotherQuery()
     {
-        $coll = $this->conn->selectCollection('db', 'users');
-
-        $qb = $coll->createQueryBuilder();
+        $qb = $this->getTestQueryBuilder();
         $qb->addAnd($qb->expr()->field('hits')->gte(1));
         $qb->addAnd($qb->expr()->field('hits')->lt(5));
 
@@ -270,9 +129,7 @@ class BuilderTest extends BaseTest
 
     public function testThatNorAcceptsAnotherQuery()
     {
-        $coll = $this->conn->selectCollection('db', 'users');
-
-        $qb = $coll->createQueryBuilder();
+        $qb = $this->getTestQueryBuilder();
         $qb->addNor($qb->expr()->field('firstName')->equals('Kris'));
         $qb->addNor($qb->expr()->field('firstName')->equals('Chris'));
 
@@ -441,91 +298,128 @@ class BuilderTest extends BaseTest
         $this->assertCount(1, $qb->getQueryArray());
     }
 
-    public function testGeoNearQuery()
+    /**
+     * @dataProvider provideProxiedExprMethods
+     */
+    public function testProxiedExprMethods($method, array $args = array())
     {
-        $qb = $this->getTestQueryBuilder()
-            ->geoNear(50, 50)
-            ->distanceMultiplier(2.5)
-            ->maxDistance(5)
-            ->spherical(true)
-            ->field('type')->equals('restaurant')
-            ->limit(10);
+        $expr = $this->getMockExpr();
+        $invocationMocker = $expr->expects($this->once())->method($method);
+        call_user_func_array(array($invocationMocker, 'with'), $args);
 
-        $this->assertEquals(Query::TYPE_GEO_LOCATION, $qb->getType());
+        $qb = $this->getStubQueryBuilder();
+        $qb->setExpr($expr);
 
-        $expectedQuery = array('type' => 'restaurant');
-        $this->assertEquals($expectedQuery, $qb->getQueryArray());
-
-        $geoNear = $qb->debug('geoNear');
-        $this->assertEquals(array(50, 50), $geoNear['near']);
-        $this->assertEquals(2.5, $geoNear['distanceMultiplier']);
-        $this->assertEquals(5, $geoNear['maxDistance']);
-        $this->assertEquals(true, $geoNear['spherical']);
-        $this->assertEquals(10, $qb->debug('limit'));
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
+        $this->assertSame($qb, call_user_func_array(array($qb, $method), $args));
     }
 
-    public function testNear()
+    public function provideProxiedExprMethods()
     {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->near(50, 50)->maxDistance(25);
-
-        $expected = array('loc' => array('$near' => array(50, 50), '$maxDistance' => 25));
-        $this->assertEquals($expected, $qb->getQueryArray());
-    }
-
-    public function testWithinBox()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->withinBox(0, 0, 2, 2);
-
-        $expected = array(
-            'loc' => array(
-                '$within' => array(
-                    '$box' => array(array(0, 0), array(2, 2)),
-                ),
-            ),
+        return array(
+            'field()' => array('field', array('fieldName')),
+            'equals()' => array('equals', array('value')),
+            'where()' => array('where', array('this.fieldName == 1')),
+            'in()' => array('in', array(array('value1', 'value2'))),
+            'notIn()' => array('notIn', array(array('value1', 'value2'))),
+            'notEqual()' => array('notEqual', array('value')),
+            'gt()' => array('gt', array(1)),
+            'gte()' => array('gte', array(1)),
+            'lt()' => array('gt', array(1)),
+            'lte()' => array('gte', array(1)),
+            'range()' => array('range', array(0, 1)),
+            'size()' => array('size', array(1)),
+            'exists()' => array('exists', array(true)),
+            'type()' => array('type', array(7)),
+            'all()' => array('all', array(array('value1', 'value2'))),
+            'mod()' => array('mod', array(2)),
+            'near()' => array('near', array(1, 2)),
+            'nearSphere()' => array('nearSphere', array(1, 2)),
+            'withinBox()' => array('withinBox', array(1, 2, 3, 4)),
+            'withinCenter()' => array('withinCenter', array(1, 2, 3)),
+            'withinCenterSphere()' => array('withinCenterSphere', array(1, 2, 3)),
+            'withinPolygon()' => array('withinPolygon', array(array(0, 0), array(1, 1), array(1, 0))),
+            'geoIntersects()' => array('geoIntersects', array($this->getMockGeometry())),
+            'geoWithin()' => array('geoWithin', array($this->getMockGeometry())),
+            'geoWithinBox()' => array('geoWithinBox', array(1, 2, 3, 4)),
+            'geoWithinCenter()' => array('geoWithinCenter', array(1, 2, 3)),
+            'geoWithinCenterSphere()' => array('geoWithinCenterSphere', array(1, 2, 3)),
+            'geoWithinPolygon()' => array('geoWithinPolygon', array(array(0, 0), array(1, 1), array(1, 0))),
+            'inc()' => array('inc', array(1)),
+            'unsetField()' => array('unsetField'),
+            'push()' => array('push', array('value')),
+            'pushAll()' => array('pushAll', array(array('value1', 'value2'))),
+            'addToSet()' => array('addToSet', array('value')),
+            'addManyToSet()' => array('addManyToSet', array(array('value1', 'value2'))),
+            'popFirst()' => array('popFirst'),
+            'popLast()' => array('popLast'),
+            'pull()' => array('pull', array('value')),
+            'pullAll()' => array('pullAll', array(array('value1', 'value2'))),
+            'addAnd()' => array('addAnd', array($this->getMockExpr())),
+            'addOr()' => array('addOr', array($this->getMockExpr())),
+            'addNor()' => array('addNor', array($this->getMockExpr())),
+            'elemMatch()' => array('elemMatch', array($this->getMockExpr())),
+            'not()' => array('not', array($this->getMockExpr())),
         );
-        $this->assertEquals($expected, $qb->getQueryArray());
     }
 
-    public function testWithinCenter()
+    public function testGeoNear()
     {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->withinCenter(0, 0, 1);
+        $qb = $this->getTestQueryBuilder();
 
-        $expected = array(
-            'loc' => array(
-                '$within' => array(
-                    '$center' => array(array(0, 0), 1),
-                ),
-            ),
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
+        $this->assertSame($qb, $qb->geoNear(1, 2));
+        $this->assertEquals(Query::TYPE_GEO_NEAR, $qb->getType());
+        $this->assertEquals(array('near' => array(1, 2)), $qb->debug('geoNear'));
     }
 
-    public function testWithinPolygon()
+    public function testDistanceMultipler()
     {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->withinPolygon(array(0, 0), array(2, 0), array(0, 2));
+        $qb = $this->getTestQueryBuilder();
+        $qb->geoNear(1, 2);
 
-        $expected = array(
-            'loc' => array(
-                '$within' => array(
-                    '$polygon' => array(array(0, 0), array(2, 0), array(0, 2)),
-                ),
-            ),
-        );
-        $this->assertEquals($expected, $qb->getQueryArray());
+        $this->assertSame($qb, $qb->distanceMultiplier(1));
+        $this->assertArrayHasKeyValue(array('distanceMultipler' => 1), $qb->debug('geoNear'));
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException BadMethodCallException
      */
-    public function testWithinPolygonRequiresAtLeastThreePoints()
+    public function testDistanceMultiplerRequiresGeoNearCommand()
     {
-        $qb = $this->getTestQueryBuilder()
-            ->field('loc')->withinPolygon(array(0, 0), array(1, 1));
+        $qb = $this->getTestQueryBuilder();
+        $qb->distanceMultiplier(1);
+    }
+
+    public function testMaxDistanceWithGeoNearCommand()
+    {
+        $qb = $this->getTestQueryBuilder();
+        $qb->geoNear(1, 2);
+
+        $this->assertSame($qb, $qb->maxDistance(1));
+        $this->assertArrayHasKeyValue(array('maxDistance' => 1), $qb->debug('geoNear'));
+    }
+
+    public function testSpherical()
+    {
+        $qb = $this->getTestQueryBuilder();
+        $qb->geoNear(1, 2);
+
+        $this->assertSame($qb, $qb->spherical());
+        $this->assertArrayHasKeyValue(array('spherical' => true), $qb->debug('geoNear'));
+
+        $this->assertSame($qb, $qb->spherical(false));
+        $this->assertArrayHasKeyValue(array('spherical' => false), $qb->debug('geoNear'));
+
+        $this->assertSame($qb, $qb->spherical(true));
+        $this->assertArrayHasKeyValue(array('spherical' => true), $qb->debug('geoNear'));
+    }
+
+    /**
+     * @expectedException BadMethodCallException
+     */
+    public function testSphericalRequiresGeoNearCommand()
+    {
+        $qb = $this->getTestQueryBuilder();
+        $qb->spherical();
     }
 
     /**
@@ -630,9 +524,42 @@ class BuilderTest extends BaseTest
         $this->assertEquals($expected, $qb->debug('select'));
     }
 
+    private function getStubQueryBuilder()
+    {
+        return new BuilderStub($this->getMockDatabase(), $this->getMockCollection(), '$');
+    }
+
     private function getTestQueryBuilder()
     {
-        return $this->conn->selectCollection('db', 'users')->createQueryBuilder();
+        return new Builder($this->getMockDatabase(), $this->getMockCollection(), '$');
+    }
+
+    private function getMockCollection()
+    {
+        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    private function getMockDatabase()
+    {
+        return $this->getMockBuilder('Doctrine\MongoDB\Database')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    private function getMockExpr()
+    {
+        return $this->getMockBuilder('Doctrine\MongoDB\Query\Expr')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    private function getMockGeometry()
+    {
+        return $this->getMockBuilder('GeoJson\Geometry\Geometry')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
     private function assertArrayHasKeyValue($expected, $array, $message = '')

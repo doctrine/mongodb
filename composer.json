@@ -16,6 +16,12 @@
         "ext-mongo": ">=1.2.12,<1.5-dev",
         "doctrine/common": ">=2.1.0,<2.5-dev"
     },
+    "require-dev": {
+        "jmikola/geojson": "~1.0@dev"
+    },
+    "suggest": {
+        "jmikola/geojson": "Support GeoJSON geometry objects in 2dsphere queries"
+    },
     "autoload": {
         "psr-0": { "Doctrine\\MongoDB": "lib/" }
     },
