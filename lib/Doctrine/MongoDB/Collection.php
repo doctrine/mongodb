@@ -589,9 +589,9 @@ class Collection
      *
      * @see http://php.net/manual/en/mongocollection.distinct.php
      * @see http://docs.mongodb.org/manual/reference/command/distinct/
-     * @param array $field
-     * @param array $query
-     * @param array $options
+     * @param string $field
+     * @param array  $query
+     * @param array  $options
      * @return ArrayIterator
      */
     public function distinct($field, array $query = array(), array $options = array())
@@ -618,9 +618,9 @@ class Collection
      * Execute the distinct command.
      *
      * @see Collection::distinct()
-     * @param array $field
-     * @param array $query
-     * @param array $options
+     * @param string $field
+     * @param array  $query
+     * @param array  $options
      * @return ArrayIterator
      */
     protected function doDistinct($field, array $query, array $options)
