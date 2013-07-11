@@ -424,6 +424,41 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($coll->insert($document, $options));
     }
 
+    /**
+     * @dataProvider providePoint
+     */
+    public function testNearWithGeoJsonPoint($point, array $expected)
+    {
+        $results = array(
+            array('dis' => 1, 'obj' => array('_id' => 1, 'loc' => array(1, 0))),
+            array('dis' => 2, 'obj' => array('_id' => 2, 'loc' => array(2, 0))),
+        );
+
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with(array('geoNear' => self::collectionName, 'near' => $expected, 'query' => array()))
+            ->will($this->returnValue(array('ok' => 1, 'results' => $results)));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
+        $result = $coll->near($point);
+
+        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $result);
+        $this->assertEquals($results, $result->toArray());
+    }
+
+    public function providePoint()
+    {
+        $coordinates = array(0, 0);
+        $json = array('type' => 'Point', 'coordinates' => $coordinates);
+
+        return array(
+            'legacy array' => array($coordinates, $coordinates),
+            'GeoJSON array' => array($json, $json),
+            'GeoJSON object' => array($this->getMockPoint($json), $json),
+        );
+    }
+
     public function testRemove()
     {
         $criteria = array('x' => 1);
@@ -623,6 +658,19 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         return $this->getMockBuilder('MongoCursor')
             ->disableOriginalConstructor()
             ->getMock();
+    }
+
+    private function getMockPoint($json)
+    {
+        $point = $this->getMockBuilder('GeoJson\Geometry\Point')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $point->expects($this->once())
+            ->method('jsonSerialize')
+            ->will($this->returnValue($json));
+
+        return $point;
     }
 
     private function getTestCollection(Connection $c = null, MongoCollection $mc = null, Database $db = null, EventManager $em = null)

@@ -30,6 +30,7 @@ use Doctrine\MongoDB\Event\MutableEventArgs;
 use Doctrine\MongoDB\Event\NearEventArgs;
 use Doctrine\MongoDB\Event\UpdateEventArgs;
 use Doctrine\MongoDB\Util\ReadPreference;
+use GeoJson\Geometry\Point;
 
 /**
  * Wrapper for the PHP MongoCollection class.
@@ -535,13 +536,19 @@ class Collection
      *
      * This method will dispatch preNear and postNear events.
      *
+     * The $near parameter may be a GeoJSON point or a legacy coordinate pair,
+     * which is an array of float values in x, y order (easting, northing for
+     * projected coordinates, longitude, latitude for geographic coordinates).
+     * A GeoJSON point may be a Point object or an array corresponding to the
+     * point's JSON representation.
+     *
      * @see http://docs.mongodb.org/manual/reference/command/geoNear/
-     * @param array $near
-     * @param array $query
-     * @param array $options
+     * @param array|Point $near
+     * @param array       $query
+     * @param array       $options
      * @return ArrayIterator
      */
-    public function near(array $near, array $query = array(), array $options = array())
+    public function near($near, array $query = array(), array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preNear)) {
             $this->eventManager->dispatchEvent(Events::preNear, new NearEventArgs($this, $query, $near, $options));
@@ -562,13 +569,17 @@ class Collection
      * Execute the geoNear command.
      *
      * @see Collection::near()
-     * @param array $near
-     * @param array $query
-     * @param array $options
+     * @param array|Point $near
+     * @param array       $query
+     * @param array       $options
      * @return ArrayIterator
      */
-    protected function doNear(array $near, array $query, array $options)
+    protected function doNear($near, array $query, array $options)
     {
+        if ($near instanceof Point) {
+            $near = $near->jsonSerialize();
+        }
+
         $command = array();
         $command['geoNear'] = $this->getMongoCollection()->getName();
         $command['near'] = $near;
