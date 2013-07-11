@@ -20,11 +20,10 @@
 namespace Doctrine\MongoDB\Query;
 
 /**
- * Expression builder class.
+ * Fluent interface for building query and update expressions.
  *
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
- * @since       1.0
- * @author      Jonathan H. Wage <jonwage@gmail.com>
+ * @since  1.0
+ * @author Jonathan H. Wage <jonwage@gmail.com>
  */
 class Expr
 {
@@ -36,16 +35,17 @@ class Expr
     protected $cmd;
 
     /**
-     * The query array built by this expression class.
+     * The query criteria array.
      *
      * @var string
      */
     protected $query = array();
 
     /**
-     * The new object array containing a whole new document or a query containing
-     * atomic operators to update a document.
+     * The "new object" array containing either a full document or a number of
+     * atomic update operators.
      *
+     * @see docs.mongodb.org/manual/reference/method/db.collection.update/#update-parameter
      * @var array
      */
     protected $newObj = array();

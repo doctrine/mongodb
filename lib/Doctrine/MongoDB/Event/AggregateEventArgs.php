@@ -24,10 +24,8 @@ use Doctrine\Common\EventArgs as BaseEventArgs;
 /**
  * Event args for the aggregate command.
  *
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
- * @link        www.doctrine-project.com
- * @since       1.1
- * @author      Jeremy Mikola <jmikola@gmail.com>
+ * @since  1.1
+ * @author Jeremy Mikola <jmikola@gmail.com>
  */
 class AggregateEventArgs extends BaseEventArgs
 {

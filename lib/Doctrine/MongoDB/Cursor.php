@@ -24,24 +24,39 @@ use Doctrine\MongoDB\Util\ReadPreference;
 /**
  * Wrapper for the PHP MongoCursor class.
  *
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
- * @link        www.doctrine-project.org
- * @since       1.0
- * @author      Jonathan H. Wage <jonwage@gmail.com>
+ * @since  1.0
+ * @author Jonathan H. Wage <jonwage@gmail.com>
  */
 class Cursor implements Iterator
 {
-    /** The Doctrine Connection */
+    /**
+     * The Connection instance used for reinitializing during retry attempts.
+     *
+     * @var Connection
+     */
     protected $connection;
 
-    /** The Doctrine Collection */
+    /**
+     * The Collection instance used for recreating this cursor.
+     *
+     * @var Collection
+     */
     protected $collection;
 
-    /** The PHP MongoCursor being wrapped */
+    /**
+     * The PHP MongoCursor instance being wrapped.
+     *
+     * @var \MongoCursor
+     */
     protected $mongoCursor;
 
-    /** Number of times to try operations on the cursor */
+    /**
+     * Number of times to retry queries.
+     *
+     * @var integer
+     */
     protected $numRetries;
+
     protected $query = array();
     protected $fields = array();
     protected $hint;
@@ -59,14 +74,14 @@ class Cursor implements Iterator
     protected $timeout;
 
     /**
-     * Create a new Cursor, which wraps around a given PHP MongoCursor.
+     * Constructor.
      *
-     * @param Connection   $connection   Connection used to create this cursor
-     * @param Collection   $collection   Collection used to create this cursor
-     * @param \MongoCursor $mongoCursor  Cursor being wrapped
-     * @param array        $query        Query criteria
-     * @param array        $fields       Selected fields (projection)
-     * @param integer      $numRetries   Number of times to retry queries
+     * @param Connection   $connection  Connection used to create this Cursor
+     * @param Collection   $collection  Collection used to create this Cursor
+     * @param \MongoCursor $mongoCursor MongoCursor being wrapped
+     * @param array        $query       Query criteria
+     * @param array        $fields      Selected fields (projection)
+     * @param integer      $numRetries  Number of times to retry queries
      */
     public function __construct(Connection $connection, Collection $collection, \MongoCursor $mongoCursor, array $query = array(), array $fields = array(), $numRetries = 0)
     {
@@ -170,7 +185,7 @@ class Cursor implements Iterator
     /**
      * Returns the MongoCursor instance being wrapped.
      *
-     * @return \MongoCursor $mongoCursor
+     * @return \MongoCursor
      */
     public function getMongoCursor()
     {
@@ -178,8 +193,11 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \Iterator::current()
-     * @see \MongoCursor::current()
+     * Wrapper method for MongoCursor::current().
+     *
+     * @see http://php.net/manual/en/iterator.current.php
+     * @see http://php.net/manual/en/mongocursor.current.php
+     * @return array|null
      */
     public function current()
     {
@@ -193,8 +211,11 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \Iterator::key()
-     * @see \MongoCursor::dead()
+     * Wrapper method for MongoCursor::key().
+     *
+     * @see http://php.net/manual/en/iterator.key.php
+     * @see http://php.net/manual/en/mongocursor.key.php
+     * @return string
      */
     public function key()
     {
@@ -202,7 +223,10 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::dead()
+     * Wrapper method for MongoCursor::dead().
+     *
+     * @see http://php.net/manual/en/mongocursor.dead.php
+     * @return boolean
      */
     public function dead()
     {
@@ -210,7 +234,10 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::explain()
+     * Wrapper method for MongoCursor::explain().
+     *
+     * @see http://php.net/manual/en/mongocursor.explain.php
+     * @return array
      */
     public function explain()
     {
@@ -221,7 +248,10 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::fields()
+     * Wrapper method for MongoCursor::fields().
+     *
+     * @see http://php.net/manual/en/mongocursor.fields.php
+     * @return self
      */
     public function fields(array $f)
     {
@@ -231,7 +261,10 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::getNext()
+     * Wrapper method for MongoCursor::getNext().
+     *
+     * @see http://php.net/manual/en/mongocursor.getnext.php
+     * @return array|null
      */
     public function getNext()
     {
@@ -248,7 +281,10 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::hasNext()
+     * Wrapper method for MongoCursor::hasNext().
+     *
+     * @see http://php.net/manual/en/mongocursor.hasnext.php
+     * @return boolean
      */
     public function hasNext()
     {
@@ -259,7 +295,11 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::hint()
+     * Wrapper method for MongoCursor::hint().
+     *
+     * @see http://php.net/manual/en/mongocursor.hint.php
+     * @param array|string $keyPattern
+     * @return self
      */
     public function hint(array $keyPattern)
     {
@@ -269,7 +309,11 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::immortal()
+     * Wrapper method for MongoCursor::immortal().
+     *
+     * @see http://php.net/manual/en/mongocursor.immortal.php
+     * @param boolean $liveForever
+     * @return self
      */
     public function immortal($liveForever = true)
     {
@@ -280,7 +324,10 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::info()
+     * Wrapper method for MongoCursor::info().
+     *
+     * @see http://php.net/manual/en/mongocursor.info.php
+     * @return array
      */
     public function info()
     {
@@ -288,8 +335,10 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \Iterator::rewind()
-     * @see \MongoCursor::rewind()
+     * Wrapper method for MongoCursor::rewind().
+     *
+     * @see http://php.net/manual/en/iterator.rewind.php
+     * @see http://php.net/manual/en/mongocursor.rewind.php
      */
     public function rewind()
     {
@@ -300,8 +349,10 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \Iterator::next()
-     * @see \MongoCursor::next()
+     * Wrapper method for MongoCursor::next().
+     *
+     * @see http://php.net/manual/en/iterator.next.php
+     * @see http://php.net/manual/en/mongocursor.next.php
      */
     public function next()
     {
@@ -312,7 +363,10 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::reset()
+     * Wrapper method for MongoCursor::reset().
+     *
+     * @see http://php.net/manual/en/iterator.reset.php
+     * @see http://php.net/manual/en/mongocursor.reset.php
      */
     public function reset()
     {
@@ -320,8 +374,12 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \Countable::count()
-     * @see \MongoCursor::count()
+     * Wrapper method for MongoCursor::count().
+     *
+     * @see http://php.net/manual/en/countable.count.php
+     * @see http://php.net/manual/en/mongocursor.count.php
+     * @param boolean $foundOnly
+     * @return integer
      */
     public function count($foundOnly = false)
     {
@@ -332,7 +390,12 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::addOption()
+     * Wrapper method for MongoCursor::addOption().
+     *
+     * @see http://php.net/manual/en/mongocursor.addoption.php
+     * @param string $key
+     * @param mixed $value
+     * @return self
      */
     public function addOption($key, $value)
     {
@@ -342,7 +405,11 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::batchSize()
+     * Wrapper method for MongoCursor::batchSize().
+     *
+     * @see http://php.net/manual/en/mongocursor.batchsize.php
+     * @param integer $num
+     * @return self
      */
     public function batchSize($num)
     {
@@ -353,7 +420,11 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::limit()
+     * Wrapper method for MongoCursor::limit().
+     *
+     * @see http://php.net/manual/en/mongocursor.limit.php
+     * @param integer $num
+     * @return self
      */
     public function limit($num)
     {
@@ -364,7 +435,11 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::skip()
+     * Wrapper method for MongoCursor::skip().
+     *
+     * @see http://php.net/manual/en/mongocursor.skip.php
+     * @param integer $num
+     * @return self
      */
     public function skip($num)
     {
@@ -375,7 +450,11 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::slaveOkay()
+     * Wrapper method for MongoCursor::slaveOkay().
+     *
+     * @see http://php.net/manual/en/mongocursor.slaveokay.php
+     * @param boolean $ok
+     * @return self
      */
     public function slaveOkay($ok = true)
     {
@@ -420,7 +499,10 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::snapshot()
+     * Wrapper method for MongoCursor::snapshot().
+     *
+     * @see http://php.net/manual/en/mongocursor.snapshot.php
+     * @return self
      */
     public function snapshot()
     {
@@ -430,7 +512,11 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::sort()
+     * Wrapper method for MongoCursor::sort().
+     *
+     * @see http://php.net/manual/en/mongocursor.sort.php
+     * @param array $fields
+     * @return self
      */
     public function sort($fields)
     {
@@ -446,7 +532,11 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::tailable()
+     * Wrapper method for MongoCursor::tailable().
+     *
+     * @see http://php.net/manual/en/mongocursor.tailable.php
+     * @param boolean $tail
+     * @return self
      */
     public function tailable($tail = true)
     {
@@ -457,7 +547,11 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \MongoCursor::timeout()
+     * Wrapper method for MongoCursor::timeout().
+     *
+     * @see http://php.net/manual/en/mongocursor.timeout.php
+     * @param integer $ms
+     * @return self
      */
     public function timeout($ms)
     {
@@ -467,8 +561,11 @@ class Cursor implements Iterator
     }
 
     /**
-     * @see \Iterator::valid()
-     * @see \MongoCursor::valid()
+     * Wrapper method for MongoCursor::valid().
+     *
+     * @see http://php.net/manual/en/iterator.valid.php
+     * @see http://php.net/manual/en/mongocursor.valid.php
+     * @return boolean
      */
     public function valid()
     {
@@ -476,7 +573,15 @@ class Cursor implements Iterator
     }
 
     /**
+     * Return the cursor's results as an array.
+     *
+     * If documents in the result set use BSON objects for their "_id", the
+     * $useKeys parameter may be set to false to avoid errors attempting to cast
+     * arrays (i.e. BSON objects) to string keys.
+     *
      * @see Iterator::toArray()
+     * @param boolean $useKeys
+     * @return array
      */
     public function toArray($useKeys = true)
     {
@@ -487,7 +592,10 @@ class Cursor implements Iterator
     }
 
     /**
+     * Return the cursor's first result.
+     *
      * @see Iterator::getSingleResult()
+     * @return array|object|null
      */
     public function getSingleResult()
     {
@@ -499,6 +607,12 @@ class Cursor implements Iterator
         return $result;
     }
 
+    /**
+     * Wrapper method for MongoCursor::getReadPreference().
+     *
+     * @see http://php.net/manual/en/mongocursor.getreadpreference.php
+     * @return array
+     */
     public function getReadPreference()
     {
         return $this->getMongoDB()->getReadPreference();
@@ -511,9 +625,10 @@ class Cursor implements Iterator
      * the base MongoCursor method, which returns a boolean value indicating
      * success or failure.
      *
+     * @see http://php.net/manual/en/mongocursor.setreadpreference.php
      * @param string $readPreference
      * @param array  $tags
-     * @return Cursor
+     * @return self
      * @throws \InvalidArgumentException if MongoCursor::setReadPreference() fails
      */
     public function setReadPreference($readPreference, array $tags = null)
@@ -534,6 +649,20 @@ class Cursor implements Iterator
         return $this;
     }
 
+    /**
+     * Conditionally retry a closure if it yields an exception.
+     *
+     * If the closure does not return successfully within the configured number
+     * of retries, its first exception will be thrown.
+     *
+     * The $recreate paramater may be used to reinitialize the Connection (i.e.
+     * recreate its MongoClient) and recreate the wrapped MongoCursor before
+     * retry attempts.
+     *
+     * @param \Closure $retry
+     * @param boolean  $recreate
+     * @return mixed
+     */
     protected function retry(\Closure $retry, $recreate = false)
     {
         if ($this->numRetries) {

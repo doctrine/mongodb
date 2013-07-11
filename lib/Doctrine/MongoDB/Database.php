@@ -20,6 +20,7 @@
 namespace Doctrine\MongoDB;
 
 use Doctrine\Common\EventManager;
+use Doctrine\MongoDB\Event\CreateCollectionEventArgs;
 use Doctrine\MongoDB\Event\EventArgs;
 use Doctrine\MongoDB\Util\ReadPreference;
 
@@ -35,28 +36,29 @@ use Doctrine\MongoDB\Util\ReadPreference;
 class Database
 {
     /**
-     * Doctrine mongodb connection instance.
+     * The Connection instance used for accessing the wrapped MongoDB class and
+     * creating Collection instances.
      *
-     * @var \Doctrine\MongoDB\Connection
+     * @var Connection
      */
     protected $connection;
 
     /**
-     * The name of the database
+     * The database name.
      *
-     * @var string $Name
+     * @var string
      */
     protected $name;
 
     /**
-     * The event manager that is the central point of the event system.
+     * The EventManager used to dispatch events.
      *
      * @var \Doctrine\Common\EventManager
      */
     protected $eventManager;
 
     /**
-     * Mongo command prefix
+     * MongoDB command prefix.
      *
      * @var string
      */
@@ -65,18 +67,18 @@ class Database
     /**
      * Number of times to retry queries.
      *
-     * @var mixed
+     * @var integer
      */
     protected $numRetries;
 
     /**
-     * Create a new MongoDB instance which wraps a PHP MongoDB instance.
+     * Constructor.
      *
-     * @param Connection $connection The Doctrine Connection instance.
-     * @param string $name The name of the database.
-     * @param EventManager $evm  The EventManager instance.
-     * @param string $cmd  The MongoDB cmd character.
-     * @param boolean|integer $numRetries Number of times to retry queries.
+     * @param Connection      $connection Connection used to create Collections
+     * @param string          $name       The database name
+     * @param EventManager    $evm        EventManager instance
+     * @param string          $cmd        MongoDB command prefix
+     * @param boolean|integer $numRetries Number of times to retry queries
      */
     public function __construct(Connection $connection, $name, EventManager $evm, $cmd, $numRetries = 0)
     {
@@ -88,9 +90,9 @@ class Database
     }
 
     /**
-     * Gets the name of this database
+     * Return the name of this database.
      *
-     * @return string $name
+     * @return string
      */
     public function getName()
     {
@@ -98,28 +100,45 @@ class Database
     }
 
     /**
-     * Get the MongoDB instance being wrapped.
+     * Return a new MongoDB instance for this database.
      *
-     * @return \MongoDB $mongoDB
+     * @return \MongoDB
      */
     public function getMongoDB()
     {
         return $this->connection->getMongo()->selectDB($this->name);
     }
 
+    /**
+     * Wrapper method for MongoDB::authenticate().
+     *
+     * @see http://php.net/manual/en/mongodb.authenticate.php
+     * @param string $username
+     * @param string $password
+     * @return array
+     */
     public function authenticate($username, $password)
     {
         return $this->getMongoDB()->authenticate($username, $password);
     }
 
+    /**
+     * Wrapper method for MongoDB::command().
+     *
+     * @see http://php.net/manual/en/mongodb.command.php
+     * @param array $data
+     * @param array $options
+     * @return array
+     */
     public function command(array $data, array $options = array())
     {
         return $this->getMongoDB()->command($data, $options);
     }
 
     /**
-     * Create a collection.
+     * Wrapper method for MongoDB::createCollection().
      *
+     * @see http://php.net/manual/en/mongodb.command.php
      * @param string        $name            Collection name
      * @param boolean|array $cappedOrOptions Capped collection indicator or an
      *                                       options array (for driver 1.4+)
@@ -154,11 +173,25 @@ class Database
         return $result;
     }
 
+    /**
+     * Wrapper method for MongoDB::createDBRef().
+     *
+     * @see http://php.net/manual/en/mongodb.createdbref.php
+     * @param string $collection
+     * @param mixed  $a
+     * @return array
+     */
     public function createDBRef($collection, $a)
     {
         return $this->getMongoDB()->createDBRef($collection, $a);
     }
 
+    /**
+     * Wrapper method for MongoDB::drop().
+     *
+     * @see http://php.net/manual/en/mongodb.drop.php
+     * @return array
+     */
     public function drop()
     {
         if ($this->eventManager->hasListeners(Events::preDropDatabase)) {
@@ -174,31 +207,71 @@ class Database
         return $result;
     }
 
+    /**
+     * Wrapper method for MongoDB::dropCollection().
+     *
+     * @see http://php.net/manual/en/mongodb.dropcollection.php
+     * @param string $coll
+     * @return array
+     */
     public function dropCollection($coll)
     {
         return $this->getMongoDB()->dropCollection($coll);
     }
 
+    /**
+     * Wrapper method for MongoDB::execute().
+     *
+     * @see http://php.net/manual/en/mongodb.execute.php
+     * @return array
+     */
     public function execute($code, array $args = array())
     {
         return $this->getMongoDB()->execute($code, $args);
     }
 
+    /**
+     * Wrapper method for MongoDB::forceError().
+     *
+     * @see http://php.net/manual/en/mongodb.forceerror.php
+     * @return array
+     */
     public function forceError()
     {
         return $this->getMongoDB()->forceError();
     }
 
+    /**
+     * Wrapper method for MongoDB::__get().
+     *
+     * @see http://php.net/manual/en/mongodb.get.php
+     * @param string $name
+     * @return \MongoCollection
+     */
     public function __get($name)
     {
         return $this->getMongoDB()->__get($name);
     }
 
-    public function getDBRef(array $ref)
+    /**
+     * Wrapper method for MongoDB::getDBRef().
+     *
+     * @see http://php.net/manual/en/mongodb.getdbref.php
+     * @param array $reference
+     * @return array|null
+     */
+    public function getDBRef(array $reference)
     {
-        return $this->getMongoDB()->getDBRef($ref);
+        return $this->getMongoDB()->getDBRef($reference);
     }
 
+    /**
+     * Wrapper method for MongoDB::getGridFS().
+     *
+     * @see http://php.net/manual/en/mongodb.getgridfs.php
+     * @param string $prefix
+     * @return GridFS
+     */
     public function getGridFS($prefix = 'fs')
     {
         if ($this->eventManager->hasListeners(Events::preGetGridFS)) {
@@ -214,11 +287,16 @@ class Database
         return $gridFS;
     }
 
-    protected function doGetGridFs($name)
+    /**
+     * Return a new GridFS instance.
+     *
+     * @see Database::getGridFS()
+     * @param string $prefix
+     * @return GridFS
+     */
+    protected function doGetGridFs($prefix)
     {
-        return new GridFS(
-            $this->connection, $name, $this, $this->eventManager, $this->cmd
-        );
+        return new GridFS($this->connection, $prefix, $this, $this->eventManager, $this->cmd);
     }
 
     /**
@@ -227,6 +305,11 @@ class Database
      * This method wraps setSlaveOkay() for driver versions before 1.3.0. For
      * newer drivers, this method wraps setReadPreference() and specifies
      * SECONDARY_PREFERRED.
+     *
+     * @see http://php.net/manual/en/mongodb.setreadpreference.php
+     * @see http://php.net/manual/en/mongodb.setslaveokay.php
+     * @param boolean $ok
+     * @return boolean Previous slaveOk value
      */
     public function setSlaveOkay($ok = true)
     {
@@ -254,6 +337,10 @@ class Database
      * This method wraps getSlaveOkay() for driver versions before 1.3.0. For
      * newer drivers, this method considers any read preference other than
      * PRIMARY as a true "slaveOkay" value.
+     *
+     * @see http://php.net/manual/en/mongodb.getreadpreference.php
+     * @see http://php.net/manual/en/mongodb.getslaveokay.php
+     * @return boolean
      */
     public function getSlaveOkay()
     {
@@ -270,11 +357,25 @@ class Database
         return \MongoClient::RP_PRIMARY !== $readPref['type'];
     }
 
+    /**
+     * Wrapper method for MongoDB::getReadPreference().
+     *
+     * @see http://php.net/manual/en/mongodb.getreadpreference.php
+     * @return array
+     */
     public function getReadPreference()
     {
         return $this->getMongoDB()->getReadPreference();
     }
 
+    /**
+     * Wrapper method for MongoDB::setReadPreference().
+     *
+     * @see http://php.net/manual/en/mongodb.setreadpreference.php
+     * @param string $readPreference
+     * @param array  $tags
+     * @return boolean
+     */
     public function setReadPreference($readPreference, array $tags = null)
     {
         if (isset($tags)) {
@@ -284,36 +385,84 @@ class Database
         return $this->getMongoDB()->setReadPreference($readPreference);
     }
 
+    /**
+     * Wrapper method for MongoDB::getProfilingLevel().
+     *
+     * @see http://php.net/manual/en/mongodb.getprofilinglevel.php
+     * @return integer
+     */
     public function getProfilingLevel()
     {
         return $this->getMongoDB()->getProfilingLevel();
     }
 
+    /**
+     * Wrapper method for MongoDB::lastError().
+     *
+     * @see http://php.net/manual/en/mongodb.lasterror.php
+     * @return array
+     */
     public function lastError()
     {
         return $this->getMongoDB()->lastError();
     }
 
+    /**
+     * Wrapper method for MongoDB::listCollections().
+     *
+     * @see http://php.net/manual/en/mongodb.listcollections.php
+     * @return array
+     */
     public function listCollections()
     {
         return $this->getMongoDB()->listCollections();
     }
 
+    /**
+     * Wrapper method for MongoDB::prevError().
+     *
+     * @see http://php.net/manual/en/mongodb.preverror.php
+     * @return array
+     */
     public function prevError()
     {
         return $this->getMongoDB()->prevError();
     }
 
+    /**
+     * Wrapper method for MongoDB::repair().
+     *
+     * @see http://php.net/manual/en/mongodb.repair.php
+     * @param boolean $preserveClonedFiles
+     * @param boolean $backupOriginalFiles
+     * @return array
+     */
     public function repair($preserveClonedFiles = false, $backupOriginalFiles = false)
     {
         return $this->getMongoDB()->repair($preserveClonedFiles, $backupOriginalFiles);
     }
 
+    /**
+     * Wrapper method for MongoDB::resetError().
+     *
+     * @see http://php.net/manual/en/mongodb.reseterror.php
+     * @return array
+     */
     public function resetError()
     {
         return $this->getMongoDB()->resetError();
     }
 
+    /**
+     * Wrapper method for MongoDB::selectCollection().
+     *
+     * This method will dispatch preSelectCollection and postSelectCollection
+     * events.
+     *
+     * @see http://php.net/manual/en/mongodb.selectcollection.php
+     * @param string $name
+     * @return Collection
+     */
     public function selectCollection($name)
     {
         if ($this->eventManager->hasListeners(Events::preSelectCollection)) {
@@ -330,23 +479,35 @@ class Database
     }
 
     /**
-     * Method which creates a Doctrine\MongoDB\Collection instance.
+     * Return a new Collection instance.
      *
+     * @see Database::selectCollection()
      * @param string $name
-     * @return Collection $coll
+     * @return Collection
      */
     protected function doSelectCollection($name)
     {
-        return new Collection(
-            $this->connection, $name, $this, $this->eventManager, $this->cmd, $this->numRetries
-        );
+        return new Collection($this->connection, $name, $this, $this->eventManager, $this->cmd, $this->numRetries);
     }
 
+    /**
+     * Wrapper method for MongoDB::setProfilingLevel().
+     *
+     * @see http://php.net/manual/en/mongodb.setprofilinglevel.php
+     * @param integer $level
+     * @return integer
+     */
     public function setProfilingLevel($level)
     {
         return $this->getMongoDB()->setProfilingLevel($level);
     }
 
+    /**
+     * Wrapper method for MongoDB::__toString().
+     *
+     * @see http://www.php.net/manual/en/mongodb.--tostring.php
+     * @return string
+     */
     public function __toString()
     {
         return $this->name;
