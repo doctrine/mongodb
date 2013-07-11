@@ -37,7 +37,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
 
     public function provideGeoJsonPoint()
     {
-        $json = array(array('type' => 'Point', 'coordinates' => array(1, 2)));
+        $json = array('type' => 'Point', 'coordinates' => array(1, 2));
         $expected = array('$geometry' => $json);
 
         return array(
