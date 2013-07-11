@@ -1,6 +1,6 @@
 # Doctrine MongoDB
 
-[![Build Status](https://secure.travis-ci.org/doctrine/mongodb.png)](http://travis-ci.org/doctrine/mongodb)
+[![Build Status](https://secure.travis-ci.org/doctrine/mongodb.png?branch=master)](http://travis-ci.org/doctrine/mongodb)
 
 The Doctrine MongoDB project is a library that provides a wrapper around the native PHP Mongo PECL extension to provide additional functionality.
 
