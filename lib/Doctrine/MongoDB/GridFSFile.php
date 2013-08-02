@@ -78,34 +78,32 @@ class GridFSFile
     }
 
     /**
-     * Set the PHP MongoGridFSFile instance to wrap and mark the file as clean.
+     * Get the bytes for this file.
      *
-     * @param \MongoGridFSFile $mongoGridFSFile
+     * @return string|null
      */
-    public function setMongoGridFSFile(\MongoGridFSFile $mongoGridFSFile)
+    public function getBytes()
     {
-        $this->mongoGridFSFile = $mongoGridFSFile;
-        $this->isDirty = false;
+        if ($this->isDirty && $this->bytes) {
+            return $this->bytes;
+        }
+        if ($this->isDirty && $this->filename) {
+            return file_get_contents($this->filename);
+        }
+        if ($this->mongoGridFSFile instanceof \MongoGridFSFile) {
+            return $this->mongoGridFSFile->getBytes();
+        }
+        return null;
     }
 
     /**
-     * Get the PHP MongoGridFSFile instance being wrapped.
+     * Set the bytes to be persisted and mark the file as dirty.
      *
-     * @return \MongoGridFSFile
+     * @param string $bytes
      */
-    public function getMongoGridFSFile()
+    public function setBytes($bytes)
     {
-        return $this->mongoGridFSFile;
-    }
-
-    /**
-     * Set the filename to be persisted and mark the file as dirty.
-     *
-     * @param string $filename
-     */
-    public function setFilename($filename)
-    {
-        $this->filename = $filename;
+        $this->bytes = $bytes;
         $this->isDirty = true;
     }
 
@@ -128,33 +126,35 @@ class GridFSFile
     }
 
     /**
-     * Set the bytes to be persisted and mark the file as dirty.
+     * Set the filename to be persisted and mark the file as dirty.
      *
-     * @param string $bytes
+     * @param string $filename
      */
-    public function setBytes($bytes)
+    public function setFilename($filename)
     {
-        $this->bytes = $bytes;
+        $this->filename = $filename;
         $this->isDirty = true;
     }
 
     /**
-     * Get the bytes for this file.
+     * Get the PHP MongoGridFSFile instance being wrapped.
      *
-     * @return string|null
+     * @return \MongoGridFSFile
      */
-    public function getBytes()
+    public function getMongoGridFSFile()
     {
-        if ($this->isDirty && $this->bytes) {
-            return $this->bytes;
-        }
-        if ($this->isDirty && $this->filename) {
-            return file_get_contents($this->filename);
-        }
-        if ($this->mongoGridFSFile instanceof \MongoGridFSFile) {
-            return $this->mongoGridFSFile->getBytes();
-        }
-        return null;
+        return $this->mongoGridFSFile;
+    }
+
+    /**
+     * Set the PHP MongoGridFSFile instance to wrap and mark the file as clean.
+     *
+     * @param \MongoGridFSFile $mongoGridFSFile
+     */
+    public function setMongoGridFSFile(\MongoGridFSFile $mongoGridFSFile)
+    {
+        $this->mongoGridFSFile = $mongoGridFSFile;
+        $this->isDirty = false;
     }
 
     /**
@@ -177,24 +177,23 @@ class GridFSFile
     }
 
     /**
-     * Writes this file to the path indicated by $filename.
+     * Check whether there are unpersisted bytes.
      *
-     * @param string $filename
-     * @return integer Number of bytes written
-     * @throws \BadMethodCallException if nothing can be written
+     * @return boolean
      */
-    public function write($filename)
+    public function hasUnpersistedBytes()
     {
-        if ($this->isDirty && $this->bytes) {
-            return file_put_contents($filename, $this->bytes);
-        }
-        if ($this->isDirty && $this->filename) {
-            return copy($this->filename, $filename);
-        }
-        if ($this->mongoGridFSFile instanceof \MongoGridFSFile) {
-            return $this->mongoGridFSFile->write($filename);
-        }
-        throw new \BadMethodCallException('Nothing to write(). File is not persisted yet and is not dirty.');
+        return ($this->isDirty && $this->bytes);
+    }
+
+    /**
+     * Check whether there is an unpersisted file.
+     *
+     * @return boolean
+     */
+    public function hasUnpersistedFile()
+    {
+        return ($this->isDirty && $this->filename);
     }
 
     /**
@@ -215,22 +214,23 @@ class GridFSFile
     }
 
     /**
-     * Check whether there are unpersisted bytes.
+     * Writes this file to the path indicated by $filename.
      *
-     * @return boolean
+     * @param string $filename
+     * @return integer Number of bytes written
+     * @throws \BadMethodCallException if nothing can be written
      */
-    public function hasUnpersistedBytes()
+    public function write($filename)
     {
-        return ($this->isDirty && $this->bytes);
-    }
-
-    /**
-     * Check whether there is an unpersisted file.
-     *
-     * @return boolean
-     */
-    public function hasUnpersistedFile()
-    {
-        return ($this->isDirty && $this->filename);
+        if ($this->isDirty && $this->bytes) {
+            return file_put_contents($filename, $this->bytes);
+        }
+        if ($this->isDirty && $this->filename) {
+            return copy($this->filename, $filename);
+        }
+        if ($this->mongoGridFSFile instanceof \MongoGridFSFile) {
+            return $this->mongoGridFSFile->write($filename);
+        }
+        throw new \BadMethodCallException('Nothing to write(). File is not persisted yet and is not dirty.');
     }
 }
