@@ -90,26 +90,6 @@ class Database
     }
 
     /**
-     * Return the name of this database.
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * Return a new MongoDB instance for this database.
-     *
-     * @return \MongoDB
-     */
-    public function getMongoDB()
-    {
-        return $this->connection->getMongo()->selectDB($this->name);
-    }
-
-    /**
      * Wrapper method for MongoDB::authenticate().
      *
      * @see http://php.net/manual/en/mongodb.authenticate.php
@@ -242,18 +222,6 @@ class Database
     }
 
     /**
-     * Wrapper method for MongoDB::__get().
-     *
-     * @see http://php.net/manual/en/mongodb.get.php
-     * @param string $name
-     * @return \MongoCollection
-     */
-    public function __get($name)
-    {
-        return $this->getMongoDB()->__get($name);
-    }
-
-    /**
      * Wrapper method for MongoDB::getDBRef().
      *
      * @see http://php.net/manual/en/mongodb.getdbref.php
@@ -288,15 +256,100 @@ class Database
     }
 
     /**
-     * Return a new GridFS instance.
+     * Return a new MongoDB instance for this database.
      *
-     * @see Database::getGridFS()
-     * @param string $prefix
-     * @return GridFS
+     * @return \MongoDB
      */
-    protected function doGetGridFs($prefix)
+    public function getMongoDB()
     {
-        return new GridFS($this->connection, $prefix, $this, $this->eventManager, $this->cmd);
+        return $this->connection->getMongo()->selectDB($this->name);
+    }
+
+    /**
+     * Return the name of this database.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Wrapper method for MongoDB::getProfilingLevel().
+     *
+     * @see http://php.net/manual/en/mongodb.getprofilinglevel.php
+     * @return integer
+     */
+    public function getProfilingLevel()
+    {
+        return $this->getMongoDB()->getProfilingLevel();
+    }
+
+    /**
+     * Wrapper method for MongoDB::setProfilingLevel().
+     *
+     * @see http://php.net/manual/en/mongodb.setprofilinglevel.php
+     * @param integer $level
+     * @return integer
+     */
+    public function setProfilingLevel($level)
+    {
+        return $this->getMongoDB()->setProfilingLevel($level);
+    }
+
+    /**
+     * Wrapper method for MongoDB::getReadPreference().
+     *
+     * @see http://php.net/manual/en/mongodb.getreadpreference.php
+     * @return array
+     */
+    public function getReadPreference()
+    {
+        return $this->getMongoDB()->getReadPreference();
+    }
+
+    /**
+     * Wrapper method for MongoDB::setReadPreference().
+     *
+     * @see http://php.net/manual/en/mongodb.setreadpreference.php
+     * @param string $readPreference
+     * @param array  $tags
+     * @return boolean
+     */
+    public function setReadPreference($readPreference, array $tags = null)
+    {
+        if (isset($tags)) {
+            return $this->getMongoDB()->setReadPreference($readPreference, $tags);
+        }
+
+        return $this->getMongoDB()->setReadPreference($readPreference);
+    }
+
+    /**
+     * Get whether secondary read queries are allowed for this database.
+     *
+     * This method wraps getSlaveOkay() for driver versions before 1.3.0. For
+     * newer drivers, this method considers any read preference other than
+     * PRIMARY as a true "slaveOkay" value.
+     *
+     * @see http://php.net/manual/en/mongodb.getreadpreference.php
+     * @see http://php.net/manual/en/mongodb.getslaveokay.php
+     * @return boolean
+     */
+    public function getSlaveOkay()
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            return $this->getMongoDB()->getSlaveOkay();
+        }
+
+        $readPref = $this->getMongoDB()->getReadPreference();
+
+        if (is_numeric($readPref['type'])) {
+            $readPref['type'] = ReadPreference::convertNumericType($readPref['type']);
+        }
+
+        return \MongoClient::RP_PRIMARY !== $readPref['type'];
     }
 
     /**
@@ -329,71 +382,6 @@ class Database
         }
 
         return $prevSlaveOkay;
-    }
-
-    /**
-     * Get whether secondary read queries are allowed for this database.
-     *
-     * This method wraps getSlaveOkay() for driver versions before 1.3.0. For
-     * newer drivers, this method considers any read preference other than
-     * PRIMARY as a true "slaveOkay" value.
-     *
-     * @see http://php.net/manual/en/mongodb.getreadpreference.php
-     * @see http://php.net/manual/en/mongodb.getslaveokay.php
-     * @return boolean
-     */
-    public function getSlaveOkay()
-    {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            return $this->getMongoDB()->getSlaveOkay();
-        }
-
-        $readPref = $this->getMongoDB()->getReadPreference();
-
-        if (is_numeric($readPref['type'])) {
-            $readPref['type'] = ReadPreference::convertNumericType($readPref['type']);
-        }
-
-        return \MongoClient::RP_PRIMARY !== $readPref['type'];
-    }
-
-    /**
-     * Wrapper method for MongoDB::getReadPreference().
-     *
-     * @see http://php.net/manual/en/mongodb.getreadpreference.php
-     * @return array
-     */
-    public function getReadPreference()
-    {
-        return $this->getMongoDB()->getReadPreference();
-    }
-
-    /**
-     * Wrapper method for MongoDB::setReadPreference().
-     *
-     * @see http://php.net/manual/en/mongodb.setreadpreference.php
-     * @param string $readPreference
-     * @param array  $tags
-     * @return boolean
-     */
-    public function setReadPreference($readPreference, array $tags = null)
-    {
-        if (isset($tags)) {
-            return $this->getMongoDB()->setReadPreference($readPreference, $tags);
-        }
-
-        return $this->getMongoDB()->setReadPreference($readPreference);
-    }
-
-    /**
-     * Wrapper method for MongoDB::getProfilingLevel().
-     *
-     * @see http://php.net/manual/en/mongodb.getprofilinglevel.php
-     * @return integer
-     */
-    public function getProfilingLevel()
-    {
-        return $this->getMongoDB()->getProfilingLevel();
     }
 
     /**
@@ -479,27 +467,15 @@ class Database
     }
 
     /**
-     * Return a new Collection instance.
+     * Wrapper method for MongoDB::__get().
      *
-     * @see Database::selectCollection()
+     * @see http://php.net/manual/en/mongodb.get.php
      * @param string $name
-     * @return Collection
+     * @return \MongoCollection
      */
-    protected function doSelectCollection($name)
+    public function __get($name)
     {
-        return new Collection($this->connection, $name, $this, $this->eventManager, $this->cmd, $this->numRetries);
-    }
-
-    /**
-     * Wrapper method for MongoDB::setProfilingLevel().
-     *
-     * @see http://php.net/manual/en/mongodb.setprofilinglevel.php
-     * @param integer $level
-     * @return integer
-     */
-    public function setProfilingLevel($level)
-    {
-        return $this->getMongoDB()->setProfilingLevel($level);
+        return $this->getMongoDB()->__get($name);
     }
 
     /**
@@ -511,5 +487,29 @@ class Database
     public function __toString()
     {
         return $this->name;
+    }
+
+    /**
+     * Return a new GridFS instance.
+     *
+     * @see Database::getGridFS()
+     * @param string $prefix
+     * @return GridFS
+     */
+    protected function doGetGridFs($prefix)
+    {
+        return new GridFS($this->connection, $prefix, $this, $this->eventManager, $this->cmd);
+    }
+
+    /**
+     * Return a new Collection instance.
+     *
+     * @see Database::selectCollection()
+     * @param string $name
+     * @return Collection
+     */
+    protected function doSelectCollection($name)
+    {
+        return new Collection($this->connection, $name, $this, $this->eventManager, $this->cmd, $this->numRetries);
     }
 }
