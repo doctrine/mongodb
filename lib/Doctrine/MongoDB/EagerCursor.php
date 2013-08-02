@@ -60,6 +60,24 @@ class EagerCursor implements Iterator
     }
 
     /**
+     * @see http://php.net/manual/en/countable.count.php
+     */
+    public function count()
+    {
+        $this->initialize();
+        return count($this->data);
+    }
+
+    /**
+     * @see http://php.net/manual/en/iterator.current.php
+     */
+    public function current()
+    {
+        $this->initialize();
+        return current($this->data);
+    }
+
+    /**
      * Return the wrapped Cursor.
      *
      * @return Cursor
@@ -70,13 +88,12 @@ class EagerCursor implements Iterator
     }
 
     /**
-     * Return whether the internal data has been initialized.
-     *
-     * @return boolean
+     * @see Iterator::getSingleResult()
      */
-    public function isInitialized()
+    public function getSingleResult()
     {
-        return $this->initialized;
+        $this->initialize();
+        return $this->current();
     }
 
     /**
@@ -91,21 +108,13 @@ class EagerCursor implements Iterator
     }
 
     /**
-     * @see http://php.net/manual/en/iterator.rewind.php
+     * Return whether the internal data has been initialized.
+     *
+     * @return boolean
      */
-    public function rewind()
+    public function isInitialized()
     {
-        $this->initialize();
-        reset($this->data);
-    }
-
-    /**
-     * @see http://php.net/manual/en/iterator.current.php
-     */
-    public function current()
-    {
-        $this->initialize();
-        return current($this->data);
+        return $this->initialized;
     }
 
     /**
@@ -127,21 +136,12 @@ class EagerCursor implements Iterator
     }
 
     /**
-     * @see http://php.net/manual/en/iterator.valid.php
+     * @see http://php.net/manual/en/iterator.rewind.php
      */
-    public function valid()
+    public function rewind()
     {
         $this->initialize();
-        return key($this->data) !== null;
-    }
-
-    /**
-     * @see http://php.net/manual/en/countable.count.php
-     */
-    public function count()
-    {
-        $this->initialize();
-        return count($this->data);
+        reset($this->data);
     }
 
     /**
@@ -154,11 +154,11 @@ class EagerCursor implements Iterator
     }
 
     /**
-     * @see Iterator::getSingleResult()
+     * @see http://php.net/manual/en/iterator.valid.php
      */
-    public function getSingleResult()
+    public function valid()
     {
         $this->initialize();
-        return $this->current();
+        return key($this->data) !== null;
     }
 }
