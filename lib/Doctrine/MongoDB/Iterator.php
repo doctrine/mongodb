@@ -33,6 +33,7 @@ interface Iterator extends \Iterator, \Countable
      * @return array|object|null
      */
     function getSingleResult();
+
     /**
      * Return all elements as an array.
      *
