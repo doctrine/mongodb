@@ -716,6 +716,12 @@ class Collection
             return new ArrayIterator($result['results']);
         }
 
+        if (isset($result['result']['db'], $result['result']['collection'])) {
+            return $this->connection
+                ->selectCollection($result['result']['db'], $result['result']['collection'])
+                ->find();
+        }
+
         return $this->database->selectCollection($result['result'])->find();
     }
 
