@@ -37,23 +37,26 @@ final class Events
     const preBatchInsert = 'collectionPreBatchInsert';
     const postBatchInsert = 'collectionPostBatchInsert';
 
-    const preSave = 'collectionPreSave';
-    const postSave = 'collectionPostSave';
+    const preCreateCollection = 'preCreateCollection';
+    const postCreateCollection = 'postCreateCollection';
 
-    const preInsert = 'collectionPreInsert';
-    const postInsert = 'collectionPostInsert';
+    const preCreateDBRef = 'collectionPreCreateDBRef';
+    const postCreateDBRef = 'collectionPostCreateDBRef';
 
-    const preUpdate = 'collectionPreUpdate';
-    const postUpdate = 'collectionPostUpdate';
+    const preConnect = 'preConnect';
+    const postConnect = 'postConnect';
 
-    const preRemove = 'collectionPreRemove';
-    const postRemove = 'collectionPostRemove';
+    const preDistinct = 'collectionPreDistinct';
+    const postDistinct = 'collectionPostDistinct';
+
+    const preDropCollection = 'preDropCollection';
+    const postDropCollection = 'postDropCollection';
+
+    const preDropDatabase = 'preDropDatabase';
+    const postDropDatabase = 'postDropDatabase';
 
     const preFind = 'collectionPreFind';
     const postFind = 'collectionPostFind';
-
-    const preFindOne = 'collectionPreFindOne';
-    const postFindOne = 'collectionPostFindOne';
 
     const preFindAndRemove = 'collectionPreFindAndRemove';
     const postFindAndRemove = 'collectionPostFindAndRemove';
@@ -61,17 +64,20 @@ final class Events
     const preFindAndUpdate = 'collectionPreFindAndUpdate';
     const postFindAndUpdate = 'collectionPostFindAndUpdate';
 
-    const preGroup = 'collectionPreGroup';
-    const postGroup = 'collectionPostGroup';
+    const preFindOne = 'collectionPreFindOne';
+    const postFindOne = 'collectionPostFindOne';
 
     const preGetDBRef = 'collectionPreGetDBRef';
     const postGetDBRef = 'collectionPostGetDBRef';
 
-    const preCreateDBRef = 'collectionPreCreateDBRef';
-    const postCreateDBRef = 'collectionPostCreateDBRef';
+    const preGetGridFS = 'preGetGridFS';
+    const postGetGridFS = 'postGetGridFS';
 
-    const preDistinct = 'collectionPreDistinct';
-    const postDistinct = 'collectionPostDistinct';
+    const preGroup = 'collectionPreGroup';
+    const postGroup = 'collectionPostGroup';
+
+    const preInsert = 'collectionPreInsert';
+    const postInsert = 'collectionPostInsert';
 
     const preMapReduce = 'preMapReduce';
     const postMapReduce = 'postMapReduce';
@@ -79,24 +85,18 @@ final class Events
     const preNear = 'collectionPreNear';
     const postNear = 'collectionPostNear';
 
-    const preCreateCollection = 'preCreateCollection';
-    const postCreateCollection = 'postCreateCollection';
+    const preRemove = 'collectionPreRemove';
+    const postRemove = 'collectionPostRemove';
 
-    const preSelectDatabase = 'preSelectDatabase';
-    const postSelectDatabase = 'postSelectDatabase';
-
-    const preDropDatabase = 'preDropDatabase';
-    const postDropDatabase = 'postDropDatabase';
+    const preSave = 'collectionPreSave';
+    const postSave = 'collectionPostSave';
 
     const preSelectCollection = 'preSelectCollection';
     const postSelectCollection = 'postSelectCollection';
 
-    const preDropCollection = 'preDropCollection';
-    const postDropCollection = 'postDropCollection';
+    const preSelectDatabase = 'preSelectDatabase';
+    const postSelectDatabase = 'postSelectDatabase';
 
-    const preGetGridFS = 'preGetGridFS';
-    const postGetGridFS = 'postGetGridFS';
-
-    const preConnect = 'preConnect';
-    const postConnect = 'postConnect';
+    const preUpdate = 'collectionPreUpdate';
+    const postUpdate = 'collectionPostUpdate';
 }
