@@ -42,6 +42,75 @@ class GridFS extends Collection
     }
 
     /**
+     * Wrapper method for MongoGridFS::storeFile().
+     *
+     * This method returns the GridFSFile object, unlike the base MongoGridFS
+     * method, which returns the "_id" field of the saved document. The "_id"
+     * will be set on the $document parameter, which is passed by reference.
+     *
+     * @see http://php.net/manual/en/mongogridfs.storefile.php
+     * @param string|GridFSFile $file     String filename or a GridFSFile object
+     * @param array             $document
+     * @param array             $options
+     * @return GridFSFile
+     */
+    public function storeFile($file, array &$document, array $options = array())
+    {
+        if ( ! $file instanceof GridFSFile) {
+            $file = new GridFSFile($file);
+        }
+
+        if ($file->hasUnpersistedFile()) {
+            $id = $this->getMongoCollection()->storeFile($file->getFilename(), $document, $options);
+        } else {
+            $id = $this->getMongoCollection()->storeBytes($file->getBytes(), $document, $options);
+        }
+
+        $document = array_merge(array('_id' => $id), $document);
+        $gridFsFile = $this->getMongoCollection()->get($id);
+
+        // TODO: Consider throwing exception if file cannot be fetched
+        $file->setMongoGridFSFile($this->getMongoCollection()->get($id));
+
+        return $file;
+    }
+
+    /**
+     * Execute the batchInsert query.
+     *
+     * @see Collection::doBatchInsert()
+     * @param array $a
+     * @param array $options
+     */
+    protected function doBatchInsert(array &$a, array $options = array())
+    {
+        foreach ($a as $key => &$array) {
+            $this->doInsert($array, $options);
+        }
+    }
+
+    /**
+     * Execute the findAndModify command with the remove option and delete any
+     * chunks for the document.
+     *
+     * @see Collection::doFindAndRemove()
+     * @param array $query
+     * @param array $options
+     * @return array|null
+     */
+    protected function doFindAndRemove(array $query, array $options = array())
+    {
+        $document = parent::doFindAndRemove($query, $options);
+
+        if (isset($document)) {
+            // Remove the file data from the chunks collection
+            $this->getMongoCollection()->chunks->remove(array('files_id' => $document['_id']), $options);
+        }
+
+        return $document;
+    }
+
+    /**
      * Execute the findOne query.
      *
      * This method returns the file document, unlike the base MongoGridFS
@@ -65,6 +134,55 @@ class GridFS extends Collection
             $file = $document;
         }
         return $file;
+    }
+
+    /**
+     * Execute the insert query and persist the GridFSFile if necessary.
+     *
+     * @see Collection::doInsert()
+     * @param array $a
+     * @param array $options
+     * @return mixed
+     */
+    protected function doInsert(array &$a, array $options = array())
+    {
+        // If there is no file, perform a basic insertion
+        if ( ! isset($a['file'])) {
+            parent::doInsert($a, $options);
+            return;
+        }
+
+        /* If the file is dirty (i.e. it must be persisted), delegate to the
+         * storeFile() method. Otherwise, perform a basic insertion.
+         */
+        $file = $a['file']; // instanceof GridFSFile
+        unset($a['file']);
+
+        if ($file->isDirty()) {
+            $this->storeFile($file, $a, $options);
+        } else {
+            parent::doInsert($a, $options);
+        }
+
+        $a['file'] = $file;
+        return $a;
+    }
+
+    /**
+     * Execute the save query and persist the GridFSFile if necessary.
+     *
+     * @see Collection::doSave()
+     * @param array $a
+     * @param array $options
+     * @return mixed
+     */
+    protected function doSave(array &$a, array $options = array())
+    {
+        if (isset($a['_id'])) {
+            return $this->doUpdate(array('_id' => $a['_id']), $a, $options);
+        } else {
+            return $this->doInsert($a, $options);
+        }
     }
 
     /**
@@ -165,123 +283,5 @@ class GridFS extends Collection
 
         // Now send the original update bringing the file up to date
         return $this->getMongoCollection()->update($query, $newObj, $options);
-    }
-
-    /**
-     * Execute the batchInsert query.
-     *
-     * @see Collection::doBatchInsert()
-     * @param array $a
-     * @param array $options
-     */
-    protected function doBatchInsert(array &$a, array $options = array())
-    {
-        foreach ($a as $key => &$array) {
-            $this->doInsert($array, $options);
-        }
-    }
-
-    /**
-     * Execute the insert query and persist the GridFSFile if necessary.
-     *
-     * @see Collection::doInsert()
-     * @param array $a
-     * @param array $options
-     * @return mixed
-     */
-    protected function doInsert(array &$a, array $options = array())
-    {
-        // If there is no file, perform a basic insertion
-        if ( ! isset($a['file'])) {
-            parent::doInsert($a, $options);
-            return;
-        }
-
-        /* If the file is dirty (i.e. it must be persisted), delegate to the
-         * storeFile() method. Otherwise, perform a basic insertion.
-         */
-        $file = $a['file']; // instanceof GridFSFile
-        unset($a['file']);
-
-        if ($file->isDirty()) {
-            $this->storeFile($file, $a, $options);
-        } else {
-            parent::doInsert($a, $options);
-        }
-
-        $a['file'] = $file;
-        return $a;
-    }
-
-    /**
-     * Execute the save query and persist the GridFSFile if necessary.
-     *
-     * @see Collection::doSave()
-     * @param array $a
-     * @param array $options
-     * @return mixed
-     */
-    protected function doSave(array &$a, array $options = array())
-    {
-        if (isset($a['_id'])) {
-            return $this->doUpdate(array('_id' => $a['_id']), $a, $options);
-        } else {
-            return $this->doInsert($a, $options);
-        }
-    }
-
-    /**
-     * Wrapper method for MongoGridFS::storeFile().
-     *
-     * This method returns the GridFSFile object, unlike the base MongoGridFS
-     * method, which returns the "_id" field of the saved document. The "_id"
-     * will be set on the $document parameter, which is passed by reference.
-     *
-     * @see http://php.net/manual/en/mongogridfs.storefile.php
-     * @param string|GridFSFile $file     String filename or a GridFSFile object
-     * @param array             $document
-     * @param array             $options
-     * @return GridFSFile
-     */
-    public function storeFile($file, array &$document, array $options = array())
-    {
-        if ( ! $file instanceof GridFSFile) {
-            $file = new GridFSFile($file);
-        }
-
-        if ($file->hasUnpersistedFile()) {
-            $id = $this->getMongoCollection()->storeFile($file->getFilename(), $document, $options);
-        } else {
-            $id = $this->getMongoCollection()->storeBytes($file->getBytes(), $document, $options);
-        }
-
-        $document = array_merge(array('_id' => $id), $document);
-        $gridFsFile = $this->getMongoCollection()->get($id);
-
-        // TODO: Consider throwing exception if file cannot be fetched
-        $file->setMongoGridFSFile($this->getMongoCollection()->get($id));
-
-        return $file;
-    }
-
-    /**
-     * Execute the findAndModify command with the remove option and delete any
-     * chunks for the document.
-     *
-     * @see Collection::doFindAndRemove()
-     * @param array $query
-     * @param array $options
-     * @return array|null
-     */
-    protected function doFindAndRemove(array $query, array $options = array())
-    {
-        $document = parent::doFindAndRemove($query, $options);
-
-        if (isset($document)) {
-            // Remove the file data from the chunks collection
-            $this->getMongoCollection()->chunks->remove(array('files_id' => $document['_id']), $options);
-        }
-
-        return $document;
     }
 }
