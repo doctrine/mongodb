@@ -55,16 +55,6 @@ class LoggableCursor extends Cursor implements Loggable
     }
 
     /**
-     * Get the logger callable.
-     *
-     * @return callable
-     */
-    public function getLoggerCallable()
-    {
-        return $this->loggerCallable;
-    }
-
-    /**
      * Log something using the configured logger callable.
      *
      * @see Loggable::log()
@@ -78,42 +68,13 @@ class LoggableCursor extends Cursor implements Loggable
     }
 
     /**
-     * @see Cursor::sort()
+     * Get the logger callable.
+     *
+     * @return callable
      */
-    public function sort($fields)
+    public function getLoggerCallable()
     {
-        $this->log(array(
-            'sort' => true,
-            'sortFields' => $fields,
-        ));
-
-        return parent::sort($fields);
-    }
-
-    /**
-     * @see Cursor::skip()
-     */
-    public function skip($num)
-    {
-        $this->log(array(
-            'skip' => true,
-            'skipNum' => $num,
-        ));
-
-        return parent::skip($num);
-    }
-
-    /**
-     * @see Cursor::limit()
-     */
-    public function limit($num)
-    {
-        $this->log(array(
-            'limit' => true,
-            'limitNum' => $num,
-        ));
-
-        return parent::limit($num);
+        return $this->loggerCallable;
     }
 
     /**
@@ -130,6 +91,32 @@ class LoggableCursor extends Cursor implements Loggable
     }
 
     /**
+     * @see Cursor::limit()
+     */
+    public function limit($num)
+    {
+        $this->log(array(
+            'limit' => true,
+            'limitNum' => $num,
+        ));
+
+        return parent::limit($num);
+    }
+
+    /**
+     * @see Cursor::skip()
+     */
+    public function skip($num)
+    {
+        $this->log(array(
+            'skip' => true,
+            'skipNum' => $num,
+        ));
+
+        return parent::skip($num);
+    }
+
+    /**
      * @see Cursor::snapshot()
      */
     public function snapshot()
@@ -139,5 +126,18 @@ class LoggableCursor extends Cursor implements Loggable
         ));
 
         return parent::snapshot();
+    }
+
+    /**
+     * @see Cursor::sort()
+     */
+    public function sort($fields)
+    {
+        $this->log(array(
+            'sort' => true,
+            'sortFields' => $fields,
+        ));
+
+        return parent::sort($fields);
     }
 }

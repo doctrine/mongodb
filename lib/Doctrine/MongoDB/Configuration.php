@@ -39,6 +39,16 @@ class Configuration
     );
 
     /**
+     * Gets the logger callable.
+     *
+     * @return callable
+     */
+    public function getLoggerCallable()
+    {
+        return isset($this->attributes['loggerCallable']) ? $this->attributes['loggerCallable'] : null;
+    }
+
+    /**
      * Set the logger callable.
      *
      * @param callable $loggerCallable
@@ -46,17 +56,6 @@ class Configuration
     public function setLoggerCallable($loggerCallable)
     {
         $this->attributes['loggerCallable'] = $loggerCallable;
-    }
-
-    /**
-     * Gets the logger callable.
-     *
-     * @return callable
-     */
-    public function getLoggerCallable()
-    {
-        return isset($this->attributes['loggerCallable']) ?
-                $this->attributes['loggerCallable'] : null;
     }
 
     /**

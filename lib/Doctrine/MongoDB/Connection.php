@@ -97,122 +97,6 @@ class Connection
     }
 
     /**
-     * Construct a new MongoClient instance.
-     *
-     * This method will dispatch preConnect and postConnect events.
-     *
-     * @param boolean $reinitialize
-     */
-    public function initialize($reinitialize = false)
-    {
-        if ($reinitialize === true || $this->mongo === null) {
-            if ($this->eventManager->hasListeners(Events::preConnect)) {
-                $this->eventManager->dispatchEvent(Events::preConnect, new EventArgs($this));
-            }
-
-            $server  = $this->server;
-            $options = $this->options;
-            $this->mongo = $this->retry(function() use($server, $options) {
-                if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-                    return new \Mongo($server ?: 'mongodb://localhost:27017', $options);
-                }
-
-                return new \MongoClient($server ?: 'mongodb://localhost:27017', $options);
-            });
-
-            if ($this->eventManager->hasListeners(Events::postConnect)) {
-                $this->eventManager->dispatchEvent(Events::postConnect, new EventArgs($this));
-            }
-        }
-    }
-
-    /**
-     * Get the server string.
-     *
-     * @return string|null
-     */
-    public function getServer()
-    {
-        return $this->server;
-    }
-
-    /**
-     * Gets the $status property of the wrapped MongoClient instance.
-     *
-     * @return string
-     */
-    public function getStatus()
-    {
-        return $this->mongo->status;
-    }
-
-    /**
-     * Checks whether the connection is initialized and connected.
-     *
-     * @return boolean
-     */
-    public function isConnected()
-    {
-        return $this->mongo !== null && $this->mongo instanceof \Mongo && $this->mongo->connected;
-    }
-
-    /**
-     * Log something using the configured logger callable (if available).
-     *
-     * @param array $log
-     */
-    public function log(array $log)
-    {
-        if (null !== $this->config->getLoggerCallable()) {
-            call_user_func_array($this->config->getLoggerCallable(), array($log));
-        }
-    }
-
-    /**
-     * Set the PHP MongoClient instance to wrap.
-     *
-     * @param \MongoClient $mongo
-     */
-    public function setMongo($mongo)
-    {
-        if ( ! ($mongo instanceof \MongoClient || $mongo instanceof \Mongo)) {
-            throw new \InvalidArgumentException('MongoClient or Mongo instance required');
-        }
-
-        $this->mongo = $mongo;
-    }
-
-    /**
-     * Get the PHP MongoClient instance being wrapped.
-     *
-     * @return \MongoClient
-     */
-    public function getMongo()
-    {
-        return $this->mongo;
-    }
-
-    /**
-     * Get the EventManager used by this Connection.
-     *
-     * @return \Doctrine\Common\EventManager
-     */
-    public function getEventManager()
-    {
-        return $this->eventManager;
-    }
-
-    /**
-     * Get the Configuration used by this Connection.
-     *
-     * @return Configuration
-     */
-    public function getConfiguration()
-    {
-        return $this->config;
-    }
-
-    /**
      * Wrapper method for MongoClient::close().
      *
      * @see http://php.net/manual/en/mongoclient.close.php
@@ -266,16 +150,135 @@ class Connection
     }
 
     /**
-     * Wrapper method for MongoClient::__get().
+     * Get the Configuration used by this Connection.
      *
-     * @see http://php.net/manual/en/mongoclient.get.php
-     * @param string $database
-     * @return \MongoDB
+     * @return Configuration
      */
-    public function __get($database)
+    public function getConfiguration()
     {
-        $this->initialize();
-        return $this->mongo->$database;
+        return $this->config;
+    }
+
+    /**
+     * Get the EventManager used by this Connection.
+     *
+     * @return \Doctrine\Common\EventManager
+     */
+    public function getEventManager()
+    {
+        return $this->eventManager;
+    }
+
+    /**
+     * Get the PHP MongoClient instance being wrapped.
+     *
+     * @return \MongoClient
+     */
+    public function getMongo()
+    {
+        return $this->mongo;
+    }
+
+    /**
+     * Set the PHP MongoClient instance to wrap.
+     *
+     * @param \MongoClient $mongo
+     */
+    public function setMongo($mongo)
+    {
+        if ( ! ($mongo instanceof \MongoClient || $mongo instanceof \Mongo)) {
+            throw new \InvalidArgumentException('MongoClient or Mongo instance required');
+        }
+
+        $this->mongo = $mongo;
+    }
+
+    /**
+     * Wrapper method for MongoClient::getReadPreference().
+     *
+     * @see http://php.net/manual/en/mongoclient.getreadpreference.php
+     * @return array
+     */
+    public function getReadPreference()
+    {
+        return $this->mongo->getReadPreference();
+    }
+
+    /**
+     * Wrapper method for MongoClient::setReadPreference().
+     *
+     * @see http://php.net/manual/en/mongoclient.setreadpreference.php
+     * @param string $readPreference
+     * @param array  $tags
+     * @return boolean
+     */
+    public function setReadPreference($readPreference, array $tags = null)
+    {
+        if (isset($tags)) {
+            return $this->mongo->setReadPreference($readPreference, $tags);
+        }
+
+        return $this->mongo->setReadPreference($readPreference);
+    }
+
+    /**
+     * Get the server string.
+     *
+     * @return string|null
+     */
+    public function getServer()
+    {
+        return $this->server;
+    }
+
+    /**
+     * Gets the $status property of the wrapped MongoClient instance.
+     *
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->mongo->status;
+    }
+
+    /**
+     * Construct a new MongoClient instance.
+     *
+     * This method will dispatch preConnect and postConnect events.
+     *
+     * @param boolean $reinitialize
+     */
+    public function initialize($reinitialize = false)
+    {
+        if ($reinitialize === true || $this->mongo === null) {
+            if ($this->eventManager->hasListeners(Events::preConnect)) {
+                $this->eventManager->dispatchEvent(Events::preConnect, new EventArgs($this));
+            }
+
+            $server  = $this->server;
+            $options = $this->options;
+            $this->mongo = $this->retry(function() use($server, $options) {
+                if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+                    return new \Mongo($server ?: 'mongodb://localhost:27017', $options);
+                }
+
+                return new \MongoClient($server ?: 'mongodb://localhost:27017', $options);
+            });
+
+            if ($this->eventManager->hasListeners(Events::postConnect)) {
+                $this->eventManager->dispatchEvent(Events::postConnect, new EventArgs($this));
+            }
+        }
+    }
+
+    /**
+     * Checks whether the connection is initialized and connected.
+     *
+     * @return boolean
+     */
+    public function isConnected()
+    {
+        return $this->mongo !== null && $this->mongo instanceof \Mongo && $this->mongo->connected;
     }
 
     /**
@@ -288,6 +291,18 @@ class Connection
     {
         $this->initialize();
         return $this->mongo->listDBs();
+    }
+
+    /**
+     * Log something using the configured logger callable (if available).
+     *
+     * @param array $log
+     */
+    public function log(array $log)
+    {
+        if (null !== $this->config->getLoggerCallable()) {
+            call_user_func_array($this->config->getLoggerCallable(), array($log));
+        }
     }
 
     /**
@@ -331,50 +346,28 @@ class Connection
     }
 
     /**
-     * Wrapper method for MongoClient::getReadPreference().
+     * Wrapper method for MongoClient::__get().
      *
-     * @see http://php.net/manual/en/mongoclient.getreadpreference.php
-     * @return array
+     * @see http://php.net/manual/en/mongoclient.get.php
+     * @param string $database
+     * @return \MongoDB
      */
-    public function getReadPreference()
+    public function __get($database)
     {
-        return $this->mongo->getReadPreference();
+        $this->initialize();
+        return $this->mongo->$database;
     }
 
     /**
-     * Wrapper method for MongoClient::setReadPreference().
+     * Wrapper method for MongoClient::__toString().
      *
-     * @see http://php.net/manual/en/mongoclient.setreadpreference.php
-     * @param string $readPreference
-     * @param array  $tags
-     * @return boolean
+     * @see http://php.net/manual/en/mongoclient.tostring.php
+     * @return string
      */
-    public function setReadPreference($readPreference, array $tags = null)
+    public function __toString()
     {
-        if (isset($tags)) {
-            return $this->mongo->setReadPreference($readPreference, $tags);
-        }
-
-        return $this->mongo->setReadPreference($readPreference);
-    }
-
-    /**
-     * Creates a Database instance.
-     *
-     * If a logger callable was defined, a LoggableDatabase will be returned.
-     *
-     * @param string $name
-     * @return Database
-     */
-    protected function wrapDatabase($name)
-    {
-        $numRetries = $this->config->getRetryQuery();
-        if (null !== $this->config->getLoggerCallable()) {
-            return new LoggableDatabase(
-                $this, $name, $this->eventManager, $this->cmd, $numRetries, $this->config->getLoggerCallable()
-            );
-        }
-        return new Database($this, $name, $this->eventManager, $this->cmd, $numRetries);
+        $this->initialize();
+        return $this->mongo->__toString();
     }
 
     /**
@@ -410,14 +403,21 @@ class Connection
     }
 
     /**
-     * Wrapper method for MongoClient::__toString().
+     * Creates a Database instance.
      *
-     * @see http://php.net/manual/en/mongoclient.tostring.php
-     * @return string
+     * If a logger callable was defined, a LoggableDatabase will be returned.
+     *
+     * @param string $name
+     * @return Database
      */
-    public function __toString()
+    protected function wrapDatabase($name)
     {
-        $this->initialize();
-        return $this->mongo->__toString();
+        $numRetries = $this->config->getRetryQuery();
+        if (null !== $this->config->getLoggerCallable()) {
+            return new LoggableDatabase(
+                $this, $name, $this->eventManager, $this->cmd, $numRetries, $this->config->getLoggerCallable()
+            );
+        }
+        return new Database($this, $name, $this->eventManager, $this->cmd, $numRetries);
     }
 }
