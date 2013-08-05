@@ -86,49 +86,6 @@ class LoggableCollection extends Collection implements Loggable
     }
 
     /**
-     * @see Collection::update()
-     */
-    public function update($query, array $newObj, array $options = array())
-    {
-        $this->log(array(
-            'update' => true,
-            'query' => $query,
-            'newObj' => $newObj,
-            'options' => $options,
-        ));
-
-        return parent::update($query, $newObj, $options);
-    }
-
-    /**
-     * @see Collection::find()
-     */
-    public function find(array $query = array(), array $fields = array())
-    {
-        $this->log(array(
-            'find' => true,
-            'query' => $query,
-            'fields' => $fields,
-        ));
-
-        return parent::find($query, $fields);
-    }
-
-    /**
-     * @see Collection::findOne()
-     */
-    public function findOne(array $query = array(), array $fields = array())
-    {
-        $this->log(array(
-            'findOne' => true,
-            'query' => $query,
-            'fields' => $fields,
-        ));
-
-        return parent::findOne($query, $fields);
-    }
-
-    /**
      * @see Collection::count()
      */
     public function count(array $query = array(), $limit = 0, $skip = 0)
@@ -204,6 +161,34 @@ class LoggableCollection extends Collection implements Loggable
     }
 
     /**
+     * @see Collection::find()
+     */
+    public function find(array $query = array(), array $fields = array())
+    {
+        $this->log(array(
+            'find' => true,
+            'query' => $query,
+            'fields' => $fields,
+        ));
+
+        return parent::find($query, $fields);
+    }
+
+    /**
+     * @see Collection::findOne()
+     */
+    public function findOne(array $query = array(), array $fields = array())
+    {
+        $this->log(array(
+            'findOne' => true,
+            'query' => $query,
+            'fields' => $fields,
+        ));
+
+        return parent::findOne($query, $fields);
+    }
+
+    /**
      * @see Collection::getDBRef()
      */
     public function getDBRef(array $reference)
@@ -272,6 +257,21 @@ class LoggableCollection extends Collection implements Loggable
         ));
 
         return parent::save($a, $options);
+    }
+
+    /**
+     * @see Collection::update()
+     */
+    public function update($query, array $newObj, array $options = array())
+    {
+        $this->log(array(
+            'update' => true,
+            'query' => $query,
+            'newObj' => $newObj,
+            'options' => $options,
+        ));
+
+        return parent::update($query, $newObj, $options);
     }
 
     /**

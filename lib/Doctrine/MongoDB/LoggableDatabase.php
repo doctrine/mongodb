@@ -36,6 +36,7 @@ class LoggableDatabase extends Database implements Loggable
      * @var callable
      */
     protected $loggerCallable;
+
     /**
      * Constructor.
      *

@@ -98,6 +98,21 @@ class Query implements IteratorAggregate
     }
 
     /**
+     * Count the number of results for this query.
+     *
+     * If the query resulted in a Cursor, the $foundOnly parameter will ignore
+     * limit/skip values if false (the default). If the Query resulted in an
+     * EagerCursor or ArrayIterator, the $foundOnly parameter has no effect.
+     *
+     * @param boolean $foundOnly
+     * @return integer
+     */
+    public function count($foundOnly = false)
+    {
+        return $this->getIterator()->count($foundOnly);
+    }
+
+    /**
      * Return an array of information about the query structure for debugging.
      *
      * The $name parameter may be used to return a specific key from the
@@ -119,45 +134,6 @@ class Query implements IteratorAggregate
             }
         }
         return $debug;
-    }
-
-    /**
-     * Return the query structure.
-     *
-     * @return array
-     */
-    public function getQuery()
-    {
-        return $this->query;
-    }
-
-    /**
-     * Return the query type.
-     *
-     * @return integer
-     */
-    public function getType()
-    {
-        return $this->query['type'];
-    }
-
-    /**
-     * Execute the query and return its result, which must be an Iterator.
-     *
-     * @see http://php.net/manual/en/iteratoraggregate.getiterator.php
-     * @return Iterator
-     * @throws \BadMethodCallException if the query did not return an Iterator
-     */
-    public function getIterator()
-    {
-        if ($this->iterator === null) {
-            $iterator = $this->execute();
-            if ($iterator !== null && !$iterator instanceof Iterator) {
-                throw new \BadMethodCallException('Query execution did not return an iterator. This query may not support returning iterators.');
-            }
-            $this->iterator = $iterator;
-        }
-        return $this->iterator;
     }
 
     /**
@@ -262,6 +238,77 @@ class Query implements IteratorAggregate
     }
 
     /**
+     * Execute the query and return its result, which must be an Iterator.
+     *
+     * @see http://php.net/manual/en/iteratoraggregate.getiterator.php
+     * @return Iterator
+     * @throws \BadMethodCallException if the query did not return an Iterator
+     */
+    public function getIterator()
+    {
+        if ($this->iterator === null) {
+            $iterator = $this->execute();
+            if ($iterator !== null && !$iterator instanceof Iterator) {
+                throw new \BadMethodCallException('Query execution did not return an iterator. This query may not support returning iterators.');
+            }
+            $this->iterator = $iterator;
+        }
+        return $this->iterator;
+    }
+
+    /**
+     * Return the query structure.
+     *
+     * @return array
+     */
+    public function getQuery()
+    {
+        return $this->query;
+    }
+
+    /**
+     * Execute the query and return the first result.
+     *
+     * @see Iterator::getSingleResult()
+     * @return array|object|null
+     */
+    public function getSingleResult()
+    {
+        return $this->getIterator()->getSingleResult();
+    }
+
+    /**
+     * Return the query type.
+     *
+     * @return integer
+     */
+    public function getType()
+    {
+        return $this->query['type'];
+    }
+
+    /**
+     * Alias of {@link Query::getIterator()}.
+     *
+     * @return Iterator
+     */
+    public function iterate()
+    {
+        return $this->getIterator();
+    }
+
+    /**
+     * Execute the query and return its results as an array.
+     *
+     * @see Iterator::toArray()
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->getIterator()->toArray();
+    }
+
+    /**
      * Prepare the Cursor returned by {@link Query::execute()}.
      *
      * This method will apply cursor options present in the query structure
@@ -294,52 +341,5 @@ class Query implements IteratorAggregate
         }
 
         return $cursor;
-    }
-
-    /**
-     * Count the number of results for this query.
-     *
-     * If the query resulted in a Cursor, the $foundOnly parameter will ignore
-     * limit/skip values if false (the default). If the Query resulted in an
-     * EagerCursor or ArrayIterator, the $foundOnly parameter has no effect.
-     *
-     * @param boolean $foundOnly
-     * @return integer
-     */
-    public function count($foundOnly = false)
-    {
-        return $this->getIterator()->count($foundOnly);
-    }
-
-    /**
-     * Execute the query and return the first result.
-     *
-     * @see Iterator::getSingleResult()
-     * @return array|object|null
-     */
-    public function getSingleResult()
-    {
-        return $this->getIterator()->getSingleResult();
-    }
-
-    /**
-     * Alias of {@link Query::getIterator()}.
-     *
-     * @return Iterator
-     */
-    public function iterate()
-    {
-        return $this->getIterator();
-    }
-
-    /**
-     * Execute the query and return its results as an array.
-     *
-     * @see Iterator::toArray()
-     * @return array
-     */
-    public function toArray()
-    {
-        return $this->getIterator()->toArray();
     }
 }
