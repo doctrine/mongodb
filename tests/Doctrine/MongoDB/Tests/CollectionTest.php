@@ -88,120 +88,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($coll->batchInsert($docs, $options));
     }
 
-    public function testUpdate()
-    {
-        $criteria = array('x' => 1);
-        $newObj = array('$set' => array('x' => 2));
-        $options = array('w'=> 0);
-
-        $mongoCollection = $this->getMockMongoCollection();
-
-        $mongoCollection->expects($this->once())
-            ->method('update')
-            ->with($criteria, $newObj, $options)
-            ->will($this->returnValue(true));
-
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
-
-        $this->assertTrue($coll->update($criteria, $newObj, $options));
-    }
-
-    /**
-     * @expectedException PHPUnit_Framework_Error_Deprecated
-     */
-    public function testUpdateShouldTriggerErrorForDeprecatedScalarQueryArgument()
-    {
-        $coll = $this->getTestCollection();
-        $coll->update('id', array());
-    }
-
-    public function testFind()
-    {
-        $query = array('x' => 1);
-        $fields = array('x' => 1, 'y' => 1, '_id' => 0);
-
-        $mongoCursor = $this->getMockMongoCursor();
-
-        $mongoCollection = $this->getMockMongoCollection();
-        $mongoCollection->expects($this->once())
-            ->method('find')
-            ->with($query, $fields)
-            ->will($this->returnValue($mongoCursor));
-
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
-        $result = $coll->find($query, $fields);
-
-        $this->assertInstanceOf('Doctrine\MongoDB\Cursor', $result);
-        $this->assertSame($mongoCursor, $result->getMongoCursor());
-    }
-
-    public function testFindOne()
-    {
-        $query = array('x' => 1);
-        $fields = array('x' => 1, 'y' => 1, '_id' => 0);
-        $document = array('x' => 1, 'y' => 'foo');
-
-        $mongoCollection = $this->getMockMongoCollection();
-
-        $mongoCollection->expects($this->once())
-            ->method('findOne')
-            ->with($query, $fields)
-            ->will($this->returnValue($document));
-
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
-
-        $this->assertEquals($document, $coll->findOne($query, $fields));
-    }
-
-    public function testFindAndRemove()
-    {
-        $query = array('completed' => true);
-
-        $command = array(
-            'findandmodify' => self::collectionName,
-            'query' => $query,
-            'remove' => true,
-        );
-
-        $document = array('_id' => 1, 'completed' => true);
-
-        $database = $this->getMockDatabase();
-        $database->expects($this->once())
-            ->method('command')
-            ->with($command)
-            ->will($this->returnValue(array('value' => $document)));
-
-        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
-
-        $this->assertEquals($document, $coll->findAndRemove($query));
-    }
-
-    public function testFindAndModify()
-    {
-        $query = array('inprogress' => false);
-        $newObj = array('$set' => array('inprogress' => true));
-        $options = array('new' => true);
-
-        $command = array(
-            'findandmodify' => self::collectionName,
-            'query' => $query,
-            'update' => $newObj,
-            'new' => true,
-        );
-
-        $document = array('_id' => 1, 'inprogress' => true);
-
-        $database = $this->getMockDatabase();
-        $database->expects($this->once())
-            ->method('command')
-            ->with($command)
-            ->will($this->returnValue(array('value' => $document)));
-
-        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
-
-        $this->assertEquals($document, $coll->findAndUpdate($query, $newObj, $options));
-    }
-
     public function testCountWithParameters()
     {
         $query = array('x' => 1);
@@ -303,6 +189,93 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($coll->ensureIndex($keys, $options));
     }
 
+    public function testFind()
+    {
+        $query = array('x' => 1);
+        $fields = array('x' => 1, 'y' => 1, '_id' => 0);
+
+        $mongoCursor = $this->getMockMongoCursor();
+
+        $mongoCollection = $this->getMockMongoCollection();
+        $mongoCollection->expects($this->once())
+            ->method('find')
+            ->with($query, $fields)
+            ->will($this->returnValue($mongoCursor));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
+        $result = $coll->find($query, $fields);
+
+        $this->assertInstanceOf('Doctrine\MongoDB\Cursor', $result);
+        $this->assertSame($mongoCursor, $result->getMongoCursor());
+    }
+
+    public function testFindAndRemove()
+    {
+        $query = array('completed' => true);
+
+        $command = array(
+            'findandmodify' => self::collectionName,
+            'query' => $query,
+            'remove' => true,
+        );
+
+        $document = array('_id' => 1, 'completed' => true);
+
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with($command)
+            ->will($this->returnValue(array('value' => $document)));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
+
+        $this->assertEquals($document, $coll->findAndRemove($query));
+    }
+
+    public function testFindAndUpdate()
+    {
+        $query = array('inprogress' => false);
+        $newObj = array('$set' => array('inprogress' => true));
+        $options = array('new' => true);
+
+        $command = array(
+            'findandmodify' => self::collectionName,
+            'query' => $query,
+            'update' => $newObj,
+            'new' => true,
+        );
+
+        $document = array('_id' => 1, 'inprogress' => true);
+
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with($command)
+            ->will($this->returnValue(array('value' => $document)));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
+
+        $this->assertEquals($document, $coll->findAndUpdate($query, $newObj, $options));
+    }
+
+    public function testFindOne()
+    {
+        $query = array('x' => 1);
+        $fields = array('x' => 1, 'y' => 1, '_id' => 0);
+        $document = array('x' => 1, 'y' => 'foo');
+
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->once())
+            ->method('findOne')
+            ->with($query, $fields)
+            ->will($this->returnValue($document));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
+
+        $this->assertEquals($document, $coll->findOne($query, $fields));
+    }
+
     public function testGetDBRef()
     {
         $document = array('_id' => 1);
@@ -320,186 +293,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($document, $coll->getDBRef($dbRef));
     }
 
-    /**
-     * @covers Doctrine\MongoDB\Collection::getIndexInfo
-     * @dataProvider provideIsFieldIndex
-     */
-    public function testIsFieldIndexed($indexInfo, $field, $expectedResult)
-    {
-        $mongoCollection = $this->getMockMongoCollection();
-
-        $mongoCollection->expects($this->once())
-            ->method('getIndexInfo')
-            ->will($this->returnValue($indexInfo));
-
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
-
-        $this->assertEquals($expectedResult, $coll->isFieldIndexed($field));
-    }
-
-    public function provideIsFieldIndex()
-    {
-        $indexInfo = array(
-            array(
-                'name' => '_id_',
-                'ns' => 'test.foo',
-                'key' => array('_id' => 1),
-            ),
-            array(
-                'name' => 'bar_1_bat_-1',
-                'ns' => 'test.foo',
-                'key' => array('bar' => 1, 'bat' => -1)
-            ),
-        );
-
-        return array(
-            array($indexInfo, '_id', true),
-            array($indexInfo, 'bar', true),
-            array($indexInfo, 'bat', true),
-            array($indexInfo, 'baz', false),
-        );
-    }
-
     public function testGetName()
     {
         $coll = $this->getTestCollection();
 
         $this->assertEquals(self::collectionName, $coll->getName());
-    }
-
-    public function testGroupWithNonEmptyOptionsArray()
-    {
-        $keys = array('category' => 1);
-        $initial = array('items' => array());
-        $options = array('finalize' => '');
-        $grouped = array(
-            array('category' => 'fruit', 'items' => array('apple', 'peach', 'banana')),
-            array('category' => 'veggie', 'items' => array('corn', 'broccoli')),
-        );
-
-        $mongoCollection = $this->getMockMongoCollection();
-
-        $mongoCollection->expects($this->once())
-            ->method('group')
-            ->with($keys, $initial, $this->isInstanceOf('MongoCode'), $this->callback(function($options) {
-                return $options['finalize'] instanceof \MongoCode;
-            }))
-            ->will($this->returnValue($grouped));
-
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
-        $result = $coll->group($keys, $initial, '', $options);
-
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $result);
-        $this->assertEquals($grouped, $result->toArray());
-    }
-
-    public function testGroupWithEmptyOptionsArray()
-    {
-        $keys = array('category' => 1);
-        $initial = array('items' => array());
-        $grouped = array(
-            array('category' => 'fruit', 'items' => array('apple', 'peach', 'banana')),
-            array('category' => 'veggie', 'items' => array('corn', 'broccoli')),
-        );
-
-        $mongoCollection = $this->getMockMongoCollection();
-
-        $mongoCollection->expects($this->once())
-            ->method('group')
-            ->with($keys, $initial, $this->isInstanceOf('MongoCode'))
-            ->will($this->returnValue($grouped));
-
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
-        $result = $coll->group($keys, $initial, '');
-
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $result);
-        $this->assertEquals($grouped, $result->toArray());
-    }
-
-    public function testInsert()
-    {
-        $document = array('x' => 1);
-        $options = array('w' => 0);
-
-        $mongoCollection = $this->getMockMongoCollection();
-
-        $mongoCollection->expects($this->once())
-            ->method('insert')
-            ->with($document, $options)
-            ->will($this->returnValue(true));
-
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
-
-        $this->assertTrue($coll->insert($document, $options));
-    }
-
-    /**
-     * @dataProvider providePoint
-     */
-    public function testNearWithGeoJsonPoint($point, array $expected)
-    {
-        $results = array(
-            array('dis' => 1, 'obj' => array('_id' => 1, 'loc' => array(1, 0))),
-            array('dis' => 2, 'obj' => array('_id' => 2, 'loc' => array(2, 0))),
-        );
-
-        $database = $this->getMockDatabase();
-        $database->expects($this->once())
-            ->method('command')
-            ->with(array('geoNear' => self::collectionName, 'near' => $expected, 'query' => array()))
-            ->will($this->returnValue(array('ok' => 1, 'results' => $results)));
-
-        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
-        $result = $coll->near($point);
-
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $result);
-        $this->assertEquals($results, $result->toArray());
-    }
-
-    public function providePoint()
-    {
-        $coordinates = array(0, 0);
-        $json = array('type' => 'Point', 'coordinates' => $coordinates);
-
-        return array(
-            'legacy array' => array($coordinates, $coordinates),
-            'GeoJSON array' => array($json, $json),
-            'GeoJSON object' => array($this->getMockPoint($json), $json),
-        );
-    }
-
-    public function testRemove()
-    {
-        $criteria = array('x' => 1);
-        $options = array('w' => 0);
-
-        $mongoCollection = $this->getMockMongoCollection();
-
-        $mongoCollection->expects($this->once())
-            ->method('remove')
-            ->with($criteria, $options)
-            ->will($this->returnValue(true));
-
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
-
-        $this->assertTrue($coll->remove($criteria, $options));
-    }
-
-    public function testSave()
-    {
-        $document = array('x' => 1);
-        $options = array('w' => 0);
-
-        $mongoCollection = $this->getMockMongoCollection();
-
-        $mongoCollection->expects($this->once())
-            ->method('save')
-            ->with($document, $options)
-            ->will($this->returnValue(true));
-
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
-
-        $this->assertTrue($coll->save($document, $options));
     }
 
     public function testGetSetSlaveOkay()
@@ -602,6 +400,208 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($collection->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
     }
 
+    public function testGroupWithNonEmptyOptionsArray()
+    {
+        $keys = array('category' => 1);
+        $initial = array('items' => array());
+        $options = array('finalize' => '');
+        $grouped = array(
+            array('category' => 'fruit', 'items' => array('apple', 'peach', 'banana')),
+            array('category' => 'veggie', 'items' => array('corn', 'broccoli')),
+        );
+
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->once())
+            ->method('group')
+            ->with($keys, $initial, $this->isInstanceOf('MongoCode'), $this->callback(function($options) {
+                return $options['finalize'] instanceof \MongoCode;
+            }))
+            ->will($this->returnValue($grouped));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
+        $result = $coll->group($keys, $initial, '', $options);
+
+        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $result);
+        $this->assertEquals($grouped, $result->toArray());
+    }
+
+    public function testGroupWithEmptyOptionsArray()
+    {
+        $keys = array('category' => 1);
+        $initial = array('items' => array());
+        $grouped = array(
+            array('category' => 'fruit', 'items' => array('apple', 'peach', 'banana')),
+            array('category' => 'veggie', 'items' => array('corn', 'broccoli')),
+        );
+
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->once())
+            ->method('group')
+            ->with($keys, $initial, $this->isInstanceOf('MongoCode'))
+            ->will($this->returnValue($grouped));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
+        $result = $coll->group($keys, $initial, '');
+
+        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $result);
+        $this->assertEquals($grouped, $result->toArray());
+    }
+
+    public function testInsert()
+    {
+        $document = array('x' => 1);
+        $options = array('w' => 0);
+
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->once())
+            ->method('insert')
+            ->with($document, $options)
+            ->will($this->returnValue(true));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
+
+        $this->assertTrue($coll->insert($document, $options));
+    }
+
+    /**
+     * @covers Doctrine\MongoDB\Collection::getIndexInfo
+     * @dataProvider provideIsFieldIndex
+     */
+    public function testIsFieldIndexed($indexInfo, $field, $expectedResult)
+    {
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->once())
+            ->method('getIndexInfo')
+            ->will($this->returnValue($indexInfo));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
+
+        $this->assertEquals($expectedResult, $coll->isFieldIndexed($field));
+    }
+
+    public function provideIsFieldIndex()
+    {
+        $indexInfo = array(
+            array(
+                'name' => '_id_',
+                'ns' => 'test.foo',
+                'key' => array('_id' => 1),
+            ),
+            array(
+                'name' => 'bar_1_bat_-1',
+                'ns' => 'test.foo',
+                'key' => array('bar' => 1, 'bat' => -1)
+            ),
+        );
+
+        return array(
+            array($indexInfo, '_id', true),
+            array($indexInfo, 'bar', true),
+            array($indexInfo, 'bat', true),
+            array($indexInfo, 'baz', false),
+        );
+    }
+
+    /**
+     * @dataProvider providePoint
+     */
+    public function testNearWithGeoJsonPoint($point, array $expected)
+    {
+        $results = array(
+            array('dis' => 1, 'obj' => array('_id' => 1, 'loc' => array(1, 0))),
+            array('dis' => 2, 'obj' => array('_id' => 2, 'loc' => array(2, 0))),
+        );
+
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with(array('geoNear' => self::collectionName, 'near' => $expected, 'query' => array()))
+            ->will($this->returnValue(array('ok' => 1, 'results' => $results)));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
+        $result = $coll->near($point);
+
+        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $result);
+        $this->assertEquals($results, $result->toArray());
+    }
+
+    public function providePoint()
+    {
+        $coordinates = array(0, 0);
+        $json = array('type' => 'Point', 'coordinates' => $coordinates);
+
+        return array(
+            'legacy array' => array($coordinates, $coordinates),
+            'GeoJSON array' => array($json, $json),
+            'GeoJSON object' => array($this->getMockPoint($json), $json),
+        );
+    }
+
+    public function testRemove()
+    {
+        $criteria = array('x' => 1);
+        $options = array('w' => 0);
+
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->once())
+            ->method('remove')
+            ->with($criteria, $options)
+            ->will($this->returnValue(true));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
+
+        $this->assertTrue($coll->remove($criteria, $options));
+    }
+
+    public function testSave()
+    {
+        $document = array('x' => 1);
+        $options = array('w' => 0);
+
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->once())
+            ->method('save')
+            ->with($document, $options)
+            ->will($this->returnValue(true));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
+
+        $this->assertTrue($coll->save($document, $options));
+    }
+
+    public function testUpdate()
+    {
+        $criteria = array('x' => 1);
+        $newObj = array('$set' => array('x' => 2));
+        $options = array('w'=> 0);
+
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->once())
+            ->method('update')
+            ->with($criteria, $newObj, $options)
+            ->will($this->returnValue(true));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
+
+        $this->assertTrue($coll->update($criteria, $newObj, $options));
+    }
+
+    /**
+     * @expectedException PHPUnit_Framework_Error_Deprecated
+     */
+    public function testUpdateShouldTriggerErrorForDeprecatedScalarQueryArgument()
+    {
+        $coll = $this->getTestCollection();
+        $coll->update('id', array());
+    }
+
     public function testValidate()
     {
         $mongoCollection = $this->getMockMongoCollection();
@@ -615,7 +615,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($coll->validate());
     }
 
-    public function testToString()
+    public function test__toString()
     {
         $mongoCollection = $this->getMockMongoCollection();
 
