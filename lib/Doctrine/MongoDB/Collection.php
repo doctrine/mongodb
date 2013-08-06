@@ -29,6 +29,7 @@ use Doctrine\MongoDB\Event\MapReduceEventArgs;
 use Doctrine\MongoDB\Event\MutableEventArgs;
 use Doctrine\MongoDB\Event\NearEventArgs;
 use Doctrine\MongoDB\Event\UpdateEventArgs;
+use Doctrine\MongoDB\Exception\ResultException;
 use Doctrine\MongoDB\Util\ReadPreference;
 use GeoJson\Geometry\Point;
 
@@ -113,6 +114,7 @@ class Collection
      * @param array $pipeline Array of pipeline operators, or the first operator
      * @param array $op,...   Additional operators (if $pipeline was the first)
      * @return ArrayIterator
+     * @throws ResultException if the command fails
      */
     public function aggregate(array $pipeline /* , array $op, ... */)
     {
@@ -250,6 +252,7 @@ class Collection
      * @param array  $query
      * @param array  $options
      * @return ArrayIterator
+     * @throws ResultException if the command fails
      */
     public function distinct($field, array $query = array(), array $options = array())
     {
@@ -344,6 +347,7 @@ class Collection
      * @param array $query
      * @param array $options
      * @return array|null
+     * @throws ResultException if the command fails
      */
     public function findAndRemove(array $query, array $options = array())
     {
@@ -372,6 +376,7 @@ class Collection
      * @param array $newObj
      * @param array $options
      * @return array|null
+     * @throws ResultException if the command fails
      */
     public function findAndUpdate(array $query, array $newObj, array $options = array())
     {
@@ -582,6 +587,7 @@ class Collection
      * @param string|\MongoCode       $reduce
      * @param array                   $options
      * @return ArrayIterator
+     * @throws ResultException if the command fails
      */
     public function group($keys, array $initial, $reduce, array $options = array())
     {
@@ -655,6 +661,7 @@ class Collection
      * @param array             $query
      * @param array             $options
      * @return ArrayIterator
+     * @throws ResultException if the command fails
      */
     public function mapReduce($map, $reduce, array $out = array('inline' => true), array $query = array(), array $options = array())
     {
@@ -689,6 +696,7 @@ class Collection
      * @param array       $query
      * @param array       $options
      * @return ArrayIterator
+     * @throws ResultException if the command fails
      */
     public function near($near, array $query = array(), array $options = array())
     {
@@ -849,7 +857,7 @@ class Collection
      * @see Collection::aggregate()
      * @param array $pipeline
      * @return ArrayIterator
-     * @throws \RuntimeException if the command fails
+     * @throws ResultException if the command fails
      */
     protected function doAggregate(array $pipeline)
     {
@@ -863,7 +871,7 @@ class Collection
         });
 
         if ( ! $result['ok']) {
-            throw new \RuntimeException($result['errmsg']);
+            throw new ResultException($result);
         }
 
         return new ArrayIterator(isset($result['result']) ? $result['result'] : array());
@@ -902,6 +910,7 @@ class Collection
      * @param array  $query
      * @param array  $options
      * @return ArrayIterator
+     * @throws ResultException if the command fails
      */
     protected function doDistinct($field, array $query, array $options)
     {
@@ -915,6 +924,11 @@ class Collection
         $result = $this->retry(function() use ($database, $command) {
             return $database->command($command);
         });
+
+        if ( ! $result['ok']) {
+            throw new ResultException($result);
+        }
+
         return new ArrayIterator(isset($result['values']) ? $result['values'] : array());
     }
 
@@ -953,6 +967,7 @@ class Collection
      * @param array $query
      * @param array $options
      * @return array|null
+     * @throws ResultException if the command fails
      */
     protected function doFindAndRemove(array $query, array $options = array())
     {
@@ -963,6 +978,10 @@ class Collection
         $command = array_merge($command, $options);
 
         $result = $this->database->command($command);
+
+        if ( ! $result['ok']) {
+            throw new ResultException($result);
+        }
 
         return isset($result['value']) ? $result['value'] : null;
     }
@@ -975,6 +994,7 @@ class Collection
      * @param array $newObj
      * @param array $options
      * @return array|null
+     * @throws ResultException if the command fails
      */
     protected function doFindAndUpdate(array $query, array $newObj, array $options)
     {
@@ -985,6 +1005,11 @@ class Collection
         $command = array_merge($command, $options);
 
         $result = $this->database->command($command);
+
+        if ( ! $result['ok']) {
+            throw new ResultException($result);
+        }
+
         return isset($result['value']) ? $result['value'] : null;
     }
 
@@ -1028,6 +1053,7 @@ class Collection
      * @param string|\MongoCode       $reduce
      * @param array                   $options
      * @return ArrayIterator
+     * @throws ResultException if the command fails
      */
     protected function doGroup($keys, array $initial, $reduce, array $options)
     {
@@ -1050,6 +1076,11 @@ class Collection
                 ? $collection->getMongoCollection()->group($keys, $initial, $reduce)
                 : $collection->getMongoCollection()->group($keys, $initial, $reduce, $options);
         });
+
+        if ( ! $result['ok']) {
+            throw new ResultException($result);
+        }
+
         return new ArrayIterator($result);
     }
 
@@ -1081,6 +1112,7 @@ class Collection
      * @param array             $query
      * @param array             $options
      * @return ArrayIterator
+     * @throws ResultException if the command fails
      */
     protected function doMapReduce($map, $reduce, array $out, array $query, array $options)
     {
@@ -1100,8 +1132,8 @@ class Collection
 
         $result = $this->database->command($command);
 
-        if (!$result['ok']) {
-            throw new \RuntimeException($result['errmsg']);
+        if ( ! $result['ok']) {
+            throw new ResultException($result);
         }
 
         if (isset($out['inline']) && $out['inline'] === true) {
@@ -1125,6 +1157,7 @@ class Collection
      * @param array       $query
      * @param array       $options
      * @return ArrayIterator
+     * @throws ResultException if the command fails
      */
     protected function doNear($near, array $query, array $options)
     {
@@ -1142,6 +1175,11 @@ class Collection
         $result = $this->retry(function() use ($database, $command) {
             return $database->command($command);
         });
+
+        if ( ! $result['ok']) {
+            throw new ResultException($result);
+        }
+
         return new ArrayIterator(isset($result['results']) ? $result['results'] : array());
     }
 
