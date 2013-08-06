@@ -114,7 +114,7 @@ class FunctionalTest extends BaseTest
         );
         $this->assertEquals($expected, $qb->getNewObj());
         $this->assertEquals(Query::TYPE_INSERT, $qb->getType());
-        $this->assertArrayHasKeyValue(array('ok' => 1.0), $qb->getQuery()->execute());
+        $this->assertArrayHasKeyValue(array('ok' => 1), $qb->getQuery()->execute());
     }
 
     public function testUpdateQuery()
@@ -133,7 +133,7 @@ class FunctionalTest extends BaseTest
 
         $query = $qb->getQuery();
         $this->assertEquals(Query::TYPE_UPDATE, $query->getType());
-        $this->assertArrayHasKeyValue(array('ok' => 1.0), $query->execute());
+        $this->assertArrayHasKeyValue(array('ok' => 1), $query->execute());
     }
 
     public function testRemoveQuery()
@@ -143,7 +143,7 @@ class FunctionalTest extends BaseTest
             ->field('username')->equals('jwage');
 
         $this->assertEquals(Query::TYPE_REMOVE, $qb->getType());
-        $this->assertArrayHasKeyValue(array('ok' => 1.0), $qb->getQuery()->execute());
+        $this->assertArrayHasKeyValue(array('ok' => 1), $qb->getQuery()->execute());
     }
 
     public function testGeoNearQuery()
