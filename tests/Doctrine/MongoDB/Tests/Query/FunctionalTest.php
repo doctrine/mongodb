@@ -146,30 +146,6 @@ class FunctionalTest extends BaseTest
         $this->assertArrayHasKeyValue(array('ok' => 1), $qb->getQuery()->execute());
     }
 
-    public function testGeoNearQuery()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->geoNear(50, 50)
-            ->distanceMultiplier(2.5)
-            ->maxDistance(5)
-            ->spherical(true)
-            ->field('type')->equals('restaurant')
-            ->limit(10);
-
-        $this->assertEquals(Query::TYPE_GEO_NEAR, $qb->getType());
-
-        $expectedQuery = array('type' => 'restaurant');
-        $this->assertEquals($expectedQuery, $qb->getQueryArray());
-
-        $geoNear = $qb->debug('geoNear');
-        $this->assertEquals(array(50, 50), $geoNear['near']);
-        $this->assertEquals(2.5, $geoNear['distanceMultiplier']);
-        $this->assertEquals(5, $geoNear['maxDistance']);
-        $this->assertEquals(true, $geoNear['spherical']);
-        $this->assertEquals(10, $qb->debug('limit'));
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
-    }
-
     private function getTestQueryBuilder()
     {
         return $this->conn->selectCollection('db', 'users')->createQueryBuilder();
