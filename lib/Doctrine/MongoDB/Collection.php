@@ -601,6 +601,32 @@ class Collection
     }
 
     /**
+     * Wrapper method for MongoCollection::insert().
+     *
+     * This method will dispatch preInsert and postInsert events.
+     *
+     * @see http://php.net/manual/en/mongocollection.insert.php
+     * @param array $a       Document to insert
+     * @param array $options
+     * @return array|boolean
+     */
+    public function insert(array &$a, array $options = array())
+    {
+        if ($this->eventManager->hasListeners(Events::preInsert)) {
+            $this->eventManager->dispatchEvent(Events::preInsert, new EventArgs($this, $a, $options));
+        }
+
+        $result = $this->doInsert($a, $options);
+
+        if ($this->eventManager->hasListeners(Events::postInsert)) {
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postInsert, $eventArgs);
+            $result = $eventArgs->getData();
+        }
+        return $result;
+    }
+
+    /**
      * Check if a given field name is indexed in MongoDB.
      *
      * @param string $fieldName
@@ -615,40 +641,6 @@ class Collection
             }
         }
         return false;
-    }
-
-    /**
-     * Invokes the geoNear command.
-     *
-     * This method will dispatch preNear and postNear events.
-     *
-     * The $near parameter may be a GeoJSON point or a legacy coordinate pair,
-     * which is an array of float values in x, y order (easting, northing for
-     * projected coordinates, longitude, latitude for geographic coordinates).
-     * A GeoJSON point may be a Point object or an array corresponding to the
-     * point's JSON representation.
-     *
-     * @see http://docs.mongodb.org/manual/reference/command/geoNear/
-     * @param array|Point $near
-     * @param array       $query
-     * @param array       $options
-     * @return ArrayIterator
-     */
-    public function near($near, array $query = array(), array $options = array())
-    {
-        if ($this->eventManager->hasListeners(Events::preNear)) {
-            $this->eventManager->dispatchEvent(Events::preNear, new NearEventArgs($this, $query, $near, $options));
-        }
-
-        $result = $this->doNear($near, $query, $options);
-
-        if ($this->eventManager->hasListeners(Events::postNear)) {
-            $eventArgs = new MutableEventArgs($this, $result);
-            $this->eventManager->dispatchEvent(Events::postNear, $eventArgs);
-            $result = $eventArgs->getData();
-        }
-
-        return $result;
     }
 
     /**
@@ -682,28 +674,36 @@ class Collection
     }
 
     /**
-     * Wrapper method for MongoCollection::insert().
+     * Invokes the geoNear command.
      *
-     * This method will dispatch preInsert and postInsert events.
+     * This method will dispatch preNear and postNear events.
      *
-     * @see http://php.net/manual/en/mongocollection.insert.php
-     * @param array $a       Document to insert
-     * @param array $options
-     * @return array|boolean
+     * The $near parameter may be a GeoJSON point or a legacy coordinate pair,
+     * which is an array of float values in x, y order (easting, northing for
+     * projected coordinates, longitude, latitude for geographic coordinates).
+     * A GeoJSON point may be a Point object or an array corresponding to the
+     * point's JSON representation.
+     *
+     * @see http://docs.mongodb.org/manual/reference/command/geoNear/
+     * @param array|Point $near
+     * @param array       $query
+     * @param array       $options
+     * @return ArrayIterator
      */
-    public function insert(array &$a, array $options = array())
+    public function near($near, array $query = array(), array $options = array())
     {
-        if ($this->eventManager->hasListeners(Events::preInsert)) {
-            $this->eventManager->dispatchEvent(Events::preInsert, new EventArgs($this, $a, $options));
+        if ($this->eventManager->hasListeners(Events::preNear)) {
+            $this->eventManager->dispatchEvent(Events::preNear, new NearEventArgs($this, $query, $near, $options));
         }
 
-        $result = $this->doInsert($a, $options);
+        $result = $this->doNear($near, $query, $options);
 
-        if ($this->eventManager->hasListeners(Events::postInsert)) {
+        if ($this->eventManager->hasListeners(Events::postNear)) {
             $eventArgs = new MutableEventArgs($this, $result);
-            $this->eventManager->dispatchEvent(Events::postInsert, $eventArgs);
+            $this->eventManager->dispatchEvent(Events::postNear, $eventArgs);
             $result = $eventArgs->getData();
         }
+
         return $result;
     }
 
