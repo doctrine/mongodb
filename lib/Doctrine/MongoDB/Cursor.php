@@ -398,7 +398,7 @@ class Cursor implements Iterator
      */
     public function limit($num)
     {
-        $limit = (integer) $num;
+        $num = (integer) $num;
         $this->limit = $num;
         $this->mongoCursor->limit($num);
         return $this;
