@@ -7,6 +7,7 @@ use Doctrine\MongoDB\ArrayIterator;
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Connection;
 use Doctrine\MongoDB\Database;
+use Doctrine\MongoDB\Tests\Constraint\ArrayHasKeyAndValue;
 use MongoCollection;
 
 class CollectionTest extends \PHPUnit_Framework_TestCase
@@ -540,6 +541,87 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testMapReduceWithResultsInline()
+    {
+        $map = 'map';
+        $reduce = 'reduce';
+        $out = array('inline' => true);
+        $query = array('deleted' => false);
+        $options = array('finalize' => 'finalize');
+
+        $reduced = array(
+            array('category' => 'fruit', 'items' => array('apple', 'peach', 'banana')),
+            array('category' => 'veggie', 'items' => array('corn', 'broccoli')),
+        );
+
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with($this->logicalAnd(
+                new ArrayHasKeyAndValue('mapreduce', self::collectionName),
+                new ArrayHasKeyAndValue('map', new \MongoCode('map')),
+                new ArrayHasKeyAndValue('reduce', new \MongoCode('reduce')),
+                new ArrayHasKeyAndValue('out', $out),
+                new ArrayHasKeyAndValue('query', (object) array('deleted' => false)),
+                new ArrayHasKeyAndValue('finalize', new \MongoCode('finalize'))
+            ))
+            ->will($this->returnValue(array('ok' => 1, 'results' => $reduced)));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
+        $result = $coll->mapReduce($map, $reduce, $out, $query, $options);
+
+        $this->assertEquals(new ArrayIterator($reduced), $result);
+    }
+
+    public function testMapReduceWithResultsInAnotherCollection()
+    {
+        $cursor = $this->getMockCursor();
+
+        $outputCollection = $this->getMockCollection();
+        $outputCollection->expects($this->once())
+            ->method('find')
+            ->will($this->returnValue($cursor));
+
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with(new ArrayHasKeyAndValue('out', 'outputCollection'))
+            ->will($this->returnValue(array('ok' => 1, 'result' => 'outputCollection')));
+
+        $database->expects($this->once())
+            ->method('selectCollection')
+            ->with('outputCollection')
+            ->will($this->returnValue($outputCollection));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
+        $this->assertSame($cursor, $coll->mapReduce('', '', 'outputCollection'));
+    }
+
+    public function testMapReduceWithResultsInAnotherDatabase()
+    {
+        $cursor = $this->getMockCursor();
+
+        $outputCollection = $this->getMockCollection();
+        $outputCollection->expects($this->once())
+            ->method('find')
+            ->will($this->returnValue($cursor));
+
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with(new ArrayHasKeyAndValue('out', array('replace' => 'outputCollection', 'db' => 'outputDatabase')))
+            ->will($this->returnValue(array('ok' => 1, 'result' => array('db' => 'outputDatabase', 'collection' => 'outputCollection'))));
+
+        $connection = $this->getMockConnection();
+        $connection->expects($this->once())
+            ->method('selectCollection')
+            ->with('outputDatabase', 'outputCollection')
+            ->will($this->returnValue($outputCollection));
+
+        $coll = $this->getTestCollection($connection, $this->getMockMongoCollection(), $database);
+        $this->assertSame($cursor, $coll->mapReduce('', '', array('replace' => 'outputCollection', 'db' => 'outputDatabase')));
+    }
+
     /**
      * @expectedException \Doctrine\MongoDB\Exception\ResultException
      */
@@ -695,9 +777,23 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(self::collectionName, $coll->__toString());
     }
 
+    private function getMockCollection()
+    {
+        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
     private function getMockConnection()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Connection')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    private function getMockCursor()
+    {
+        return $this->getMockBuilder('Doctrine\MongoDB\Cursor')
             ->disableOriginalConstructor()
             ->getMock();
     }
