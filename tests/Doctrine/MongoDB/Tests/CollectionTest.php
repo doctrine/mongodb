@@ -30,8 +30,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
         $result = $coll->aggregate($pipeline);
 
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $result);
-        $this->assertEquals($aggregated, $result->toArray());
+        $this->assertEquals(new ArrayIterator($aggregated), $result);
     }
 
     public function testAggregateWithOperatorArguments()
@@ -49,8 +48,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
         $result = $coll->aggregate($firstOp, $secondOp);
 
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $result);
-        $this->assertEquals($aggregated, $result->toArray());
+        $this->assertEquals(new ArrayIterator($aggregated), $result);
     }
 
     /**
@@ -525,8 +523,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
         $result = $coll->near($point);
 
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $result);
-        $this->assertEquals($results, $result->toArray());
+        $this->assertEquals(new ArrayIterator($results), $result);
     }
 
     public function providePoint()
