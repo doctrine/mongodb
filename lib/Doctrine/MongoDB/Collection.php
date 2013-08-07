@@ -921,7 +921,7 @@ class Collection
         $command = array();
         $command['distinct'] = $this->getMongoCollection()->getName();
         $command['key'] = $field;
-        $command['query'] = $query;
+        $command['query'] = (object) $query;
         $command = array_merge($command, $options);
 
         $database = $this->database;
@@ -977,7 +977,7 @@ class Collection
     {
         $command = array();
         $command['findandmodify'] = $this->getMongoCollection()->getName();
-        $command['query'] = $query;
+        $command['query'] = (object) $query;
         $command['remove'] = true;
         $command = array_merge($command, $options);
 
@@ -1004,8 +1004,8 @@ class Collection
     {
         $command = array();
         $command['findandmodify'] = $this->getMongoCollection()->getName();
-        $command['query'] = $query;
-        $command['update'] = $newObj;
+        $command['query'] = (object) $query;
+        $command['update'] = (object) $newObj;
         $command = array_merge($command, $options);
 
         $result = $this->database->command($command);
@@ -1180,7 +1180,7 @@ class Collection
         $command = array();
         $command['geoNear'] = $this->getMongoCollection()->getName();
         $command['near'] = $near;
-        $command['query'] = $query;
+        $command['query'] = (object) $query;
         $command = array_merge($command, $options);
 
         $database = $this->database;

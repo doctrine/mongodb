@@ -216,7 +216,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $command = array(
             'findandmodify' => self::collectionName,
-            'query' => $query,
+            'query' => (object) $query,
             'remove' => true,
         );
 
@@ -241,8 +241,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $command = array(
             'findandmodify' => self::collectionName,
-            'query' => $query,
-            'update' => $newObj,
+            'query' => (object) $query,
+            'update' => (object) $newObj,
             'new' => true,
         );
 
@@ -501,10 +501,16 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             array('dis' => 2, 'obj' => array('_id' => 2, 'loc' => array(2, 0))),
         );
 
+        $command = array(
+            'geoNear' => self::collectionName,
+            'near' => $expected,
+            'query' => new \stdClass(),
+        );
+
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
-            ->with(array('geoNear' => self::collectionName, 'near' => $expected, 'query' => array()))
+            ->with($command)
             ->will($this->returnValue(array('ok' => 1, 'results' => $results)));
 
         $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
