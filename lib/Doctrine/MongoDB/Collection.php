@@ -654,13 +654,17 @@ class Collection
      *
      * This method will dispatch preMapReduce and postMapReduce events.
      *
+     * If the output method is inline, an ArrayIterator will be returned.
+     * Otherwise, a Cursor to all documents in the output collection will be
+     * returned.
+     *
      * @see http://docs.mongodb.org/manual/reference/command/mapReduce/
      * @param string|\MongoCode $map
      * @param string|\MongoCode $reduce
      * @param array|string      $out
      * @param array             $query
      * @param array             $options
-     * @return ArrayIterator
+     * @return ArrayIterator|Cursor
      * @throws ResultException if the command fails
      */
     public function mapReduce($map, $reduce, $out = array('inline' => true), array $query = array(), array $options = array())
@@ -1144,17 +1148,17 @@ class Collection
             throw new ResultException($result);
         }
 
-        if (isset($out['inline']) && $out['inline'] === true) {
-            return new ArrayIterator($result['results']);
-        }
-
         if (isset($result['result']['db'], $result['result']['collection'])) {
             return $this->connection
                 ->selectCollection($result['result']['db'], $result['result']['collection'])
                 ->find();
         }
 
-        return $this->database->selectCollection($result['result'])->find();
+        if (isset($result['result'])) {
+            return $this->database->selectCollection($result['result'])->find();
+        }
+
+        return new ArrayIterator(isset($result['results']) ? $result['results'] : array());
     }
 
     /**
