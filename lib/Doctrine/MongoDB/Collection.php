@@ -874,7 +874,7 @@ class Collection
             return $database->command($command);
         });
 
-        if ( ! $result['ok']) {
+        if (empty($result['ok'])) {
             throw new ResultException($result);
         }
 
@@ -929,7 +929,7 @@ class Collection
             return $database->command($command);
         });
 
-        if ( ! $result['ok']) {
+        if (empty($result['ok'])) {
             throw new ResultException($result);
         }
 
@@ -983,7 +983,7 @@ class Collection
 
         $result = $this->database->command($command);
 
-        if ( ! $result['ok']) {
+        if (empty($result['ok'])) {
             throw new ResultException($result);
         }
 
@@ -1010,7 +1010,7 @@ class Collection
 
         $result = $this->database->command($command);
 
-        if ( ! $result['ok']) {
+        if (empty($result['ok'])) {
             throw new ResultException($result);
         }
 
@@ -1089,7 +1089,7 @@ class Collection
             return $database->command(array('group' => $command));
         });
 
-        if ( ! $result['ok']) {
+        if (empty($result['ok'])) {
             throw new ResultException($result);
         }
 
@@ -1144,7 +1144,7 @@ class Collection
 
         $result = $this->database->command($command);
 
-        if ( ! $result['ok']) {
+        if (empty($result['ok'])) {
             throw new ResultException($result);
         }
 
@@ -1188,7 +1188,7 @@ class Collection
             return $database->command($command);
         });
 
-        if ( ! $result['ok']) {
+        if (empty($result['ok'])) {
             throw new ResultException($result);
         }
 
