@@ -582,7 +582,7 @@ class Collection
      *
      * @see http://www.php.net/manual/en/mongocollection.group.php
      * @see http://docs.mongodb.org/manual/reference/command/group/
-     * @param string|array|\MongoCode $keys
+     * @param array|string|\MongoCode $keys
      * @param array                   $initial
      * @param string|\MongoCode       $reduce
      * @param array                   $options
@@ -1048,7 +1048,7 @@ class Collection
      * Execute the group command.
      *
      * @see Collection::group()
-     * @param string|array|\MongoCode $keys
+     * @param array|string|\MongoCode $keys
      * @param array                   $initial
      * @param string|\MongoCode       $reduce
      * @param array                   $options
@@ -1057,31 +1057,39 @@ class Collection
      */
     protected function doGroup($keys, array $initial, $reduce, array $options)
     {
-        if (is_string($reduce)) {
-            $reduce = new \MongoCode($reduce);
+        $command = array();
+        $command['ns'] = $this->getMongoCollection()->getName();
+        $command['initial'] = (object) $initial;
+        $command['$reduce'] = $reduce;
+
+        if (is_string($keys) || $keys instanceof \MongoCode) {
+            $command['$keyf'] = $keys;
+        } else {
+            $command['key'] = $keys;
         }
 
-        if (isset($options['finalize']) && is_string($options['finalize'])) {
-            $options['finalize'] = new \MongoCode($options['finalize']);
+        $command = array_merge($command, $options);
+
+        foreach (array('$keyf', '$reduce', 'finalize') as $key) {
+            if (isset($command[$key]) && is_string($command[$key])) {
+                $command[$key] = new \MongoCode($command[$key]);
+            }
         }
 
-        $collection = $this;
-        $result = $this->retry(function() use ($collection, $keys, $initial, $reduce, $options) {
-            /* Version 1.2.11+ of the driver yields an E_DEPRECATED notice if an
-             * empty array is passed to MongoCollection::group(), as it assumes
-             * it is the "condition" option's value being passed instead of a
-             * well-formed options array (the actual deprecated behavior).
-             */
-            return empty($options)
-                ? $collection->getMongoCollection()->group($keys, $initial, $reduce)
-                : $collection->getMongoCollection()->group($keys, $initial, $reduce, $options);
+        if (isset($command['cond']) && is_array($command['cond'])) {
+            $command['cond'] = (object) $command['cond'];
+        }
+
+        $database = $this->database;
+        $result = $this->retry(function() use ($database, $command) {
+            return $database->command(array('group' => $command));
         });
 
         if ( ! $result['ok']) {
             throw new ResultException($result);
         }
 
-        return new ArrayIterator($result);
+        return new ArrayIterator(isset($result['retval']) ? $result['retval'] : array());
     }
 
     /**

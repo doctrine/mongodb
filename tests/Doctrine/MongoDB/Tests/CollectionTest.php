@@ -3,6 +3,7 @@
 namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\Common\EventManager;
+use Doctrine\MongoDB\ArrayIterator;
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Connection;
 use Doctrine\MongoDB\Database;
@@ -400,53 +401,37 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($collection->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
     }
 
-    public function testGroupWithNonEmptyOptionsArray()
+    public function testGroup()
     {
         $keys = array('category' => 1);
         $initial = array('items' => array());
-        $options = array('finalize' => '');
+        $reduce = 'reduce';
+        $options = array('cond' => array('deleted' => false), 'finalize' => 'finalize');
+
         $grouped = array(
             array('category' => 'fruit', 'items' => array('apple', 'peach', 'banana')),
             array('category' => 'veggie', 'items' => array('corn', 'broccoli')),
         );
 
-        $mongoCollection = $this->getMockMongoCollection();
+        $command = array('group' => array(
+            'ns' => self::collectionName,
+            'initial' => (object) $initial,
+            '$reduce' => new \MongoCode('reduce'),
+            'cond' => (object) $options['cond'],
+            'key' => $keys,
+            'finalize' => new \MongoCode('finalize'),
+        ));
 
-        $mongoCollection->expects($this->once())
-            ->method('group')
-            ->with($keys, $initial, $this->isInstanceOf('MongoCode'), $this->callback(function($options) {
-                return $options['finalize'] instanceof \MongoCode;
-            }))
-            ->will($this->returnValue($grouped));
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with($command)
+            ->will($this->returnValue(array('ok' => 1, 'retval' => $grouped, 'count' => 5, 'keys' => 2)));
 
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
-        $result = $coll->group($keys, $initial, '', $options);
+        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
+        $result = $coll->group($keys, $initial, $reduce, $options);
 
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $result);
-        $this->assertEquals($grouped, $result->toArray());
-    }
-
-    public function testGroupWithEmptyOptionsArray()
-    {
-        $keys = array('category' => 1);
-        $initial = array('items' => array());
-        $grouped = array(
-            array('category' => 'fruit', 'items' => array('apple', 'peach', 'banana')),
-            array('category' => 'veggie', 'items' => array('corn', 'broccoli')),
-        );
-
-        $mongoCollection = $this->getMockMongoCollection();
-
-        $mongoCollection->expects($this->once())
-            ->method('group')
-            ->with($keys, $initial, $this->isInstanceOf('MongoCode'))
-            ->will($this->returnValue($grouped));
-
-        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection);
-        $result = $coll->group($keys, $initial, '');
-
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $result);
-        $this->assertEquals($grouped, $result->toArray());
+        $this->assertEquals(new ArrayIterator($grouped), $result);
     }
 
     public function testInsert()
