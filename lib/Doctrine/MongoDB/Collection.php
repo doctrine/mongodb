@@ -1124,12 +1124,6 @@ class Collection
      */
     protected function doMapReduce($map, $reduce, $out, array $query, array $options)
     {
-        if (is_string($map)) {
-            $map = new \MongoCode($map);
-        }
-        if (is_string($reduce)) {
-            $reduce = new \MongoCode($reduce);
-        }
         $command = array();
         $command['mapreduce'] = $this->getMongoCollection()->getName();
         $command['map'] = $map;
@@ -1137,6 +1131,12 @@ class Collection
         $command['query'] = (object) $query;
         $command['out'] = $out;
         $command = array_merge($command, $options);
+
+        foreach (array('map', 'reduce', 'finalize') as $key) {
+            if (isset($command[$key]) && is_string($command[$key])) {
+                $command[$key] = new \MongoCode($command[$key]);
+            }
+        }
 
         $result = $this->database->command($command);
 
