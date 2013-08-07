@@ -829,11 +829,11 @@ class Builder
      * @see http://docs.mongodb.org/manual/reference/command/mapReduce/
      * @param string|\MongoCode $map
      * @param string|\MongoCode $reduce
-     * @param array $out
+     * @param array|string $out
      * @param array $options
      * @return self
      */
-    public function mapReduce($map, $reduce, array $out = array('inline' => true), array $options = array())
+    public function mapReduce($map, $reduce, $out = array('inline' => true), array $options = array())
     {
         $this->query['type'] = Query::TYPE_MAP_REDUCE;
         $this->query['mapReduce'] = array(
@@ -998,10 +998,10 @@ class Builder
     /**
      * Set the out option for a mapReduce query.
      *
-     * @param array $out
+     * @param array|string $out
      * @return self
      */
-    public function out(array $out)
+    public function out($out)
     {
         $this->query['mapReduce']['out'] = $out;
         return $this;

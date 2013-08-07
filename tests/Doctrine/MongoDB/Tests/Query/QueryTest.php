@@ -13,7 +13,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
             'mapReduce' => array(
                 'map' => 'map',
                 'reduce' => 'reduce',
-                'out' => array('replace' => 'collection'),
+                'out' => 'collection',
                 'options' => array('limit' => 10, 'jsMode' => true),
             ),
             'query' => array('type' => 1),
@@ -24,7 +24,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
             ->method('mapReduce')
             ->with('map',
                   'reduce',
-                  array('replace' => 'collection'),
+                  'collection',
                   array('type' => 1),
                   $this->logicalAnd(
                       new ArrayHasKeyAndValue('limit', 10),

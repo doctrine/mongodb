@@ -657,13 +657,13 @@ class Collection
      * @see http://docs.mongodb.org/manual/reference/command/mapReduce/
      * @param string|\MongoCode $map
      * @param string|\MongoCode $reduce
-     * @param array             $out
+     * @param array|string      $out
      * @param array             $query
      * @param array             $options
      * @return ArrayIterator
      * @throws ResultException if the command fails
      */
-    public function mapReduce($map, $reduce, array $out = array('inline' => true), array $query = array(), array $options = array())
+    public function mapReduce($map, $reduce, $out = array('inline' => true), array $query = array(), array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preMapReduce)) {
             $this->eventManager->dispatchEvent(Events::preMapReduce, new MapReduceEventArgs($this, $map, $reduce, $out, $query, $options));
@@ -1108,13 +1108,13 @@ class Collection
      * @see Collection::mapReduce()
      * @param string|\MongoCode $map
      * @param string|\MongoCode $reduce
-     * @param array             $out
+     * @param array|string      $out
      * @param array             $query
      * @param array             $options
      * @return ArrayIterator
      * @throws ResultException if the command fails
      */
-    protected function doMapReduce($map, $reduce, array $out, array $query, array $options)
+    protected function doMapReduce($map, $reduce, $out, array $query, array $options)
     {
         if (is_string($map)) {
             $map = new \MongoCode($map);
