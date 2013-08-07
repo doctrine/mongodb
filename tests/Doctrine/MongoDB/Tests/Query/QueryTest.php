@@ -2,48 +2,42 @@
 namespace Doctrine\MongoDB\Tests\Query;
 
 use Doctrine\MongoDB\Query\Query;
-use Doctrine\MongoDB\Tests\Constraint\ArrayHasValueUnderKey;
+use Doctrine\MongoDB\Tests\Constraint\ArrayHasKeyAndValue;
 
 class QueryTest extends \PHPUnit_Framework_TestCase
 {
     public function testMapReduceOptionsArePassed()
     {
-        $collection = $this->getMockCollection();
-
         $queryArray = array(
             'type' => Query::TYPE_MAP_REDUCE,
             'mapReduce' => array(
-                'map'     => '',
-                'reduce'  => '',
-                'options' => array('limit' => 10),
+                'map' => 'map',
+                'reduce' => 'reduce',
+                'out' => array('replace' => 'collection'),
+                'options' => array('limit' => 10, 'jsMode' => true),
             ),
-            'query' => array()
+            'query' => array('type' => 1),
         );
 
-        $query = new Query(
-            $this->getMockDatabase(),
-            $collection,
-            $queryArray,
-            array(),
-            ''
-        );
-
+        $collection = $this->getMockCollection();
         $collection->expects($this->any())
-                   ->method('mapReduce')
-                   ->with($this->anything(),
-                          $this->anything(),
-                          $this->anything(),
-                          $this->anything(),
-                          new ArrayHasValueUnderKey('limit', 10)
-                   );
+            ->method('mapReduce')
+            ->with('map',
+                  'reduce',
+                  array('replace' => 'collection'),
+                  array('type' => 1),
+                  $this->logicalAnd(
+                      new ArrayHasKeyAndValue('limit', 10),
+                      new ArrayHasKeyAndValue('jsMode', true)
+                  )
+            );
 
+        $query = new Query($this->getMockDatabase(), $collection, $queryArray, array(), '$');
         $query->execute();
     }
 
     public function testGeoNearOptionsArePassed()
     {
-        $collection = $this->getMockCollection();
-
         $queryArray = array(
             'type' => Query::TYPE_GEO_NEAR,
             'geoNear' => array(
@@ -56,26 +50,20 @@ class QueryTest extends \PHPUnit_Framework_TestCase
             'query' => array('altitude' => array('$gt' => 1)),
         );
 
-        $query = new Query(
-            $this->getMockDatabase(),
-            $collection,
-            $queryArray,
-            array(),
-            ''
-        );
-
+        $collection = $this->getMockCollection();
         $collection->expects($this->any())
-                   ->method('geoNear')
-                   ->with(array(50, 50),
-                          array('altitude' => array('$gt' => 1)),
-                          $this->logicalAnd(
-                              new ArrayHasValueUnderKey('distanceMultiplier', 2.5),
-                              new ArrayHasValueUnderKey('maxDistance', 5),
-                              new ArrayHasValueUnderKey('spherical', true),
-                              new ArrayHasValueUnderKey('num', 10)
-                          )
-                   );
+            ->method('geoNear')
+            ->with(array(50, 50),
+                  array('altitude' => array('$gt' => 1)),
+                  $this->logicalAnd(
+                      new ArrayHasKeyAndValue('distanceMultiplier', 2.5),
+                      new ArrayHasKeyAndValue('maxDistance', 5),
+                      new ArrayHasKeyAndValue('spherical', true),
+                      new ArrayHasKeyAndValue('num', 10)
+                  )
+            );
 
+        $query = new Query($this->getMockDatabase(), $collection, $queryArray, array(), '$');
         $query->execute();
     }
 
