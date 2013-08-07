@@ -22,14 +22,15 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $collection = $this->getMockCollection();
         $collection->expects($this->any())
             ->method('mapReduce')
-            ->with('map',
-                  'reduce',
-                  'collection',
-                  array('type' => 1),
-                  $this->logicalAnd(
-                      new ArrayHasKeyAndValue('limit', 10),
-                      new ArrayHasKeyAndValue('jsMode', true)
-                  )
+            ->with(
+                'map',
+                'reduce',
+                'collection',
+                array('type' => 1),
+                $this->logicalAnd(
+                    new ArrayHasKeyAndValue('limit', 10),
+                    new ArrayHasKeyAndValue('jsMode', true)
+                )
             );
 
         $query = new Query($this->getMockDatabase(), $collection, $queryArray, array(), '$');
@@ -53,14 +54,15 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $collection = $this->getMockCollection();
         $collection->expects($this->any())
             ->method('geoNear')
-            ->with(array(50, 50),
-                  array('altitude' => array('$gt' => 1)),
-                  $this->logicalAnd(
-                      new ArrayHasKeyAndValue('distanceMultiplier', 2.5),
-                      new ArrayHasKeyAndValue('maxDistance', 5),
-                      new ArrayHasKeyAndValue('spherical', true),
-                      new ArrayHasKeyAndValue('num', 10)
-                  )
+            ->with(
+                array(50, 50),
+                array('altitude' => array('$gt' => 1)),
+                $this->logicalAnd(
+                    new ArrayHasKeyAndValue('distanceMultiplier', 2.5),
+                    new ArrayHasKeyAndValue('maxDistance', 5),
+                    new ArrayHasKeyAndValue('spherical', true),
+                    new ArrayHasKeyAndValue('num', 10)
+                )
             );
 
         $query = new Query($this->getMockDatabase(), $collection, $queryArray, array(), '$');
@@ -73,8 +75,8 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     private function getMockCollection()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-                    ->disableOriginalConstructor()
-                    ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
     /**
@@ -83,7 +85,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     private function getMockDatabase()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Database')
-                    ->disableOriginalConstructor()
-                    ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 }
