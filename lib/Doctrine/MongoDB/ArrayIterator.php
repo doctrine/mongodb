@@ -175,6 +175,6 @@ class ArrayIterator implements Iterator, ArrayAccess
      */
     public function valid()
     {
-        return current($this->elements) !== false;
+        return key($this->elements) !== null;
     }
 }
