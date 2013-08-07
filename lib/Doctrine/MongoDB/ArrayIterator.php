@@ -131,7 +131,11 @@ class ArrayIterator implements Iterator, ArrayAccess
      */
     public function offsetSet($offset, $value)
     {
-        $this->elements[$offset] = $value;
+        if ($offset === null) {
+            $this->elements[] = $value;
+        } else {
+            $this->elements[$offset] = $value;
+        }
     }
 
     /**
