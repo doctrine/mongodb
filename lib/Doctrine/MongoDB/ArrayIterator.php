@@ -76,13 +76,11 @@ class ArrayIterator implements Iterator, ArrayAccess
      */
     public function getSingleResult()
     {
-        $result = null;
-        $this->valid() ?: $this->next();
-        if ($this->valid()) {
-            $result = $this->current();
-        }
-        $this->reset();
-        return $result ? $result : null;
+        reset($this->elements);
+        $result = key($this->elements) !== null ? current($this->elements) : null;
+        reset($this->elements);
+
+        return $result;
     }
 
     /**
