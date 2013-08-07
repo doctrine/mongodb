@@ -54,22 +54,17 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage foo
+     * @expectedException \Doctrine\MongoDB\Exception\ResultException
      */
     public function testAggregateShouldThrowExceptionOnError()
     {
-        $pipeline = array(array('$invalidOp' => true));
-
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
-            ->with(array('aggregate' => self::collectionName, 'pipeline' => $pipeline))
-            ->will($this->returnValue(array('ok' => 0, 'errmsg' => 'foo')));
+            ->will($this->returnValue(array('ok' => 0)));
 
         $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
-
-        $result = $coll->aggregate($pipeline);
+        $coll->aggregate(array());
     }
 
     public function testBatchInsert()
@@ -226,7 +221,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $database->expects($this->once())
             ->method('command')
             ->with($command)
-            ->will($this->returnValue(array('value' => $document)));
+            ->will($this->returnValue(array('ok' => 1, 'value' => $document)));
 
         $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
 
@@ -252,7 +247,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $database->expects($this->once())
             ->method('command')
             ->with($command)
-            ->will($this->returnValue(array('value' => $document)));
+            ->will($this->returnValue(array('ok' => 1, 'value' => $document)));
 
         $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
 
@@ -489,6 +484,20 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             array($indexInfo, 'bat', true),
             array($indexInfo, 'baz', false),
         );
+    }
+
+    /**
+     * @expectedException \Doctrine\MongoDB\Exception\ResultException
+     */
+    public function testMapReduceShouldThrowExceptionOnError()
+    {
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->will($this->returnValue(array('ok' => 0)));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
+        $coll->mapReduce('', '');
     }
 
     /**
