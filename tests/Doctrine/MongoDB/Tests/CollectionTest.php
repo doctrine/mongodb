@@ -154,6 +154,20 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $coll->deleteIndexes());
     }
 
+    /**
+     * @expectedException \Doctrine\MongoDB\Exception\ResultException
+     */
+    public function testDistinctShouldThrowExceptionOnError()
+    {
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->will($this->returnValue(array('ok' => 0)));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
+        $coll->distinct('foo');
+    }
+
     public function testDrop()
     {
         $mongoCollection = $this->getMockMongoCollection();
@@ -226,6 +240,20 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($document, $coll->findAndRemove($query));
     }
 
+    /**
+     * @expectedException \Doctrine\MongoDB\Exception\ResultException
+     */
+    public function testFindAndRemoveShouldThrowExceptionOnError()
+    {
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->will($this->returnValue(array('ok' => 0)));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
+        $coll->findAndRemove(array());
+    }
+
     public function testFindAndUpdate()
     {
         $query = array('inprogress' => false);
@@ -250,6 +278,20 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
 
         $this->assertEquals($document, $coll->findAndUpdate($query, $newObj, $options));
+    }
+
+    /**
+     * @expectedException \Doctrine\MongoDB\Exception\ResultException
+     */
+    public function testFindAndUpdateShouldThrowExceptionOnError()
+    {
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->will($this->returnValue(array('ok' => 0)));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
+        $coll->findAndUpdate(array(), array());
     }
 
     public function testFindOne()
@@ -427,6 +469,20 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(new ArrayIterator($grouped), $result);
     }
 
+    /**
+     * @expectedException \Doctrine\MongoDB\Exception\ResultException
+     */
+    public function testGroupShouldThrowExceptionOnError()
+    {
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->will($this->returnValue(array('ok' => 0)));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
+        $coll->group(array(), array(), '');
+    }
+
     public function testInsert()
     {
         $document = array('x' => 1);
@@ -496,6 +552,20 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
         $coll->mapReduce('', '');
+    }
+
+    /**
+     * @expectedException \Doctrine\MongoDB\Exception\ResultException
+     */
+    public function testNearShouldThrowExceptionOnError()
+    {
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->will($this->returnValue(array('ok' => 0)));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
+        $coll->near(array());
     }
 
     /**
