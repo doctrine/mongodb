@@ -194,12 +194,8 @@ class GridFS extends Collection
      * @param array $options
      * @return array|null
      */
-    protected function doUpdate($query, array $newObj, array $options = array())
+    protected function doUpdate(array $query, array $newObj, array $options = array())
     {
-        if (is_scalar($query)) {
-            $query = array('_id' => $query);
-        }
-
         $file = isset($newObj[$this->cmd.'set']['file']) ? $newObj[$this->cmd.'set']['file'] : null;
         unset($newObj[$this->cmd.'set']['file']);
 

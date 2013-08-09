@@ -106,6 +106,15 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($coll->update($criteria, $newObj, $options));
     }
 
+    /**
+     * @expectedException PHPUnit_Framework_Error_Deprecated
+     */
+    public function testUpdateShouldTriggerErrorForDeprecatedScalarQueryArgument()
+    {
+        $coll = $this->getTestCollection();
+        $coll->update('id', array());
+    }
+
     public function testFind()
     {
         $query = array('x' => 1);

@@ -772,6 +772,11 @@ class Collection
      */
     public function update($query, array $newObj, array $options = array())
     {
+        if (is_scalar($query)) {
+            trigger_error('Scalar $query argument for update() is deprecated', E_USER_DEPRECATED);
+            $query = array('_id' => $query);
+        }
+
         if ($this->eventManager->hasListeners(Events::preUpdate)) {
             $this->eventManager->dispatchEvent(Events::preUpdate, new UpdateEventArgs($this, $query, $newObj, $options));
         }
@@ -1175,11 +1180,8 @@ class Collection
      * @param array $options
      * @return array|boolean
      */
-    protected function doUpdate($query, array $newObj, array $options)
+    protected function doUpdate(array $query, array $newObj, array $options)
     {
-        if (is_scalar($query)) {
-            $query = array('_id' => $query);
-        }
         return $this->getMongoCollection()->update($query, $newObj, $options);
     }
 
