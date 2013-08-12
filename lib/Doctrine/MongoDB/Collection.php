@@ -29,6 +29,7 @@ use Doctrine\MongoDB\Event\MapReduceEventArgs;
 use Doctrine\MongoDB\Event\MutableEventArgs;
 use Doctrine\MongoDB\Event\NearEventArgs;
 use Doctrine\MongoDB\Event\UpdateEventArgs;
+use Doctrine\MongoDB\Exception\ResultException;
 use Doctrine\MongoDB\Util\ReadPreference;
 use GeoJson\Geometry\Point;
 
@@ -113,6 +114,7 @@ class Collection
      * @param array $pipeline Array of pipeline operators, or the first operator
      * @param array $op,...   Additional operators (if $pipeline was the first)
      * @return ArrayIterator
+     * @throws ResultException if the command fails
      */
     public function aggregate(array $pipeline /* , array $op, ... */)
     {
@@ -250,6 +252,7 @@ class Collection
      * @param array  $query
      * @param array  $options
      * @return ArrayIterator
+     * @throws ResultException if the command fails
      */
     public function distinct($field, array $query = array(), array $options = array())
     {
@@ -344,6 +347,7 @@ class Collection
      * @param array $query
      * @param array $options
      * @return array|null
+     * @throws ResultException if the command fails
      */
     public function findAndRemove(array $query, array $options = array())
     {
@@ -372,6 +376,7 @@ class Collection
      * @param array $newObj
      * @param array $options
      * @return array|null
+     * @throws ResultException if the command fails
      */
     public function findAndUpdate(array $query, array $newObj, array $options = array())
     {
@@ -577,11 +582,12 @@ class Collection
      *
      * @see http://www.php.net/manual/en/mongocollection.group.php
      * @see http://docs.mongodb.org/manual/reference/command/group/
-     * @param string|array|\MongoCode $keys
+     * @param array|string|\MongoCode $keys
      * @param array                   $initial
      * @param string|\MongoCode       $reduce
      * @param array                   $options
      * @return ArrayIterator
+     * @throws ResultException if the command fails
      */
     public function group($keys, array $initial, $reduce, array $options = array())
     {
@@ -594,87 +600,6 @@ class Collection
         if ($this->eventManager->hasListeners(Events::postGroup)) {
             $eventArgs = new MutableEventArgs($this, $result);
             $this->eventManager->dispatchEvent(Events::postGroup, $eventArgs);
-            $result = $eventArgs->getData();
-        }
-
-        return $result;
-    }
-
-    /**
-     * Check if a given field name is indexed in MongoDB.
-     *
-     * @param string $fieldName
-     * @return boolean
-     */
-    public function isFieldIndexed($fieldName)
-    {
-        $indexes = $this->getIndexInfo();
-        foreach ($indexes as $index) {
-            if (isset($index['key']) && isset($index['key'][$fieldName])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Invokes the geoNear command.
-     *
-     * This method will dispatch preNear and postNear events.
-     *
-     * The $near parameter may be a GeoJSON point or a legacy coordinate pair,
-     * which is an array of float values in x, y order (easting, northing for
-     * projected coordinates, longitude, latitude for geographic coordinates).
-     * A GeoJSON point may be a Point object or an array corresponding to the
-     * point's JSON representation.
-     *
-     * @see http://docs.mongodb.org/manual/reference/command/geoNear/
-     * @param array|Point $near
-     * @param array       $query
-     * @param array       $options
-     * @return ArrayIterator
-     */
-    public function near($near, array $query = array(), array $options = array())
-    {
-        if ($this->eventManager->hasListeners(Events::preNear)) {
-            $this->eventManager->dispatchEvent(Events::preNear, new NearEventArgs($this, $query, $near, $options));
-        }
-
-        $result = $this->doNear($near, $query, $options);
-
-        if ($this->eventManager->hasListeners(Events::postNear)) {
-            $eventArgs = new MutableEventArgs($this, $result);
-            $this->eventManager->dispatchEvent(Events::postNear, $eventArgs);
-            $result = $eventArgs->getData();
-        }
-
-        return $result;
-    }
-
-    /**
-     * Invokes the mapReduce command.
-     *
-     * This method will dispatch preMapReduce and postMapReduce events.
-     *
-     * @see http://docs.mongodb.org/manual/reference/command/mapReduce/
-     * @param string|\MongoCode $map
-     * @param string|\MongoCode $reduce
-     * @param array             $out
-     * @param array             $query
-     * @param array             $options
-     * @return ArrayIterator
-     */
-    public function mapReduce($map, $reduce, array $out = array('inline' => true), array $query = array(), array $options = array())
-    {
-        if ($this->eventManager->hasListeners(Events::preMapReduce)) {
-            $this->eventManager->dispatchEvent(Events::preMapReduce, new MapReduceEventArgs($this, $map, $reduce, $out, $query, $options));
-        }
-
-        $result = $this->doMapReduce($map, $reduce, $out, $query, $options);
-
-        if ($this->eventManager->hasListeners(Events::postMapReduce)) {
-            $eventArgs = new MutableEventArgs($this, $result);
-            $this->eventManager->dispatchEvent(Events::postMapReduce, $eventArgs);
             $result = $eventArgs->getData();
         }
 
@@ -704,6 +629,93 @@ class Collection
             $this->eventManager->dispatchEvent(Events::postInsert, $eventArgs);
             $result = $eventArgs->getData();
         }
+        return $result;
+    }
+
+    /**
+     * Check if a given field name is indexed in MongoDB.
+     *
+     * @param string $fieldName
+     * @return boolean
+     */
+    public function isFieldIndexed($fieldName)
+    {
+        $indexes = $this->getIndexInfo();
+        foreach ($indexes as $index) {
+            if (isset($index['key']) && isset($index['key'][$fieldName])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Invokes the mapReduce command.
+     *
+     * This method will dispatch preMapReduce and postMapReduce events.
+     *
+     * If the output method is inline, an ArrayIterator will be returned.
+     * Otherwise, a Cursor to all documents in the output collection will be
+     * returned.
+     *
+     * @see http://docs.mongodb.org/manual/reference/command/mapReduce/
+     * @param string|\MongoCode $map
+     * @param string|\MongoCode $reduce
+     * @param array|string      $out
+     * @param array             $query
+     * @param array             $options
+     * @return ArrayIterator|Cursor
+     * @throws ResultException if the command fails
+     */
+    public function mapReduce($map, $reduce, $out = array('inline' => true), array $query = array(), array $options = array())
+    {
+        if ($this->eventManager->hasListeners(Events::preMapReduce)) {
+            $this->eventManager->dispatchEvent(Events::preMapReduce, new MapReduceEventArgs($this, $map, $reduce, $out, $query, $options));
+        }
+
+        $result = $this->doMapReduce($map, $reduce, $out, $query, $options);
+
+        if ($this->eventManager->hasListeners(Events::postMapReduce)) {
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postMapReduce, $eventArgs);
+            $result = $eventArgs->getData();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Invokes the geoNear command.
+     *
+     * This method will dispatch preNear and postNear events.
+     *
+     * The $near parameter may be a GeoJSON point or a legacy coordinate pair,
+     * which is an array of float values in x, y order (easting, northing for
+     * projected coordinates, longitude, latitude for geographic coordinates).
+     * A GeoJSON point may be a Point object or an array corresponding to the
+     * point's JSON representation.
+     *
+     * @see http://docs.mongodb.org/manual/reference/command/geoNear/
+     * @param array|Point $near
+     * @param array       $query
+     * @param array       $options
+     * @return ArrayIterator
+     * @throws ResultException if the command fails
+     */
+    public function near($near, array $query = array(), array $options = array())
+    {
+        if ($this->eventManager->hasListeners(Events::preNear)) {
+            $this->eventManager->dispatchEvent(Events::preNear, new NearEventArgs($this, $query, $near, $options));
+        }
+
+        $result = $this->doNear($near, $query, $options);
+
+        if ($this->eventManager->hasListeners(Events::postNear)) {
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postNear, $eventArgs);
+            $result = $eventArgs->getData();
+        }
+
         return $result;
     }
 
@@ -849,7 +861,7 @@ class Collection
      * @see Collection::aggregate()
      * @param array $pipeline
      * @return ArrayIterator
-     * @throws \RuntimeException if the command fails
+     * @throws ResultException if the command fails
      */
     protected function doAggregate(array $pipeline)
     {
@@ -862,8 +874,8 @@ class Collection
             return $database->command($command);
         });
 
-        if ( ! $result['ok']) {
-            throw new \RuntimeException($result['errmsg']);
+        if (empty($result['ok'])) {
+            throw new ResultException($result);
         }
 
         return new ArrayIterator(isset($result['result']) ? $result['result'] : array());
@@ -902,19 +914,25 @@ class Collection
      * @param array  $query
      * @param array  $options
      * @return ArrayIterator
+     * @throws ResultException if the command fails
      */
     protected function doDistinct($field, array $query, array $options)
     {
         $command = array();
         $command['distinct'] = $this->getMongoCollection()->getName();
         $command['key'] = $field;
-        $command['query'] = $query;
+        $command['query'] = (object) $query;
         $command = array_merge($command, $options);
 
         $database = $this->database;
         $result = $this->retry(function() use ($database, $command) {
             return $database->command($command);
         });
+
+        if (empty($result['ok'])) {
+            throw new ResultException($result);
+        }
+
         return new ArrayIterator(isset($result['values']) ? $result['values'] : array());
     }
 
@@ -953,16 +971,21 @@ class Collection
      * @param array $query
      * @param array $options
      * @return array|null
+     * @throws ResultException if the command fails
      */
     protected function doFindAndRemove(array $query, array $options = array())
     {
         $command = array();
         $command['findandmodify'] = $this->getMongoCollection()->getName();
-        $command['query'] = $query;
+        $command['query'] = (object) $query;
         $command['remove'] = true;
         $command = array_merge($command, $options);
 
         $result = $this->database->command($command);
+
+        if (empty($result['ok'])) {
+            throw new ResultException($result);
+        }
 
         return isset($result['value']) ? $result['value'] : null;
     }
@@ -975,16 +998,22 @@ class Collection
      * @param array $newObj
      * @param array $options
      * @return array|null
+     * @throws ResultException if the command fails
      */
     protected function doFindAndUpdate(array $query, array $newObj, array $options)
     {
         $command = array();
         $command['findandmodify'] = $this->getMongoCollection()->getName();
-        $command['query'] = $query;
-        $command['update'] = $newObj;
+        $command['query'] = (object) $query;
+        $command['update'] = (object) $newObj;
         $command = array_merge($command, $options);
 
         $result = $this->database->command($command);
+
+        if (empty($result['ok'])) {
+            throw new ResultException($result);
+        }
+
         return isset($result['value']) ? $result['value'] : null;
     }
 
@@ -1023,34 +1052,48 @@ class Collection
      * Execute the group command.
      *
      * @see Collection::group()
-     * @param string|array|\MongoCode $keys
+     * @param array|string|\MongoCode $keys
      * @param array                   $initial
      * @param string|\MongoCode       $reduce
      * @param array                   $options
      * @return ArrayIterator
+     * @throws ResultException if the command fails
      */
     protected function doGroup($keys, array $initial, $reduce, array $options)
     {
-        if (is_string($reduce)) {
-            $reduce = new \MongoCode($reduce);
+        $command = array();
+        $command['ns'] = $this->getMongoCollection()->getName();
+        $command['initial'] = (object) $initial;
+        $command['$reduce'] = $reduce;
+
+        if (is_string($keys) || $keys instanceof \MongoCode) {
+            $command['$keyf'] = $keys;
+        } else {
+            $command['key'] = $keys;
         }
 
-        if (isset($options['finalize']) && is_string($options['finalize'])) {
-            $options['finalize'] = new \MongoCode($options['finalize']);
+        $command = array_merge($command, $options);
+
+        foreach (array('$keyf', '$reduce', 'finalize') as $key) {
+            if (isset($command[$key]) && is_string($command[$key])) {
+                $command[$key] = new \MongoCode($command[$key]);
+            }
         }
 
-        $collection = $this;
-        $result = $this->retry(function() use ($collection, $keys, $initial, $reduce, $options) {
-            /* Version 1.2.11+ of the driver yields an E_DEPRECATED notice if an
-             * empty array is passed to MongoCollection::group(), as it assumes
-             * it is the "condition" option's value being passed instead of a
-             * well-formed options array (the actual deprecated behavior).
-             */
-            return empty($options)
-                ? $collection->getMongoCollection()->group($keys, $initial, $reduce)
-                : $collection->getMongoCollection()->group($keys, $initial, $reduce, $options);
+        if (isset($command['cond']) && is_array($command['cond'])) {
+            $command['cond'] = (object) $command['cond'];
+        }
+
+        $database = $this->database;
+        $result = $this->retry(function() use ($database, $command) {
+            return $database->command(array('group' => $command));
         });
-        return new ArrayIterator($result);
+
+        if (empty($result['ok'])) {
+            throw new ResultException($result);
+        }
+
+        return new ArrayIterator(isset($result['retval']) ? $result['retval'] : array());
     }
 
     /**
@@ -1077,19 +1120,14 @@ class Collection
      * @see Collection::mapReduce()
      * @param string|\MongoCode $map
      * @param string|\MongoCode $reduce
-     * @param array             $out
+     * @param array|string      $out
      * @param array             $query
      * @param array             $options
      * @return ArrayIterator
+     * @throws ResultException if the command fails
      */
-    protected function doMapReduce($map, $reduce, array $out, array $query, array $options)
+    protected function doMapReduce($map, $reduce, $out, array $query, array $options)
     {
-        if (is_string($map)) {
-            $map = new \MongoCode($map);
-        }
-        if (is_string($reduce)) {
-            $reduce = new \MongoCode($reduce);
-        }
         $command = array();
         $command['mapreduce'] = $this->getMongoCollection()->getName();
         $command['map'] = $map;
@@ -1098,23 +1136,30 @@ class Collection
         $command['out'] = $out;
         $command = array_merge($command, $options);
 
+        foreach (array('map', 'reduce', 'finalize') as $key) {
+            if (isset($command[$key]) && is_string($command[$key])) {
+                $command[$key] = new \MongoCode($command[$key]);
+            }
+        }
+
         $result = $this->database->command($command);
 
-        if (!$result['ok']) {
-            throw new \RuntimeException($result['errmsg']);
+        if (empty($result['ok'])) {
+            throw new ResultException($result);
         }
 
-        if (isset($out['inline']) && $out['inline'] === true) {
-            return new ArrayIterator($result['results']);
+        if (isset($result['result']) && is_string($result['result'])) {
+            return $this->database->selectCollection($result['result'])->find();
         }
 
-        if (isset($result['result']['db'], $result['result']['collection'])) {
+        if (isset($result['result']) && is_array($result['result']) &&
+            isset($result['result']['db'], $result['result']['collection'])) {
             return $this->connection
                 ->selectCollection($result['result']['db'], $result['result']['collection'])
                 ->find();
         }
 
-        return $this->database->selectCollection($result['result'])->find();
+        return new ArrayIterator(isset($result['results']) ? $result['results'] : array());
     }
 
     /**
@@ -1125,6 +1170,7 @@ class Collection
      * @param array       $query
      * @param array       $options
      * @return ArrayIterator
+     * @throws ResultException if the command fails
      */
     protected function doNear($near, array $query, array $options)
     {
@@ -1135,13 +1181,18 @@ class Collection
         $command = array();
         $command['geoNear'] = $this->getMongoCollection()->getName();
         $command['near'] = $near;
-        $command['query'] = $query;
+        $command['query'] = (object) $query;
         $command = array_merge($command, $options);
 
         $database = $this->database;
         $result = $this->retry(function() use ($database, $command) {
             return $database->command($command);
         });
+
+        if (empty($result['ok'])) {
+            throw new ResultException($result);
+        }
+
         return new ArrayIterator(isset($result['results']) ? $result['results'] : array());
     }
 

@@ -366,18 +366,24 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     {
         $qb = $this->getTestQueryBuilder();
 
-        $this->assertSame($qb, $qb->geoNear(1, 2));
+        $this->assertSame($qb, $qb->geoNear(50, 50));
+        $this->assertSame($qb, $qb->distanceMultiplier(2.5));
+        $this->assertSame($qb, $qb->maxDistance(5));
+        $this->assertSame($qb, $qb->spherical(true));
+        $this->assertSame($qb, $qb->field('type')->equals('restaurant'));
+        $this->assertSame($qb, $qb->limit(10));
+
         $this->assertEquals(Query::TYPE_GEO_NEAR, $qb->getType());
-        $this->assertEquals(array('near' => array(1, 2)), $qb->debug('geoNear'));
-    }
 
-    public function testDistanceMultipler()
-    {
-        $qb = $this->getTestQueryBuilder();
-        $qb->geoNear(1, 2);
+        $expectedQuery = array('type' => 'restaurant');
+        $this->assertEquals($expectedQuery, $qb->getQueryArray());
 
-        $this->assertSame($qb, $qb->distanceMultiplier(1));
-        $this->assertArrayHasKeyValue(array('distanceMultipler' => 1), $qb->debug('geoNear'));
+        $geoNear = $qb->debug('geoNear');
+        $this->assertEquals(array(50, 50), $geoNear['near']);
+        $this->assertEquals(2.5, $geoNear['distanceMultiplier']);
+        $this->assertEquals(5, $geoNear['maxDistance']);
+        $this->assertEquals(true, $geoNear['spherical']);
+        $this->assertEquals(10, $qb->debug('limit'));
     }
 
     /**
@@ -387,30 +393,6 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     {
         $qb = $this->getTestQueryBuilder();
         $qb->distanceMultiplier(1);
-    }
-
-    public function testMaxDistanceWithGeoNearCommand()
-    {
-        $qb = $this->getTestQueryBuilder();
-        $qb->geoNear(1, 2);
-
-        $this->assertSame($qb, $qb->maxDistance(1));
-        $this->assertArrayHasKeyValue(array('maxDistance' => 1), $qb->debug('geoNear'));
-    }
-
-    public function testSpherical()
-    {
-        $qb = $this->getTestQueryBuilder();
-        $qb->geoNear(1, 2);
-
-        $this->assertSame($qb, $qb->spherical());
-        $this->assertArrayHasKeyValue(array('spherical' => true), $qb->debug('geoNear'));
-
-        $this->assertSame($qb, $qb->spherical(false));
-        $this->assertArrayHasKeyValue(array('spherical' => false), $qb->debug('geoNear'));
-
-        $this->assertSame($qb, $qb->spherical(true));
-        $this->assertArrayHasKeyValue(array('spherical' => true), $qb->debug('geoNear'));
     }
 
     /**
