@@ -99,16 +99,23 @@ class LoggableDatabase extends Database implements Loggable
     /**
      * @see Database::createCollection()
      */
-    public function createCollection($name, $capped = false, $size = 0, $max = 0)
+    public function createCollection($name, $cappedOrOptions = false, $size = 0, $max = 0)
     {
+        $options = is_array($cappedOrOptions)
+            ? array_merge(array('capped' => false, 'size' => 0, 'max' => 0), $cappedOrOptions)
+            : array('capped' => $cappedOrOptions, 'size' => $size, 'max' => $max);
+
         $this->log(array(
             'createCollection' => true,
-            'capped' => $capped,
-            'size' => $size,
-            'max' => $max,
+            'name' => $name,
+            'options' => $options,
+            /* @deprecated 1.1 Replaced by options; will be removed for 2.0 */
+            'capped' => $options['capped'],
+            'size' => $options['size'],
+            'max' => $options['max'],
         ));
 
-        return parent::createCollection($name, $capped, $size, $max);
+        return parent::createCollection($name, $options);
     }
 
     /**

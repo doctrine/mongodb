@@ -3,10 +3,12 @@
 namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\LoggableCollection;
-use Doctrine\Common\EventManager;
 
 class LoggableCollectionTest extends \PHPUnit_Framework_TestCase
 {
+    const collectionName = 'collection';
+    const databaseName = 'database';
+
     public function testLog()
     {
         $called = false;
@@ -15,29 +17,30 @@ class LoggableCollectionTest extends \PHPUnit_Framework_TestCase
             $called = $msg;
         };
 
-        $database = $this->getMockDatabase();
+        $collection = $this->getTestLoggableDatabase($loggerCallable);
+        $collection->log(array('test' => 'test'));
 
-        $database->expects($this->once())
+        $this->assertEquals(array('collection' => self::collectionName, 'db' => self::databaseName, 'test' => 'test'), $called);
+    }
+
+    private function getTestLoggableDatabase($loggerCallable)
+    {
+        $c = $this->getMockBuilder('Doctrine\MongoDB\Connection')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $db = $this->getMockBuilder('Doctrine\MongoDB\Database')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $db->expects($this->any())
             ->method('getName')
-            ->will($this->returnValue('test'));
+            ->will($this->returnValue(self::databaseName));
 
-        $coll = new LoggableCollection($this->getMockConnection(), 'foo', $database, new EventManager(), '$', $loggerCallable);
-        $coll->log(array('test' => 'test'));
-
-        $this->assertEquals(array('collection' => 'foo', 'db' => 'test', 'test' => 'test'), $called);
-    }
-
-    private function getMockDatabase()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Database')
+        $em = $this->getMockBuilder('Doctrine\Common\EventManager')
             ->disableOriginalConstructor()
             ->getMock();
-    }
 
-    private function getMockConnection()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Connection')
-            ->disableOriginalConstructor()
-            ->getMock();
+        return new LoggableCollection($c, self::collectionName, $db, $em, '$', $loggerCallable);
     }
 }

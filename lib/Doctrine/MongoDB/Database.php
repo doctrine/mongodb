@@ -119,7 +119,10 @@ class Database
     /**
      * Wrapper method for MongoDB::createCollection().
      *
-     * @see http://php.net/manual/en/mongodb.command.php
+     * This method will dispatch preCreateCollection and postCreateCollection
+     * events.
+     *
+     * @see http://php.net/manual/en/mongodb.createcollection.php
      * @param string        $name            Collection name
      * @param boolean|array $cappedOrOptions Capped collection indicator or an
      *                                       options array (for driver 1.4+)
@@ -139,16 +142,10 @@ class Database
             $this->eventManager->dispatchEvent(Events::preCreateCollection, new CreateCollectionEventArgs($this, $name, $options));
         }
 
-        if (version_compare(phpversion('mongo'), '1.4.0', '>=')) {
-            $this->getMongoDB()->createCollection($name, $options);
-        } else {
-            $this->getMongoDB()->createCollection($name, $options['capped'], $options['size'], $options['max']);
-        }
-
-        $result = $this->selectCollection($name);
+        $result = $this->doCreateCollection($name, $options);
 
         if ($this->eventManager->hasListeners(Events::postCreateCollection)) {
-            $this->eventManager->dispatchEvent(Events::postCreateCollection, new EventArgs($this, $prefix));
+            $this->eventManager->dispatchEvent(Events::postCreateCollection, new EventArgs($this, $result));
         }
 
         return $result;
@@ -169,6 +166,8 @@ class Database
 
     /**
      * Wrapper method for MongoDB::drop().
+     *
+     * This method will dispatch preDropDatabase and postDropDatabase events.
      *
      * @see http://php.net/manual/en/mongodb.drop.php
      * @return array
@@ -251,6 +250,8 @@ class Database
     /**
      * Wrapper method for MongoDB::getGridFS().
      *
+     * This method will dispatch preGetGridFS and postGetGridFS events.
+     *
      * @see http://php.net/manual/en/mongodb.getgridfs.php
      * @param string $prefix
      * @return GridFS
@@ -261,13 +262,13 @@ class Database
             $this->eventManager->dispatchEvent(Events::preGetGridFS, new EventArgs($this, $prefix));
         }
 
-        $gridFS = $this->doGetGridFs($prefix);
+        $gridfs = $this->doGetGridFS($prefix);
 
-        if ($this->eventManager->hasListeners(Events::preGetGridFS)) {
-            $this->eventManager->dispatchEvent(Events::preGetGridFS, new EventArgs($this, $gridFS));
+        if ($this->eventManager->hasListeners(Events::postGetGridFS)) {
+            $this->eventManager->dispatchEvent(Events::postGetGridFS, new EventArgs($this, $gridfs));
         }
 
-        return $gridFS;
+        return $gridfs;
     }
 
     /**
@@ -520,13 +521,32 @@ class Database
     }
 
     /**
+     * Creates a collection.
+     *
+     * @see Database::createCollection()
+     * @param string $name
+     * @param array $options
+     * @return Collection
+     */
+    protected function doCreateCollection($name, array $options)
+    {
+        if (version_compare(phpversion('mongo'), '1.4.0', '>=')) {
+            $this->getMongoDB()->createCollection($name, $options);
+        } else {
+            $this->getMongoDB()->createCollection($name, $options['capped'], $options['size'], $options['max']);
+        }
+
+        return $this->doSelectCollection($name);
+    }
+
+    /**
      * Return a new GridFS instance.
      *
      * @see Database::getGridFS()
      * @param string $prefix
      * @return GridFS
      */
-    protected function doGetGridFs($prefix)
+    protected function doGetGridFS($prefix)
     {
         return new GridFS($this->connection, $prefix, $this, $this->eventManager, $this->cmd);
     }
