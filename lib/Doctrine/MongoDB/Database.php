@@ -261,13 +261,13 @@ class Database
             $this->eventManager->dispatchEvent(Events::preGetGridFS, new EventArgs($this, $prefix));
         }
 
-        $gridFS = $this->doGetGridFs($prefix);
+        $gridfs = $this->doGetGridFS($prefix);
 
-        if ($this->eventManager->hasListeners(Events::preGetGridFS)) {
-            $this->eventManager->dispatchEvent(Events::preGetGridFS, new EventArgs($this, $gridFS));
+        if ($this->eventManager->hasListeners(Events::postGetGridFS)) {
+            $this->eventManager->dispatchEvent(Events::postGetGridFS, new EventArgs($this, $gridfs));
         }
 
-        return $gridFS;
+        return $gridfs;
     }
 
     /**
@@ -526,7 +526,7 @@ class Database
      * @param string $prefix
      * @return GridFS
      */
-    protected function doGetGridFs($prefix)
+    protected function doGetGridFS($prefix)
     {
         return new GridFS($this->connection, $prefix, $this, $this->eventManager, $this->cmd);
     }

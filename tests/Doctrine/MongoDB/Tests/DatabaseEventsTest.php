@@ -27,6 +27,22 @@ class DatabaseEventsTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($result, $db->getDBRef($reference));
     }
 
+    public function testGetGridFS()
+    {
+        $prefix = 'fs';
+        $result = $this->getMockGridFS();
+
+        $eventManager = $this->getMockEventManager();
+        $db = $this->getMockDatabase($eventManager, array('doGetGridFS' => $result));
+
+        $this->expectEvents($eventManager, array(
+            array(Events::preGetGridFS, new EventArgs($db, $prefix)),
+            array(Events::postGetGridFS, new EventArgs($db, $result)),
+        ));
+
+        $this->assertSame($result, $db->getGridFS());
+    }
+
     /**
      * Expect events to be dispatched by the event manager in the given order.
      *
@@ -77,6 +93,13 @@ class DatabaseEventsTest extends \PHPUnit_Framework_TestCase
     private function getMockEventManager()
     {
         return $this->getMockBuilder('Doctrine\Common\EventManager')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    private function getMockGridFS()
+    {
+        return $this->getMockBuilder('Doctrine\MongoDB\GridFS')
             ->disableOriginalConstructor()
             ->getMock();
     }
