@@ -119,7 +119,10 @@ class Database
     /**
      * Wrapper method for MongoDB::createCollection().
      *
-     * @see http://php.net/manual/en/mongodb.command.php
+     * This method will dispatch preCreateCollection and postCreateCollection
+     * events.
+     *
+     * @see http://php.net/manual/en/mongodb.createcollection.php
      * @param string        $name            Collection name
      * @param boolean|array $cappedOrOptions Capped collection indicator or an
      *                                       options array (for driver 1.4+)
@@ -139,16 +142,10 @@ class Database
             $this->eventManager->dispatchEvent(Events::preCreateCollection, new CreateCollectionEventArgs($this, $name, $options));
         }
 
-        if (version_compare(phpversion('mongo'), '1.4.0', '>=')) {
-            $this->getMongoDB()->createCollection($name, $options);
-        } else {
-            $this->getMongoDB()->createCollection($name, $options['capped'], $options['size'], $options['max']);
-        }
-
-        $result = $this->selectCollection($name);
+        $result = $this->doCreateCollection($name, $options);
 
         if ($this->eventManager->hasListeners(Events::postCreateCollection)) {
-            $this->eventManager->dispatchEvent(Events::postCreateCollection, new EventArgs($this, $prefix));
+            $this->eventManager->dispatchEvent(Events::postCreateCollection, new EventArgs($this, $result));
         }
 
         return $result;
@@ -517,6 +514,25 @@ class Database
         return $this->retry(function() use ($database, $reference) {
             return $database->getMongoDB()->getDBRef($reference);
         });
+    }
+
+    /**
+     * Creates a collection.
+     *
+     * @see Database::createCollection()
+     * @param string $name
+     * @param array $options
+     * @return Collection
+     */
+    protected function doCreateCollection($name, array $options)
+    {
+        if (version_compare(phpversion('mongo'), '1.4.0', '>=')) {
+            $this->getMongoDB()->createCollection($name, $options);
+        } else {
+            $this->getMongoDB()->createCollection($name, $options['capped'], $options['size'], $options['max']);
+        }
+
+        return $this->doSelectCollection($name);
     }
 
     /**

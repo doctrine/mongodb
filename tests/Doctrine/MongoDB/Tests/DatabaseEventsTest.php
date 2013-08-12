@@ -4,12 +4,30 @@ namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\Common\EventManager;
 use Doctrine\MongoDB\Events;
+use Doctrine\MongoDB\Event\CreateCollectionEventArgs;
 use Doctrine\MongoDB\Event\EventArgs;
 use Doctrine\MongoDB\Event\MutableEventArgs;
 
 class DatabaseEventsTest extends \PHPUnit_Framework_TestCase
 {
     const databaseName = 'database';
+
+    public function testCreateCollection()
+    {
+        $name = 'collection';
+        $options = array('capped' => false, 'size' => 0, 'max' => 0);
+        $result = $this->getMockCollection();
+
+        $eventManager = $this->getMockEventManager();
+        $db = $this->getMockDatabase($eventManager, array('doCreateCollection' => $result));
+
+        $this->expectEvents($eventManager, array(
+            array(Events::preCreateCollection, new CreateCollectionEventArgs($db, $name, $options)),
+            array(Events::postCreateCollection, new EventArgs($db, $result)),
+        ));
+
+        $this->assertSame($result, $db->createCollection($name, $options));
+    }
 
     public function testGetDBRef()
     {
@@ -68,6 +86,13 @@ class DatabaseEventsTest extends \PHPUnit_Framework_TestCase
                 ->method('dispatchEvent')
                 ->with($event[0], $event[1]);
         }
+    }
+
+    private function getMockCollection()
+    {
+        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
     private function getMockDatabase(EventManager $em, array $methods)
