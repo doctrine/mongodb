@@ -114,7 +114,7 @@ class FunctionalTest extends BaseTest
         );
         $this->assertEquals($expected, $qb->getNewObj());
         $this->assertEquals(Query::TYPE_INSERT, $qb->getType());
-        $this->assertArrayHasKeyValue(array('ok' => 1.0), $qb->getQuery()->execute());
+        $this->assertArrayHasKeyValue(array('ok' => 1), $qb->getQuery()->execute());
     }
 
     public function testUpdateQuery()
@@ -133,7 +133,7 @@ class FunctionalTest extends BaseTest
 
         $query = $qb->getQuery();
         $this->assertEquals(Query::TYPE_UPDATE, $query->getType());
-        $this->assertArrayHasKeyValue(array('ok' => 1.0), $query->execute());
+        $this->assertArrayHasKeyValue(array('ok' => 1), $query->execute());
     }
 
     public function testRemoveQuery()
@@ -143,31 +143,7 @@ class FunctionalTest extends BaseTest
             ->field('username')->equals('jwage');
 
         $this->assertEquals(Query::TYPE_REMOVE, $qb->getType());
-        $this->assertArrayHasKeyValue(array('ok' => 1.0), $qb->getQuery()->execute());
-    }
-
-    public function testGeoNearQuery()
-    {
-        $qb = $this->getTestQueryBuilder()
-            ->geoNear(50, 50)
-            ->distanceMultiplier(2.5)
-            ->maxDistance(5)
-            ->spherical(true)
-            ->field('type')->equals('restaurant')
-            ->limit(10);
-
-        $this->assertEquals(Query::TYPE_GEO_NEAR, $qb->getType());
-
-        $expectedQuery = array('type' => 'restaurant');
-        $this->assertEquals($expectedQuery, $qb->getQueryArray());
-
-        $geoNear = $qb->debug('geoNear');
-        $this->assertEquals(array(50, 50), $geoNear['near']);
-        $this->assertEquals(2.5, $geoNear['distanceMultiplier']);
-        $this->assertEquals(5, $geoNear['maxDistance']);
-        $this->assertEquals(true, $geoNear['spherical']);
-        $this->assertEquals(10, $qb->debug('limit'));
-        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $qb->getQuery()->execute());
+        $this->assertArrayHasKeyValue(array('ok' => 1), $qb->getQuery()->execute());
     }
 
     private function getTestQueryBuilder()

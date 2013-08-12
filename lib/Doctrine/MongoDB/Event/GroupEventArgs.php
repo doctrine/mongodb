@@ -39,7 +39,7 @@ class GroupEventArgs extends BaseEventArgs
      * Constructor.
      *
      * @param object                  $invoker
-     * @param string|array|\MongoCode $keys
+     * @param array|string|\MongoCode $keys
      * @param array                   $initial
      * @param string|\MongoCode       $reduce
      * @param array                   $options
