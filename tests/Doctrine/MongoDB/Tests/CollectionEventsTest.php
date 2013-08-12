@@ -51,22 +51,6 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($result, $collection->batchInsert($documents, $options));
     }
 
-    public function testCreateDBRef()
-    {
-        $document = array('_id' => 1);
-        $result = array('$ref' => self::collectionName, '$id' => 1);
-
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doCreateDBRef' => $result));
-
-        $this->expectEvents($eventManager, array(
-            array(Events::preCreateDBRef, new EventArgs($collection, $document)),
-            array(Events::postCreateDBRef, new EventArgs($collection, $result)),
-        ));
-
-        $this->assertSame($result, $collection->createDBRef($document));
-    }
-
     public function testDistinct()
     {
         $field = 'x';
