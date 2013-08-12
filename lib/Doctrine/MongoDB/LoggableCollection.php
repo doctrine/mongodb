@@ -101,19 +101,6 @@ class LoggableCollection extends Collection implements Loggable
     }
 
     /**
-     * @see Collection::createDBRef()
-     */
-    public function createDBRef(array $a)
-    {
-        $this->log(array(
-            'createDBRef' => true,
-            'reference' => $a,
-        ));
-
-        return parent::createDBRef($a);
-    }
-
-    /**
      * @see Collection::deleteIndex()
      */
     public function deleteIndex($keys)

@@ -22,6 +22,7 @@ namespace Doctrine\MongoDB;
 use Doctrine\Common\EventManager;
 use Doctrine\MongoDB\Event\CreateCollectionEventArgs;
 use Doctrine\MongoDB\Event\EventArgs;
+use Doctrine\MongoDB\Event\MutableEventArgs;
 use Doctrine\MongoDB\Util\ReadPreference;
 
 /**
@@ -224,13 +225,27 @@ class Database
     /**
      * Wrapper method for MongoDB::getDBRef().
      *
+     * This method will dispatch preGetDBRef and postGetDBRef events.
+     *
      * @see http://php.net/manual/en/mongodb.getdbref.php
      * @param array $reference
      * @return array|null
      */
     public function getDBRef(array $reference)
     {
-        return $this->getMongoDB()->getDBRef($reference);
+        if ($this->eventManager->hasListeners(Events::preGetDBRef)) {
+            $this->eventManager->dispatchEvent(Events::preGetDBRef, new EventArgs($this, $reference));
+        }
+
+        $result = $this->doGetDBRef($reference);
+
+        if ($this->eventManager->hasListeners(Events::postGetDBRef)) {
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postGetDBRef, $eventArgs);
+            $result = $eventArgs->getData();
+        }
+
+        return $result;
     }
 
     /**
@@ -490,6 +505,21 @@ class Database
     }
 
     /**
+     * Resolves a database reference.
+     *
+     * @see Database::getDBRef()
+     * @param array $reference
+     * @return array|null
+     */
+    protected function doGetDBRef(array $reference)
+    {
+        $database = $this;
+        return $this->retry(function() use ($database, $reference) {
+            return $database->getMongoDB()->getDBRef($reference);
+        });
+    }
+
+    /**
      * Return a new GridFS instance.
      *
      * @see Database::getGridFS()
@@ -511,5 +541,37 @@ class Database
     protected function doSelectCollection($name)
     {
         return new Collection($this->connection, $name, $this, $this->eventManager, $this->cmd, $this->numRetries);
+    }
+
+    /**
+     * Conditionally retry a closure if it yields an exception.
+     *
+     * If the closure does not return successfully within the configured number
+     * of retries, its first exception will be thrown.
+     *
+     * This method should not be used for write operations.
+     *
+     * @param \Closure $retry
+     * @return mixed
+     */
+    protected function retry(\Closure $retry)
+    {
+        if ($this->numRetries) {
+            $firstException = null;
+            for ($i = 0; $i <= $this->numRetries; $i++) {
+                try {
+                    return $retry();
+                } catch (\MongoException $e) {
+                    if (!$firstException) {
+                        $firstException = $e;
+                    }
+                    if ($i === $this->numRetries) {
+                        throw $firstException;
+                    }
+                }
+            }
+        } else {
+            return $retry();
+        }
     }
 }

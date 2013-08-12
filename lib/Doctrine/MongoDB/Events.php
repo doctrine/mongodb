@@ -40,9 +40,6 @@ final class Events
     const preCreateCollection = 'preCreateCollection';
     const postCreateCollection = 'postCreateCollection';
 
-    const preCreateDBRef = 'collectionPreCreateDBRef';
-    const postCreateDBRef = 'collectionPostCreateDBRef';
-
     const preConnect = 'preConnect';
     const postConnect = 'postConnect';
 
