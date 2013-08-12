@@ -167,6 +167,8 @@ class Database
     /**
      * Wrapper method for MongoDB::drop().
      *
+     * This method will dispatch preDropDatabase and postDropDatabase events.
+     *
      * @see http://php.net/manual/en/mongodb.drop.php
      * @return array
      */
@@ -247,6 +249,8 @@ class Database
 
     /**
      * Wrapper method for MongoDB::getGridFS().
+     *
+     * This method will dispatch preGetGridFS and postGetGridFS events.
      *
      * @see http://php.net/manual/en/mongodb.getgridfs.php
      * @param string $prefix

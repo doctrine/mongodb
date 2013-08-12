@@ -29,6 +29,26 @@ class DatabaseEventsTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($result, $db->createCollection($name, $options));
     }
 
+    public function testDrop()
+    {
+        $result = array('dropped' => self::databaseName, 'ok' => 1);
+
+        $mongoDB = $this->getMockMongoDB();
+        $mongoDB->expects($this->once())
+            ->method('drop')
+            ->will($this->returnValue($result));
+
+        $eventManager = $this->getMockEventManager();
+        $db = $this->getMockDatabase($eventManager, array('getMongoDB' => $mongoDB));
+
+        $this->expectEvents($eventManager, array(
+            array(Events::preDropDatabase, new EventArgs($db)),
+            array(Events::postDropDatabase, new EventArgs($db)),
+        ));
+
+        $this->assertSame($result, $db->drop());
+    }
+
     public function testGetDBRef()
     {
         $reference = array('$ref' => 'collection', '$id' => 1);
@@ -59,6 +79,22 @@ class DatabaseEventsTest extends \PHPUnit_Framework_TestCase
         ));
 
         $this->assertSame($result, $db->getGridFS());
+    }
+
+    public function testSelectCollection()
+    {
+        $name = 'collection';
+        $result = $this->getMockCollection();
+
+        $eventManager = $this->getMockEventManager();
+        $db = $this->getMockDatabase($eventManager, array('doSelectCollection' => $result));
+
+        $this->expectEvents($eventManager, array(
+            array(Events::preSelectCollection, new EventArgs($db, $name)),
+            array(Events::postSelectCollection, new EventArgs($db, $result)),
+        ));
+
+        $this->assertSame($result, $db->selectCollection($name));
     }
 
     /**
@@ -125,6 +161,13 @@ class DatabaseEventsTest extends \PHPUnit_Framework_TestCase
     private function getMockGridFS()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\GridFS')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    private function getMockMongoDB()
+    {
+        return $this->getMockBuilder('MongoDB')
             ->disableOriginalConstructor()
             ->getMock();
     }
