@@ -103,7 +103,7 @@ class LoggableCollection extends Collection implements Loggable
     /**
      * @see Collection::createDBRef()
      */
-    public function createDBRef(array $a)
+    public function createDBRef($a)
     {
         $this->log(array(
             'createDBRef' => true,

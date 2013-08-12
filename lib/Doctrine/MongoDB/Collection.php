@@ -190,10 +190,10 @@ class Collection
      * Wrapper method for MongoCollection::createDBRef().
      *
      * @see http://php.net/manual/en/mongocollection.createdbref.php
-     * @param array $a
+     * @param mixed $a
      * @return array
      */
-    public function createDBRef(array $a)
+    public function createDBRef($a)
     {
         if ($this->eventManager->hasListeners(Events::preCreateDBRef)) {
             $this->eventManager->dispatchEvent(Events::preCreateDBRef, new EventArgs($this, $a));
@@ -898,10 +898,10 @@ class Collection
      * Creates a database reference.
      *
      * @see Collection::createDBRef()
-     * @param array $a
+     * @param mixed $a
      * @return array
      */
-    protected function doCreateDBRef(array $a)
+    protected function doCreateDBRef($a)
     {
         return $this->getMongoCollection()->createDBRef($a);
     }
