@@ -112,20 +112,6 @@ class LoggableDatabase extends Database implements Loggable
     }
 
     /**
-     * @see Database::createDBRef()
-     */
-    public function createDBRef($collection, $a)
-    {
-        $this->log(array(
-            'createDBRef' => true,
-            'collection' => $collection,
-            'reference' => $a,
-        ));
-
-        return parent::createDBRef($collection, $a);
-    }
-
-    /**
      * @see Database::drop()
      */
     public function drop()

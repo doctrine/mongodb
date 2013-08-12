@@ -190,22 +190,12 @@ class Collection
      * Wrapper method for MongoCollection::createDBRef().
      *
      * @see http://php.net/manual/en/mongocollection.createdbref.php
-     * @param array $a
+     * @param mixed $documentOrId
      * @return array
      */
-    public function createDBRef(array $a)
+    public function createDBRef($documentOrId)
     {
-        if ($this->eventManager->hasListeners(Events::preCreateDBRef)) {
-            $this->eventManager->dispatchEvent(Events::preCreateDBRef, new EventArgs($this, $a));
-        }
-
-        $result = $this->doCreateDBRef($a);
-
-        if ($this->eventManager->hasListeners(Events::postCreateDBRef)) {
-            $this->eventManager->dispatchEvent(Events::postCreateDBRef, new EventArgs($this, $result));
-        }
-
-        return $result;
+        return $this->getMongoCollection()->createDBRef($documentOrId);
     }
 
     /**
@@ -892,18 +882,6 @@ class Collection
     protected function doBatchInsert(array &$a, array $options = array())
     {
         return $this->getMongoCollection()->batchInsert($a, $options);
-    }
-
-    /**
-     * Creates a database reference.
-     *
-     * @see Collection::createDBRef()
-     * @param array $a
-     * @return array
-     */
-    protected function doCreateDBRef(array $a)
-    {
-        return $this->getMongoCollection()->createDBRef($a);
     }
 
     /**
