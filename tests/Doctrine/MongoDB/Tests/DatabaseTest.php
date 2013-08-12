@@ -53,7 +53,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         if (version_compare(phpversion('mongo'), '1.4.0', '>=')) {
             $this->mongodb->expects($this->once())
                 ->method('createCollection')
-                ->with('foo', array('capped' => true, 'size' => 10485760, 'autoIndexId' => false, 'max' => 0));
+                ->with('foo', array('capped' => true, 'size' => 10485760, 'max' => 0, 'autoIndexId' => false,));
         } else {
             $this->mongodb->expects($this->once())
                 ->method('createCollection')
