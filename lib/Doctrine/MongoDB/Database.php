@@ -213,6 +213,7 @@ class Database
     /**
      * Wrapper method for MongoDB::forceError().
      *
+     * @deprecated 1.1 Deprecated in driver; will be removed for 1.2
      * @see http://php.net/manual/en/mongodb.forceerror.php
      * @return array
      */
@@ -425,6 +426,7 @@ class Database
     /**
      * Wrapper method for MongoDB::prevError().
      *
+     * @deprecated 1.1 Deprecated in driver; will be removed for 1.2
      * @see http://php.net/manual/en/mongodb.preverror.php
      * @return array
      */
@@ -449,6 +451,7 @@ class Database
     /**
      * Wrapper method for MongoDB::resetError().
      *
+     * @deprecated 1.1 Deprecated in driver; will be removed for 1.2
      * @see http://php.net/manual/en/mongodb.reseterror.php
      * @return array
      */
