@@ -1148,14 +1148,15 @@ class Collection
             throw new ResultException($result);
         }
 
-        if (isset($result['result']['db'], $result['result']['collection'])) {
+        if (isset($result['result']) && is_string($result['result'])) {
+            return $this->database->selectCollection($result['result'])->find();
+        }
+
+        if (isset($result['result']) && is_array($result['result']) &&
+            isset($result['result']['db'], $result['result']['collection'])) {
             return $this->connection
                 ->selectCollection($result['result']['db'], $result['result']['collection'])
                 ->find();
-        }
-
-        if (isset($result['result'])) {
-            return $this->database->selectCollection($result['result'])->find();
         }
 
         return new ArrayIterator(isset($result['results']) ? $result['results'] : array());
