@@ -234,6 +234,7 @@ class Connection
     /**
      * Gets the $status property of the wrapped MongoClient instance.
      *
+     * @deprecated 1.1 No longer used in driver; Will be removed for 1.2
      * @return string
      */
     public function getStatus()
