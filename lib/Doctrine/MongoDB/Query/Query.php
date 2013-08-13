@@ -149,6 +149,8 @@ class Query implements IteratorAggregate
      */
     public function execute()
     {
+        $options = $this->options;
+
         switch ($this->query['type']) {
             case self::TYPE_FIND:
                 $cursor = $this->collection->find($this->query['query'], $this->query['select']);
@@ -156,49 +158,49 @@ class Query implements IteratorAggregate
 
             case self::TYPE_FIND_AND_UPDATE:
                 if ($this->query['sort']) {
-                    $this->options['sort'] = $this->query['sort'];
+                    $options['sort'] = $this->query['sort'];
                 }
                 if ($this->query['select']) {
-                    $this->options['fields'] = $this->query['select'];
+                    $options['fields'] = $this->query['select'];
                 }
                 if ($this->query['upsert']) {
-                    $this->options['upsert'] = true;
+                    $options['upsert'] = true;
                 }
                 if ($this->query['new']) {
-                    $this->options['new'] = true;
+                    $options['new'] = true;
                 }
-                return $this->collection->findAndUpdate($this->query['query'], $this->query['newObj'], $this->options);
+                return $this->collection->findAndUpdate($this->query['query'], $this->query['newObj'], $options);
 
             case self::TYPE_FIND_AND_REMOVE:
                 if ($this->query['sort']) {
-                    $this->options['sort'] = $this->query['sort'];
+                    $options['sort'] = $this->query['sort'];
                 }
                 if ($this->query['select']) {
-                    $this->options['fields'] = $this->query['select'];
+                    $options['fields'] = $this->query['select'];
                 }
-                return $this->collection->findAndRemove($this->query['query'], $this->options);
+                return $this->collection->findAndRemove($this->query['query'], $options);
 
             case self::TYPE_INSERT:
                 return $this->collection->insert($this->query['newObj']);
 
             case self::TYPE_UPDATE:
                 if ($this->query['upsert']) {
-                    $this->options['upsert'] = $this->query['upsert'];
+                    $options['upsert'] = $this->query['upsert'];
                 }
                 if ($this->query['multiple']) {
-                    $this->options['multiple'] = $this->query['multiple'];
+                    $options['multiple'] = $this->query['multiple'];
                 }
-                return $this->collection->update($this->query['query'], $this->query['newObj'], $this->options);
+                return $this->collection->update($this->query['query'], $this->query['newObj'], $options);
 
             case self::TYPE_REMOVE:
-                return $this->collection->remove($this->query['query'], $this->options);
+                return $this->collection->remove($this->query['query'], $options);
 
             case self::TYPE_GROUP:
                 if (!empty($this->query['query'])) {
                     $this->query['group']['options']['condition'] = $this->query['query'];
                 }
 
-                $options = array_merge($this->options, $this->query['group']['options']);
+                $options = array_merge($options, $this->query['group']['options']);
 
                 return $this->collection->group($this->query['group']['keys'], $this->query['group']['initial'], $this->query['group']['reduce'], $options);
 
@@ -207,7 +209,7 @@ class Query implements IteratorAggregate
                     $this->query['mapReduce']['out'] = array('inline' => true);
                 }
 
-                $options = array_merge($this->options, $this->query['mapReduce']['options']);
+                $options = array_merge($options, $this->query['mapReduce']['options']);
                 $cursor = $this->collection->mapReduce($this->query['mapReduce']['map'], $this->query['mapReduce']['reduce'], $this->query['mapReduce']['out'], $this->query['query'], $options);
 
                 if ($cursor instanceof Cursor) {
@@ -217,20 +219,20 @@ class Query implements IteratorAggregate
                 return $cursor;
 
             case self::TYPE_DISTINCT_FIELD:
-                return $this->collection->distinct($this->query['distinctField'], $this->query['query'], $this->options);
+                return $this->collection->distinct($this->query['distinctField'], $this->query['query'], $options);
 
             case self::TYPE_GEO_NEAR:
                 if (isset($this->query['limit']) && $this->query['limit']) {
-                    $this->options['num'] = $this->query['limit'];
+                    $options['num'] = $this->query['limit'];
                 }
 
                 foreach (array('distanceMultiplier', 'maxDistance', 'spherical') as $key) {
                     if (isset($this->query['geoNear'][$key]) && $this->query['geoNear'][$key]) {
-                        $this->options[$key] = $this->query['geoNear'][$key];
+                        $options[$key] = $this->query['geoNear'][$key];
                     }
                 }
 
-                return $this->collection->near($this->query['geoNear']['near'], $this->query['query'], $this->options);
+                return $this->collection->near($this->query['geoNear']['near'], $this->query['query'], $options);
 
             case self::TYPE_COUNT:
                 return $this->collection->count($this->query['query']);
