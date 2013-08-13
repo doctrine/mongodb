@@ -1025,17 +1025,17 @@ class Builder
     }
 
     /**
-     * Remove all elements matching the given value from the current array
-     * field.
+     * Remove all elements matching the given value or expression from the
+     * current array field.
      *
      * @see Expr::pull()
      * @see http://docs.mongodb.org/manual/reference/operator/pull/
-     * @param mixed $value
+     * @param mixed|Expr $valueOrExpression
      * @return self
      */
-    public function pull($value)
+    public function pull($valueOrExpression)
     {
-        $this->expr->pull($value);
+        $this->expr->pull($valueOrExpression);
         return $this;
     }
 

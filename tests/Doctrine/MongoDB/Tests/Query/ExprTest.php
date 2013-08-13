@@ -122,6 +122,24 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('$nearSphere' => array(1, 2)), $expr->getQuery());
     }
 
+    public function testPullWithValue()
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->field('a')->pull(1));
+        $this->assertEquals(array('$pull' => array('a' => 1)), $expr->getNewObj());
+    }
+
+    public function testPullWithExpression()
+    {
+        $expr = new Expr('$');
+        $nestedExpr = new Expr('$');
+        $nestedExpr->gt(3);
+
+        $this->assertSame($expr, $expr->field('a')->pull($nestedExpr));
+        $this->assertEquals(array('$pull' => array('a' => array('$gt' => 3))), $expr->getNewObj());
+    }
+
     /**
      * @dataProvider provideGeoJsonPolygon
      */

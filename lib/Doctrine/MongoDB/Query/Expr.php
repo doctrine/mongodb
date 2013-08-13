@@ -466,10 +466,14 @@ class Expr
         return $this;
     }
 
-    public function pull($value)
+    public function pull($valueOrExpression)
     {
+        if ($valueOrExpression instanceof Expr) {
+            $valueOrExpression = $valueOrExpression->getQuery();
+        }
+
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'pull'][$this->currentField] = $value;
+        $this->newObj[$this->cmd . 'pull'][$this->currentField] = $valueOrExpression;
         return $this;
     }
 
