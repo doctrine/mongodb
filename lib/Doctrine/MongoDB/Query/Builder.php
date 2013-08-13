@@ -1308,22 +1308,20 @@ class Builder
      * field name (key) and order (value) pairs.
      *
      * @param array|string $fieldName Field name or array of field/order pairs
-     * @param string $order           Field order (if one field is specified)
+     * @param int|string $order       Field order (if one field is specified)
      * @return self
      */
     public function sort($fieldName, $order = null)
     {
-        if (is_array($fieldName)) {
-            foreach ($fieldName as $fieldName => $order) {
-                $this->sort($fieldName, $order);
-            }
-        } else {
+        $fields = is_array($fieldName) ? $fieldName : array($fieldName => $order);
+
+        foreach ($fields as $fieldName => $order) {
             if (is_string($order)) {
                 $order = strtolower($order) === 'asc' ? 1 : -1;
             }
-            $order = (int) $order;
-            $this->query['sort'][$fieldName] = $order;
+            $this->query['sort'][$fieldName] = (int) $order;
         }
+
         return $this;
     }
 
