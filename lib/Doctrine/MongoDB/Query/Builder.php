@@ -235,16 +235,7 @@ class Builder
      */
     public function debug($name = null)
     {
-        $debug = $this->query;
-        if ($name !== null) {
-            return $debug[$name];
-        }
-        foreach ($debug as $key => $value) {
-            if ( ! $value) {
-                unset($debug[$key]);
-            }
-        }
-        return $debug;
+        return $name !== null ? $this->query[$name] : $this->query;
     }
 
     /**

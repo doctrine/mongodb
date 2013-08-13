@@ -124,16 +124,7 @@ class Query implements IteratorAggregate
      */
     public function debug($name = null)
     {
-        $debug = $this->query['query'];
-        if ($name !== null) {
-            return $debug[$name];
-        }
-        foreach ($debug as $key => $value) {
-            if ( ! $value) {
-                unset($debug[$key]);
-            }
-        }
-        return $debug;
+        return $name !== null ? $this->query['query'][$name] : $this->query['query'];
     }
 
     /**
