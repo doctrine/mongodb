@@ -594,7 +594,8 @@ class Expr
 
     public function where($javascript)
     {
-        return $this->field($this->cmd . 'where')->equals($javascript);
+        $this->query[$this->cmd . 'where'] = $javascript;
+        return $this;
     }
 
     /**

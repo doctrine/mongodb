@@ -295,6 +295,15 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr->geoWithinPolygon(array(0, 0), array(1, 1));
     }
 
+    public function testWhere()
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->where('javascript'));
+        $this->assertEquals(array('$where' => 'javascript'), $expr->getQuery());
+        $this->assertNull($expr->getCurrentField());
+    }
+
     public function testWithinBox()
     {
         $expr = new Expr('$');
