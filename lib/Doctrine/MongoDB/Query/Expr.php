@@ -494,7 +494,10 @@ class Expr
     public function push($valueOrExpression)
     {
         if ($valueOrExpression instanceof Expr) {
-            $valueOrExpression = $valueOrExpression->getQuery();
+            $valueOrExpression = array_merge(
+                array($this->cmd . 'each' => array()),
+                $valueOrExpression->getQuery()
+            );
         }
 
         $this->requiresCurrentField();

@@ -195,6 +195,27 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedNewObj, $expr->getNewObj());
     }
 
+    public function testPushWithExpressionShouldEnsureEachOperatorAppearsFirst()
+    {
+        $expr = new Expr('$');
+        $innerExpr = new Expr('$');
+        $innerExpr
+            ->sort('x', 1)
+            ->slice(-2)
+            ->each(array(array('x' => 1), array('x' => 2)));
+
+        $expectedNewObj = array(
+            '$push' => array('a' => array(
+                '$each' => array(array('x' => 1), array('x' => 2)),
+                '$sort' => array('x' => 1),
+                '$slice' => -2,
+            )),
+        );
+
+        $this->assertSame($expr, $expr->field('a')->push($innerExpr));
+        $this->assertSame($expectedNewObj, $expr->getNewObj());
+    }
+
     /**
      * @dataProvider provideGeoJsonPolygon
      */
