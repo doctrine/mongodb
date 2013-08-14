@@ -69,10 +69,7 @@ class Expr
 
     public function addAnd($expression)
     {
-        if ($expression instanceof Expr) {
-            $expression = $expression->getQuery();
-        }
-        $this->query[$this->cmd . 'and'][] = $expression;
+        $this->query[$this->cmd . 'and'][] = $expression instanceof Expr ? $expression->getQuery() : $expression;
         return $this;
     }
 
@@ -88,19 +85,13 @@ class Expr
 
     public function addNor($expression)
     {
-        if ($expression instanceof Expr) {
-            $expression = $expression->getQuery();
-        }
-        $this->query[$this->cmd . 'nor'][] = $expression;
+        $this->query[$this->cmd . 'nor'][] = $expression instanceof Expr ? $expression->getQuery() : $expression;
         return $this;
     }
 
     public function addOr($expression)
     {
-        if ($expression instanceof Expr) {
-            $expression = $expression->getQuery();
-        }
-        $this->query[$this->cmd . 'or'][] = $expression;
+        $this->query[$this->cmd . 'or'][] = $expression instanceof Expr ? $expression->getQuery() : $expression;
         return $this;
     }
 
@@ -127,10 +118,7 @@ class Expr
 
     public function elemMatch($expression)
     {
-        if ($expression instanceof Expr) {
-            $expression = $expression->getQuery();
-        }
-        return $this->operator($this->cmd . 'elemMatch', $expression);
+        return $this->operator($this->cmd . 'elemMatch', $expression instanceof Expr ? $expression->getQuery() : $expression);
     }
 
     public function equals($value)
@@ -433,10 +421,7 @@ class Expr
 
     public function not($expression)
     {
-        if ($expression instanceof Expr) {
-            $expression = $expression->getQuery();
-        }
-        return $this->operator($this->cmd . 'not', $expression);
+        return $this->operator($this->cmd . 'not', $expression instanceof Expr ? $expression->getQuery() : $expression);
     }
 
     public function notEqual($value)

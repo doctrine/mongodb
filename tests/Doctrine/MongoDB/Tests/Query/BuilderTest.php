@@ -356,10 +356,14 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             'popLast()' => array('popLast'),
             'pull()' => array('pull', array('value')),
             'pullAll()' => array('pullAll', array(array('value1', 'value2'))),
-            'addAnd()' => array('addAnd', array($this->getMockExpr())),
-            'addOr()' => array('addOr', array($this->getMockExpr())),
-            'addNor()' => array('addNor', array($this->getMockExpr())),
-            'elemMatch()' => array('elemMatch', array($this->getMockExpr())),
+            'addAnd() array' => array('addAnd', array(array())),
+            'addAnd() Expr' => array('addAnd', array($this->getMockExpr())),
+            'addOr() array' => array('addOr', array(array())),
+            'addOr() Expr' => array('addOr', array($this->getMockExpr())),
+            'addNor() array' => array('addNor', array(array())),
+            'addNor() Expr' => array('addNor', array($this->getMockExpr())),
+            'elemMatch() array' => array('elemMatch', array(array())),
+            'elemMatch() Expr' => array('elemMatch', array($this->getMockExpr())),
             'not()' => array('not', array($this->getMockExpr())),
         );
     }
