@@ -491,10 +491,14 @@ class Expr
         return $this;
     }
 
-    public function push($value)
+    public function push($valueOrExpression)
     {
+        if ($valueOrExpression instanceof Expr) {
+            $valueOrExpression = $valueOrExpression->getQuery();
+        }
+
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'push'][$this->currentField] = $value;
+        $this->newObj[$this->cmd . 'push'][$this->currentField] = $valueOrExpression;
         return $this;
     }
 
@@ -533,6 +537,35 @@ class Expr
     public function size($size)
     {
         return $this->operator($this->cmd . 'size', $size);
+    }
+
+    public function slice($slice)
+    {
+        return $this->operator($this->cmd . 'slice', $slice);
+    }
+
+    /**
+     * Set one or more field/order pairs for the sort operator.
+     *
+     * If sorting by multiple fields, the first argument should be an array of
+     * field name (key) and order (value) pairs.
+     *
+     * @param array|string $fieldName Field name or array of field/order pairs
+     * @param int|string $order       Field order (if one field is specified)
+     * @return self
+     */
+    public function sort($fieldName, $order = null)
+    {
+        $fields = is_array($fieldName) ? $fieldName : array($fieldName => $order);
+
+        foreach ($fields as $fieldName => $order) {
+            if (is_string($order)) {
+                $order = strtolower($order) === 'asc' ? 1 : -1;
+            }
+            $sort[$fieldName] = (int) $order;
+        }
+
+        return $this->operator($this->cmd . 'sort', $sort);
     }
 
     public function type($type)

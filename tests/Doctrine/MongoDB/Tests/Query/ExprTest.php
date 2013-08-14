@@ -166,6 +166,35 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('$pull' => array('a' => array('$gt' => 3))), $expr->getNewObj());
     }
 
+    public function testPushWithValue()
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->field('a')->push(1));
+        $this->assertEquals(array('$push' => array('a' => 1)), $expr->getNewObj());
+    }
+
+    public function testPushWithExpression()
+    {
+        $expr = new Expr('$');
+        $innerExpr = new Expr('$');
+        $innerExpr
+            ->each(array(array('x' => 1), array('x' => 2)))
+            ->slice(-2)
+            ->sort('x', 1);
+
+        $expectedNewObj = array(
+            '$push' => array('a' => array(
+                '$each' => array(array('x' => 1), array('x' => 2)),
+                '$slice' => -2,
+                '$sort' => array('x' => 1),
+            )),
+        );
+
+        $this->assertSame($expr, $expr->field('a')->push($innerExpr));
+        $this->assertEquals($expectedNewObj, $expr->getNewObj());
+    }
+
     /**
      * @dataProvider provideGeoJsonPolygon
      */

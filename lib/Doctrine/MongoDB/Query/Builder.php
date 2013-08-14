@@ -1062,27 +1062,39 @@ class Builder
     }
 
     /**
-     * Append a value to the current array field.
+     * Append one or more values to the current array field.
      *
-     * If the field does not exist, it will be set to an array containing this
-     * value. If the field is not an array, the query will yield an error.
+     * If the field does not exist, it will be set to an array containing the
+     * value(s) in the argument. If the field is not an array, the query
+     * will yield an error.
+     *
+     * Multiple values may be specified by providing an Expr object and using
+     * {@link Expr::each()}. {@link Expr::slice()} and {@link Expr::sort()} may
+     * also be used to limit and order array elements, respectively.
      *
      * @see Expr::push()
      * @see http://docs.mongodb.org/manual/reference/operator/push/
-     * @param mixed $value
+     * @see http://docs.mongodb.org/manual/reference/operator/each/
+     * @see http://docs.mongodb.org/manual/reference/operator/slice/
+     * @see http://docs.mongodb.org/manual/reference/operator/sort/
+     * @param mixed|Expr $valueOrExpression
      * @return self
      */
-    public function push($value)
+    public function push($valueOrExpression)
     {
-        $this->expr->push($value);
+        $this->expr->push($valueOrExpression);
         return $this;
     }
 
     /**
      * Append multiple values to the current array field.
      *
-     * If the field does not exist, it will be set to an array containing these
-     * values. If the field is not an array, the query will yield an error.
+     * If the field does not exist, it will be set to an array containing the
+     * values in the argument. If the field is not an array, the query will
+     * yield an error.
+     *
+     * This operator is deprecated in MongoDB 2.4. {@link Builder::push()} and
+     * {@link Expr::each()} should be used in its place.
      *
      * @see Expr::pushAll()
      * @see http://docs.mongodb.org/manual/reference/operator/pushAll/
