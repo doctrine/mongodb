@@ -101,16 +101,25 @@ class Expr
         return $this;
     }
 
-    public function addToSet($value)
+    public function addToSet($valueOrExpression)
     {
+        if ($valueOrExpression instanceof Expr) {
+            $valueOrExpression = $valueOrExpression->getQuery();
+        }
+
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'addToSet'][$this->currentField] = $value;
+        $this->newObj[$this->cmd . 'addToSet'][$this->currentField] = $valueOrExpression;
         return $this;
     }
 
     public function all($values)
     {
         return $this->operator($this->cmd . 'all', (array) $values);
+    }
+
+    public function each(array $values)
+    {
+        return $this->operator($this->cmd . 'each', $values);
     }
 
     public function elemMatch($expression)

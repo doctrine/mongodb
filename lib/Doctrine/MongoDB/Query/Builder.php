@@ -182,20 +182,25 @@ class Builder
     }
 
     /**
-     * Append a value to the current array field only if it does not already
-     * exist in the array.
+     * Append one or more values to the current array field only if they do not
+     * already exist in the array.
      *
-     * If the field does not exist, it will be set to an array containing this
-     * value. If the field is not an array, the query will yield an error.
+     * If the field does not exist, it will be set to an array containing the
+     * unique value(s) in the argument. If the field is not an array, the query
+     * will yield an error.
+     *
+     * Multiple values may be specified by provided an Expr object and using
+     * {@link Expr::each()}.
      *
      * @see Expr::addToSet()
      * @see http://docs.mongodb.org/manual/reference/operator/addToSet/
-     * @param mixed $value
+     * @see http://docs.mongodb.org/manual/reference/operator/each/
+     * @param mixed|Expr $valueOrExpression
      * @return self
      */
-    public function addToSet($value)
+    public function addToSet($valueOrExpression)
     {
-        $this->expr->addToSet($value);
+        $this->expr->addToSet($valueOrExpression);
         return $this;
     }
 

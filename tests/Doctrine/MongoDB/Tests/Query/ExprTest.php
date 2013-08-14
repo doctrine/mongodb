@@ -14,6 +14,24 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('$addToSet' => array('a' => array('$each' => array(1, 2)))), $expr->getNewObj());
     }
 
+    public function testAddToSetWithValue()
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->field('a')->addToSet(1));
+        $this->assertEquals(array('$addToSet' => array('a' => 1)), $expr->getNewObj());
+    }
+
+    public function testAddToSetWithExpression()
+    {
+        $expr = new Expr('$');
+        $eachExpr = new Expr('$');
+        $eachExpr->each(array(1, 2));
+
+        $this->assertSame($expr, $expr->field('a')->addToSet($eachExpr));
+        $this->assertEquals(array('$addToSet' => array('a' => array('$each' => array(1, 2)))), $expr->getNewObj());
+    }
+
     public function testOperatorWithCurrentField()
     {
         $expr = new Expr('$');
