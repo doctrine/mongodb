@@ -137,6 +137,7 @@ class Builder
      * unique values in the argument. If the field is not an array, the query
      * will yield an error.
      *
+     * @deprecated 1.1 Use {@link Builder::addToSet()} with {@link Expr::each()}; Will be removed in 2.0
      * @see Expr::addManyToSet()
      * @see http://docs.mongodb.org/manual/reference/operator/addToSet/
      * @see http://docs.mongodb.org/manual/reference/operator/each/

@@ -76,6 +76,9 @@ class Expr
         return $this;
     }
 
+    /**
+     * @deprecated 1.1 Use {@link Expr::addToSet()} with {@link Expr::each()}; Will be removed in 2.0
+     */
     public function addManyToSet(array $values)
     {
         $this->requiresCurrentField();
