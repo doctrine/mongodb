@@ -124,7 +124,7 @@ class Query implements IteratorAggregate
      */
     public function debug($name = null)
     {
-        return $name !== null ? $this->query['query'][$name] : $this->query['query'];
+        return $name !== null ? $this->query[$name] : $this->query;
     }
 
     /**
