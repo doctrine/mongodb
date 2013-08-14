@@ -477,10 +477,10 @@ class Expr
         return $this;
     }
 
-    public function pullAll(array $valueArray)
+    public function pullAll(array $values)
     {
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'pullAll'][$this->currentField] = $valueArray;
+        $this->newObj[$this->cmd . 'pullAll'][$this->currentField] = $values;
         return $this;
     }
 
@@ -491,10 +491,10 @@ class Expr
         return $this;
     }
 
-    public function pushAll(array $valueArray)
+    public function pushAll(array $values)
     {
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'pushAll'][$this->currentField] = $valueArray;
+        $this->newObj[$this->cmd . 'pushAll'][$this->currentField] = $values;
         return $this;
     }
 
