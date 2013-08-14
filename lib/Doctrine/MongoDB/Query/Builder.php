@@ -250,12 +250,12 @@ class Builder
      *
      * @param float $distanceMultiplier
      * @return self
-     * @throws BadMethodCallException if the query is not a $geoNear command
+     * @throws BadMethodCallException if the query is not a geoNear command
      */
     public function distanceMultiplier($distanceMultiplier)
     {
         if ($this->query['type'] !== Query::TYPE_GEO_NEAR) {
-            throw new BadMethodCallException('This method requires a $geoNear command (call geoNear() first)');
+            throw new BadMethodCallException('This method requires a geoNear command (call geoNear() first)');
         }
 
         $this->query['geoNear']['distanceMultiplier'] = $distanceMultiplier;
@@ -376,11 +376,11 @@ class Builder
     }
 
     /**
-     * Set the finalize option for a mapReduce or group query.
+     * Set the "finalize" option for a mapReduce or group command.
      *
      * @param string|\MongoCode $finalize
      * @return self
-     * @throws \BadMethodCallException if the query type is unsupported
+     * @throws BadMethodCallException if the query is not a mapReduce or group command
      */
     public function finalize($finalize)
     {
@@ -394,7 +394,7 @@ class Builder
                 break;
 
             default:
-                throw new \BadMethodCallException('mapReduce(), map() or group() must be called before finalize()');
+                throw new BadMethodCallException('mapReduce(), map() or group() must be called before finalize()');
         }
 
         return $this;
@@ -635,7 +635,7 @@ class Builder
     /**
      * Get the type of this query.
      *
-     * @return string $type
+     * @return integer $type
      */
     public function getType()
     {
@@ -645,7 +645,7 @@ class Builder
     /**
      * Change the query type to a group command.
      *
-     * If the reduce option is not specified when calling this method, it must
+     * If the "reduce" option is not specified when calling this method, it must
      * be set with the {@link Builder::reduce()} method.
      *
      * @see http://docs.mongodb.org/manual/reference/command/group/
@@ -763,8 +763,8 @@ class Builder
     /**
      * Set the limit for the query.
      *
-     * This is only relevant for find and geoNear queries, or mapReduce queries
-     * that store results in an output collecton and return a cursor.
+     * This is only relevant for find queries and geoNear and mapReduce
+     * commands.
      *
      * @see Query::prepareCursor()
      * @param integer $limit
@@ -807,7 +807,7 @@ class Builder
     /**
      * Change the query type to a mapReduce command.
      *
-     * The reduce option is not specified when calling this method; it must
+     * The "reduce" option is not specified when calling this method; it must
      * be set with the {@link Builder::reduce()} method.
      *
      * @see http://docs.mongodb.org/manual/reference/command/mapReduce/
@@ -844,7 +844,7 @@ class Builder
     }
 
     /**
-     * Set additional options for a mapReduce query.
+     * Set additional options for a mapReduce command.
      *
      * @param array $options
      * @return self
@@ -859,9 +859,9 @@ class Builder
      * Set the "maxDistance" option for a geoNear command query or add
      * $maxDistance criteria to the query.
      *
-     * If the query type is geospatial (i.e. geoNear() was called), the
-     * "maxDistance" command option will be set; otherwise, $maxDistance will be
-     * added to the current expression.
+     * If the query is a geoNear command ({@link Expr::geoNear()} was called),
+     * the "maxDistance" command option will be set; otherwise, $maxDistance
+     * will be added to the current expression.
      *
      * If the query uses GeoJSON points, $maxDistance will be interpreted in
      * meters. If legacy point coordinates are used, $maxDistance will be
@@ -900,7 +900,7 @@ class Builder
     }
 
     /**
-     * Set the multiple option for an update query.
+     * Set the "multiple" option for an update query.
      *
      * @param boolean $bool
      * @return self
@@ -994,7 +994,7 @@ class Builder
     }
 
     /**
-     * Set the out option for a mapReduce query.
+     * Set the "out" option for a mapReduce command.
      *
      * @param array|string $out
      * @return self
@@ -1125,11 +1125,11 @@ class Builder
     }
 
     /**
-     * Set the reduce option for a mapReduce or group query.
+     * Set the "reduce" option for a mapReduce or group command.
      *
      * @param string|\MongoCode $reduce
      * @return self
-     * @throws \BadMethodCallException if the query type is unsupported
+     * @throws BadMethodCallException if the query is not a mapReduce or group command
      */
     public function reduce($reduce)
     {
@@ -1143,7 +1143,7 @@ class Builder
                 break;
 
             default:
-                throw new \BadMethodCallException('mapReduce(), map() or group() must be called before reduce()');
+                throw new BadMethodCallException('mapReduce(), map() or group() must be called before reduce()');
         }
 
         return $this;
@@ -1161,7 +1161,7 @@ class Builder
     }
 
     /**
-     * Set the new option for a findAndUpdate query.
+     * Set the "new" option for a findAndUpdate command.
      *
      * @param boolean $bool
      * @return self
@@ -1340,12 +1340,12 @@ class Builder
      *
      * @param bool $spherical
      * @return self
-     * @throws BadMethodCallException if the query is not a $geoNear command
+     * @throws BadMethodCallException if the query is not a geoNear command
      */
     public function spherical($spherical = true)
     {
         if ($this->query['type'] !== Query::TYPE_GEO_NEAR) {
-            throw new BadMethodCallException('This method requires a $geoNear command (call geoNear() first)');
+            throw new BadMethodCallException('This method requires a geoNear command (call geoNear() first)');
         }
 
         $this->query['geoNear']['spherical'] = $spherical;
@@ -1393,7 +1393,7 @@ class Builder
     }
 
     /**
-     * Set the upsert option for an update or findAndUpdate query.
+     * Set the "upsert" option for an update or findAndUpdate query.
      *
      * @param boolean $bool
      * @return self
