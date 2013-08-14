@@ -284,7 +284,7 @@ class Builder
      */
     public function eagerCursor($bool = true)
     {
-        $this->query['eagerCursor'] = $bool;
+        $this->query['eagerCursor'] = (boolean) $bool;
         return $this;
     }
 
@@ -347,7 +347,7 @@ class Builder
      */
     public function exists($bool)
     {
-        $this->expr->exists($bool);
+        $this->expr->exists((boolean) $bool);
         return $this;
     }
 
@@ -371,7 +371,7 @@ class Builder
      */
     public function field($field)
     {
-        $this->expr->field($field);
+        $this->expr->field((string) $field);
         return $this;
     }
 
@@ -715,7 +715,7 @@ class Builder
      */
     public function immortal($bool = true)
     {
-        $this->query['immortal'] = $bool;
+        $this->query['immortal'] = (boolean) $bool;
         return $this;
     }
 
@@ -727,7 +727,7 @@ class Builder
      * @param array|mixed $values
      * @return self
      */
-    public function in($values)
+    public function in(array $values)
     {
         $this->expr->in($values);
         return $this;
@@ -772,7 +772,7 @@ class Builder
      */
     public function limit($limit)
     {
-        $this->query['limit'] = $limit;
+        $this->query['limit'] = (integer) $limit;
         return $this;
     }
 
@@ -907,7 +907,7 @@ class Builder
      */
     public function multiple($bool = true)
     {
-        $this->query['multiple'] = $bool;
+        $this->query['multiple'] = (boolean) $bool;
         return $this;
     }
 
@@ -987,7 +987,7 @@ class Builder
      * @param array|mixed $values
      * @return self
      */
-    public function notIn($values)
+    public function notIn(array $values)
     {
         $this->expr->notIn($values);
         return $this;
@@ -1168,7 +1168,7 @@ class Builder
      */
     public function returnNew($bool = true)
     {
-        $this->query['new'] = $bool;
+        $this->query['new'] = (boolean) $bool;
         return $this;
     }
 
@@ -1248,7 +1248,7 @@ class Builder
         if ($this->query['type'] == Query::TYPE_INSERT) {
             $atomic = false;
         }
-        $this->expr->set($value, $atomic);
+        $this->expr->set($value, (boolean) $atomic);
         return $this;
     }
 
@@ -1262,7 +1262,7 @@ class Builder
      */
     public function size($size)
     {
-        $this->expr->size($size);
+        $this->expr->size((integer) $size);
         return $this;
     }
 
@@ -1278,7 +1278,7 @@ class Builder
      */
     public function skip($skip)
     {
-        $this->query['skip'] = $skip;
+        $this->query['skip'] = (integer) $skip;
         return $this;
     }
 
@@ -1295,7 +1295,7 @@ class Builder
      */
     public function slaveOkay($bool = true)
     {
-        $this->query['slaveOkay'] = $bool;
+        $this->query['slaveOkay'] = (boolean) $bool;
         return $this;
     }
 
@@ -1307,7 +1307,7 @@ class Builder
      */
     public function snapshot($bool = true)
     {
-        $this->query['snapshot'] = $bool;
+        $this->query['snapshot'] = (boolean) $bool;
         return $this;
     }
 
@@ -1357,7 +1357,7 @@ class Builder
      *
      * @see Expr::type()
      * @see http://docs.mongodb.org/manual/reference/operator/type/
-     * @param integer $type
+     * @param integer|string $type
      * @return self
      */
     public function type($type)
@@ -1400,7 +1400,7 @@ class Builder
      */
     public function upsert($bool = true)
     {
-        $this->query['upsert'] = $bool;
+        $this->query['upsert'] = (boolean) $bool;
         return $this;
     }
 
@@ -1409,7 +1409,7 @@ class Builder
      *
      * @see Expr::where()
      * @see http://docs.mongodb.org/manual/reference/operator/where/
-     * @param string $javascript
+     * @param string|\MongoCode $javascript
      * @return self
      */
     public function where($javascript)

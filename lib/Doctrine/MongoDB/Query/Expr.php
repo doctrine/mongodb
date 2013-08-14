@@ -133,12 +133,12 @@ class Expr
 
     public function exists($bool)
     {
-        return $this->operator($this->cmd . 'exists', $bool);
+        return $this->operator($this->cmd . 'exists', (boolean) $bool);
     }
 
     public function field($field)
     {
-        $this->currentField = $field;
+        $this->currentField = (string) $field;
         return $this;
     }
 
@@ -303,7 +303,7 @@ class Expr
         return $this->operator($this->cmd . 'gte', $value);
     }
 
-    public function in($values)
+    public function in(array $values)
     {
         return $this->operator($this->cmd . 'in', $values);
     }
@@ -429,9 +429,9 @@ class Expr
         return $this->operator($this->cmd . 'ne', $value);
     }
 
-    public function notIn($values)
+    public function notIn(array $values)
     {
-        return $this->operator($this->cmd . 'nin', (array) $values);
+        return $this->operator($this->cmd . 'nin', $values);
     }
 
     public function operator($operator, $value)
@@ -524,7 +524,7 @@ class Expr
 
     public function size($size)
     {
-        return $this->operator($this->cmd . 'size', $size);
+        return $this->operator($this->cmd . 'size', (integer) $size);
     }
 
     public function slice($slice)
