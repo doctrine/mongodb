@@ -133,8 +133,9 @@ class Builder
      * Append multiple values to the current array field only if they do not
      * already exist in the array.
      *
-     * If the field does not exist, it will be set to an array containing this
-     * value. If the field is not an array, the query will yield an error.
+     * If the field does not exist, it will be set to an array containing the
+     * unique values in the argument. If the field is not an array, the query
+     * will yield an error.
      *
      * @see Expr::addManyToSet()
      * @see http://docs.mongodb.org/manual/reference/operator/addToSet/

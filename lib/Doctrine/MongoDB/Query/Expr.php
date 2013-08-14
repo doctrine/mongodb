@@ -79,13 +79,8 @@ class Expr
     public function addManyToSet(array $values)
     {
         $this->requiresCurrentField();
-        if ( ! isset($this->newObj[$this->cmd . 'addToSet'][$this->currentField])) {
-            $this->newObj[$this->cmd . 'addToSet'][$this->currentField][$this->cmd . 'each'] = array();
-        }
-        if ( ! is_array($this->newObj[$this->cmd . 'addToSet'][$this->currentField])) {
-            $this->newObj[$this->cmd . 'addToSet'][$this->currentField] = array($this->cmd . 'each' => array($this->newObj[$this->cmd . 'addToSet'][$this->currentField]));
-        }
-        $this->newObj[$this->cmd . 'addToSet'][$this->currentField][$this->cmd . 'each'] = array_merge_recursive($this->newObj[$this->cmd . 'addToSet'][$this->currentField][$this->cmd . 'each'], $values);
+        $this->newObj[$this->cmd . 'addToSet'][$this->currentField] = array($this->cmd . 'each' => $values);
+        return $this;
     }
 
     public function addNor($expression)

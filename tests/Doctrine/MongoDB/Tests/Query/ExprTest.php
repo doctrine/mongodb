@@ -6,6 +6,14 @@ use Doctrine\MongoDB\Query\Expr;
 
 class ExprTest extends \PHPUnit_Framework_TestCase
 {
+    public function testAddManyToSet()
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->field('a')->addManyToSet(array(1, 2)));
+        $this->assertEquals(array('$addToSet' => array('a' => array('$each' => array(1, 2)))), $expr->getNewObj());
+    }
+
     public function testOperatorWithCurrentField()
     {
         $expr = new Expr('$');
