@@ -848,9 +848,14 @@ class Builder
      *
      * @param array $options
      * @return self
+     * @throws BadMethodCallException if the query is not a mapReduce command
      */
     public function mapReduceOptions(array $options)
     {
+        if ($this->query['type'] !== Query::TYPE_MAP_REDUCE) {
+            throw new BadMethodCallException('This method requires a mapReduce command (call map() or mapReduce() first)');
+        }
+
         $this->query['mapReduce']['options'] = $options;
         return $this;
     }
@@ -998,9 +1003,14 @@ class Builder
      *
      * @param array|string $out
      * @return self
+     * @throws BadMethodCallException if the query is not a mapReduce command
      */
     public function out($out)
     {
+        if ($this->query['type'] !== Query::TYPE_MAP_REDUCE) {
+            throw new BadMethodCallException('This method requires a mapReduce command (call map() or mapReduce() first)');
+        }
+
         $this->query['mapReduce']['out'] = $out;
         return $this;
     }

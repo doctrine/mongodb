@@ -404,6 +404,24 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException BadMethodCallException
      */
+    public function testMapReduceOptionsRequiresMapReduceCommand()
+    {
+        $qb = $this->getTestQueryBuilder();
+        $qb->mapReduceOptions(array());
+    }
+
+    /**
+     * @expectedException BadMethodCallException
+     */
+    public function testOutRequiresMapReduceCommand()
+    {
+        $qb = $this->getTestQueryBuilder();
+        $qb->out('collection');
+    }
+
+    /**
+     * @expectedException BadMethodCallException
+     */
     public function testSphericalRequiresGeoNearCommand()
     {
         $qb = $this->getTestQueryBuilder();
