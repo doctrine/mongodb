@@ -653,7 +653,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider providePoint
      */
-    public function testNearWithGeoJsonPoint($point, array $expected)
+    public function testNear($point, array $near, $spherical)
     {
         $results = array(
             array('dis' => 1, 'obj' => array('_id' => 1, 'loc' => array(1, 0))),
@@ -662,7 +662,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $command = array(
             'geoNear' => self::collectionName,
-            'near' => $expected,
+            'near' => $near,
+            'spherical' => $spherical,
             'query' => new \stdClass(),
         );
 
@@ -684,9 +685,9 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $json = array('type' => 'Point', 'coordinates' => $coordinates);
 
         return array(
-            'legacy array' => array($coordinates, $coordinates),
-            'GeoJSON array' => array($json, $json),
-            'GeoJSON object' => array($this->getMockPoint($json), $json),
+            'legacy array' => array($coordinates, $coordinates, false),
+            'GeoJSON array' => array($json, $json, true),
+            'GeoJSON object' => array($this->getMockPoint($json), $json, true),
         );
     }
 

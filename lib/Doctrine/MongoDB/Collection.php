@@ -1159,6 +1159,7 @@ class Collection
         $command = array();
         $command['geoNear'] = $this->getMongoCollection()->getName();
         $command['near'] = $near;
+        $command['spherical'] = isset($near['type']);
         $command['query'] = (object) $query;
         $command = array_merge($command, $options);
 

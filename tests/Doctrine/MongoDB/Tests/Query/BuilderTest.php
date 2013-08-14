@@ -393,6 +393,39 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @dataProvider providePoint
+     */
+    public function testGeoNearWithSingleArgument($point, array $near, $spherical)
+    {
+        $qb = $this->getTestQueryBuilder();
+
+        $this->assertSame($qb, $qb->geoNear($point));
+        $this->assertEquals(Query::TYPE_GEO_NEAR, $qb->getType());
+        $this->assertEquals(array('near' => $near, 'spherical' => $spherical), $qb->debug('geoNear'));
+    }
+
+    public function providePoint()
+    {
+        $coordinates = array(0, 0);
+        $json = array('type' => 'Point', 'coordinates' => $coordinates);
+
+        return array(
+            'legacy array' => array($coordinates, $coordinates, false),
+            'GeoJSON array' => array($json, $json, true),
+            'GeoJSON object' => array($this->getMockPoint($json), $json, true),
+        );
+    }
+
+    public function testGeoNearWithBothArguments()
+    {
+        $qb = $this->getTestQueryBuilder();
+
+        $this->assertSame($qb, $qb->geoNear(array(0, 0)));
+        $this->assertEquals(Query::TYPE_GEO_NEAR, $qb->getType());
+        $this->assertEquals(array('near' => array(0, 0), 'spherical' => false), $qb->debug('geoNear'));
+    }
+
+    /**
      * @expectedException BadMethodCallException
      */
     public function testDistanceMultiplerRequiresGeoNearCommand()
@@ -566,6 +599,19 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         return $this->getMockBuilder('GeoJson\Geometry\Geometry')
             ->disableOriginalConstructor()
             ->getMock();
+    }
+
+    private function getMockPoint($json)
+    {
+        $point = $this->getMockBuilder('GeoJson\Geometry\Point')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $point->expects($this->once())
+            ->method('jsonSerialize')
+            ->will($this->returnValue($json));
+
+        return $point;
     }
 
     private function assertArrayHasKeyValue($expected, $array, $message = '')

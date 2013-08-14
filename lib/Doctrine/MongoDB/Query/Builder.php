@@ -453,21 +453,35 @@ class Builder
     }
 
     /**
-     * Specify a geoNear command for this query.
+     * Change the query type to a geoNear command.
+     *
+     * A GeoJSON point may be provided as the first and only argument for
+     * 2dsphere queries. This single parameter may be a GeoJSON point object or
+     * an array corresponding to the point's JSON representation. If GeoJSON is
+     * used, the "spherical" option will default to true.
      *
      * This method sets the "near" option for the geoNear command. The "num"
-     * option may be set using limit(). The "distanceMultiplier" and
-     * "maxDistance" options may be set using their respective builder methods.
-     * Additional query criteria will be assigned to the "query" option.
+     * option may be set using {@link Expr::limit()}. The "distanceMultiplier",
+     * "maxDistance", and "spherical" options may be set using their respective
+     * builder methods. Additional query criteria will be assigned to the
+     * "query" option.
      *
-     * @param float $x
+     * @see http://docs.mongodb.org/manual/reference/command/geoNear/
+     * @param float|array|Point $x
      * @param float $y
      * @return self
      */
-    public function geoNear($x, $y)
+    public function geoNear($x, $y = null)
     {
+        if ($x instanceof Point) {
+            $x = $x->jsonSerialize();
+        }
+
         $this->query['type'] = Query::TYPE_GEO_NEAR;
-        $this->query['geoNear'] = array('near' => array($x, $y));
+        $this->query['geoNear'] = array(
+            'near' => is_array($x) ? $x : array($x, $y),
+            'spherical' => is_array($x) && isset($x['type']),
+        );
         return $this;
     }
 
