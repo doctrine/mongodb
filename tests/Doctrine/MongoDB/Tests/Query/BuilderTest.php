@@ -78,6 +78,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             'map' => $map,
             'reduce' => $reduce,
             'options' => array('finalize' => $finalize),
+            'out' => array('inline' => true),
         );
 
         $this->assertEquals(Query::TYPE_MAP_REDUCE, $qb->getType());

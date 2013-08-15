@@ -824,6 +824,8 @@ class Builder
      * The "reduce" option is not specified when calling this method; it must
      * be set with the {@link Builder::reduce()} method.
      *
+     * The "out" option defaults to inline, like {@link Builder::mapReduce()}.
+     *
      * @see http://docs.mongodb.org/manual/reference/command/mapReduce/
      * @param string|\MongoCode $map
      * @return self
@@ -831,7 +833,12 @@ class Builder
     public function map($map)
     {
         $this->query['type'] = Query::TYPE_MAP_REDUCE;
-        $this->query['mapReduce']['map'] = $map;
+        $this->query['mapReduce'] = array(
+            'map' => $map,
+            'reduce' => null,
+            'out' => array('inline' => true),
+            'options' => array(),
+        );
         return $this;
     }
 
