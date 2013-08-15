@@ -896,7 +896,7 @@ class Builder
      */
     public function maxDistance($maxDistance)
     {
-        if (Query::TYPE_GEO_NEAR === $this->query['type']) {
+        if ($this->query['type'] === Query::TYPE_GEO_NEAR) {
             $this->query['geoNear']['maxDistance'] = $maxDistance;
         } else {
             $this->expr->maxDistance($maxDistance);
@@ -1269,7 +1269,7 @@ class Builder
      */
     public function set($value, $atomic = true)
     {
-        if ($this->query['type'] == Query::TYPE_INSERT) {
+        if ($this->query['type'] === Query::TYPE_INSERT) {
             $atomic = false;
         }
         $this->expr->set($value, (boolean) $atomic);
