@@ -331,18 +331,12 @@ class Query implements IteratorAggregate
      */
     protected function prepareCursor(Cursor $cursor)
     {
-        foreach ($this->getQueryOptions('immortal', 'limit', 'skip', 'slaveOkay', 'sort') as $key => $value) {
+        foreach ($this->getQueryOptions('hint', 'immortal', 'limit', 'skip', 'slaveOkay', 'sort') as $key => $value) {
             $cursor->$key($value);
         }
 
         if ( ! empty($this->query['snapshot'])) {
             $cursor->snapshot();
-        }
-
-        if ( ! empty($this->query['hints'])) {
-            foreach ($this->query['hints'] as $keyPattern) {
-                $cursor->hint($keyPattern);
-            }
         }
 
         if ( ! empty($this->query['eagerCursor'])) {

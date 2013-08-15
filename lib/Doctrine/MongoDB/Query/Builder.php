@@ -691,16 +691,12 @@ class Builder
     /**
      * Set the index hint for the query.
      *
-     * @param array|string $keyPattern
+     * @param array|string $index
      * @return self
      */
-    public function hint($keyPattern)
+    public function hint($index)
     {
-        if ( ! isset($this->query['hint'])) {
-            $this->query['hint'] = array();
-        }
-
-        $this->query['hints'][] = $keyPattern;
+        $this->query['hint'] = $index;
         return $this;
     }
 
