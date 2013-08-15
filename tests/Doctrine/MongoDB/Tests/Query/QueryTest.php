@@ -6,6 +6,14 @@ use Doctrine\MongoDB\Tests\Constraint\ArrayHasKeyAndValue;
 
 class QueryTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testConstructorShouldThrowExceptionForInvalidType()
+    {
+        new Query($this->getMockDatabase(), $this->getMockCollection(), array('type' => -1), array(), '$');
+    }
+
     public function testGroup()
     {
         $keys = array('a' => 1);

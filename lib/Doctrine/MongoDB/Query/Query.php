@@ -25,6 +25,8 @@ use Doctrine\MongoDB\Database;
 use Doctrine\MongoDB\EagerCursor;
 use Doctrine\MongoDB\Iterator;
 use Doctrine\MongoDB\IteratorAggregate;
+use BadMethodCallException;
+use InvalidArgumentException;
 
 /**
  * Query class used in conjunction with the Builder class for executing queries
@@ -88,8 +90,36 @@ class Query implements IteratorAggregate
      */
     protected $options;
 
+    /**
+     * Constructor.
+     *
+     * @param Database $database
+     * @param Collection $collection
+     * @param array $query
+     * @param array $options
+     * @param string $cmd
+     * @throws InvalidArgumentException if query type is invalid
+     */
     public function __construct(Database $database, Collection $collection, array $query, array $options, $cmd)
     {
+        switch ($query['type']) {
+            case self::TYPE_FIND:
+            case self::TYPE_FIND_AND_UPDATE:
+            case self::TYPE_FIND_AND_REMOVE:
+            case self::TYPE_INSERT:
+            case self::TYPE_UPDATE:
+            case self::TYPE_REMOVE:
+            case self::TYPE_GROUP:
+            case self::TYPE_MAP_REDUCE:
+            case self::TYPE_DISTINCT:
+            case self::TYPE_GEO_NEAR:
+            case self::TYPE_COUNT:
+                break;
+
+            default:
+                throw new InvalidArgumentException('Invalid query type: ' . $query['type']);
+        }
+
         $this->database   = $database;
         $this->collection = $collection;
         $this->query      = $query;
@@ -235,14 +265,14 @@ class Query implements IteratorAggregate
      *
      * @see http://php.net/manual/en/iteratoraggregate.getiterator.php
      * @return Iterator
-     * @throws \BadMethodCallException if the query did not return an Iterator
+     * @throws BadMethodCallException if the query did not return an Iterator
      */
     public function getIterator()
     {
         if ($this->iterator === null) {
             $iterator = $this->execute();
             if ($iterator !== null && !$iterator instanceof Iterator) {
-                throw new \BadMethodCallException('Query execution did not return an iterator. This query may not support returning iterators.');
+                throw new BadMethodCallException('Query execution did not return an iterator. This query may not support returning iterators.');
             }
             $this->iterator = $iterator;
         }
