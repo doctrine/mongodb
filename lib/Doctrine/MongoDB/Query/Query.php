@@ -188,7 +188,7 @@ class Query implements IteratorAggregate
 
             case self::TYPE_GROUP:
                 if (!empty($this->query['query'])) {
-                    $this->query['group']['options']['condition'] = $this->query['query'];
+                    $this->query['group']['options']['cond'] = $this->query['query'];
                 }
 
                 $options = array_merge($options, $this->query['group']['options']);

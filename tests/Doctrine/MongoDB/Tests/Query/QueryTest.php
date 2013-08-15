@@ -6,6 +6,33 @@ use Doctrine\MongoDB\Tests\Constraint\ArrayHasKeyAndValue;
 
 class QueryTest extends \PHPUnit_Framework_TestCase
 {
+    public function testGroup()
+    {
+        $keys = array('a' => 1);
+        $initial = array('count' => 0, 'sum' => 0);
+        $reduce = 'function(obj, prev) { prev.count++; prev.sum += obj.a; }';
+        $finalize = 'function(obj) { if (obj.count) { obj.avg = obj.sum / obj.count; } else { obj.avg = 0; } }';
+
+        $query = array(
+            'type' => Query::TYPE_GROUP,
+            'group' => array(
+                'keys' => $keys,
+                'initial' => $initial,
+                'reduce' => $reduce,
+                'options' => array('finalize' => $finalize),
+            ),
+            'query' => array('type' => 1),
+        );
+
+        $collection = $this->getMockCollection();
+        $collection->expects($this->once())
+            ->method('group')
+            ->with($keys, $initial, $reduce, array('finalize' => $finalize, 'cond' => array('type' => 1)));
+
+        $query = new Query($this->getMockDatabase(), $collection, $query, array(), '$');
+        $query->execute();
+    }
+
     public function testMapReduceOptionsArePassed()
     {
         $queryArray = array(
