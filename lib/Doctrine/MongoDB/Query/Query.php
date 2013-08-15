@@ -174,86 +174,75 @@ class Query implements IteratorAggregate
 
         switch ($this->query['type']) {
             case self::TYPE_FIND:
-                $cursor = $this->collection->find($this->query['query'], $this->query['select']);
+                $cursor = $this->collection->find(
+                    $this->query['query'],
+                    isset($this->query['select']) ? $this->query['select'] : array()
+                );
+
                 return $this->prepareCursor($cursor);
 
             case self::TYPE_FIND_AND_UPDATE:
-                if ($this->query['sort']) {
-                    $options['sort'] = $this->query['sort'];
-                }
-                if ($this->query['select']) {
-                    $options['fields'] = $this->query['select'];
-                }
-                if ($this->query['upsert']) {
-                    $options['upsert'] = true;
-                }
-                if ($this->query['new']) {
-                    $options['new'] = true;
-                }
-                return $this->collection->findAndUpdate($this->query['query'], $this->query['newObj'], $options);
+                return $this->collection->findAndUpdate(
+                    $this->query['query'],
+                    $this->query['newObj'],
+                    array_merge($options, $this->getQueryOptions('new', 'select', 'sort', 'upsert'))
+                );
 
             case self::TYPE_FIND_AND_REMOVE:
-                if ($this->query['sort']) {
-                    $options['sort'] = $this->query['sort'];
-                }
-                if ($this->query['select']) {
-                    $options['fields'] = $this->query['select'];
-                }
-                return $this->collection->findAndRemove($this->query['query'], $options);
+                return $this->collection->findAndRemove(
+                    $this->query['query'],
+                    array_merge($options, $this->getQueryOptions('select', 'sort'))
+                );
 
             case self::TYPE_INSERT:
-                return $this->collection->insert($this->query['newObj']);
+                return $this->collection->insert($this->query['newObj'], $options);
 
             case self::TYPE_UPDATE:
-                if ($this->query['upsert']) {
-                    $options['upsert'] = $this->query['upsert'];
-                }
-                if ($this->query['multiple']) {
-                    $options['multiple'] = $this->query['multiple'];
-                }
-                return $this->collection->update($this->query['query'], $this->query['newObj'], $options);
+                return $this->collection->update(
+                    $this->query['query'],
+                    $this->query['newObj'],
+                    array_merge($options, $this->getQueryOptions('multiple', 'upsert'))
+                );
 
             case self::TYPE_REMOVE:
                 return $this->collection->remove($this->query['query'], $options);
 
             case self::TYPE_GROUP:
-                if (!empty($this->query['query'])) {
-                    $this->query['group']['options']['cond'] = $this->query['query'];
+                if ( ! empty($this->query['query'])) {
+                    $options['cond'] = $this->query['query'];
                 }
 
-                $options = array_merge($options, $this->query['group']['options']);
-
-                return $this->collection->group($this->query['group']['keys'], $this->query['group']['initial'], $this->query['group']['reduce'], $options);
+                return $this->collection->group(
+                    $this->query['group']['keys'],
+                    $this->query['group']['initial'],
+                    $this->query['group']['reduce'],
+                    array_merge($options, $this->query['group']['options'])
+                );
 
             case self::TYPE_MAP_REDUCE:
-                if (!isset($this->query['mapReduce']['out'])) {
-                    $this->query['mapReduce']['out'] = array('inline' => true);
-                }
+                $results = $this->collection->mapReduce(
+                    $this->query['mapReduce']['map'],
+                    $this->query['mapReduce']['reduce'],
+                    $this->query['mapReduce']['out'],
+                    $this->query['query'],
+                    array_merge($options, $this->query['mapReduce']['options'])
+                );
 
-                $options = array_merge($options, $this->query['mapReduce']['options']);
-                $cursor = $this->collection->mapReduce($this->query['mapReduce']['map'], $this->query['mapReduce']['reduce'], $this->query['mapReduce']['out'], $this->query['query'], $options);
-
-                if ($cursor instanceof Cursor) {
-                    $cursor = $this->prepareCursor($cursor);
-                }
-
-                return $cursor;
+                return ($results instanceof Cursor) ? $this->prepareCursor($results) : $results;
 
             case self::TYPE_DISTINCT:
                 return $this->collection->distinct($this->query['distinct'], $this->query['query'], $options);
 
             case self::TYPE_GEO_NEAR:
-                if (isset($this->query['limit']) && $this->query['limit']) {
+                if (isset($this->query['limit'])) {
                     $options['num'] = $this->query['limit'];
                 }
 
-                foreach (array('distanceMultiplier', 'maxDistance', 'spherical') as $key) {
-                    if (isset($this->query['geoNear'][$key]) && $this->query['geoNear'][$key]) {
-                        $options[$key] = $this->query['geoNear'][$key];
-                    }
-                }
-
-                return $this->collection->near($this->query['geoNear']['near'], $this->query['query'], $options);
+                return $this->collection->near(
+                    $this->query['geoNear']['near'],
+                    $this->query['query'],
+                    array_merge($options, $this->query['geoNear']['options'])
+                );
 
             case self::TYPE_COUNT:
                 return $this->collection->count($this->query['query']);
@@ -342,27 +331,39 @@ class Query implements IteratorAggregate
      */
     protected function prepareCursor(Cursor $cursor)
     {
-        $cursor->limit($this->query['limit']);
-        $cursor->skip($this->query['skip']);
-        $cursor->sort($this->query['sort']);
-        $cursor->immortal($this->query['immortal']);
-
-        if (null !== $this->query['slaveOkay']) {
-            $cursor->slaveOkay($this->query['slaveOkay']);
+        foreach ($this->getQueryOptions('immortal', 'limit', 'skip', 'slaveOkay', 'sort') as $key => $value) {
+            $cursor->$key($value);
         }
 
-        if ($this->query['snapshot']) {
+        if ( ! empty($this->query['snapshot'])) {
             $cursor->snapshot();
         }
 
-        foreach ($this->query['hints'] as $keyPattern) {
-            $cursor->hint($keyPattern);
+        if ( ! empty($this->query['hints'])) {
+            foreach ($this->query['hints'] as $keyPattern) {
+                $cursor->hint($keyPattern);
+            }
         }
 
-        if ($this->query['eagerCursor'] === true) {
+        if ( ! empty($this->query['eagerCursor'])) {
             $cursor = new EagerCursor($cursor);
         }
 
         return $cursor;
+    }
+
+    /**
+     * Returns an array containing the specified keys and their values from the
+     * query array, provided they exist and are not null.
+     *
+     * @param string $key,... One or more option keys to be read
+     * @return array
+     */
+    private function getQueryOptions(/* $key, ... */)
+    {
+        return array_filter(
+            array_intersect_key($this->query, array_flip(func_get_args())),
+            function($value) { return $value !== null; }
+        );
     }
 }

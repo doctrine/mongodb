@@ -21,7 +21,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $reduce = 'function(obj, prev) { prev.count++; prev.sum += obj.a; }';
         $finalize = 'function(obj) { if (obj.count) { obj.avg = obj.sum / obj.count; } else { obj.avg = 0; } }';
 
-        $query = array(
+        $queryArray = array(
             'type' => Query::TYPE_GROUP,
             'group' => array(
                 'keys' => $keys,
@@ -37,36 +37,30 @@ class QueryTest extends \PHPUnit_Framework_TestCase
             ->method('group')
             ->with($keys, $initial, $reduce, array('finalize' => $finalize, 'cond' => array('type' => 1)));
 
-        $query = new Query($this->getMockDatabase(), $collection, $query, array(), '$');
+        $query = new Query($this->getMockDatabase(), $collection, $queryArray, array(), '$');
         $query->execute();
     }
 
     public function testMapReduceOptionsArePassed()
     {
+        $map = 'function() { emit(this.a, 1); }';
+        $reduce = 'function(key, values) { return Array.sum(values); }';
+
         $queryArray = array(
             'type' => Query::TYPE_MAP_REDUCE,
             'mapReduce' => array(
-                'map' => 'map',
-                'reduce' => 'reduce',
+                'map' => $map,
+                'reduce' => $reduce,
                 'out' => 'collection',
-                'options' => array('limit' => 10, 'jsMode' => true),
+                'options' => array('jsMode' => true),
             ),
             'query' => array('type' => 1),
         );
 
         $collection = $this->getMockCollection();
-        $collection->expects($this->any())
+        $collection->expects($this->once())
             ->method('mapReduce')
-            ->with(
-                'map',
-                'reduce',
-                'collection',
-                array('type' => 1),
-                $this->logicalAnd(
-                    new ArrayHasKeyAndValue('limit', 10),
-                    new ArrayHasKeyAndValue('jsMode', true)
-                )
-            );
+            ->with($map, $reduce, 'collection', array('type' => 1), array('jsMode' => true));
 
         $query = new Query($this->getMockDatabase(), $collection, $queryArray, array(), '$');
         $query->execute();
@@ -77,28 +71,17 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $queryArray = array(
             'type' => Query::TYPE_GEO_NEAR,
             'geoNear' => array(
-                'near' => array(50, 50),
-                'distanceMultiplier' => 2.5,
-                'maxDistance' => 5,
-                'spherical' => true,
+                'near' => array(1, 1),
+                'options' => array('spherical' => true),
             ),
             'limit' => 10,
-            'query' => array('altitude' => array('$gt' => 1)),
+            'query' => array('type' => 1),
         );
 
         $collection = $this->getMockCollection();
-        $collection->expects($this->any())
-            ->method('geoNear')
-            ->with(
-                array(50, 50),
-                array('altitude' => array('$gt' => 1)),
-                $this->logicalAnd(
-                    new ArrayHasKeyAndValue('distanceMultiplier', 2.5),
-                    new ArrayHasKeyAndValue('maxDistance', 5),
-                    new ArrayHasKeyAndValue('spherical', true),
-                    new ArrayHasKeyAndValue('num', 10)
-                )
-            );
+        $collection->expects($this->once())
+            ->method('near')
+            ->with(array(1, 1), array('type' => 1), array('num' => 10, 'spherical' => true));
 
         $query = new Query($this->getMockDatabase(), $collection, $queryArray, array(), '$');
         $query->execute();

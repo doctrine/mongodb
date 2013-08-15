@@ -52,21 +52,7 @@ class Builder
      *
      * @var array
      */
-    protected $query = array(
-        'type' => Query::TYPE_FIND,
-        'select' => array(),
-        'sort' => array(),
-        'limit' => null,
-        'skip' => null,
-        'hints' => array(),
-        'immortal' => false,
-        'snapshot' => false,
-        'slaveOkay' => null,
-        'eagerCursor' => false,
-        'new' => false,
-        'upsert' => false,
-        'multiple' => false,
-    );
+    protected $query = array('type' => Query::TYPE_FIND);
 
     /**
      * Mongo command prefix
@@ -245,7 +231,7 @@ class Builder
             throw new BadMethodCallException('This method requires a geoNear command (call geoNear() first)');
         }
 
-        $this->query['geoNear']['distanceMultiplier'] = $distanceMultiplier;
+        $this->query['geoNear']['options']['distanceMultiplier'] = $distanceMultiplier;
         return $this;
     }
 
@@ -315,6 +301,10 @@ class Builder
      */
     public function exclude($fieldName = null)
     {
+        if ( ! isset($this->query['select'])) {
+            $this->query['select'] = array();
+        }
+
         $fieldNames = is_array($fieldName) ? $fieldName : func_get_args();
 
         foreach ($fieldNames as $fieldName) {
@@ -467,7 +457,9 @@ class Builder
         $this->query['type'] = Query::TYPE_GEO_NEAR;
         $this->query['geoNear'] = array(
             'near' => is_array($x) ? $x : array($x, $y),
-            'spherical' => is_array($x) && isset($x['type']),
+            'options' => array(
+                'spherical' => is_array($x) && isset($x['type']),
+            ),
         );
         return $this;
     }
@@ -704,6 +696,10 @@ class Builder
      */
     public function hint($keyPattern)
     {
+        if ( ! isset($this->query['hint'])) {
+            $this->query['hint'] = array();
+        }
+
         $this->query['hints'][] = $keyPattern;
         return $this;
     }
@@ -891,7 +887,7 @@ class Builder
     public function maxDistance($maxDistance)
     {
         if ($this->query['type'] === Query::TYPE_GEO_NEAR) {
-            $this->query['geoNear']['maxDistance'] = $maxDistance;
+            $this->query['geoNear']['options']['maxDistance'] = $maxDistance;
         } else {
             $this->expr->maxDistance($maxDistance);
         }
@@ -1198,6 +1194,10 @@ class Builder
      */
     public function select($fieldName = null)
     {
+        if ( ! isset($this->query['select'])) {
+            $this->query['select'] = array();
+        }
+
         $fieldNames = is_array($fieldName) ? $fieldName : func_get_args();
 
         foreach ($fieldNames as $fieldName) {
@@ -1218,6 +1218,10 @@ class Builder
      */
     public function selectElemMatch($fieldName, $expression)
     {
+        if ( ! isset($this->query['select'])) {
+            $this->query['select'] = array();
+        }
+
         if ($expression instanceof Expr) {
             $expression = $expression->getQuery();
         }
@@ -1240,6 +1244,10 @@ class Builder
      */
     public function selectSlice($fieldName, $countOrSkip, $limit = null)
     {
+        if ( ! isset($this->query['select'])) {
+            $this->query['select'] = array();
+        }
+
         $slice = $countOrSkip;
         if ($limit !== null) {
             $slice = array($slice, $limit);
@@ -1338,6 +1346,10 @@ class Builder
      */
     public function sort($fieldName, $order = null)
     {
+        if ( ! isset($this->query['sort'])) {
+            $this->query['sort'] = array();
+        }
+
         $fields = is_array($fieldName) ? $fieldName : array($fieldName => $order);
 
         foreach ($fields as $fieldName => $order) {
@@ -1363,7 +1375,7 @@ class Builder
             throw new BadMethodCallException('This method requires a geoNear command (call geoNear() first)');
         }
 
-        $this->query['geoNear']['spherical'] = $spherical;
+        $this->query['geoNear']['options']['spherical'] = $spherical;
         return $this;
     }
 

@@ -332,6 +332,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             'exists()' => array('exists', array(true)),
             'type()' => array('type', array(7)),
             'all()' => array('all', array(array('value1', 'value2'))),
+            'maxDistance' => array('maxDistance', array(5)),
             'mod()' => array('mod', array(2)),
             'near()' => array('near', array(1, 2)),
             'nearSphere()' => array('nearSphere', array(1, 2)),
@@ -369,40 +370,21 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testGeoNear()
-    {
-        $qb = $this->getTestQueryBuilder();
-
-        $this->assertSame($qb, $qb->geoNear(50, 50));
-        $this->assertSame($qb, $qb->distanceMultiplier(2.5));
-        $this->assertSame($qb, $qb->maxDistance(5));
-        $this->assertSame($qb, $qb->spherical(true));
-        $this->assertSame($qb, $qb->field('type')->equals('restaurant'));
-        $this->assertSame($qb, $qb->limit(10));
-
-        $this->assertEquals(Query::TYPE_GEO_NEAR, $qb->getType());
-
-        $expectedQuery = array('type' => 'restaurant');
-        $this->assertEquals($expectedQuery, $qb->getQueryArray());
-
-        $geoNear = $qb->debug('geoNear');
-        $this->assertEquals(array(50, 50), $geoNear['near']);
-        $this->assertEquals(2.5, $geoNear['distanceMultiplier']);
-        $this->assertEquals(5, $geoNear['maxDistance']);
-        $this->assertEquals(true, $geoNear['spherical']);
-        $this->assertEquals(10, $qb->debug('limit'));
-    }
-
     /**
      * @dataProvider providePoint
      */
     public function testGeoNearWithSingleArgument($point, array $near, $spherical)
     {
+        $expected = array(
+            'near' => $near,
+            'options' => array('spherical' => $spherical),
+        );
+
         $qb = $this->getTestQueryBuilder();
 
         $this->assertSame($qb, $qb->geoNear($point));
         $this->assertEquals(Query::TYPE_GEO_NEAR, $qb->getType());
-        $this->assertEquals(array('near' => $near, 'spherical' => $spherical), $qb->debug('geoNear'));
+        $this->assertEquals($expected, $qb->debug('geoNear'));
     }
 
     public function providePoint()
@@ -419,11 +401,29 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testGeoNearWithBothArguments()
     {
+        $expected = array(
+            'near' => array(0, 0),
+            'options' => array('spherical' => false),
+        );
+
         $qb = $this->getTestQueryBuilder();
 
         $this->assertSame($qb, $qb->geoNear(array(0, 0)));
         $this->assertEquals(Query::TYPE_GEO_NEAR, $qb->getType());
-        $this->assertEquals(array('near' => array(0, 0), 'spherical' => false), $qb->debug('geoNear'));
+        $this->assertEquals($expected, $qb->debug('geoNear'));
+    }
+
+    public function testDistanceMultipler()
+    {
+        $expected = array(
+            'near' => array(0, 0),
+            'options' => array('spherical' => false, 'distanceMultiplier' => 1),
+        );
+
+        $qb = $this->getTestQueryBuilder();
+
+        $this->assertSame($qb, $qb->geoNear(0, 0)->distanceMultiplier(1));
+        $this->assertEquals($expected, $qb->debug('geoNear'));
     }
 
     /**
@@ -444,6 +444,19 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $qb->mapReduceOptions(array());
     }
 
+    public function testMaxDistanceWithGeoNearCommand()
+    {
+        $expected = array(
+            'near' => array(0, 0),
+            'options' => array('spherical' => false, 'maxDistance' => 5),
+        );
+
+        $qb = $this->getTestQueryBuilder();
+
+        $this->assertSame($qb, $qb->geoNear(0, 0)->maxDistance(5));
+        $this->assertEquals($expected, $qb->debug('geoNear'));
+    }
+
     /**
      * @expectedException BadMethodCallException
      */
@@ -451,6 +464,19 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     {
         $qb = $this->getTestQueryBuilder();
         $qb->out('collection');
+    }
+
+    public function testSpherical()
+    {
+        $expected = array(
+            'near' => array(0, 0),
+            'options' => array('spherical' => true),
+        );
+
+        $qb = $this->getTestQueryBuilder();
+
+        $this->assertSame($qb, $qb->geoNear(0, 0)->spherical(true));
+        $this->assertEquals($expected, $qb->debug('geoNear'));
     }
 
     /**
