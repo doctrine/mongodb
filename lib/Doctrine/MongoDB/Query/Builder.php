@@ -54,28 +54,15 @@ class Builder
      */
     protected $query = array(
         'type' => Query::TYPE_FIND,
-        'distinctField' => null,
         'select' => array(),
         'sort' => array(),
         'limit' => null,
         'skip' => null,
-        'group' => array(
-            'keys' => null,
-            'initial' => null,
-            'reduce' => null,
-            'options' => array(),
-        ),
         'hints' => array(),
         'immortal' => false,
         'snapshot' => false,
         'slaveOkay' => null,
         'eagerCursor' => false,
-        'mapReduce' => array(
-            'map' => null,
-            'reduce' => null,
-            'options' => array(),
-        ),
-        'near' => array(),
         'new' => false,
         'upsert' => false,
         'multiple' => false,
