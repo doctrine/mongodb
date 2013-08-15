@@ -258,8 +258,8 @@ class Builder
      */
     public function distinct($field)
     {
-        $this->query['type'] = Query::TYPE_DISTINCT_FIELD;
-        $this->query['distinctField'] = $field;
+        $this->query['type'] = Query::TYPE_DISTINCT;
+        $this->query['distinct'] = $field;
         return $this;
     }
 
