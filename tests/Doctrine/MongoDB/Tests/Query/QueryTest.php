@@ -54,13 +54,14 @@ class QueryTest extends \PHPUnit_Framework_TestCase
                 'out' => 'collection',
                 'options' => array('jsMode' => true),
             ),
+            'limit' => 10,
             'query' => array('type' => 1),
         );
 
         $collection = $this->getMockCollection();
         $collection->expects($this->once())
             ->method('mapReduce')
-            ->with($map, $reduce, 'collection', array('type' => 1), array('jsMode' => true));
+            ->with($map, $reduce, 'collection', array('type' => 1), array('limit' => 10, 'jsMode' => true));
 
         $query = new Query($this->getMockDatabase(), $collection, $queryArray, array(), '$');
         $query->execute();

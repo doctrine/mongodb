@@ -220,6 +220,10 @@ class Query implements IteratorAggregate
                 );
 
             case self::TYPE_MAP_REDUCE:
+                if (isset($this->query['limit'])) {
+                    $options['limit'] = $this->query['limit'];
+                }
+
                 $results = $this->collection->mapReduce(
                     $this->query['mapReduce']['map'],
                     $this->query['mapReduce']['reduce'],
