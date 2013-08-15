@@ -1276,10 +1276,7 @@ class Builder
      */
     public function set($value, $atomic = true)
     {
-        if ($this->query['type'] === Query::TYPE_INSERT) {
-            $atomic = false;
-        }
-        $this->expr->set($value, (boolean) $atomic);
+        $this->expr->set($value, $atomic && $this->query['type'] !== Query::TYPE_INSERT);
         return $this;
     }
 

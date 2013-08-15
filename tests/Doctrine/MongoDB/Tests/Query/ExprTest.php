@@ -295,6 +295,30 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr->geoWithinPolygon(array(0, 0), array(1, 1));
     }
 
+    public function testSetWithAtomic()
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->field('a')->set(1, true));
+        $this->assertEquals(array('$set' => array('a' => 1)), $expr->getNewObj());
+    }
+
+    public function testSetWithoutAtomicWithTopLevelField()
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->field('a')->set(1, false));
+        $this->assertEquals(array('a' => 1), $expr->getNewObj());
+    }
+
+    public function testSetWithoutAtomicWithNestedField()
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->field('a.b.c')->set(1, false));
+        $this->assertEquals(array('a' => array('b' => array('c' => 1))), $expr->getNewObj());
+    }
+
     public function testWhere()
     {
         $expr = new Expr('$');

@@ -505,20 +505,24 @@ class Expr
     public function set($value, $atomic = true)
     {
         $this->requiresCurrentField();
-        if ($atomic === true) {
+
+        if ($atomic) {
             $this->newObj[$this->cmd . 'set'][$this->currentField] = $value;
-        } else {
-            if (strpos($this->currentField, '.') !== false) {
-                $e = explode('.', $this->currentField);
-                $current = &$this->newObj;
-                foreach ($e as $v) {
-                    $current = &$current[$v];
-                }
-                $current = $value;
-            } else {
-                $this->newObj[$this->currentField] = $value;
-            }
+            return $this;
         }
+
+        if (strpos($this->currentField, '.') === false) {
+            $this->newObj[$this->currentField] = $value;
+            return $this;
+        }
+
+        $keys = explode('.', $this->currentField);
+        $current = &$this->newObj;
+        foreach ($keys as $key) {
+            $current = &$current[$key];
+        }
+        $current = $value;
+
         return $this;
     }
 
