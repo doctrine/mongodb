@@ -288,6 +288,13 @@ class Expr
         return $this;
     }
 
+    public function rename($value)
+    {
+        $this->requiresCurrentField();
+        $this->newObj[$this->cmd . 'rename'][$this->currentField] = $value;
+        return $this;
+    }
+
     public function unsetField()
     {
         $this->requiresCurrentField();

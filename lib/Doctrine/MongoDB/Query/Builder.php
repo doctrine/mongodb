@@ -856,6 +856,18 @@ class Builder
     }
 
     /**
+     * Rename field to value.
+     *
+     * @param string $value
+     * @return Builder
+     */
+    public function rename($value)
+    {
+        $this->expr->rename($value);
+        return $this;
+    }
+
+    /**
      * Deletes a given field.
      *
      * @return Builder
