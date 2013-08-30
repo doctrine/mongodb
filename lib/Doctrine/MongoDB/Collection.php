@@ -176,7 +176,7 @@ class Collection
      * @param array   $query
      * @param integer $limit
      * @param integer $skip
-     * @return ArrayIterator
+     * @return integer
      */
     public function count(array $query = array(), $limit = 0, $skip = 0)
     {
