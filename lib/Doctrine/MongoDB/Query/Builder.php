@@ -1380,7 +1380,7 @@ class Builder
      *
      * @see Expr::type()
      * @see http://docs.mongodb.org/manual/reference/operator/type/
-     * @param integer|string $type
+     * @param integer $type
      * @return self
      */
     public function type($type)

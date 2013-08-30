@@ -910,37 +910,40 @@ class Expr
     /**
      * Specify $type criteria for the current field.
      *
+     * @todo Remove support for string $type argument in 2.0
      * @see Builder::type()
      * @see http://docs.mongodb.org/manual/reference/operator/type/
-     * @param integer|string $type
+     * @param integer $type
      * @return self
      */
     public function type($type)
     {
-        $map = array(
-            'double' => 1,
-            'string' => 2,
-            'object' => 3,
-            'array' => 4,
-            'binary' => 5,
-            'undefined' => 6,
-            'objectid' => 7,
-            'boolean' => 8,
-            'date' => 9,
-            'null' => 10,
-            'regex' => 11,
-            'jscode' => 13,
-            'symbol' => 14,
-            'jscodewithscope' => 15,
-            'integer32' => 16,
-            'timestamp' => 17,
-            'integer64' => 18,
-            'minkey' => 255,
-            'maxkey' => 127
-        );
-        if (is_string($type) && isset($map[$type])) {
-            $type = $map[$type];
+        if (is_string($type)) {
+            $map = array(
+                'double' => 1,
+                'string' => 2,
+                'object' => 3,
+                'array' => 4,
+                'binary' => 5,
+                'undefined' => 6,
+                'objectid' => 7,
+                'boolean' => 8,
+                'date' => 9,
+                'null' => 10,
+                'regex' => 11,
+                'jscode' => 13,
+                'symbol' => 14,
+                'jscodewithscope' => 15,
+                'integer32' => 16,
+                'timestamp' => 17,
+                'integer64' => 18,
+                'maxkey' => 127,
+                'minkey' => 255,
+            );
+
+            $type = isset($map[$type]) ? $map[$type] : $type;
         }
+
         return $this->operator($this->cmd . 'type', $type);
     }
 
