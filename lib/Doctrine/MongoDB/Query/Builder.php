@@ -717,7 +717,7 @@ class Builder
      *
      * @see Expr::in()
      * @see http://docs.mongodb.org/manual/reference/operator/in/
-     * @param array|mixed $values
+     * @param array $values
      * @return self
      */
     public function in(array $values)
@@ -989,7 +989,7 @@ class Builder
      *
      * @see Expr::notIn()
      * @see http://docs.mongodb.org/manual/reference/operator/nin/
-     * @param array|mixed $values
+     * @param array $values
      * @return self
      */
     public function notIn(array $values)
@@ -1352,7 +1352,7 @@ class Builder
             if (is_string($order)) {
                 $order = strtolower($order) === 'asc' ? 1 : -1;
             }
-            $this->query['sort'][$fieldName] = (int) $order;
+            $this->query['sort'][$fieldName] = (integer) $order;
         }
 
         return $this;
