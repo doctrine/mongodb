@@ -307,7 +307,7 @@ class Query implements IteratorAggregate
     /**
      * Execute the query and return the first result.
      *
-     * @see Iterator::getSingleResult()
+     * @see IteratorAggregate::getSingleResult()
      * @return array|object|null
      */
     public function getSingleResult()
@@ -339,7 +339,7 @@ class Query implements IteratorAggregate
     /**
      * Execute the query and return its results as an array.
      *
-     * @see Iterator::toArray()
+     * @see IteratorAggregate::toArray()
      * @return array
      */
     public function toArray()
