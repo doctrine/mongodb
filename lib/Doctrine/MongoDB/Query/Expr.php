@@ -170,10 +170,10 @@ class Expr
      *
      * @see Builder::all()
      * @see http://docs.mongodb.org/manual/reference/operator/all/
-     * @param array|mixed $values
+     * @param array $values
      * @return self
      */
-    public function all($values)
+    public function all(array $values)
     {
         return $this->operator($this->cmd . 'all', (array) $values);
     }
