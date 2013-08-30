@@ -78,6 +78,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             'map' => $map,
             'reduce' => $reduce,
             'options' => array('finalize' => $finalize),
+            'out' => array('inline' => true),
         );
 
         $this->assertEquals(Query::TYPE_MAP_REDUCE, $qb->getType());
@@ -331,6 +332,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             'exists()' => array('exists', array(true)),
             'type()' => array('type', array(7)),
             'all()' => array('all', array(array('value1', 'value2'))),
+            'maxDistance' => array('maxDistance', array(5)),
             'mod()' => array('mod', array(2)),
             'near()' => array('near', array(1, 2)),
             'nearSphere()' => array('nearSphere', array(1, 2)),
@@ -346,44 +348,82 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             'geoWithinPolygon()' => array('geoWithinPolygon', array(array(0, 0), array(1, 1), array(1, 0))),
             'inc()' => array('inc', array(1)),
             'unsetField()' => array('unsetField'),
-            'push()' => array('push', array('value')),
+            'push() with value' => array('push', array('value')),
+            'push() with Expr' => array('push', array($this->getMockExpr())),
             'pushAll()' => array('pushAll', array(array('value1', 'value2'))),
-            'addToSet()' => array('addToSet', array('value')),
+            'addToSet() with value' => array('addToSet', array('value')),
+            'addToSet() with Expr' => array('addToSet', array($this->getMockExpr())),
             'addManyToSet()' => array('addManyToSet', array(array('value1', 'value2'))),
             'popFirst()' => array('popFirst'),
             'popLast()' => array('popLast'),
             'pull()' => array('pull', array('value')),
             'pullAll()' => array('pullAll', array(array('value1', 'value2'))),
-            'addAnd()' => array('addAnd', array($this->getMockExpr())),
-            'addOr()' => array('addOr', array($this->getMockExpr())),
-            'addNor()' => array('addNor', array($this->getMockExpr())),
-            'elemMatch()' => array('elemMatch', array($this->getMockExpr())),
+            'addAnd() array' => array('addAnd', array(array())),
+            'addAnd() Expr' => array('addAnd', array($this->getMockExpr())),
+            'addOr() array' => array('addOr', array(array())),
+            'addOr() Expr' => array('addOr', array($this->getMockExpr())),
+            'addNor() array' => array('addNor', array(array())),
+            'addNor() Expr' => array('addNor', array($this->getMockExpr())),
+            'elemMatch() array' => array('elemMatch', array(array())),
+            'elemMatch() Expr' => array('elemMatch', array($this->getMockExpr())),
             'not()' => array('not', array($this->getMockExpr())),
         );
     }
 
-    public function testGeoNear()
+    /**
+     * @dataProvider providePoint
+     */
+    public function testGeoNearWithSingleArgument($point, array $near, $spherical)
     {
+        $expected = array(
+            'near' => $near,
+            'options' => array('spherical' => $spherical),
+        );
+
         $qb = $this->getTestQueryBuilder();
 
-        $this->assertSame($qb, $qb->geoNear(50, 50));
-        $this->assertSame($qb, $qb->distanceMultiplier(2.5));
-        $this->assertSame($qb, $qb->maxDistance(5));
-        $this->assertSame($qb, $qb->spherical(true));
-        $this->assertSame($qb, $qb->field('type')->equals('restaurant'));
-        $this->assertSame($qb, $qb->limit(10));
-
+        $this->assertSame($qb, $qb->geoNear($point));
         $this->assertEquals(Query::TYPE_GEO_NEAR, $qb->getType());
+        $this->assertEquals($expected, $qb->debug('geoNear'));
+    }
 
-        $expectedQuery = array('type' => 'restaurant');
-        $this->assertEquals($expectedQuery, $qb->getQueryArray());
+    public function providePoint()
+    {
+        $coordinates = array(0, 0);
+        $json = array('type' => 'Point', 'coordinates' => $coordinates);
 
-        $geoNear = $qb->debug('geoNear');
-        $this->assertEquals(array(50, 50), $geoNear['near']);
-        $this->assertEquals(2.5, $geoNear['distanceMultiplier']);
-        $this->assertEquals(5, $geoNear['maxDistance']);
-        $this->assertEquals(true, $geoNear['spherical']);
-        $this->assertEquals(10, $qb->debug('limit'));
+        return array(
+            'legacy array' => array($coordinates, $coordinates, false),
+            'GeoJSON array' => array($json, $json, true),
+            'GeoJSON object' => array($this->getMockPoint($json), $json, true),
+        );
+    }
+
+    public function testGeoNearWithBothArguments()
+    {
+        $expected = array(
+            'near' => array(0, 0),
+            'options' => array('spherical' => false),
+        );
+
+        $qb = $this->getTestQueryBuilder();
+
+        $this->assertSame($qb, $qb->geoNear(array(0, 0)));
+        $this->assertEquals(Query::TYPE_GEO_NEAR, $qb->getType());
+        $this->assertEquals($expected, $qb->debug('geoNear'));
+    }
+
+    public function testDistanceMultipler()
+    {
+        $expected = array(
+            'near' => array(0, 0),
+            'options' => array('spherical' => false, 'distanceMultiplier' => 1),
+        );
+
+        $qb = $this->getTestQueryBuilder();
+
+        $this->assertSame($qb, $qb->geoNear(0, 0)->distanceMultiplier(1));
+        $this->assertEquals($expected, $qb->debug('geoNear'));
     }
 
     /**
@@ -393,6 +433,50 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     {
         $qb = $this->getTestQueryBuilder();
         $qb->distanceMultiplier(1);
+    }
+
+    /**
+     * @expectedException BadMethodCallException
+     */
+    public function testMapReduceOptionsRequiresMapReduceCommand()
+    {
+        $qb = $this->getTestQueryBuilder();
+        $qb->mapReduceOptions(array());
+    }
+
+    public function testMaxDistanceWithGeoNearCommand()
+    {
+        $expected = array(
+            'near' => array(0, 0),
+            'options' => array('spherical' => false, 'maxDistance' => 5),
+        );
+
+        $qb = $this->getTestQueryBuilder();
+
+        $this->assertSame($qb, $qb->geoNear(0, 0)->maxDistance(5));
+        $this->assertEquals($expected, $qb->debug('geoNear'));
+    }
+
+    /**
+     * @expectedException BadMethodCallException
+     */
+    public function testOutRequiresMapReduceCommand()
+    {
+        $qb = $this->getTestQueryBuilder();
+        $qb->out('collection');
+    }
+
+    public function testSpherical()
+    {
+        $expected = array(
+            'near' => array(0, 0),
+            'options' => array('spherical' => true),
+        );
+
+        $qb = $this->getTestQueryBuilder();
+
+        $this->assertSame($qb, $qb->geoNear(0, 0)->spherical(true));
+        $this->assertEquals($expected, $qb->debug('geoNear'));
     }
 
     /**
@@ -542,6 +626,19 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         return $this->getMockBuilder('GeoJson\Geometry\Geometry')
             ->disableOriginalConstructor()
             ->getMock();
+    }
+
+    private function getMockPoint($json)
+    {
+        $point = $this->getMockBuilder('GeoJson\Geometry\Point')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $point->expects($this->once())
+            ->method('jsonSerialize')
+            ->will($this->returnValue($json));
+
+        return $point;
     }
 
     private function assertArrayHasKeyValue($expected, $array, $message = '')

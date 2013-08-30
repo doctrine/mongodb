@@ -52,34 +52,7 @@ class Builder
      *
      * @var array
      */
-    protected $query = array(
-        'type' => Query::TYPE_FIND,
-        'distinctField' => null,
-        'select' => array(),
-        'sort' => array(),
-        'limit' => null,
-        'skip' => null,
-        'group' => array(
-            'keys' => null,
-            'initial' => null,
-            'reduce' => null,
-            'options' => array(),
-        ),
-        'hints' => array(),
-        'immortal' => false,
-        'snapshot' => false,
-        'slaveOkay' => null,
-        'eagerCursor' => false,
-        'mapReduce' => array(
-            'map' => null,
-            'reduce' => null,
-            'options' => array(),
-        ),
-        'near' => array(),
-        'new' => false,
-        'upsert' => false,
-        'multiple' => false,
-    );
+    protected $query = array('type' => Query::TYPE_FIND);
 
     /**
      * Mongo command prefix
@@ -133,9 +106,11 @@ class Builder
      * Append multiple values to the current array field only if they do not
      * already exist in the array.
      *
-     * If the field does not exist, it will be set to an array containing this
-     * value. If the field is not an array, the query will yield an error.
+     * If the field does not exist, it will be set to an array containing the
+     * unique values in the argument. If the field is not an array, the query
+     * will yield an error.
      *
+     * @deprecated 1.1 Use {@link Builder::addToSet()} with {@link Expr::each()}; Will be removed in 2.0
      * @see Expr::addManyToSet()
      * @see http://docs.mongodb.org/manual/reference/operator/addToSet/
      * @see http://docs.mongodb.org/manual/reference/operator/each/
@@ -181,20 +156,25 @@ class Builder
     }
 
     /**
-     * Append a value to the current array field only if it does not already
-     * exist in the array.
+     * Append one or more values to the current array field only if they do not
+     * already exist in the array.
      *
-     * If the field does not exist, it will be set to an array containing this
-     * value. If the field is not an array, the query will yield an error.
+     * If the field does not exist, it will be set to an array containing the
+     * unique value(s) in the argument. If the field is not an array, the query
+     * will yield an error.
+     *
+     * Multiple values may be specified by provided an Expr object and using
+     * {@link Expr::each()}.
      *
      * @see Expr::addToSet()
      * @see http://docs.mongodb.org/manual/reference/operator/addToSet/
-     * @param mixed $value
+     * @see http://docs.mongodb.org/manual/reference/operator/each/
+     * @param mixed|Expr $valueOrExpression
      * @return self
      */
-    public function addToSet($value)
+    public function addToSet($valueOrExpression)
     {
-        $this->expr->addToSet($value);
+        $this->expr->addToSet($valueOrExpression);
         return $this;
     }
 
@@ -203,10 +183,10 @@ class Builder
      *
      * @see Expr::all()
      * @see http://docs.mongodb.org/manual/reference/operator/all/
-     * @param array|mixed $values
+     * @param array $values
      * @return self
      */
-    public function all($values)
+    public function all(array $values)
     {
         $this->expr->all($values);
         return $this;
@@ -235,16 +215,7 @@ class Builder
      */
     public function debug($name = null)
     {
-        $debug = $this->query;
-        if ($name !== null) {
-            return $debug[$name];
-        }
-        foreach ($debug as $key => $value) {
-            if ( ! $value) {
-                unset($debug[$key]);
-            }
-        }
-        return $debug;
+        return $name !== null ? $this->query[$name] : $this->query;
     }
 
     /**
@@ -252,15 +223,15 @@ class Builder
      *
      * @param float $distanceMultiplier
      * @return self
-     * @throws BadMethodCallException if the query is not a $geoNear command
+     * @throws BadMethodCallException if the query is not a geoNear command
      */
     public function distanceMultiplier($distanceMultiplier)
     {
         if ($this->query['type'] !== Query::TYPE_GEO_NEAR) {
-            throw new BadMethodCallException('This method requires a $geoNear command (call geoNear() first)');
+            throw new BadMethodCallException('This method requires a geoNear command (call geoNear() first)');
         }
 
-        $this->query['geoNear']['distanceMultiplier'] = $distanceMultiplier;
+        $this->query['geoNear']['options']['distanceMultiplier'] = $distanceMultiplier;
         return $this;
     }
 
@@ -273,8 +244,8 @@ class Builder
      */
     public function distinct($field)
     {
-        $this->query['type'] = Query::TYPE_DISTINCT_FIELD;
-        $this->query['distinctField'] = $field;
+        $this->query['type'] = Query::TYPE_DISTINCT;
+        $this->query['distinct'] = $field;
         return $this;
     }
 
@@ -286,7 +257,7 @@ class Builder
      */
     public function eagerCursor($bool = true)
     {
-        $this->query['eagerCursor'] = $bool;
+        $this->query['eagerCursor'] = (boolean) $bool;
         return $this;
     }
 
@@ -330,6 +301,10 @@ class Builder
      */
     public function exclude($fieldName = null)
     {
+        if ( ! isset($this->query['select'])) {
+            $this->query['select'] = array();
+        }
+
         $fieldNames = is_array($fieldName) ? $fieldName : func_get_args();
 
         foreach ($fieldNames as $fieldName) {
@@ -349,7 +324,7 @@ class Builder
      */
     public function exists($bool)
     {
-        $this->expr->exists($bool);
+        $this->expr->exists((boolean) $bool);
         return $this;
     }
 
@@ -373,16 +348,16 @@ class Builder
      */
     public function field($field)
     {
-        $this->expr->field($field);
+        $this->expr->field((string) $field);
         return $this;
     }
 
     /**
-     * Set the finalize option for a mapReduce or group query.
+     * Set the "finalize" option for a mapReduce or group command.
      *
      * @param string|\MongoCode $finalize
      * @return self
-     * @throws \BadMethodCallException if the query type is unsupported
+     * @throws BadMethodCallException if the query is not a mapReduce or group command
      */
     public function finalize($finalize)
     {
@@ -396,7 +371,7 @@ class Builder
                 break;
 
             default:
-                throw new \BadMethodCallException('mapReduce(), map() or group() must be called before finalize()');
+                throw new BadMethodCallException('mapReduce(), map() or group() must be called before finalize()');
         }
 
         return $this;
@@ -455,21 +430,37 @@ class Builder
     }
 
     /**
-     * Specify a geoNear command for this query.
+     * Change the query type to a geoNear command.
+     *
+     * A GeoJSON point may be provided as the first and only argument for
+     * 2dsphere queries. This single parameter may be a GeoJSON point object or
+     * an array corresponding to the point's JSON representation. If GeoJSON is
+     * used, the "spherical" option will default to true.
      *
      * This method sets the "near" option for the geoNear command. The "num"
-     * option may be set using limit(). The "distanceMultiplier" and
-     * "maxDistance" options may be set using their respective builder methods.
-     * Additional query criteria will be assigned to the "query" option.
+     * option may be set using {@link Expr::limit()}. The "distanceMultiplier",
+     * "maxDistance", and "spherical" options may be set using their respective
+     * builder methods. Additional query criteria will be assigned to the
+     * "query" option.
      *
-     * @param float $x
+     * @see http://docs.mongodb.org/manual/reference/command/geoNear/
+     * @param float|array|Point $x
      * @param float $y
      * @return self
      */
-    public function geoNear($x, $y)
+    public function geoNear($x, $y = null)
     {
+        if ($x instanceof Point) {
+            $x = $x->jsonSerialize();
+        }
+
         $this->query['type'] = Query::TYPE_GEO_NEAR;
-        $this->query['geoNear'] = array('near' => array($x, $y));
+        $this->query['geoNear'] = array(
+            'near' => is_array($x) ? $x : array($x, $y),
+            'options' => array(
+                'spherical' => is_array($x) && isset($x['type']),
+            ),
+        );
         return $this;
     }
 
@@ -637,7 +628,7 @@ class Builder
     /**
      * Get the type of this query.
      *
-     * @return string $type
+     * @return integer $type
      */
     public function getType()
     {
@@ -647,7 +638,7 @@ class Builder
     /**
      * Change the query type to a group command.
      *
-     * If the reduce option is not specified when calling this method, it must
+     * If the "reduce" option is not specified when calling this method, it must
      * be set with the {@link Builder::reduce()} method.
      *
      * @see http://docs.mongodb.org/manual/reference/command/group/
@@ -700,12 +691,12 @@ class Builder
     /**
      * Set the index hint for the query.
      *
-     * @param array|string $keyPattern
+     * @param array|string $index
      * @return self
      */
-    public function hint($keyPattern)
+    public function hint($index)
     {
-        $this->query['hints'][] = $keyPattern;
+        $this->query['hint'] = $index;
         return $this;
     }
 
@@ -717,7 +708,7 @@ class Builder
      */
     public function immortal($bool = true)
     {
-        $this->query['immortal'] = $bool;
+        $this->query['immortal'] = (boolean) $bool;
         return $this;
     }
 
@@ -726,10 +717,10 @@ class Builder
      *
      * @see Expr::in()
      * @see http://docs.mongodb.org/manual/reference/operator/in/
-     * @param array|mixed $values
+     * @param array $values
      * @return self
      */
-    public function in($values)
+    public function in(array $values)
     {
         $this->expr->in($values);
         return $this;
@@ -765,8 +756,8 @@ class Builder
     /**
      * Set the limit for the query.
      *
-     * This is only relevant for find and geoNear queries, or mapReduce queries
-     * that store results in an output collecton and return a cursor.
+     * This is only relevant for find queries and geoNear and mapReduce
+     * commands.
      *
      * @see Query::prepareCursor()
      * @param integer $limit
@@ -774,7 +765,7 @@ class Builder
      */
     public function limit($limit)
     {
-        $this->query['limit'] = $limit;
+        $this->query['limit'] = (integer) $limit;
         return $this;
     }
 
@@ -809,8 +800,10 @@ class Builder
     /**
      * Change the query type to a mapReduce command.
      *
-     * The reduce option is not specified when calling this method; it must
+     * The "reduce" option is not specified when calling this method; it must
      * be set with the {@link Builder::reduce()} method.
+     *
+     * The "out" option defaults to inline, like {@link Builder::mapReduce()}.
      *
      * @see http://docs.mongodb.org/manual/reference/command/mapReduce/
      * @param string|\MongoCode $map
@@ -819,7 +812,12 @@ class Builder
     public function map($map)
     {
         $this->query['type'] = Query::TYPE_MAP_REDUCE;
-        $this->query['mapReduce']['map'] = $map;
+        $this->query['mapReduce'] = array(
+            'map' => $map,
+            'reduce' => null,
+            'out' => array('inline' => true),
+            'options' => array(),
+        );
         return $this;
     }
 
@@ -846,13 +844,18 @@ class Builder
     }
 
     /**
-     * Set additional options for a mapReduce query.
+     * Set additional options for a mapReduce command.
      *
      * @param array $options
      * @return self
+     * @throws BadMethodCallException if the query is not a mapReduce command
      */
     public function mapReduceOptions(array $options)
     {
+        if ($this->query['type'] !== Query::TYPE_MAP_REDUCE) {
+            throw new BadMethodCallException('This method requires a mapReduce command (call map() or mapReduce() first)');
+        }
+
         $this->query['mapReduce']['options'] = $options;
         return $this;
     }
@@ -861,9 +864,9 @@ class Builder
      * Set the "maxDistance" option for a geoNear command query or add
      * $maxDistance criteria to the query.
      *
-     * If the query type is geospatial (i.e. geoNear() was called), the
-     * "maxDistance" command option will be set; otherwise, $maxDistance will be
-     * added to the current expression.
+     * If the query is a geoNear command ({@link Expr::geoNear()} was called),
+     * the "maxDistance" command option will be set; otherwise, $maxDistance
+     * will be added to the current expression.
      *
      * If the query uses GeoJSON points, $maxDistance will be interpreted in
      * meters. If legacy point coordinates are used, $maxDistance will be
@@ -879,8 +882,8 @@ class Builder
      */
     public function maxDistance($maxDistance)
     {
-        if (Query::TYPE_GEO_NEAR === $this->query['type']) {
-            $this->query['geoNear']['maxDistance'] = $maxDistance;
+        if ($this->query['type'] === Query::TYPE_GEO_NEAR) {
+            $this->query['geoNear']['options']['maxDistance'] = $maxDistance;
         } else {
             $this->expr->maxDistance($maxDistance);
         }
@@ -902,14 +905,14 @@ class Builder
     }
 
     /**
-     * Set the multiple option for an update query.
+     * Set the "multiple" option for an update query.
      *
      * @param boolean $bool
      * @return self
      */
     public function multiple($bool = true)
     {
-        $this->query['multiple'] = $bool;
+        $this->query['multiple'] = (boolean) $bool;
         return $this;
     }
 
@@ -986,23 +989,28 @@ class Builder
      *
      * @see Expr::notIn()
      * @see http://docs.mongodb.org/manual/reference/operator/nin/
-     * @param array|mixed $values
+     * @param array $values
      * @return self
      */
-    public function notIn($values)
+    public function notIn(array $values)
     {
         $this->expr->notIn($values);
         return $this;
     }
 
     /**
-     * Set the out option for a mapReduce query.
+     * Set the "out" option for a mapReduce command.
      *
      * @param array|string $out
      * @return self
+     * @throws BadMethodCallException if the query is not a mapReduce command
      */
     public function out($out)
     {
+        if ($this->query['type'] !== Query::TYPE_MAP_REDUCE) {
+            throw new BadMethodCallException('This method requires a mapReduce command (call map() or mapReduce() first)');
+        }
+
         $this->query['mapReduce']['out'] = $out;
         return $this;
     }
@@ -1034,17 +1042,17 @@ class Builder
     }
 
     /**
-     * Remove all elements matching the given value from the current array
-     * field.
+     * Remove all elements matching the given value or expression from the
+     * current array field.
      *
      * @see Expr::pull()
      * @see http://docs.mongodb.org/manual/reference/operator/pull/
-     * @param mixed $value
+     * @param mixed|Expr $valueOrExpression
      * @return self
      */
-    public function pull($value)
+    public function pull($valueOrExpression)
     {
-        $this->expr->pull($value);
+        $this->expr->pull($valueOrExpression);
         return $this;
     }
 
@@ -1064,27 +1072,39 @@ class Builder
     }
 
     /**
-     * Append a value to the current array field.
+     * Append one or more values to the current array field.
      *
-     * If the field does not exist, it will be set to an array containing this
-     * value. If the field is not an array, the query will yield an error.
+     * If the field does not exist, it will be set to an array containing the
+     * value(s) in the argument. If the field is not an array, the query
+     * will yield an error.
+     *
+     * Multiple values may be specified by providing an Expr object and using
+     * {@link Expr::each()}. {@link Expr::slice()} and {@link Expr::sort()} may
+     * also be used to limit and order array elements, respectively.
      *
      * @see Expr::push()
      * @see http://docs.mongodb.org/manual/reference/operator/push/
-     * @param mixed $value
+     * @see http://docs.mongodb.org/manual/reference/operator/each/
+     * @see http://docs.mongodb.org/manual/reference/operator/slice/
+     * @see http://docs.mongodb.org/manual/reference/operator/sort/
+     * @param mixed|Expr $valueOrExpression
      * @return self
      */
-    public function push($value)
+    public function push($valueOrExpression)
     {
-        $this->expr->push($value);
+        $this->expr->push($valueOrExpression);
         return $this;
     }
 
     /**
      * Append multiple values to the current array field.
      *
-     * If the field does not exist, it will be set to an array containing these
-     * values. If the field is not an array, the query will yield an error.
+     * If the field does not exist, it will be set to an array containing the
+     * values in the argument. If the field is not an array, the query will
+     * yield an error.
+     *
+     * This operator is deprecated in MongoDB 2.4. {@link Builder::push()} and
+     * {@link Expr::each()} should be used in its place.
      *
      * @see Expr::pushAll()
      * @see http://docs.mongodb.org/manual/reference/operator/pushAll/
@@ -1115,11 +1135,11 @@ class Builder
     }
 
     /**
-     * Set the reduce option for a mapReduce or group query.
+     * Set the "reduce" option for a mapReduce or group command.
      *
      * @param string|\MongoCode $reduce
      * @return self
-     * @throws \BadMethodCallException if the query type is unsupported
+     * @throws BadMethodCallException if the query is not a mapReduce or group command
      */
     public function reduce($reduce)
     {
@@ -1133,7 +1153,7 @@ class Builder
                 break;
 
             default:
-                throw new \BadMethodCallException('mapReduce(), map() or group() must be called before reduce()');
+                throw new BadMethodCallException('mapReduce(), map() or group() must be called before reduce()');
         }
 
         return $this;
@@ -1151,14 +1171,14 @@ class Builder
     }
 
     /**
-     * Set the new option for a findAndUpdate query.
+     * Set the "new" option for a findAndUpdate command.
      *
      * @param boolean $bool
      * @return self
      */
     public function returnNew($bool = true)
     {
-        $this->query['new'] = $bool;
+        $this->query['new'] = (boolean) $bool;
         return $this;
     }
 
@@ -1170,6 +1190,10 @@ class Builder
      */
     public function select($fieldName = null)
     {
+        if ( ! isset($this->query['select'])) {
+            $this->query['select'] = array();
+        }
+
         $fieldNames = is_array($fieldName) ? $fieldName : func_get_args();
 
         foreach ($fieldNames as $fieldName) {
@@ -1190,6 +1214,10 @@ class Builder
      */
     public function selectElemMatch($fieldName, $expression)
     {
+        if ( ! isset($this->query['select'])) {
+            $this->query['select'] = array();
+        }
+
         if ($expression instanceof Expr) {
             $expression = $expression->getQuery();
         }
@@ -1212,6 +1240,10 @@ class Builder
      */
     public function selectSlice($fieldName, $countOrSkip, $limit = null)
     {
+        if ( ! isset($this->query['select'])) {
+            $this->query['select'] = array();
+        }
+
         $slice = $countOrSkip;
         if ($limit !== null) {
             $slice = array($slice, $limit);
@@ -1235,10 +1267,7 @@ class Builder
      */
     public function set($value, $atomic = true)
     {
-        if ($this->query['type'] == Query::TYPE_INSERT) {
-            $atomic = false;
-        }
-        $this->expr->set($value, $atomic);
+        $this->expr->set($value, $atomic && $this->query['type'] !== Query::TYPE_INSERT);
         return $this;
     }
 
@@ -1252,7 +1281,7 @@ class Builder
      */
     public function size($size)
     {
-        $this->expr->size($size);
+        $this->expr->size((integer) $size);
         return $this;
     }
 
@@ -1268,7 +1297,7 @@ class Builder
      */
     public function skip($skip)
     {
-        $this->query['skip'] = $skip;
+        $this->query['skip'] = (integer) $skip;
         return $this;
     }
 
@@ -1285,7 +1314,7 @@ class Builder
      */
     public function slaveOkay($bool = true)
     {
-        $this->query['slaveOkay'] = $bool;
+        $this->query['slaveOkay'] = (boolean) $bool;
         return $this;
     }
 
@@ -1297,7 +1326,7 @@ class Builder
      */
     public function snapshot($bool = true)
     {
-        $this->query['snapshot'] = $bool;
+        $this->query['snapshot'] = (boolean) $bool;
         return $this;
     }
 
@@ -1308,22 +1337,24 @@ class Builder
      * field name (key) and order (value) pairs.
      *
      * @param array|string $fieldName Field name or array of field/order pairs
-     * @param string $order           Field order (if one field is specified)
+     * @param int|string $order       Field order (if one field is specified)
      * @return self
      */
     public function sort($fieldName, $order = null)
     {
-        if (is_array($fieldName)) {
-            foreach ($fieldName as $fieldName => $order) {
-                $this->sort($fieldName, $order);
-            }
-        } else {
+        if ( ! isset($this->query['sort'])) {
+            $this->query['sort'] = array();
+        }
+
+        $fields = is_array($fieldName) ? $fieldName : array($fieldName => $order);
+
+        foreach ($fields as $fieldName => $order) {
             if (is_string($order)) {
                 $order = strtolower($order) === 'asc' ? 1 : -1;
             }
-            $order = (int) $order;
-            $this->query['sort'][$fieldName] = $order;
+            $this->query['sort'][$fieldName] = (integer) $order;
         }
+
         return $this;
     }
 
@@ -1332,15 +1363,15 @@ class Builder
      *
      * @param bool $spherical
      * @return self
-     * @throws BadMethodCallException if the query is not a $geoNear command
+     * @throws BadMethodCallException if the query is not a geoNear command
      */
     public function spherical($spherical = true)
     {
         if ($this->query['type'] !== Query::TYPE_GEO_NEAR) {
-            throw new BadMethodCallException('This method requires a $geoNear command (call geoNear() first)');
+            throw new BadMethodCallException('This method requires a geoNear command (call geoNear() first)');
         }
 
-        $this->query['geoNear']['spherical'] = $spherical;
+        $this->query['geoNear']['options']['spherical'] = $spherical;
         return $this;
     }
 
@@ -1385,14 +1416,14 @@ class Builder
     }
 
     /**
-     * Set the upsert option for an update or findAndUpdate query.
+     * Set the "upsert" option for an update or findAndUpdate query.
      *
      * @param boolean $bool
      * @return self
      */
     public function upsert($bool = true)
     {
-        $this->query['upsert'] = $bool;
+        $this->query['upsert'] = (boolean) $bool;
         return $this;
     }
 
@@ -1401,7 +1432,7 @@ class Builder
      *
      * @see Expr::where()
      * @see http://docs.mongodb.org/manual/reference/operator/where/
-     * @param string $javascript
+     * @param string|\MongoCode $javascript
      * @return self
      */
     public function where($javascript)

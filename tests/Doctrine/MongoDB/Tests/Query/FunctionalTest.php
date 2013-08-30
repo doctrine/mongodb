@@ -10,7 +10,7 @@ use Doctrine\MongoDB\Tests\BaseTest;
  */
 class FunctionalTest extends BaseTest
 {
-    public function testDistinctFieldQuery()
+    public function testDistinctQuery()
     {
         $qb = $this->getTestQueryBuilder()
             ->distinct('count')
@@ -21,7 +21,7 @@ class FunctionalTest extends BaseTest
         );
         $query = $qb->getQuery();
         $this->assertInstanceOf('Doctrine\MongoDB\Query\Query', $query);
-        $this->assertEquals(Query::TYPE_DISTINCT_FIELD, $query->getType());
+        $this->assertEquals(Query::TYPE_DISTINCT, $query->getType());
         $this->assertEquals($expected, $qb->getQueryArray());
         $this->assertInstanceof('Doctrine\MongoDB\ArrayIterator', $query->execute());
     }
