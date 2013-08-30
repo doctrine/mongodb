@@ -328,6 +328,7 @@ class Query implements IteratorAggregate
     /**
      * Alias of {@link Query::getIterator()}.
      *
+     * @deprecated 1.1 Use {@link Query::getIterator()}; will be removed for 2.0
      * @return Iterator
      */
     public function iterate()
