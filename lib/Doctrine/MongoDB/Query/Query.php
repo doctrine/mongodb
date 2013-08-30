@@ -27,6 +27,7 @@ use Doctrine\MongoDB\Iterator;
 use Doctrine\MongoDB\IteratorAggregate;
 use BadMethodCallException;
 use InvalidArgumentException;
+use UnexpectedValueException;
 
 /**
  * Query class used in conjunction with the Builder class for executing queries
@@ -256,19 +257,40 @@ class Query implements IteratorAggregate
     /**
      * Execute the query and return its result, which must be an Iterator.
      *
+     * If the query type is not expected to return an Iterator,
+     * BadMethodCallException will be thrown before executing the query.
+     * Otherwise, the query will be executed and UnexpectedValueException will
+     * be thrown if {@link Query::execute()} does not return an Iterator.
+     *
      * @see http://php.net/manual/en/iteratoraggregate.getiterator.php
      * @return Iterator
-     * @throws BadMethodCallException if the query did not return an Iterator
+     * @throws BadMethodCallException if the query type would not return an Iterator
+     * @throws UnexpectedValueException if the query did not return an Iterator
      */
     public function getIterator()
     {
+        switch ($this->query['type']) {
+            case self::TYPE_FIND:
+            case self::TYPE_GROUP:
+            case self::TYPE_MAP_REDUCE:
+            case self::TYPE_DISTINCT:
+            case self::TYPE_GEO_NEAR:
+                break;
+
+            default:
+                throw new BadMethodCallException('Iterator would not be returned for query type: ' . $this->query['type']);
+        }
+
         if ($this->iterator === null) {
             $iterator = $this->execute();
-            if ($iterator !== null && !$iterator instanceof Iterator) {
-                throw new BadMethodCallException('Query execution did not return an iterator. This query may not support returning iterators.');
+
+            if ( ! $iterator instanceof Iterator) {
+                throw new UnexpectedValueException('Iterator was not returned from executed query');
             }
+
             $this->iterator = $iterator;
         }
+
         return $this->iterator;
     }
 
