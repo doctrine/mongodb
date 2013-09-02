@@ -25,6 +25,9 @@ use Doctrine\MongoDB\Database;
 use Doctrine\MongoDB\EagerCursor;
 use Doctrine\MongoDB\Iterator;
 use Doctrine\MongoDB\IteratorAggregate;
+use BadMethodCallException;
+use InvalidArgumentException;
+use UnexpectedValueException;
 
 /**
  * Query class used in conjunction with the Builder class for executing queries
@@ -44,7 +47,7 @@ class Query implements IteratorAggregate
     const TYPE_REMOVE          = 6;
     const TYPE_GROUP           = 7;
     const TYPE_MAP_REDUCE      = 8;
-    const TYPE_DISTINCT_FIELD  = 9;
+    const TYPE_DISTINCT        = 9;
     const TYPE_GEO_NEAR        = 10;
     const TYPE_COUNT           = 11;
 
@@ -88,8 +91,36 @@ class Query implements IteratorAggregate
      */
     protected $options;
 
+    /**
+     * Constructor.
+     *
+     * @param Database $database
+     * @param Collection $collection
+     * @param array $query
+     * @param array $options
+     * @param string $cmd
+     * @throws InvalidArgumentException if query type is invalid
+     */
     public function __construct(Database $database, Collection $collection, array $query, array $options, $cmd)
     {
+        switch ($query['type']) {
+            case self::TYPE_FIND:
+            case self::TYPE_FIND_AND_UPDATE:
+            case self::TYPE_FIND_AND_REMOVE:
+            case self::TYPE_INSERT:
+            case self::TYPE_UPDATE:
+            case self::TYPE_REMOVE:
+            case self::TYPE_GROUP:
+            case self::TYPE_MAP_REDUCE:
+            case self::TYPE_DISTINCT:
+            case self::TYPE_GEO_NEAR:
+            case self::TYPE_COUNT:
+                break;
+
+            default:
+                throw new InvalidArgumentException('Invalid query type: ' . $query['type']);
+        }
+
         $this->database   = $database;
         $this->collection = $collection;
         $this->query      = $query;
@@ -124,16 +155,7 @@ class Query implements IteratorAggregate
      */
     public function debug($name = null)
     {
-        $debug = $this->query['query'];
-        if ($name !== null) {
-            return $debug[$name];
-        }
-        foreach ($debug as $key => $value) {
-            if ( ! $value) {
-                unset($debug[$key]);
-            }
-        }
-        return $debug;
+        return $name !== null ? $this->query[$name] : $this->query;
     }
 
     /**
@@ -149,88 +171,83 @@ class Query implements IteratorAggregate
      */
     public function execute()
     {
+        $options = $this->options;
+
         switch ($this->query['type']) {
             case self::TYPE_FIND:
-                $cursor = $this->collection->find($this->query['query'], $this->query['select']);
+                $cursor = $this->collection->find(
+                    $this->query['query'],
+                    isset($this->query['select']) ? $this->query['select'] : array()
+                );
+
                 return $this->prepareCursor($cursor);
 
             case self::TYPE_FIND_AND_UPDATE:
-                if ($this->query['sort']) {
-                    $this->options['sort'] = $this->query['sort'];
-                }
-                if ($this->query['select']) {
-                    $this->options['fields'] = $this->query['select'];
-                }
-                if ($this->query['upsert']) {
-                    $this->options['upsert'] = true;
-                }
-                if ($this->query['new']) {
-                    $this->options['new'] = true;
-                }
-                return $this->collection->findAndUpdate($this->query['query'], $this->query['newObj'], $this->options);
+                return $this->collection->findAndUpdate(
+                    $this->query['query'],
+                    $this->query['newObj'],
+                    array_merge($options, $this->getQueryOptions('new', 'select', 'sort', 'upsert'))
+                );
 
             case self::TYPE_FIND_AND_REMOVE:
-                if ($this->query['sort']) {
-                    $this->options['sort'] = $this->query['sort'];
-                }
-                if ($this->query['select']) {
-                    $this->options['fields'] = $this->query['select'];
-                }
-                return $this->collection->findAndRemove($this->query['query'], $this->options);
+                return $this->collection->findAndRemove(
+                    $this->query['query'],
+                    array_merge($options, $this->getQueryOptions('select', 'sort'))
+                );
 
             case self::TYPE_INSERT:
-                return $this->collection->insert($this->query['newObj']);
+                return $this->collection->insert($this->query['newObj'], $options);
 
             case self::TYPE_UPDATE:
-                if ($this->query['upsert']) {
-                    $this->options['upsert'] = $this->query['upsert'];
-                }
-                if ($this->query['multiple']) {
-                    $this->options['multiple'] = $this->query['multiple'];
-                }
-                return $this->collection->update($this->query['query'], $this->query['newObj'], $this->options);
+                return $this->collection->update(
+                    $this->query['query'],
+                    $this->query['newObj'],
+                    array_merge($options, $this->getQueryOptions('multiple', 'upsert'))
+                );
 
             case self::TYPE_REMOVE:
-                return $this->collection->remove($this->query['query'], $this->options);
+                return $this->collection->remove($this->query['query'], $options);
 
             case self::TYPE_GROUP:
-                if (!empty($this->query['query'])) {
-                    $this->query['group']['options']['condition'] = $this->query['query'];
+                if ( ! empty($this->query['query'])) {
+                    $options['cond'] = $this->query['query'];
                 }
 
-                $options = array_merge($this->options, $this->query['group']['options']);
-
-                return $this->collection->group($this->query['group']['keys'], $this->query['group']['initial'], $this->query['group']['reduce'], $options);
+                return $this->collection->group(
+                    $this->query['group']['keys'],
+                    $this->query['group']['initial'],
+                    $this->query['group']['reduce'],
+                    array_merge($options, $this->query['group']['options'])
+                );
 
             case self::TYPE_MAP_REDUCE:
-                if (!isset($this->query['mapReduce']['out'])) {
-                    $this->query['mapReduce']['out'] = array('inline' => true);
+                if (isset($this->query['limit'])) {
+                    $options['limit'] = $this->query['limit'];
                 }
 
-                $options = array_merge($this->options, $this->query['mapReduce']['options']);
-                $cursor = $this->collection->mapReduce($this->query['mapReduce']['map'], $this->query['mapReduce']['reduce'], $this->query['mapReduce']['out'], $this->query['query'], $options);
+                $results = $this->collection->mapReduce(
+                    $this->query['mapReduce']['map'],
+                    $this->query['mapReduce']['reduce'],
+                    $this->query['mapReduce']['out'],
+                    $this->query['query'],
+                    array_merge($options, $this->query['mapReduce']['options'])
+                );
 
-                if ($cursor instanceof Cursor) {
-                    $cursor = $this->prepareCursor($cursor);
-                }
+                return ($results instanceof Cursor) ? $this->prepareCursor($results) : $results;
 
-                return $cursor;
-
-            case self::TYPE_DISTINCT_FIELD:
-                return $this->collection->distinct($this->query['distinctField'], $this->query['query'], $this->options);
+            case self::TYPE_DISTINCT:
+                return $this->collection->distinct($this->query['distinct'], $this->query['query'], $options);
 
             case self::TYPE_GEO_NEAR:
-                if (isset($this->query['limit']) && $this->query['limit']) {
-                    $this->options['num'] = $this->query['limit'];
+                if (isset($this->query['limit'])) {
+                    $options['num'] = $this->query['limit'];
                 }
 
-                foreach (array('distanceMultiplier', 'maxDistance', 'spherical') as $key) {
-                    if (isset($this->query['geoNear'][$key]) && $this->query['geoNear'][$key]) {
-                        $this->options[$key] = $this->query['geoNear'][$key];
-                    }
-                }
-
-                return $this->collection->near($this->query['geoNear']['near'], $this->query['query'], $this->options);
+                return $this->collection->near(
+                    $this->query['geoNear']['near'],
+                    $this->query['query'],
+                    array_merge($options, $this->query['geoNear']['options'])
+                );
 
             case self::TYPE_COUNT:
                 return $this->collection->count($this->query['query']);
@@ -240,19 +257,40 @@ class Query implements IteratorAggregate
     /**
      * Execute the query and return its result, which must be an Iterator.
      *
+     * If the query type is not expected to return an Iterator,
+     * BadMethodCallException will be thrown before executing the query.
+     * Otherwise, the query will be executed and UnexpectedValueException will
+     * be thrown if {@link Query::execute()} does not return an Iterator.
+     *
      * @see http://php.net/manual/en/iteratoraggregate.getiterator.php
      * @return Iterator
-     * @throws \BadMethodCallException if the query did not return an Iterator
+     * @throws BadMethodCallException if the query type would not return an Iterator
+     * @throws UnexpectedValueException if the query did not return an Iterator
      */
     public function getIterator()
     {
+        switch ($this->query['type']) {
+            case self::TYPE_FIND:
+            case self::TYPE_GROUP:
+            case self::TYPE_MAP_REDUCE:
+            case self::TYPE_DISTINCT:
+            case self::TYPE_GEO_NEAR:
+                break;
+
+            default:
+                throw new BadMethodCallException('Iterator would not be returned for query type: ' . $this->query['type']);
+        }
+
         if ($this->iterator === null) {
             $iterator = $this->execute();
-            if ($iterator !== null && !$iterator instanceof Iterator) {
-                throw new \BadMethodCallException('Query execution did not return an iterator. This query may not support returning iterators.');
+
+            if ( ! $iterator instanceof Iterator) {
+                throw new UnexpectedValueException('Iterator was not returned from executed query');
             }
+
             $this->iterator = $iterator;
         }
+
         return $this->iterator;
     }
 
@@ -269,7 +307,7 @@ class Query implements IteratorAggregate
     /**
      * Execute the query and return the first result.
      *
-     * @see Iterator::getSingleResult()
+     * @see IteratorAggregate::getSingleResult()
      * @return array|object|null
      */
     public function getSingleResult()
@@ -290,6 +328,7 @@ class Query implements IteratorAggregate
     /**
      * Alias of {@link Query::getIterator()}.
      *
+     * @deprecated 1.1 Use {@link Query::getIterator()}; will be removed for 2.0
      * @return Iterator
      */
     public function iterate()
@@ -300,7 +339,7 @@ class Query implements IteratorAggregate
     /**
      * Execute the query and return its results as an array.
      *
-     * @see Iterator::toArray()
+     * @see IteratorAggregate::toArray()
      * @return array
      */
     public function toArray()
@@ -319,27 +358,33 @@ class Query implements IteratorAggregate
      */
     protected function prepareCursor(Cursor $cursor)
     {
-        $cursor->limit($this->query['limit']);
-        $cursor->skip($this->query['skip']);
-        $cursor->sort($this->query['sort']);
-        $cursor->immortal($this->query['immortal']);
-
-        if (null !== $this->query['slaveOkay']) {
-            $cursor->slaveOkay($this->query['slaveOkay']);
+        foreach ($this->getQueryOptions('hint', 'immortal', 'limit', 'skip', 'slaveOkay', 'sort') as $key => $value) {
+            $cursor->$key($value);
         }
 
-        if ($this->query['snapshot']) {
+        if ( ! empty($this->query['snapshot'])) {
             $cursor->snapshot();
         }
 
-        foreach ($this->query['hints'] as $keyPattern) {
-            $cursor->hint($keyPattern);
-        }
-
-        if ($this->query['eagerCursor'] === true) {
+        if ( ! empty($this->query['eagerCursor'])) {
             $cursor = new EagerCursor($cursor);
         }
 
         return $cursor;
+    }
+
+    /**
+     * Returns an array containing the specified keys and their values from the
+     * query array, provided they exist and are not null.
+     *
+     * @param string $key,... One or more option keys to be read
+     * @return array
+     */
+    private function getQueryOptions(/* $key, ... */)
+    {
+        return array_filter(
+            array_intersect_key($this->query, array_flip(func_get_args())),
+            function($value) { return $value !== null; }
+        );
     }
 }

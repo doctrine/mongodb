@@ -23,6 +23,7 @@ use GeoJson\Geometry\Geometry;
 use GeoJson\Geometry\Point;
 use BadMethodCallException;
 use InvalidArgumentException;
+use LogicException;
 
 /**
  * Fluent interface for building query and update expressions.
@@ -62,70 +63,154 @@ class Expr
      */
     protected $currentField;
 
+    /**
+     * Constructor.
+     *
+     * @param string $cmd
+     */
     public function __construct($cmd)
     {
         $this->cmd = $cmd;
     }
 
+    /**
+     * Add an $and clause to the current query.
+     *
+     * @see Builder::addAnd()
+     * @see http://docs.mongodb.org/manual/reference/operator/and/
+     * @param array|Expr $expression
+     * @return self
+     */
     public function addAnd($expression)
     {
-        if ($expression instanceof Expr) {
-            $expression = $expression->getQuery();
-        }
-        $this->query[$this->cmd . 'and'][] = $expression;
+        $this->query[$this->cmd . 'and'][] = $expression instanceof Expr ? $expression->getQuery() : $expression;
         return $this;
     }
 
+    /**
+     * Append multiple values to the current array field only if they do not
+     * already exist in the array.
+     *
+     * If the field does not exist, it will be set to an array containing the
+     * unique values in the argument. If the field is not an array, the query
+     * will yield an error.
+     *
+     * @deprecated 1.1 Use {@link Expr::addToSet()} with {@link Expr::each()}; Will be removed in 2.0
+     * @see Builder::addManyToSet()
+     * @see http://docs.mongodb.org/manual/reference/operator/addToSet/
+     * @see http://docs.mongodb.org/manual/reference/operator/each/
+     * @param array $values
+     * @return self
+     */
     public function addManyToSet(array $values)
     {
         $this->requiresCurrentField();
-        if ( ! isset($this->newObj[$this->cmd . 'addToSet'][$this->currentField])) {
-            $this->newObj[$this->cmd . 'addToSet'][$this->currentField][$this->cmd . 'each'] = array();
-        }
-        if ( ! is_array($this->newObj[$this->cmd . 'addToSet'][$this->currentField])) {
-            $this->newObj[$this->cmd . 'addToSet'][$this->currentField] = array($this->cmd . 'each' => array($this->newObj[$this->cmd . 'addToSet'][$this->currentField]));
-        }
-        $this->newObj[$this->cmd . 'addToSet'][$this->currentField][$this->cmd . 'each'] = array_merge_recursive($this->newObj[$this->cmd . 'addToSet'][$this->currentField][$this->cmd . 'each'], $values);
+        $this->newObj[$this->cmd . 'addToSet'][$this->currentField] = array($this->cmd . 'each' => $values);
+        return $this;
     }
 
+    /**
+     * Add a $nor clause to the current query.
+     *
+     * @see Builder::addNor()
+     * @see http://docs.mongodb.org/manual/reference/operator/nor/
+     * @param array|Expr $expression
+     * @return self
+     */
     public function addNor($expression)
     {
-        if ($expression instanceof Expr) {
-            $expression = $expression->getQuery();
-        }
-        $this->query[$this->cmd . 'nor'][] = $expression;
+        $this->query[$this->cmd . 'nor'][] = $expression instanceof Expr ? $expression->getQuery() : $expression;
         return $this;
     }
 
+    /**
+     * Add an $or clause to the current query.
+     *
+     * @see Builder::addOr()
+     * @see http://docs.mongodb.org/manual/reference/operator/or/
+     * @param array|Expr $expression
+     * @return self
+     */
     public function addOr($expression)
     {
-        if ($expression instanceof Expr) {
-            $expression = $expression->getQuery();
-        }
-        $this->query[$this->cmd . 'or'][] = $expression;
+        $this->query[$this->cmd . 'or'][] = $expression instanceof Expr ? $expression->getQuery() : $expression;
         return $this;
     }
 
-    public function addToSet($value)
+    /**
+     * Append one or more values to the current array field only if they do not
+     * already exist in the array.
+     *
+     * If the field does not exist, it will be set to an array containing the
+     * unique value(s) in the argument. If the field is not an array, the query
+     * will yield an error.
+     *
+     * Multiple values may be specified by provided an Expr object and using
+     * {@link Expr::each()}.
+     *
+     * @see Builder::addToSet()
+     * @see http://docs.mongodb.org/manual/reference/operator/addToSet/
+     * @see http://docs.mongodb.org/manual/reference/operator/each/
+     * @param mixed|Expr $valueOrExpression
+     * @return self
+     */
+    public function addToSet($valueOrExpression)
     {
+        if ($valueOrExpression instanceof Expr) {
+            $valueOrExpression = $valueOrExpression->getQuery();
+        }
+
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'addToSet'][$this->currentField] = $value;
+        $this->newObj[$this->cmd . 'addToSet'][$this->currentField] = $valueOrExpression;
         return $this;
     }
 
-    public function all($values)
+    /**
+     * Specify $all criteria for the current field.
+     *
+     * @see Builder::all()
+     * @see http://docs.mongodb.org/manual/reference/operator/all/
+     * @param array $values
+     * @return self
+     */
+    public function all(array $values)
     {
         return $this->operator($this->cmd . 'all', (array) $values);
     }
 
-    public function elemMatch($expression)
+    /**
+     * Add $each criteria to the expression for a $push operation.
+     *
+     * @see Expr::push()
+     * @see http://docs.mongodb.org/manual/reference/operator/each/
+     * @param array $values
+     * @return self
+     */
+    public function each(array $values)
     {
-        if ($expression instanceof Expr) {
-            $expression = $expression->getQuery();
-        }
-        return $this->operator($this->cmd . 'elemMatch', $expression);
+        return $this->operator($this->cmd . 'each', $values);
     }
 
+    /**
+     * Specify $elemMatch criteria for the current field.
+     *
+     * @see Builder::elemMatch()
+     * @see http://docs.mongodb.org/manual/reference/operator/elemMatch/
+     * @param array|Expr $expression
+     * @return self
+     */
+    public function elemMatch($expression)
+    {
+        return $this->operator($this->cmd . 'elemMatch', $expression instanceof Expr ? $expression->getQuery() : $expression);
+    }
+
+    /**
+     * Specify an equality match for the current field.
+     *
+     * @see Builder::equals()
+     * @param mixed $value
+     * @return self
+     */
     public function equals($value)
     {
         if ($this->currentField) {
@@ -136,14 +221,29 @@ class Expr
         return $this;
     }
 
+    /**
+     * Specify $exists criteria for the current field.
+     *
+     * @see Builder::exists()
+     * @see http://docs.mongodb.org/manual/reference/operator/exists/
+     * @param boolean $bool
+     * @return self
+     */
     public function exists($bool)
     {
-        return $this->operator($this->cmd . 'exists', $bool);
+        return $this->operator($this->cmd . 'exists', (boolean) $bool);
     }
 
+    /**
+     * Set the current field for building the expression.
+     *
+     * @see Builder::field()
+     * @param string $field
+     * @return self
+     */
     public function field($field)
     {
-        $this->currentField = $field;
+        $this->currentField = (string) $field;
         return $this;
     }
 
@@ -153,6 +253,7 @@ class Expr
      * The geometry parameter GeoJSON object or an array corresponding to the
      * geometry's JSON representation.
      *
+     * @see Builder::geoIntersects()
      * @see http://docs.mongodb.org/manual/reference/operator/geoIntersects/
      * @param array|Geometry $geometry
      * @return self
@@ -172,6 +273,7 @@ class Expr
      * The geometry parameter GeoJSON object or an array corresponding to the
      * geometry's JSON representation.
      *
+     * @see Builder::geoWithin()
      * @see http://docs.mongodb.org/manual/reference/operator/geoIntersects/
      * @param array|Geometry $geometry
      * @return self
@@ -194,6 +296,7 @@ class Expr
      * Note: the $box operator only supports legacy coordinate pairs and 2d
      * indexes. This cannot be used with 2dsphere indexes and GeoJSON shapes.
      *
+     * @see Builder::geoWithinBox()
      * @see http://docs.mongodb.org/manual/reference/operator/box/
      * @param float $x1
      * @param float $y1
@@ -214,7 +317,7 @@ class Expr
      * Note: the $center operator only supports legacy coordinate pairs and 2d
      * indexes. This cannot be used with 2dsphere indexes and GeoJSON shapes.
      *
-     * @see Expr::geoWithinCenter()
+     * @see Builider::geoWithinCenter()
      * @see http://docs.mongodb.org/manual/reference/operator/center/
      * @param float $x
      * @param float $y
@@ -233,6 +336,7 @@ class Expr
      *
      * Note: the $centerSphere operator supports both 2d and 2dsphere indexes.
      *
+     * @see Builder::geoWithinCenterSphere()
      * @see http://docs.mongodb.org/manual/reference/operator/centerSphere/
      * @param float $x
      * @param float $y
@@ -257,6 +361,7 @@ class Expr
      * Note: the $polygon operator only supports legacy coordinate pairs and 2d
      * indexes. This cannot be used with 2dsphere indexes and GeoJSON shapes.
      *
+     * @see Builder::geoWithinPolygon()
      * @see http://docs.mongodb.org/manual/reference/operator/polygon/
      * @param array $point,... Three or more point coordinate tuples
      * @return self
@@ -273,46 +378,111 @@ class Expr
         return $this->operator($this->cmd . 'geoWithin', $shape);
     }
 
+    /**
+     * Return the current field.
+     *
+     * @return string
+     */
     public function getCurrentField()
     {
         return $this->currentField;
     }
 
+    /**
+     * Return the "new object".
+     *
+     * @see Builder::getNewObj()
+     * @return array
+     */
     public function getNewObj()
     {
         return $this->newObj;
     }
 
+    /**
+     * Set the "new object".
+     *
+     * @see Builder::setNewObj()
+     * @param array $newObj
+     * @return self
+     */
     public function setNewObj(array $newObj)
     {
         $this->newObj = $newObj;
     }
 
+    /**
+     * Return the query criteria.
+     *
+     * @see Builder::getQueryArray()
+     * @return array
+     */
     public function getQuery()
     {
         return $this->query;
     }
 
+    /**
+     * Set the query criteria.
+     *
+     * @see Builder::setQueryArray()
+     * @param array $query
+     * @return self
+     */
     public function setQuery(array $query)
     {
         $this->query = $query;
     }
 
+    /**
+     * Specify $gt criteria for the current field.
+     *
+     * @see Builder::gt()
+     * @see http://docs.mongodb.org/manual/reference/operator/gt/
+     * @param mixed $value
+     * @return self
+     */
     public function gt($value)
     {
         return $this->operator($this->cmd . 'gt', $value);
     }
 
+    /**
+     * Specify $gte criteria for the current field.
+     *
+     * @see Builder::gte()
+     * @see http://docs.mongodb.org/manual/reference/operator/gte/
+     * @param mixed $value
+     * @return self
+     */
     public function gte($value)
     {
         return $this->operator($this->cmd . 'gte', $value);
     }
 
-    public function in($values)
+    /**
+     * Specify $in criteria for the current field.
+     *
+     * @see Builder::in()
+     * @see http://docs.mongodb.org/manual/reference/operator/in/
+     * @param array $values
+     * @return self
+     */
+    public function in(array $values)
     {
         return $this->operator($this->cmd . 'in', $values);
     }
 
+    /**
+     * Increment the current field.
+     *
+     * If the field does not exist, it will be set to this value.
+     *
+     * @see Builder::inc()
+     * @see http://docs.mongodb.org/manual/reference/operator/inc/
+     * @param float|integer $value
+     * @return self
+     */
     public function inc($value)
     {
         $this->requiresCurrentField();
@@ -320,11 +490,27 @@ class Expr
         return $this;
     }
 
+    /**
+     * Specify $lt criteria for the current field.
+     *
+     * @see Builder::lte()
+     * @see http://docs.mongodb.org/manual/reference/operator/lte/
+     * @param mixed $value
+     * @return self
+     */
     public function lt($value)
     {
         return $this->operator($this->cmd . 'lt', $value);
     }
 
+    /**
+     * Specify $lte criteria for the current field.
+     *
+     * @see Builder::lte()
+     * @see http://docs.mongodb.org/manual/reference/operator/lte/
+     * @param mixed $value
+     * @return self
+     */
     public function lte($value)
     {
         return $this->operator($this->cmd . 'lte', $value);
@@ -367,6 +553,14 @@ class Expr
         return $this;
     }
 
+    /**
+     * Specify $mod criteria for the current field.
+     *
+     * @see Builder::mod()
+     * @see http://docs.mongodb.org/manual/reference/operator/mod/
+     * @param float|integer $mod
+     * @return self
+     */
     public function mod($mod)
     {
         return $this->operator($this->cmd . 'mod', $mod);
@@ -379,7 +573,7 @@ class Expr
      * 2dsphere queries. This single parameter may be a GeoJSON point object or
      * an array corresponding to the point's JSON representation.
      *
-     * @see Expr::near()
+     * @see Builder::near()
      * @see http://docs.mongodb.org/manual/reference/operator/near/
      * @param float|array|Point $x
      * @param float $y
@@ -405,7 +599,7 @@ class Expr
      * 2dsphere queries. This single parameter may be a GeoJSON point object or
      * an array corresponding to the point's JSON representation.
      *
-     * @see Expr::nearSphere()
+     * @see Builder::nearSphere()
      * @see http://docs.mongodb.org/manual/reference/operator/nearSphere/
      * @param float|array|Point $x
      * @param float $y
@@ -424,24 +618,55 @@ class Expr
         return $this->operator($this->cmd . 'nearSphere', array($x, $y));
     }
 
+    /**
+     * Negates an expression for the current field.
+     *
+     * @see Builder::not()
+     * @see http://docs.mongodb.org/manual/reference/operator/not/
+     * @param array|Expr $expression
+     * @return self
+     */
     public function not($expression)
     {
-        if ($expression instanceof Expr) {
-            $expression = $expression->getQuery();
-        }
-        return $this->operator($this->cmd . 'not', $expression);
+        return $this->operator($this->cmd . 'not', $expression instanceof Expr ? $expression->getQuery() : $expression);
     }
 
+    /**
+     * Specify $ne criteria for the current field.
+     *
+     * @see Builder::notEqual()
+     * @see http://docs.mongodb.org/manual/reference/operator/ne/
+     * @param mixed $value
+     * @return self
+     */
     public function notEqual($value)
     {
         return $this->operator($this->cmd . 'ne', $value);
     }
 
-    public function notIn($values)
+    /**
+     * Specify $nin criteria for the current field.
+     *
+     * @see Builder::notIn()
+     * @see http://docs.mongodb.org/manual/reference/operator/nin/
+     * @param array $values
+     * @return self
+     */
+    public function notIn(array $values)
     {
-        return $this->operator($this->cmd . 'nin', (array) $values);
+        return $this->operator($this->cmd . 'nin', $values);
     }
 
+    /**
+     * Defines an operator and value on the expression.
+     *
+     * If there is a current field, the operator will be set on it; otherwise,
+     * the operator is set at the top level of the query.
+     *
+     * @param string $operator
+     * @param mixed $value
+     * @return self
+     */
     public function operator($operator, $value)
     {
         if ($this->currentField) {
@@ -452,6 +677,13 @@ class Expr
         return $this;
     }
 
+    /**
+     * Remove the first element from the current array field.
+     *
+     * @see Builder::popFirst()
+     * @see http://docs.mongodb.org/manual/reference/operator/pop/
+     * @return self
+     */
     public function popFirst()
     {
         $this->requiresCurrentField();
@@ -459,6 +691,13 @@ class Expr
         return $this;
     }
 
+    /**
+     * Remove the last element from the current array field.
+     *
+     * @see Builder::popLast()
+     * @see http://docs.mongodb.org/manual/reference/operator/pop/
+     * @return self
+     */
     public function popLast()
     {
         $this->requiresCurrentField();
@@ -466,93 +705,257 @@ class Expr
         return $this;
     }
 
-    public function pull($value)
+    /**
+     * Remove all elements matching the given value or expression from the
+     * current array field.
+     *
+     * @see Builder::pull()
+     * @see http://docs.mongodb.org/manual/reference/operator/pull/
+     * @param mixed|Expr $valueOrExpression
+     * @return self
+     */
+    public function pull($valueOrExpression)
     {
+        if ($valueOrExpression instanceof Expr) {
+            $valueOrExpression = $valueOrExpression->getQuery();
+        }
+
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'pull'][$this->currentField] = $value;
+        $this->newObj[$this->cmd . 'pull'][$this->currentField] = $valueOrExpression;
         return $this;
     }
 
-    public function pullAll(array $valueArray)
+    /**
+     * Remove all elements matching any of the given values from the current
+     * array field.
+     *
+     * @see Builder::pullAll()
+     * @see http://docs.mongodb.org/manual/reference/operator/pullAll/
+     * @param array $values
+     * @return self
+     */
+    public function pullAll(array $values)
     {
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'pullAll'][$this->currentField] = $valueArray;
+        $this->newObj[$this->cmd . 'pullAll'][$this->currentField] = $values;
         return $this;
     }
 
-    public function push($value)
+    /**
+     * Append one or more values to the current array field.
+     *
+     * If the field does not exist, it will be set to an array containing the
+     * value(s) in the argument. If the field is not an array, the query
+     * will yield an error.
+     *
+     * Multiple values may be specified by providing an Expr object and using
+     * {@link Expr::each()}. {@link Expr::slice()} and {@link Expr::sort()} may
+     * also be used to limit and order array elements, respectively.
+     *
+     * @see Builder::push()
+     * @see http://docs.mongodb.org/manual/reference/operator/push/
+     * @see http://docs.mongodb.org/manual/reference/operator/each/
+     * @see http://docs.mongodb.org/manual/reference/operator/slice/
+     * @see http://docs.mongodb.org/manual/reference/operator/sort/
+     * @param mixed|Expr $valueOrExpression
+     * @return self
+     */
+    public function push($valueOrExpression)
     {
+        if ($valueOrExpression instanceof Expr) {
+            $valueOrExpression = array_merge(
+                array($this->cmd . 'each' => array()),
+                $valueOrExpression->getQuery()
+            );
+        }
+
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'push'][$this->currentField] = $value;
+        $this->newObj[$this->cmd . 'push'][$this->currentField] = $valueOrExpression;
         return $this;
     }
 
-    public function pushAll(array $valueArray)
+    /**
+     * Append multiple values to the current array field.
+     *
+     * If the field does not exist, it will be set to an array containing the
+     * values in the argument. If the field is not an array, the query will
+     * yield an error.
+     *
+     * This operator is deprecated in MongoDB 2.4. {@link Expr::push()} and
+     * {@link Expr::each()} should be used in its place.
+     *
+     * @see Builder::pushAll()
+     * @see http://docs.mongodb.org/manual/reference/operator/pushAll/
+     * @param array $values
+     * @return self
+     */
+    public function pushAll(array $values)
     {
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'pushAll'][$this->currentField] = $valueArray;
+        $this->newObj[$this->cmd . 'pushAll'][$this->currentField] = $values;
         return $this;
     }
 
+    /**
+     * Specify $gte and $lt criteria for the current field.
+     *
+     * This method is shorthand for specifying $gte criteria on the lower bound
+     * and $lt criteria on the upper bound. The upper bound is not inclusive.
+     *
+     * @see Builder::range()
+     * @param mixed $start
+     * @param mixed $end
+     * @return self
+     */
     public function range($start, $end)
     {
         return $this->operator($this->cmd . 'gte', $start)->operator($this->cmd . 'lt', $end);
     }
 
+    /**
+     * Set the current field to a value.
+     *
+     * This is only relevant for insert, update, or findAndUpdate queries. For
+     * update and findAndUpdate queries, the $atomic parameter will determine
+     * whether or not a $set operator is used.
+     *
+     * @see Builder::set()
+     * @see http://docs.mongodb.org/manual/reference/operator/set/
+     * @param mixed $value
+     * @param boolean $atomic
+     * @return self
+     */
     public function set($value, $atomic = true)
     {
         $this->requiresCurrentField();
-        if ($atomic === true) {
+
+        if ($atomic) {
             $this->newObj[$this->cmd . 'set'][$this->currentField] = $value;
-        } else {
-            if (strpos($this->currentField, '.') !== false) {
-                $e = explode('.', $this->currentField);
-                $current = &$this->newObj;
-                foreach ($e as $v) {
-                    $current = &$current[$v];
-                }
-                $current = $value;
-            } else {
-                $this->newObj[$this->currentField] = $value;
-            }
+            return $this;
         }
+
+        if (strpos($this->currentField, '.') === false) {
+            $this->newObj[$this->currentField] = $value;
+            return $this;
+        }
+
+        $keys = explode('.', $this->currentField);
+        $current = &$this->newObj;
+        foreach ($keys as $key) {
+            $current = &$current[$key];
+        }
+        $current = $value;
+
         return $this;
     }
 
+    /**
+     * Specify $size criteria for the current field.
+     *
+     * @see Builder::size()
+     * @see http://docs.mongodb.org/manual/reference/operator/size/
+     * @param integer $size
+     * @return self
+     */
     public function size($size)
     {
-        return $this->operator($this->cmd . 'size', $size);
+        return $this->operator($this->cmd . 'size', (integer) $size);
     }
 
+    /**
+     * Add $slice criteria to the expression for a $push operation.
+     *
+     * This is useful in conjunction with {@link Expr::each()} for a
+     * {@link Expr::push()} operation. {@link Builder::selectSlice()} should be
+     * used for specifying $slice for a query projection.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/slice/
+     * @param integer $slice
+     * @return self
+     */
+    public function slice($slice)
+    {
+        return $this->operator($this->cmd . 'slice', $slice);
+    }
+
+    /**
+     * Add $sort criteria to the expression for a $push operation.
+     *
+     * If sorting by multiple fields, the first argument should be an array of
+     * field name (key) and order (value) pairs.
+     *
+     * This is useful in conjunction with {@link Expr::each()} for a
+     * {@link Expr::push()} operation. {@link Builder::sort()} should be used to
+     * sort the results of a query.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/sort/
+     * @param array|string $fieldName Field name or array of field/order pairs
+     * @param int|string $order       Field order (if one field is specified)
+     * @return self
+     */
+    public function sort($fieldName, $order = null)
+    {
+        $fields = is_array($fieldName) ? $fieldName : array($fieldName => $order);
+
+        foreach ($fields as $fieldName => $order) {
+            if (is_string($order)) {
+                $order = strtolower($order) === 'asc' ? 1 : -1;
+            }
+            $sort[$fieldName] = (integer) $order;
+        }
+
+        return $this->operator($this->cmd . 'sort', $sort);
+    }
+
+    /**
+     * Specify $type criteria for the current field.
+     *
+     * @todo Remove support for string $type argument in 2.0
+     * @see Builder::type()
+     * @see http://docs.mongodb.org/manual/reference/operator/type/
+     * @param integer $type
+     * @return self
+     */
     public function type($type)
     {
-        $map = array(
-            'double' => 1,
-            'string' => 2,
-            'object' => 3,
-            'array' => 4,
-            'binary' => 5,
-            'undefined' => 6,
-            'objectid' => 7,
-            'boolean' => 8,
-            'date' => 9,
-            'null' => 10,
-            'regex' => 11,
-            'jscode' => 13,
-            'symbol' => 14,
-            'jscodewithscope' => 15,
-            'integer32' => 16,
-            'timestamp' => 17,
-            'integer64' => 18,
-            'minkey' => 255,
-            'maxkey' => 127
-        );
-        if (is_string($type) && isset($map[$type])) {
-            $type = $map[$type];
+        if (is_string($type)) {
+            $map = array(
+                'double' => 1,
+                'string' => 2,
+                'object' => 3,
+                'array' => 4,
+                'binary' => 5,
+                'undefined' => 6,
+                'objectid' => 7,
+                'boolean' => 8,
+                'date' => 9,
+                'null' => 10,
+                'regex' => 11,
+                'jscode' => 13,
+                'symbol' => 14,
+                'jscodewithscope' => 15,
+                'integer32' => 16,
+                'timestamp' => 17,
+                'integer64' => 18,
+                'maxkey' => 127,
+                'minkey' => 255,
+            );
+
+            $type = isset($map[$type]) ? $map[$type] : $type;
         }
+
         return $this->operator($this->cmd . 'type', $type);
     }
 
+    /**
+     * Unset the current field.
+     *
+     * The field will be removed from the document (not set to null).
+     *
+     * @see Builder::unsetField()
+     * @see http://docs.mongodb.org/manual/reference/operator/unset/
+     * @return self
+     */
     public function unsetField()
     {
         $this->requiresCurrentField();
@@ -560,9 +963,18 @@ class Expr
         return $this;
     }
 
+    /**
+     * Specify a JavaScript expression to use for matching documents.
+     *
+     * @see Builder::where()
+     * @see http://docs.mongodb.org/manual/reference/operator/where/
+     * @param string|\MongoCode $javascript
+     * @return self
+     */
     public function where($javascript)
     {
-        return $this->field($this->cmd . 'where')->equals($javascript);
+        $this->query[$this->cmd . 'where'] = $javascript;
+        return $this;
     }
 
     /**
@@ -646,10 +1058,15 @@ class Expr
         return $this->operator($this->cmd . 'within', $shape);
     }
 
+    /**
+     * Ensure that a current field has been set.
+     *
+     * @throws LogicException if a current field has not been set
+     */
     private function requiresCurrentField()
     {
         if ( ! $this->currentField) {
-            throw new \LogicException('This method requires you set a current field using field().');
+            throw new LogicException('This method requires you set a current field using field().');
         }
     }
 }

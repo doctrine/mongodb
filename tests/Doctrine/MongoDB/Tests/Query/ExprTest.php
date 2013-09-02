@@ -6,6 +6,32 @@ use Doctrine\MongoDB\Query\Expr;
 
 class ExprTest extends \PHPUnit_Framework_TestCase
 {
+    public function testAddManyToSet()
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->field('a')->addManyToSet(array(1, 2)));
+        $this->assertEquals(array('$addToSet' => array('a' => array('$each' => array(1, 2)))), $expr->getNewObj());
+    }
+
+    public function testAddToSetWithValue()
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->field('a')->addToSet(1));
+        $this->assertEquals(array('$addToSet' => array('a' => 1)), $expr->getNewObj());
+    }
+
+    public function testAddToSetWithExpression()
+    {
+        $expr = new Expr('$');
+        $eachExpr = new Expr('$');
+        $eachExpr->each(array(1, 2));
+
+        $this->assertSame($expr, $expr->field('a')->addToSet($eachExpr));
+        $this->assertEquals(array('$addToSet' => array('a' => array('$each' => array(1, 2)))), $expr->getNewObj());
+    }
+
     public function testOperatorWithCurrentField()
     {
         $expr = new Expr('$');
@@ -122,6 +148,74 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('$nearSphere' => array(1, 2)), $expr->getQuery());
     }
 
+    public function testPullWithValue()
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->field('a')->pull(1));
+        $this->assertEquals(array('$pull' => array('a' => 1)), $expr->getNewObj());
+    }
+
+    public function testPullWithExpression()
+    {
+        $expr = new Expr('$');
+        $nestedExpr = new Expr('$');
+        $nestedExpr->gt(3);
+
+        $this->assertSame($expr, $expr->field('a')->pull($nestedExpr));
+        $this->assertEquals(array('$pull' => array('a' => array('$gt' => 3))), $expr->getNewObj());
+    }
+
+    public function testPushWithValue()
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->field('a')->push(1));
+        $this->assertEquals(array('$push' => array('a' => 1)), $expr->getNewObj());
+    }
+
+    public function testPushWithExpression()
+    {
+        $expr = new Expr('$');
+        $innerExpr = new Expr('$');
+        $innerExpr
+            ->each(array(array('x' => 1), array('x' => 2)))
+            ->slice(-2)
+            ->sort('x', 1);
+
+        $expectedNewObj = array(
+            '$push' => array('a' => array(
+                '$each' => array(array('x' => 1), array('x' => 2)),
+                '$slice' => -2,
+                '$sort' => array('x' => 1),
+            )),
+        );
+
+        $this->assertSame($expr, $expr->field('a')->push($innerExpr));
+        $this->assertEquals($expectedNewObj, $expr->getNewObj());
+    }
+
+    public function testPushWithExpressionShouldEnsureEachOperatorAppearsFirst()
+    {
+        $expr = new Expr('$');
+        $innerExpr = new Expr('$');
+        $innerExpr
+            ->sort('x', 1)
+            ->slice(-2)
+            ->each(array(array('x' => 1), array('x' => 2)));
+
+        $expectedNewObj = array(
+            '$push' => array('a' => array(
+                '$each' => array(array('x' => 1), array('x' => 2)),
+                '$sort' => array('x' => 1),
+                '$slice' => -2,
+            )),
+        );
+
+        $this->assertSame($expr, $expr->field('a')->push($innerExpr));
+        $this->assertSame($expectedNewObj, $expr->getNewObj());
+    }
+
     /**
      * @dataProvider provideGeoJsonPolygon
      */
@@ -199,6 +293,39 @@ class ExprTest extends \PHPUnit_Framework_TestCase
     {
         $expr = new Expr('$');
         $expr->geoWithinPolygon(array(0, 0), array(1, 1));
+    }
+
+    public function testSetWithAtomic()
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->field('a')->set(1, true));
+        $this->assertEquals(array('$set' => array('a' => 1)), $expr->getNewObj());
+    }
+
+    public function testSetWithoutAtomicWithTopLevelField()
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->field('a')->set(1, false));
+        $this->assertEquals(array('a' => 1), $expr->getNewObj());
+    }
+
+    public function testSetWithoutAtomicWithNestedField()
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->field('a.b.c')->set(1, false));
+        $this->assertEquals(array('a' => array('b' => array('c' => 1))), $expr->getNewObj());
+    }
+
+    public function testWhere()
+    {
+        $expr = new Expr('$');
+
+        $this->assertSame($expr, $expr->where('javascript'));
+        $this->assertEquals(array('$where' => 'javascript'), $expr->getQuery());
+        $this->assertNull($expr->getCurrentField());
     }
 
     public function testWithinBox()

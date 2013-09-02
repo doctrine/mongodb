@@ -176,7 +176,7 @@ class Collection
      * @param array   $query
      * @param integer $limit
      * @param integer $skip
-     * @return ArrayIterator
+     * @return integer
      */
     public function count(array $query = array(), $limit = 0, $skip = 0)
     {
@@ -1159,6 +1159,7 @@ class Collection
         $command = array();
         $command['geoNear'] = $this->getMongoCollection()->getName();
         $command['near'] = $near;
+        $command['spherical'] = isset($near['type']);
         $command['query'] = (object) $query;
         $command = array_merge($command, $options);
 
