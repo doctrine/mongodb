@@ -196,8 +196,8 @@ class GridFS extends Collection
      */
     protected function doUpdate(array $query, array $newObj, array $options = array())
     {
-        $file = isset($newObj[$this->cmd.'set']['file']) ? $newObj[$this->cmd.'set']['file'] : null;
-        unset($newObj[$this->cmd.'set']['file']);
+        $file = isset($newObj['$set']['file']) ? $newObj['$set']['file'] : null;
+        unset($newObj['$set']['file']);
 
         if ($file === null) {
             $file = isset($newObj['file']) ? $newObj['file'] : null;
@@ -207,8 +207,8 @@ class GridFS extends Collection
         /* Before we inspect $newObj, remove an empty $set operator we may have
          * left behind due to extracting the file field above.
          */
-        if (empty($newObj[$this->cmd.'set'])) {
-            unset($newObj[$this->cmd.'set']);
+        if (empty($newObj['$set'])) {
+            unset($newObj['$set']);
         }
 
         /* Determine if $newObj includes atomic modifiers, which will tell us if
@@ -218,7 +218,7 @@ class GridFS extends Collection
         $newObjHasModifiers = false;
 
         foreach (array_keys($newObj) as $key) {
-            if ($this->cmd === $key[0]) {
+            if ('$' === $key[0]) {
                 $newObjHasModifiers = true;
             }
         }

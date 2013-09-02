@@ -43,16 +43,15 @@ class LoggableDatabase extends Database implements Loggable
      * @param Connection      $connection     Connection used to create Collections
      * @param string          $name           The database name
      * @param EventManager    $evm            EventManager instance
-     * @param string          $cmd            MongoDB command prefix
      * @param boolean|integer $numRetries     Number of times to retry queries
      * @param callable        $loggerCallable The logger callable
      */
-    public function __construct(Connection $connection, $name, EventManager $evm, $cmd, $numRetries, $loggerCallable)
+    public function __construct(Connection $connection, $name, EventManager $evm, $numRetries, $loggerCallable)
     {
         if ( ! is_callable($loggerCallable)) {
             throw new \InvalidArgumentException('$loggerCallable must be a valid callback');
         }
-        parent::__construct($connection, $name, $evm, $cmd, $numRetries);
+        parent::__construct($connection, $name, $evm, $numRetries);
         $this->loggerCallable = $loggerCallable;
     }
 
@@ -165,7 +164,7 @@ class LoggableDatabase extends Database implements Loggable
     protected function doSelectCollection($name)
     {
         return new LoggableCollection(
-            $this->connection, $name, $this, $this->eventManager, $this->cmd, $this->loggerCallable, $this->numRetries
+            $this->connection, $name, $this, $this->eventManager, $this->loggerCallable, $this->numRetries
         );
     }
 }

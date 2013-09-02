@@ -41,7 +41,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
                 ->with('foo', true, 10485760, 0);
         }
 
-        $database = new Database($this->connection, 'test', $this->getMockEventManager(), '$');
+        $database = new Database($this->connection, 'test', $this->getMockEventManager());
         $collection = $database->createCollection('foo', true, 10485760, 0);
 
         $this->assertInstanceOf('Doctrine\MongoDB\Collection', $collection);
@@ -60,7 +60,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
                 ->with('foo', true, 10485760, 0);
         }
 
-        $database = new Database($this->connection, 'test', $this->getMockEventManager(), '$');
+        $database = new Database($this->connection, 'test', $this->getMockEventManager());
         $collection = $database->createCollection('foo', array('capped' => true, 'size' => 10485760, 'autoIndexId' => false));
 
         $this->assertInstanceOf('Doctrine\MongoDB\Collection', $collection);
@@ -82,7 +82,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             ->with(true)
             ->will($this->returnValue(false));
 
-        $database = new Database($this->connection, 'test', $this->getMockEventManager(), '$');
+        $database = new Database($this->connection, 'test', $this->getMockEventManager());
 
         $this->assertEquals(false, $database->getSlaveOkay());
         $this->assertEquals(false, $database->setSlaveOkay(true));
@@ -109,7 +109,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             ->with(\MongoClient::RP_SECONDARY_PREFERRED)
             ->will($this->returnValue(false));
 
-        $database = new Database($this->connection, 'test', $this->getMockEventManager(), '$');
+        $database = new Database($this->connection, 'test', $this->getMockEventManager());
 
         $this->assertEquals(false, $database->setSlaveOkay(true));
     }
@@ -133,7 +133,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
             ->will($this->returnValue(false));
 
-        $database = new Database($this->connection, 'test', $this->getMockEventManager(), '$');
+        $database = new Database($this->connection, 'test', $this->getMockEventManager());
 
         $this->assertEquals(true, $database->setSlaveOkay(true));
     }
@@ -154,7 +154,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
             ->will($this->returnValue(true));
 
-        $database = new Database($this->connection, 'test', $this->getMockEventManager(), '$');
+        $database = new Database($this->connection, 'test', $this->getMockEventManager());
 
         $this->assertTrue($database->setReadPreference(\MongoClient::RP_PRIMARY));
         $this->assertTrue($database->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));

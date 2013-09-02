@@ -332,7 +332,7 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
             ->getMock();
 
         $collection = $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->setConstructorArgs(array($c, self::collectionName, $db, $em, '$'))
+            ->setConstructorArgs(array($c, self::collectionName, $db, $em))
             ->setMethods(array_keys($methods))
             ->getMock();
 

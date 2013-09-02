@@ -37,7 +37,7 @@ class RetryTest extends BaseTest
     {
         $database = $this->conn->selectDatabase('test');
         $mongoCollection = $database->selectCollection('test')->getMongoCollection();
-        $collection = new CollectionStub($this->conn, $mongoCollection, $database, $this->conn->getEventManager(), '$', 1);
+        $collection = new CollectionStub($this->conn, $mongoCollection, $database, $this->conn->getEventManager(), 1);
         $exception = new \MongoException('Test');
         try {
             $collection->testRetries($exception);

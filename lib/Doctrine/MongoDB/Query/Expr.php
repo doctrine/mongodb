@@ -34,13 +34,6 @@ use LogicException;
 class Expr
 {
     /**
-     * Mongo command prefix
-     *
-     * @var string
-     */
-    protected $cmd;
-
-    /**
      * The query criteria array.
      *
      * @var string
@@ -64,16 +57,6 @@ class Expr
     protected $currentField;
 
     /**
-     * Constructor.
-     *
-     * @param string $cmd
-     */
-    public function __construct($cmd)
-    {
-        $this->cmd = $cmd;
-    }
-
-    /**
      * Add an $and clause to the current query.
      *
      * @see Builder::addAnd()
@@ -83,7 +66,7 @@ class Expr
      */
     public function addAnd($expression)
     {
-        $this->query[$this->cmd . 'and'][] = $expression instanceof Expr ? $expression->getQuery() : $expression;
+        $this->query['$and'][] = $expression instanceof Expr ? $expression->getQuery() : $expression;
         return $this;
     }
 
@@ -105,7 +88,7 @@ class Expr
     public function addManyToSet(array $values)
     {
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'addToSet'][$this->currentField] = array($this->cmd . 'each' => $values);
+        $this->newObj['$addToSet'][$this->currentField] = array('$each' => $values);
         return $this;
     }
 
@@ -119,7 +102,7 @@ class Expr
      */
     public function addNor($expression)
     {
-        $this->query[$this->cmd . 'nor'][] = $expression instanceof Expr ? $expression->getQuery() : $expression;
+        $this->query['$nor'][] = $expression instanceof Expr ? $expression->getQuery() : $expression;
         return $this;
     }
 
@@ -133,7 +116,7 @@ class Expr
      */
     public function addOr($expression)
     {
-        $this->query[$this->cmd . 'or'][] = $expression instanceof Expr ? $expression->getQuery() : $expression;
+        $this->query['$or'][] = $expression instanceof Expr ? $expression->getQuery() : $expression;
         return $this;
     }
 
@@ -161,7 +144,7 @@ class Expr
         }
 
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'addToSet'][$this->currentField] = $valueOrExpression;
+        $this->newObj['$addToSet'][$this->currentField] = $valueOrExpression;
         return $this;
     }
 
@@ -175,7 +158,7 @@ class Expr
      */
     public function all(array $values)
     {
-        return $this->operator($this->cmd . 'all', (array) $values);
+        return $this->operator('$all', (array) $values);
     }
 
     /**
@@ -188,7 +171,7 @@ class Expr
      */
     public function each(array $values)
     {
-        return $this->operator($this->cmd . 'each', $values);
+        return $this->operator('$each', $values);
     }
 
     /**
@@ -201,7 +184,7 @@ class Expr
      */
     public function elemMatch($expression)
     {
-        return $this->operator($this->cmd . 'elemMatch', $expression instanceof Expr ? $expression->getQuery() : $expression);
+        return $this->operator('$elemMatch', $expression instanceof Expr ? $expression->getQuery() : $expression);
     }
 
     /**
@@ -231,7 +214,7 @@ class Expr
      */
     public function exists($bool)
     {
-        return $this->operator($this->cmd . 'exists', (boolean) $bool);
+        return $this->operator('$exists', (boolean) $bool);
     }
 
     /**
@@ -264,7 +247,7 @@ class Expr
             $geometry = $geometry->jsonSerialize();
         }
 
-        return $this->operator($this->cmd . 'geoIntersects', array($this->cmd . 'geometry' => $geometry));
+        return $this->operator('$geoIntersects', array('$geometry' => $geometry));
     }
 
     /**
@@ -284,7 +267,7 @@ class Expr
             $geometry = $geometry->jsonSerialize();
         }
 
-        return $this->operator($this->cmd . 'geoWithin', array($this->cmd . 'geometry' => $geometry));
+        return $this->operator('$geoWithin', array('$geometry' => $geometry));
     }
 
     /**
@@ -306,9 +289,9 @@ class Expr
      */
     public function geoWithinBox($x1, $y1, $x2, $y2)
     {
-        $shape = array($this->cmd . 'box' => array(array($x1, $y1), array($x2, $y2)));
+        $shape = array('$box' => array(array($x1, $y1), array($x2, $y2)));
 
-        return $this->operator($this->cmd . 'geoWithin', $shape);
+        return $this->operator('$geoWithin', $shape);
     }
 
     /**
@@ -326,9 +309,9 @@ class Expr
      */
     public function geoWithinCenter($x, $y, $radius)
     {
-        $shape = array($this->cmd . 'center' => array(array($x, $y), $radius));
+        $shape = array('$center' => array(array($x, $y), $radius));
 
-        return $this->operator($this->cmd . 'geoWithin', $shape);
+        return $this->operator('$geoWithin', $shape);
     }
 
     /**
@@ -345,9 +328,9 @@ class Expr
      */
     public function geoWithinCenterSphere($x, $y, $radius)
     {
-        $shape = array($this->cmd . 'centerSphere' => array(array($x, $y), $radius));
+        $shape = array('$centerSphere' => array(array($x, $y), $radius));
 
-        return $this->operator($this->cmd . 'geoWithin', $shape);
+        return $this->operator('$geoWithin', $shape);
     }
 
     /**
@@ -373,9 +356,9 @@ class Expr
             throw new InvalidArgumentException('Polygon must be defined by three or more points.');
         }
 
-        $shape = array($this->cmd . 'polygon' => func_get_args());
+        $shape = array('$polygon' => func_get_args());
 
-        return $this->operator($this->cmd . 'geoWithin', $shape);
+        return $this->operator('$geoWithin', $shape);
     }
 
     /**
@@ -444,7 +427,7 @@ class Expr
      */
     public function gt($value)
     {
-        return $this->operator($this->cmd . 'gt', $value);
+        return $this->operator('$gt', $value);
     }
 
     /**
@@ -457,7 +440,7 @@ class Expr
      */
     public function gte($value)
     {
-        return $this->operator($this->cmd . 'gte', $value);
+        return $this->operator('$gte', $value);
     }
 
     /**
@@ -470,7 +453,7 @@ class Expr
      */
     public function in(array $values)
     {
-        return $this->operator($this->cmd . 'in', $values);
+        return $this->operator('$in', $values);
     }
 
     /**
@@ -486,7 +469,7 @@ class Expr
     public function inc($value)
     {
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'inc'][$this->currentField] = $value;
+        $this->newObj['$inc'][$this->currentField] = $value;
         return $this;
     }
 
@@ -500,7 +483,7 @@ class Expr
      */
     public function lt($value)
     {
-        return $this->operator($this->cmd . 'lt', $value);
+        return $this->operator('$lt', $value);
     }
 
     /**
@@ -513,7 +496,7 @@ class Expr
      */
     public function lte($value)
     {
-        return $this->operator($this->cmd . 'lte', $value);
+        return $this->operator('$lte', $value);
     }
 
     /**
@@ -536,18 +519,18 @@ class Expr
             $query = &$this->query;
         }
 
-        if ( ! isset($query[$this->cmd . 'near']) && ! isset($query[$this->cmd . 'nearSphere'])) {
+        if ( ! isset($query['$near']) && ! isset($query['$nearSphere'])) {
             throw new BadMethodCallException(
                 'This method requires a $near or $nearSphere operator (call near() or nearSphere() first)'
             );
         }
 
-        if (isset($query[$this->cmd . 'near'][$this->cmd . 'geometry'])) {
-            $query[$this->cmd . 'near'][$this->cmd . 'maxDistance'] = $maxDistance;
-        } elseif (isset($query[$this->cmd . 'nearSphere'][$this->cmd . 'geometry'])) {
-            $query[$this->cmd . 'nearSphere'][$this->cmd . 'maxDistance'] = $maxDistance;
+        if (isset($query['$near']['$geometry'])) {
+            $query['$near']['$maxDistance'] = $maxDistance;
+        } elseif (isset($query['$nearSphere']['$geometry'])) {
+            $query['$nearSphere']['$maxDistance'] = $maxDistance;
         } else {
-            $query[$this->cmd . 'maxDistance'] = $maxDistance;
+            $query['$maxDistance'] = $maxDistance;
         }
 
         return $this;
@@ -563,7 +546,7 @@ class Expr
      */
     public function mod($mod)
     {
-        return $this->operator($this->cmd . 'mod', $mod);
+        return $this->operator('$mod', $mod);
     }
 
     /**
@@ -586,10 +569,10 @@ class Expr
         }
 
         if (is_array($x)) {
-            return $this->operator($this->cmd . 'near', array($this->cmd . 'geometry' => $x));
+            return $this->operator('$near', array('$geometry' => $x));
         }
 
-        return $this->operator($this->cmd . 'near', array($x, $y));
+        return $this->operator('$near', array($x, $y));
     }
 
     /**
@@ -612,10 +595,10 @@ class Expr
         }
 
         if (is_array($x)) {
-            return $this->operator($this->cmd . 'nearSphere', array($this->cmd . 'geometry' => $x));
+            return $this->operator('$nearSphere', array('$geometry' => $x));
         }
 
-        return $this->operator($this->cmd . 'nearSphere', array($x, $y));
+        return $this->operator('$nearSphere', array($x, $y));
     }
 
     /**
@@ -628,7 +611,7 @@ class Expr
      */
     public function not($expression)
     {
-        return $this->operator($this->cmd . 'not', $expression instanceof Expr ? $expression->getQuery() : $expression);
+        return $this->operator('$not', $expression instanceof Expr ? $expression->getQuery() : $expression);
     }
 
     /**
@@ -641,7 +624,7 @@ class Expr
      */
     public function notEqual($value)
     {
-        return $this->operator($this->cmd . 'ne', $value);
+        return $this->operator('$ne', $value);
     }
 
     /**
@@ -654,7 +637,7 @@ class Expr
      */
     public function notIn(array $values)
     {
-        return $this->operator($this->cmd . 'nin', $values);
+        return $this->operator('$nin', $values);
     }
 
     /**
@@ -687,7 +670,7 @@ class Expr
     public function popFirst()
     {
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'pop'][$this->currentField] = 1;
+        $this->newObj['$pop'][$this->currentField] = 1;
         return $this;
     }
 
@@ -701,7 +684,7 @@ class Expr
     public function popLast()
     {
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'pop'][$this->currentField] = -1;
+        $this->newObj['$pop'][$this->currentField] = -1;
         return $this;
     }
 
@@ -721,7 +704,7 @@ class Expr
         }
 
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'pull'][$this->currentField] = $valueOrExpression;
+        $this->newObj['$pull'][$this->currentField] = $valueOrExpression;
         return $this;
     }
 
@@ -737,7 +720,7 @@ class Expr
     public function pullAll(array $values)
     {
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'pullAll'][$this->currentField] = $values;
+        $this->newObj['$pullAll'][$this->currentField] = $values;
         return $this;
     }
 
@@ -764,13 +747,13 @@ class Expr
     {
         if ($valueOrExpression instanceof Expr) {
             $valueOrExpression = array_merge(
-                array($this->cmd . 'each' => array()),
+                array('$each' => array()),
                 $valueOrExpression->getQuery()
             );
         }
 
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'push'][$this->currentField] = $valueOrExpression;
+        $this->newObj['$push'][$this->currentField] = $valueOrExpression;
         return $this;
     }
 
@@ -792,7 +775,7 @@ class Expr
     public function pushAll(array $values)
     {
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'pushAll'][$this->currentField] = $values;
+        $this->newObj['$pushAll'][$this->currentField] = $values;
         return $this;
     }
 
@@ -809,7 +792,7 @@ class Expr
      */
     public function range($start, $end)
     {
-        return $this->operator($this->cmd . 'gte', $start)->operator($this->cmd . 'lt', $end);
+        return $this->operator('$gte', $start)->operator('$lt', $end);
     }
 
     /**
@@ -830,7 +813,7 @@ class Expr
         $this->requiresCurrentField();
 
         if ($atomic) {
-            $this->newObj[$this->cmd . 'set'][$this->currentField] = $value;
+            $this->newObj['$set'][$this->currentField] = $value;
             return $this;
         }
 
@@ -859,7 +842,7 @@ class Expr
      */
     public function size($size)
     {
-        return $this->operator($this->cmd . 'size', (integer) $size);
+        return $this->operator('$size', (integer) $size);
     }
 
     /**
@@ -875,7 +858,7 @@ class Expr
      */
     public function slice($slice)
     {
-        return $this->operator($this->cmd . 'slice', $slice);
+        return $this->operator('$slice', $slice);
     }
 
     /**
@@ -904,7 +887,7 @@ class Expr
             $sort[$fieldName] = (integer) $order;
         }
 
-        return $this->operator($this->cmd . 'sort', $sort);
+        return $this->operator('$sort', $sort);
     }
 
     /**
@@ -944,7 +927,7 @@ class Expr
             $type = isset($map[$type]) ? $map[$type] : $type;
         }
 
-        return $this->operator($this->cmd . 'type', $type);
+        return $this->operator('$type', $type);
     }
 
     /**
@@ -959,7 +942,7 @@ class Expr
     public function unsetField()
     {
         $this->requiresCurrentField();
-        $this->newObj[$this->cmd . 'unset'][$this->currentField] = 1;
+        $this->newObj['$unset'][$this->currentField] = 1;
         return $this;
     }
 
@@ -973,7 +956,7 @@ class Expr
      */
     public function where($javascript)
     {
-        $this->query[$this->cmd . 'where'] = $javascript;
+        $this->query['$where'] = $javascript;
         return $this;
     }
 
@@ -991,9 +974,9 @@ class Expr
      */
     public function withinBox($x1, $y1, $x2, $y2)
     {
-        $shape = array($this->cmd . 'box' => array(array($x1, $y1), array($x2, $y2)));
+        $shape = array('$box' => array(array($x1, $y1), array($x2, $y2)));
 
-        return $this->operator($this->cmd . 'within', $shape);
+        return $this->operator('$within', $shape);
     }
 
     /**
@@ -1009,9 +992,9 @@ class Expr
      */
     public function withinCenter($x, $y, $radius)
     {
-        $shape = array($this->cmd . 'center' => array(array($x, $y), $radius));
+        $shape = array('$center' => array(array($x, $y), $radius));
 
-        return $this->operator($this->cmd . 'within', $shape);
+        return $this->operator('$within', $shape);
     }
 
     /**
@@ -1027,9 +1010,9 @@ class Expr
      */
     public function withinCenterSphere($x, $y, $radius)
     {
-        $shape = array($this->cmd . 'centerSphere' => array(array($x, $y), $radius));
+        $shape = array('$centerSphere' => array(array($x, $y), $radius));
 
-        return $this->operator($this->cmd . 'within', $shape);
+        return $this->operator('$within', $shape);
     }
 
     /**
@@ -1053,9 +1036,9 @@ class Expr
             throw new InvalidArgumentException('Polygon must be defined by three or more points.');
         }
 
-        $shape = array($this->cmd . 'polygon' => func_get_args());
+        $shape = array('$polygon' => func_get_args());
 
-        return $this->operator($this->cmd . 'within', $shape);
+        return $this->operator('$within', $shape);
     }
 
     /**
