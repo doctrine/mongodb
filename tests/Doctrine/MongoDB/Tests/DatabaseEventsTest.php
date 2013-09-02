@@ -138,7 +138,7 @@ class DatabaseEventsTest extends \PHPUnit_Framework_TestCase
             ->getMock();
 
         $db = $this->getMockBuilder('Doctrine\MongoDB\Database')
-            ->setConstructorArgs(array($c, self::databaseName, $em, '$'))
+            ->setConstructorArgs(array($c, self::databaseName, $em))
             ->setMethods(array_keys($methods))
             ->getMock();
 

@@ -41,6 +41,6 @@ class LoggableCollectionTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        return new LoggableCollection($c, self::collectionName, $db, $em, '$', $loggerCallable);
+        return new LoggableCollection($c, self::collectionName, $db, $em, $loggerCallable);
     }
 }
