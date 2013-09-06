@@ -73,13 +73,6 @@ class Query implements IteratorAggregate
     protected $query;
 
     /**
-     * Mongo command prefix
-     *
-     * @var string
-     */
-    protected $cmd;
-
-    /**
      * @var Iterator
      */
     protected $iterator;
@@ -98,10 +91,9 @@ class Query implements IteratorAggregate
      * @param Collection $collection
      * @param array $query
      * @param array $options
-     * @param string $cmd
      * @throws InvalidArgumentException if query type is invalid
      */
-    public function __construct(Database $database, Collection $collection, array $query, array $options, $cmd)
+    public function __construct(Database $database, Collection $collection, array $query, array $options)
     {
         switch ($query['type']) {
             case self::TYPE_FIND:
@@ -124,7 +116,6 @@ class Query implements IteratorAggregate
         $this->database   = $database;
         $this->collection = $collection;
         $this->query      = $query;
-        $this->cmd        = $cmd;
         $this->options    = $options;
     }
 

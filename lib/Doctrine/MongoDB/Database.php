@@ -59,13 +59,6 @@ class Database
     protected $eventManager;
 
     /**
-     * MongoDB command prefix.
-     *
-     * @var string
-     */
-    protected $cmd;
-
-    /**
      * Number of times to retry queries.
      *
      * @var integer
@@ -78,15 +71,13 @@ class Database
      * @param Connection      $connection Connection used to create Collections
      * @param string          $name       The database name
      * @param EventManager    $evm        EventManager instance
-     * @param string          $cmd        MongoDB command prefix
      * @param boolean|integer $numRetries Number of times to retry queries
      */
-    public function __construct(Connection $connection, $name, EventManager $evm, $cmd, $numRetries = 0)
+    public function __construct(Connection $connection, $name, EventManager $evm, $numRetries = 0)
     {
         $this->connection = $connection;
         $this->name = $name;
         $this->eventManager = $evm;
-        $this->cmd = $cmd;
         $this->numRetries = (integer) $numRetries;
     }
 
@@ -551,7 +542,7 @@ class Database
      */
     protected function doGetGridFS($prefix)
     {
-        return new GridFS($this->connection, $prefix, $this, $this->eventManager, $this->cmd);
+        return new GridFS($this->connection, $prefix, $this, $this->eventManager);
     }
 
     /**
@@ -563,7 +554,7 @@ class Database
      */
     protected function doSelectCollection($name)
     {
-        return new Collection($this->connection, $name, $this, $this->eventManager, $this->cmd, $this->numRetries);
+        return new Collection($this->connection, $name, $this, $this->eventManager, $this->numRetries);
     }
 
     /**

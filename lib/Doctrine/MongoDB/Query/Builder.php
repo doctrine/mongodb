@@ -55,13 +55,6 @@ class Builder
     protected $query = array('type' => Query::TYPE_FIND);
 
     /**
-     * Mongo command prefix
-     *
-     * @var string
-     */
-    protected $cmd;
-
-    /**
      * The Expr instance used for building this query.
      *
      * This object includes the query criteria and the "new object" used for
@@ -75,15 +68,12 @@ class Builder
      * Create a new query builder.
      *
      * @param Database $database
-     * @param Collection $collection
-     * @param string $cmd
      */
-    public function __construct(Database $database, Collection $collection, $cmd)
+    public function __construct(Database $database, Collection $collection)
     {
         $this->database = $database;
         $this->collection = $collection;
-        $this->expr = new Expr($cmd);
-        $this->cmd = $cmd;
+        $this->expr = new Expr();
     }
 
     /**
@@ -336,7 +326,7 @@ class Builder
      */
     public function expr()
     {
-        return new Expr($this->cmd);
+        return new Expr();
     }
 
     /**
@@ -598,7 +588,7 @@ class Builder
         $query = $this->query;
         $query['query'] = $this->expr->getQuery();
         $query['newObj'] = $this->expr->getNewObj();
-        return new Query($this->database, $this->collection, $query, $options, $this->cmd);
+        return new Query($this->database, $this->collection, $query, $options);
     }
 
     /**
@@ -1221,7 +1211,7 @@ class Builder
         if ($expression instanceof Expr) {
             $expression = $expression->getQuery();
         }
-        $this->query['select'][$fieldName] = array($this->cmd . 'elemMatch' => $expression);
+        $this->query['select'][$fieldName] = array('$elemMatch' => $expression);
         return $this;
     }
 
@@ -1248,7 +1238,7 @@ class Builder
         if ($limit !== null) {
             $slice = array($slice, $limit);
         }
-        $this->query['select'][$fieldName] = array($this->cmd . 'slice' => $slice);
+        $this->query['select'][$fieldName] = array('$slice' => $slice);
         return $this;
     }
 

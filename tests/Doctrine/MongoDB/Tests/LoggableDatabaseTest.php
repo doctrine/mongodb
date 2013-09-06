@@ -84,7 +84,7 @@ class LoggableDatabaseTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $db = new TestLoggableDatabaseStub($c, self::databaseName, $em, '$', 0, $loggerCallable);
+        $db = new TestLoggableDatabaseStub($c, self::databaseName, $em, 0, $loggerCallable);
         $db->setMongoDB($mdb);
 
         return $db;

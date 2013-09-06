@@ -853,7 +853,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $db = $db ?: $this->getMockDatabase();
         $em = $em ?: $this->getMockEventManager();
 
-        $collection = new TestCollectionStub($c, $mc->getName(), $db, $em, '$');
+        $collection = new TestCollectionStub($c, $mc->getName(), $db, $em);
         $collection->setMongoCollection($mc);
 
         return $collection;

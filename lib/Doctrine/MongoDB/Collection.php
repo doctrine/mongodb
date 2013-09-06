@@ -71,13 +71,6 @@ class Collection
     protected $eventManager;
 
     /**
-     * MongoDB command prefix.
-     *
-     * @var string
-     */
-    protected $cmd;
-
-    /**
      * Number of times to retry queries.
      *
      * @var integer
@@ -91,16 +84,14 @@ class Collection
      * @param string          $name       The collection name
      * @param Database        $database   Database to which this collection belongs
      * @param EventManager    $evm        EventManager instance
-     * @param string          $cmd        MongoDB command prefix
      * @param boolean|integer $numRetries Number of times to retry queries
      */
-    public function __construct(Connection $connection, $name, Database $database, EventManager $evm, $cmd, $numRetries = 0)
+    public function __construct(Connection $connection, $name, Database $database, EventManager $evm, $numRetries = 0)
     {
         $this->connection = $connection;
         $this->name = $name;
         $this->database = $database;
         $this->eventManager = $evm;
-        $this->cmd = $cmd;
         $this->numRetries = (integer) $numRetries;
     }
 
@@ -205,7 +196,7 @@ class Collection
      */
     public function createQueryBuilder()
     {
-        return new Query\Builder($this->database, $this, $this->cmd);
+        return new Query\Builder($this->database, $this);
     }
 
     /**

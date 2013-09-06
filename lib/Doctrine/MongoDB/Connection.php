@@ -66,13 +66,6 @@ class Connection
     protected $eventManager;
 
     /**
-     * MongoDB command prefix.
-     *
-     * @var string
-     */
-    protected $cmd;
-
-    /**
      * Constructor.
      *
      * If $server is an existing MongoClient instance, the $options parameter
@@ -93,7 +86,6 @@ class Connection
         }
         $this->config = $config ? $config : new Configuration();
         $this->eventManager = $evm ? $evm : new EventManager();
-        $this->cmd = $this->config->getMongoCmd();
     }
 
     /**
@@ -416,9 +408,9 @@ class Connection
         $numRetries = $this->config->getRetryQuery();
         if (null !== $this->config->getLoggerCallable()) {
             return new LoggableDatabase(
-                $this, $name, $this->eventManager, $this->cmd, $numRetries, $this->config->getLoggerCallable()
+                $this, $name, $this->eventManager, $numRetries, $this->config->getLoggerCallable()
             );
         }
-        return new Database($this, $name, $this->eventManager, $this->cmd, $numRetries);
+        return new Database($this, $name, $this->eventManager, $numRetries);
     }
 }

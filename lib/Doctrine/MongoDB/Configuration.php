@@ -61,20 +61,24 @@ class Configuration
     /**
      * Get the MongoDB command prefix.
      *
+     * @deprecated 1.1 No longer supported; will be removed for 1.2
      * @return string
      */
     public function getMongoCmd()
     {
+        trigger_error('MongoDB command prefix option is no longer used', E_USER_DEPRECATED);
         return $this->attributes['mongoCmd'];
     }
 
     /**
      * Set the MongoDB command prefix.
      *
+     * @deprecated 1.1 No longer supported; will be removed for 1.2
      * @param string $cmd
      */
     public function setMongoCmd($cmd)
     {
+        trigger_error('MongoDB command prefix option is no longer used', E_USER_DEPRECATED);
         $this->attributes['mongoCmd'] = $cmd;
     }
 
