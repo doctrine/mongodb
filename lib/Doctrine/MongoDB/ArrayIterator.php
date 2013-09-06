@@ -35,6 +35,11 @@ class ArrayIterator implements Iterator, ArrayAccess
     private $elements;
 
     /**
+     * @var array
+     */
+    private $commandResult;
+
+    /**
      * Constructor.
      *
      * @param array $elements
@@ -69,6 +74,28 @@ class ArrayIterator implements Iterator, ArrayAccess
     public function first()
     {
         return reset($this->elements);
+    }
+
+    /**
+     * Get the full result document for the MongoDB command (if available).
+     *
+     * @since  1.1
+     * @return array|null
+     */
+    public function getCommandResult()
+    {
+        return $this->commandResult;
+    }
+
+    /**
+     * Set the full result document for the MongoDB command.
+     *
+     * @since  1.1
+     * @param array $commandResult
+     */
+    public function setCommandResult(array $commandResult)
+    {
+        $this->commandResult = $commandResult;
     }
 
     /**

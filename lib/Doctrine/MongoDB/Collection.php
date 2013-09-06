@@ -859,7 +859,10 @@ class Collection
             throw new ResultException($result);
         }
 
-        return new ArrayIterator(isset($result['result']) ? $result['result'] : array());
+        $arrayIterator = new ArrayIterator(isset($result['result']) ? $result['result'] : array());
+        $arrayIterator->setCommandResult($result);
+
+        return $arrayIterator;
     }
 
     /**
@@ -902,7 +905,10 @@ class Collection
             throw new ResultException($result);
         }
 
-        return new ArrayIterator(isset($result['values']) ? $result['values'] : array());
+        $arrayIterator = new ArrayIterator(isset($result['values']) ? $result['values'] : array());
+        $arrayIterator->setCommandResult($result);
+
+        return $arrayIterator;
     }
 
     /**
@@ -1062,7 +1068,10 @@ class Collection
             throw new ResultException($result);
         }
 
-        return new ArrayIterator(isset($result['retval']) ? $result['retval'] : array());
+        $arrayIterator = new ArrayIterator(isset($result['retval']) ? $result['retval'] : array());
+        $arrayIterator->setCommandResult($result);
+
+        return $arrayIterator;
     }
 
     /**
@@ -1128,7 +1137,10 @@ class Collection
                 ->find();
         }
 
-        return new ArrayIterator(isset($result['results']) ? $result['results'] : array());
+        $arrayIterator = new ArrayIterator(isset($result['results']) ? $result['results'] : array());
+        $arrayIterator->setCommandResult($result);
+
+        return $arrayIterator;
     }
 
     /**
@@ -1163,7 +1175,10 @@ class Collection
             throw new ResultException($result);
         }
 
-        return new ArrayIterator(isset($result['results']) ? $result['results'] : array());
+        $arrayIterator = new ArrayIterator(isset($result['results']) ? $result['results'] : array());
+        $arrayIterator->setCommandResult($result);
+
+        return $arrayIterator;
     }
 
     /**
