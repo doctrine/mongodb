@@ -21,17 +21,21 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             array('$project' => array('_id' => 1)),
         );
         $aggregated = array(array('_id' => 'bar'));
+        $commandResult = array('ok' => 1, 'result' => $aggregated);
 
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
             ->with(array('aggregate' => self::collectionName, 'pipeline' => $pipeline))
-            ->will($this->returnValue(array('ok' => 1, 'result' => $aggregated)));
+            ->will($this->returnValue($commandResult));
 
         $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
         $result = $coll->aggregate($pipeline);
 
-        $this->assertEquals(new ArrayIterator($aggregated), $result);
+        $arrayIterator = new ArrayIterator($aggregated);
+        $arrayIterator->setCommandResult($commandResult);
+
+        $this->assertEquals($arrayIterator, $result);
     }
 
     public function testAggregateWithOperatorArguments()
@@ -39,17 +43,21 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $firstOp = array('$match' => array('_id' => 'bar'));
         $secondOp = array('$project' => array('_id' => 1));
         $aggregated = array(array('_id' => 'bar'));
+        $commandResult = array('ok' => 1, 'result' => $aggregated);
 
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
             ->with(array('aggregate' => self::collectionName, 'pipeline' => array($firstOp, $secondOp)))
-            ->will($this->returnValue(array('ok' => 1, 'result' => $aggregated)));
+            ->will($this->returnValue($commandResult));
 
         $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
         $result = $coll->aggregate($firstOp, $secondOp);
 
-        $this->assertEquals(new ArrayIterator($aggregated), $result);
+        $arrayIterator = new ArrayIterator($aggregated);
+        $arrayIterator->setCommandResult($commandResult);
+
+        $this->assertEquals($arrayIterator, $result);
     }
 
     /**
@@ -458,16 +466,21 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             'finalize' => new \MongoCode('finalize'),
         ));
 
+        $commandResult = array('ok' => 1, 'retval' => $grouped, 'count' => 5, 'keys' => 2);
+
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
             ->with($command)
-            ->will($this->returnValue(array('ok' => 1, 'retval' => $grouped, 'count' => 5, 'keys' => 2)));
+            ->will($this->returnValue($commandResult));
 
         $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
         $result = $coll->group($keys, $initial, $reduce, $options);
 
-        $this->assertEquals(new ArrayIterator($grouped), $result);
+        $arrayIterator = new ArrayIterator($grouped);
+        $arrayIterator->setCommandResult($commandResult);
+
+        $this->assertEquals($arrayIterator, $result);
     }
 
     /**
@@ -554,6 +567,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             array('category' => 'veggie', 'items' => array('corn', 'broccoli')),
         );
 
+        $commandResult = array('ok' => 1, 'results' => $reduced);
+
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
@@ -565,12 +580,15 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
                 new ArrayHasKeyAndValue('query', (object) array('deleted' => false)),
                 new ArrayHasKeyAndValue('finalize', new \MongoCode('finalize'))
             ))
-            ->will($this->returnValue(array('ok' => 1, 'results' => $reduced)));
+            ->will($this->returnValue($commandResult));
 
         $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
         $result = $coll->mapReduce($map, $reduce, $out, $query, $options);
 
-        $this->assertEquals(new ArrayIterator($reduced), $result);
+        $arrayIterator = new ArrayIterator($reduced);
+        $arrayIterator->setCommandResult($commandResult);
+
+        $this->assertEquals($arrayIterator, $result);
     }
 
     public function testMapReduceWithResultsInAnotherCollection()
@@ -667,16 +685,21 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             'query' => new \stdClass(),
         );
 
+        $commandResult = array('ok' => 1, 'results' => $results);
+
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
             ->with($command)
-            ->will($this->returnValue(array('ok' => 1, 'results' => $results)));
+            ->will($this->returnValue($commandResult));
 
         $coll = $this->getTestCollection($this->getMockConnection(), $this->getMockMongoCollection(), $database);
         $result = $coll->near($point);
 
-        $this->assertEquals(new ArrayIterator($results), $result);
+        $arrayIterator = new ArrayIterator($results);
+        $arrayIterator->setCommandResult($commandResult);
+
+        $this->assertEquals($arrayIterator, $result);
     }
 
     public function providePoint()
