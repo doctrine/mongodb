@@ -796,6 +796,21 @@ class Expr
     }
 
     /**
+     * Rename the current field.
+     *
+     * @see Builder::rename()
+     * @see http://docs.mongodb.org/manual/reference/operator/rename/
+     * @param string $name
+     * @return self
+     */
+    public function rename($name)
+    {
+        $this->requiresCurrentField();
+        $this->newObj['$rename'][$this->currentField] = $name;
+        return $this;
+    }
+
+    /**
      * Set the current field to a value.
      *
      * This is only relevant for insert, update, or findAndUpdate queries. For

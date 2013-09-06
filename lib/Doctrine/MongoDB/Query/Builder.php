@@ -1161,6 +1161,20 @@ class Builder
     }
 
     /**
+     * Rename the current field.
+     *
+     * @see Expr::rename()
+     * @see http://docs.mongodb.org/manual/reference/operator/rename/
+     * @param string $name
+     * @return self
+     */
+    public function rename($name)
+    {
+        $this->expr->rename($name);
+        return $this;
+    }
+
+    /**
      * Set the "new" option for a findAndUpdate command.
      *
      * @param boolean $bool
