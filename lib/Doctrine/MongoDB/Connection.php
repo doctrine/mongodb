@@ -271,7 +271,9 @@ class Connection
      */
     public function isConnected()
     {
-        return $this->mongo !== null && $this->mongo instanceof \Mongo && $this->mongo->connected;
+        $instanceOfMongoClient = $this->mongo instanceof \Mongo || $this->mongo instanceof \MongoClient;
+
+        return $this->mongo !== null && $instanceOfMongoClient && $this->mongo->connected;
     }
 
     /**
