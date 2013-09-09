@@ -125,6 +125,10 @@ class Connection
      */
     public function getStatus()
     {
+        if ( ! ($this->mongo instanceof \MongoClient || $this->mongo instanceof \Mongo)) {
+            return null;
+        }
+
         return $this->mongo->status;
     }
 
