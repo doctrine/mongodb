@@ -125,6 +125,10 @@ class Connection
      */
     public function getStatus()
     {
+        if ( ! ($this->mongo instanceof \MongoClient || $this->mongo instanceof \Mongo)) {
+            return null;
+        }
+
         return $this->mongo->status;
     }
 
@@ -135,7 +139,11 @@ class Connection
      */
     public function isConnected()
     {
-        return $this->mongo !== null && $this->mongo instanceof \Mongo && $this->mongo->connected;
+        if ( ! ($this->mongo instanceof \MongoClient || $this->mongo instanceof \Mongo)) {
+            return false;
+        }
+
+        return $this->mongo->connected;
     }
 
     /**
