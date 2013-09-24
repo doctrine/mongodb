@@ -258,6 +258,10 @@ class Connection
                 if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
                     return new \Mongo($server ?: 'mongodb://localhost:27017', $options);
                 }
+                if (version_compare(phpversion('mongo'), '1.4.0', '>=') && isset($options['timeout'])) {
+                    $options['connectTimeoutMS'] = $options['timeout'];
+                    unset($options['timeout']);
+                }
 
                 return new \MongoClient($server ?: 'mongodb://localhost:27017', $options);
             });
