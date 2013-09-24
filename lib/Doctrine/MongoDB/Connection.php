@@ -276,6 +276,11 @@ class Connection
         $server = $this->server ?: 'mongodb://localhost:27017';
         $options = $this->options;
 
+        if (version_compare(phpversion('mongo'), '1.4.0', '>=') && isset($options['timeout'])) {
+            $options['connectTimeoutMS'] = $options['timeout'];
+            unset($options['timeout']);
+        }
+
         $this->mongoClient = $this->retry(function() use ($server, $options) {
             return version_compare(phpversion('mongo'), '1.3.0', '<')
                 ? new \Mongo($server, $options)
