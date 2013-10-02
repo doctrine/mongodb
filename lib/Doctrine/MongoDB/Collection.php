@@ -934,6 +934,14 @@ class Collection
     {
         $collection = $this;
         $cursor = $this->retry(function() use ($collection, $query, $fields) {
+            
+            //start work around for bug in php mongo driver.
+            //see https://jira.mongodb.org/browse/PHP-722
+            //TODO: remove when diver 1.5 is released, and support for older drivers is dropped
+            $f = function(){};
+            $f($collection, $query, $fields);
+            //end work around
+            
             return $collection->getMongoCollection()->find($query, $fields);
         });
         return $this->wrapCursor($cursor, $query, $fields);
