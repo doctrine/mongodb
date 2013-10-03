@@ -1344,7 +1344,7 @@ class Builder
      * @param int|string $order       Field order (if one field is specified)
      * @return self
      */
-    public function sort($fieldName, $order = null)
+    public function sort($fieldName, $order = 1)
     {
         if ( ! isset($this->query['sort'])) {
             $this->query['sort'] = array();
