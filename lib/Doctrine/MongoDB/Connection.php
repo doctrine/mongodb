@@ -168,6 +168,7 @@ class Connection
      */
     public function getMongo()
     {
+        $this->initialize();
         return $this->mongo;
     }
 
@@ -193,6 +194,7 @@ class Connection
      */
     public function getReadPreference()
     {
+        $this->initialize();
         return $this->mongo->getReadPreference();
     }
 
@@ -206,6 +208,7 @@ class Connection
      */
     public function setReadPreference($readPreference, array $tags = null)
     {
+        $this->initialize();
         if (isset($tags)) {
             return $this->mongo->setReadPreference($readPreference, $tags);
         }
@@ -231,6 +234,7 @@ class Connection
      */
     public function getStatus()
     {
+        $this->initialize();
         if ( ! ($this->mongo instanceof \MongoClient || $this->mongo instanceof \Mongo)) {
             return null;
         }
