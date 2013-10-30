@@ -20,7 +20,7 @@
 namespace Doctrine\MongoDB;
 
 /**
- * Wrapper for the PHP MongoGridFSFile class.
+ * Wrapper for the MongoGridFSFile class.
  *
  * Files may be dirty, which means that they must be persisted to the database.
  * Clean files are assumed to be in sync with the database.

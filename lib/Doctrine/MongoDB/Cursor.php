@@ -30,21 +30,17 @@ use Doctrine\MongoDB\Util\ReadPreference;
 class Cursor implements Iterator
 {
     /**
-     * The Connection instance used for reinitializing during retry attempts.
-     *
-     * @var Connection
-     */
-    protected $connection;
-
-    /**
      * The Collection instance used for recreating this cursor.
+     *
+     * This is also used to access the Connection for reinitializing during
+     * retry attempts.
      *
      * @var Collection
      */
     protected $collection;
 
     /**
-     * The PHP MongoCursor instance being wrapped.
+     * The MongoCursor instance being wrapped.
      *
      * @var \MongoCursor
      */
@@ -76,16 +72,16 @@ class Cursor implements Iterator
     /**
      * Constructor.
      *
-     * @param Connection   $connection  Connection used to create this Cursor
+     * The wrapped MongoCursor instance may change if the cursor is recreated.
+     *
      * @param Collection   $collection  Collection used to create this Cursor
-     * @param \MongoCursor $mongoCursor MongoCursor being wrapped
+     * @param \MongoCursor $mongoCursor MongoCursor instance being wrapped
      * @param array        $query       Query criteria
      * @param array        $fields      Selected fields (projection)
      * @param integer      $numRetries  Number of times to retry queries
      */
-    public function __construct(Connection $connection, Collection $collection, \MongoCursor $mongoCursor, array $query = array(), array $fields = array(), $numRetries = 0)
+    public function __construct(Collection $collection, \MongoCursor $mongoCursor, array $query = array(), array $fields = array(), $numRetries = 0)
     {
-        $this->connection = $connection;
         $this->collection = $collection;
         $this->mongoCursor = $mongoCursor;
         $this->query = $query;
@@ -206,13 +202,14 @@ class Cursor implements Iterator
     }
 
     /**
-     * Return the database connection for this cursor.
+     * Return the connection for this cursor.
      *
+     * @deprecated 1.1 Will be removed for 2.0
      * @return Connection
      */
     public function getConnection()
     {
-        return $this->connection;
+        return $this->collection->getDatabase()->getConnection();
     }
 
     /**
@@ -273,7 +270,7 @@ class Cursor implements Iterator
      */
     public function getReadPreference()
     {
-        return $this->getMongoDB()->getReadPreference();
+        return $this->mongoCursor->getReadPreference();
     }
 
     /**
@@ -655,44 +652,37 @@ class Cursor implements Iterator
      * If the closure does not return successfully within the configured number
      * of retries, its first exception will be thrown.
      *
-     * The $recreate parameter may be used to reinitialize the Connection (i.e.
-     * recreate its MongoClient) and recreate the wrapped MongoCursor before
+     * The $recreate parameter may be used to recreate the MongoCursor between
      * retry attempts.
      *
      * @param \Closure $retry
-     * @param boolean  $recreate
+     * @param boolean $recreate
      * @return mixed
      */
     protected function retry(\Closure $retry, $recreate = false)
     {
-        if ($this->numRetries) {
-            $firstException = null;
-            for ($i = 0; $i <= $this->numRetries; $i++) {
-                $reconnect = false;
-                try {
-                    return $retry();
-                } catch (\MongoCursorTimeoutException $e) {
-                } catch (\MongoCursorException $e) {
-                } catch (\MongoConnectionException $e) {
-                    $reconnect = true;
-                }
-                if (isset($e)) {
-                    if (!$firstException) {
-                        $firstException = $e;
-                    }
-                    if ($i === $this->numRetries) {
-                        throw $firstException;
-                    }
-                    if ($recreate) {
-                        if ($reconnect) {
-                            $this->connection->initialize(true);
-                        }
-                        $this->recreate();
-                    }
-                }
-            }
-        } else {
+        if ($this->numRetries < 1) {
             return $retry();
+        }
+
+        $firstException = null;
+
+        for ($i = 0; $i <= $this->numRetries; $i++) {
+            try {
+                return $retry();
+            } catch (\MongoCursorException $e) {
+            } catch (\MongoConnectionException $e) {
+            }
+
+            if ($firstException === null) {
+                $firstException = $e;
+            }
+            if ($i === $this->numRetries) {
+                throw $firstException;
+            }
+            if ($recreate) {
+                $this->recreate();
+            }
         }
     }
 }

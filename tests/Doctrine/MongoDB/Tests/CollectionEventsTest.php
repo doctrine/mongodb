@@ -16,17 +16,25 @@ use Doctrine\MongoDB\Event\UpdateEventArgs;
 
 class CollectionEventsTest extends \PHPUnit_Framework_TestCase
 {
-    const collectionName = 'collection';
+    private $database;
+    private $eventManager;
+    private $mongoCollection;
+
+    public function setUp()
+    {
+        $this->database = $this->getMockDatabase();
+        $this->eventManager = $this->getMockEventManager();
+        $this->mongoCollection = $this->getMockMongoCollection();
+    }
 
     public function testAggregate()
     {
         $pipeline = array(array('$match' => array('_id' => '1')));
         $result = array(array('_id' => '1'));
 
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doAggregate' => $result));
+        $collection = $this->getMockCollection(array('doAggregate' => $result));
 
-        $this->expectEvents($eventManager, array(
+        $this->expectEvents(array(
             array(Events::preAggregate, new AggregateEventArgs($collection, $pipeline)),
             array(Events::postAggregate, new MutableEventArgs($collection, $result)),
         ));
@@ -40,10 +48,9 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
         $options = array('continueOnError' => true);
         $result = array(array('_id' => new \MongoId(), 'x' => 1));
 
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doBatchInsert' => $result));
+        $collection = $this->getMockCollection(array('doBatchInsert' => $result));
 
-        $this->expectEvents($eventManager, array(
+        $this->expectEvents(array(
             array(Events::preBatchInsert, new EventArgs($collection, $documents, $options)),
             array(Events::postBatchInsert, new MutableEventArgs($collection, $result)),
         ));
@@ -57,10 +64,9 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
         $query = array('y' => 1);
         $result = array(array('x' => 1, 'y' => 1), array('x' => 2, 'y' => 1));
 
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doDistinct' => $result));
+        $collection = $this->getMockCollection(array('doDistinct' => $result));
 
-        $this->expectEvents($eventManager, array(
+        $this->expectEvents(array(
             array(Events::preDistinct, new DistinctEventArgs($collection, $field, $query)),
             array(Events::postDistinct, new MutableEventArgs($collection, $result)),
         ));
@@ -72,10 +78,9 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
     {
         $result = array('ok' => 1);
 
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doDrop' => $result));
+        $collection = $this->getMockCollection(array('doDrop' => $result));
 
-        $this->expectEvents($eventManager, array(
+        $this->expectEvents(array(
             array(Events::preDropCollection, new EventArgs($collection)),
             array(Events::postDropCollection, new EventArgs($collection, $result)),
         ));
@@ -89,10 +94,9 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
         $fields = array('_id' => 0);
         $result = array(array('x' => 1, 'y' => 2));
 
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doFind' => $result));
+        $collection = $this->getMockCollection(array('doFind' => $result));
 
-        $this->expectEvents($eventManager, array(
+        $this->expectEvents(array(
             array(Events::preFind, new FindEventArgs($collection, $query, $fields)),
             array(Events::postFind, new MutableEventArgs($collection, $result)),
         ));
@@ -106,10 +110,9 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
         $fields = array('_id' => 0);
         $result = array('x' => 1, 'y' => 2);
 
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doFindOne' => $result));
+        $collection = $this->getMockCollection(array('doFindOne' => $result));
 
-        $this->expectEvents($eventManager, array(
+        $this->expectEvents(array(
             array(Events::preFindOne, new FindEventArgs($collection, $query, $fields)),
             array(Events::postFindOne, new MutableEventArgs($collection, $result)),
         ));
@@ -123,10 +126,9 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
         $options = array('sort' => array('y' => -1));
         $result = array('x' => 1);
 
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doFindAndRemove' => $result));
+        $collection = $this->getMockCollection(array('doFindAndRemove' => $result));
 
-        $this->expectEvents($eventManager, array(
+        $this->expectEvents(array(
             array(Events::preFindAndRemove, new EventArgs($collection, $query, $options)),
             array(Events::postFindAndRemove, new MutableEventArgs($collection, $result)),
         ));
@@ -141,10 +143,9 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
         $options = array('sort' => array('y' => -1));
         $result = array('x' => 2);
 
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doFindAndUpdate' => $result));
+        $collection = $this->getMockCollection(array('doFindAndUpdate' => $result));
 
-        $this->expectEvents($eventManager, array(
+        $this->expectEvents(array(
             array(Events::preFindAndUpdate, new UpdateEventArgs($collection, $query, $newObj, $options)),
             array(Events::postFindAndUpdate, new MutableEventArgs($collection, $result)),
         ));
@@ -154,13 +155,12 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
 
     public function testGetDBRef()
     {
-        $reference = array('$ref' => self::collectionName, '$id' => 1);
+        $reference = array('$ref' => 'collection', '$id' => 1);
         $result = array('_id' => 1);
 
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doGetDBRef' => $result));
+        $collection = $this->getMockCollection(array('doGetDBRef' => $result));
 
-        $this->expectEvents($eventManager, array(
+        $this->expectEvents(array(
             array(Events::preGetDBRef, new EventArgs($collection, $reference)),
             array(Events::postGetDBRef, new MutableEventArgs($collection, $result)),
         ));
@@ -176,10 +176,9 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
         $options = array('finalize' => new \MongoCode(''));
         $result = array(array('count' => '1'));
 
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doGroup' => $result));
+        $collection = $this->getMockCollection(array('doGroup' => $result));
 
-        $this->expectEvents($eventManager, array(
+        $this->expectEvents(array(
             array(Events::preGroup, new GroupEventArgs($collection, $keys, $initial, $reduce, $options)),
             array(Events::postGroup, new MutableEventArgs($collection, $result)),
         ));
@@ -193,10 +192,9 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
         $options = array('w' => 1);
         $result = array('_id' => new \MongoId(), 'x' => 1);
 
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doInsert' => $result));
+        $collection = $this->getMockCollection(array('doInsert' => $result));
 
-        $this->expectEvents($eventManager, array(
+        $this->expectEvents(array(
             array(Events::preInsert, new EventArgs($collection, $document, $options)),
             array(Events::postInsert, new MutableEventArgs($collection, $result)),
         ));
@@ -213,10 +211,9 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
         $options = array('finalize' => new \MongoCode(''));
         $result = array(array('count' => '1'));
 
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doMapReduce' => $result));
+        $collection = $this->getMockCollection(array('doMapReduce' => $result));
 
-        $this->expectEvents($eventManager, array(
+        $this->expectEvents(array(
             array(Events::preMapReduce, new MapReduceEventArgs($collection, $map, $reduce, $out, $query, $options)),
             array(Events::postMapReduce, new MutableEventArgs($collection, $result)),
         ));
@@ -231,10 +228,9 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
         $options = array('limit' => 5);
         $result = array(array('x' => 1, 'loc' => array(11, 19)));
 
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doNear' => $result));
+        $collection = $this->getMockCollection(array('doNear' => $result));
 
-        $this->expectEvents($eventManager, array(
+        $this->expectEvents(array(
             array(Events::preNear, new NearEventArgs($collection, $query, $near, $options)),
             array(Events::postNear, new MutableEventArgs($collection, $result)),
         ));
@@ -248,10 +244,9 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
         $options = array('justOne' => true);
         $result = array('ok' => 1);
 
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doRemove' => $result));
+        $collection = $this->getMockCollection(array('doRemove' => $result));
 
-        $this->expectEvents($eventManager, array(
+        $this->expectEvents(array(
             array(Events::preRemove, new EventArgs($collection, $query, $options)),
             array(Events::postRemove, new EventArgs($collection, $result)),
         ));
@@ -265,10 +260,9 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
         $options = array('w' => 1);
         $result = array('_id' => new \MongoId(), 'x' => 1);
 
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doSave' => $result));
+        $collection = $this->getMockCollection(array('doSave' => $result));
 
-        $this->expectEvents($eventManager, array(
+        $this->expectEvents(array(
             array(Events::preSave, new EventArgs($collection, $document, $options)),
             array(Events::postSave, new MutableEventArgs($collection, $result)),
         ));
@@ -283,10 +277,9 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
         $options = array('upsert' => true);
         $result = array(array('ok' => 1));
 
-        $eventManager = $this->getMockEventManager();
-        $collection = $this->getMockCollection($eventManager, array('doUpdate' => $result));
+        $collection = $this->getMockCollection(array('doUpdate' => $result));
 
-        $this->expectEvents($eventManager, array(
+        $this->expectEvents(array(
             array(Events::preUpdate, new UpdateEventArgs($collection, $query, $newObj, $options)),
             array(Events::postUpdate, new EventArgs($collection, $result)),
         ));
@@ -297,10 +290,9 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
     /**
      * Expect events to be dispatched by the event manager in the given order.
      *
-     * @param EventManager $em     EventManager mock
-     * @param array        $events Tuple of event name and dispatch argument
+     * @param array $events Tuple of event name and dispatch argument
      */
-    private function expectEvents(EventManager $em, array $events)
+    private function expectEvents(array $events)
     {
         /* Each event should be a tuple consisting of the event name and the
          * dispatched argument (e.g. EventArgs).
@@ -310,29 +302,21 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
          * to with(), so constraints may be used (e.g. callback).
          */
         foreach ($events as $i => $event) {
-            $em->expects($this->at($i * 2))
+            $this->eventManager->expects($this->at($i * 2))
                 ->method('hasListeners')
                 ->with($event[0])
                 ->will($this->returnValue(true));
 
-            $em->expects($this->at($i * 2 + 1))
+            $this->eventManager->expects($this->at($i * 2 + 1))
                 ->method('dispatchEvent')
                 ->with($event[0], $event[1]);
         }
     }
 
-    private function getMockCollection(EventManager $em, array $methods)
+    private function getMockCollection(array $methods)
     {
-        $c = $this->getMockBuilder('Doctrine\MongoDB\Connection')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $db = $this->getMockBuilder('Doctrine\MongoDB\Database')
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $collection = $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->setConstructorArgs(array($c, self::collectionName, $db, $em))
+            ->setConstructorArgs(array($this->database, $this->mongoCollection, $this->eventManager))
             ->setMethods(array_keys($methods))
             ->getMock();
 
@@ -345,9 +329,23 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
         return $collection;
     }
 
+    private function getMockDatabase()
+    {
+        return $this->getMockBuilder('Doctrine\MongoDB\Database')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
     private function getMockEventManager()
     {
         return $this->getMockBuilder('Doctrine\Common\EventManager')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    private function getMockMongoCollection()
+    {
+        return $this->getMockBuilder('MongoCollection')
             ->disableOriginalConstructor()
             ->getMock();
     }

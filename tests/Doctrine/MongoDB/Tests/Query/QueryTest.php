@@ -11,7 +11,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
      */
     public function testConstructorShouldThrowExceptionForInvalidType()
     {
-        new Query($this->getMockDatabase(), $this->getMockCollection(), array('type' => -1), array());
+        new Query($this->getMockCollection(), array('type' => -1), array());
     }
 
     /**
@@ -23,7 +23,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $collection = $this->getMockCollection();
         $collection->expects($this->never())->method($method);
 
-        $query = new Query($this->getMockDatabase(), $collection, array('type' => $type), array());
+        $query = new Query($collection, array('type' => $type), array());
 
         $query->getIterator();
     }
@@ -61,7 +61,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
             'distinct' => 0,
         );
 
-        $query = new Query($this->getMockDatabase(), $collection, $queryArray, array());
+        $query = new Query($collection, $queryArray, array());
 
         $query->getIterator();
     }
@@ -100,7 +100,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
             ->method('group')
             ->with($keys, $initial, $reduce, array('finalize' => $finalize, 'cond' => array('type' => 1)));
 
-        $query = new Query($this->getMockDatabase(), $collection, $queryArray, array());
+        $query = new Query($collection, $queryArray, array());
         $query->execute();
     }
 
@@ -126,7 +126,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
             ->method('mapReduce')
             ->with($map, $reduce, 'collection', array('type' => 1), array('limit' => 10, 'jsMode' => true));
 
-        $query = new Query($this->getMockDatabase(), $collection, $queryArray, array());
+        $query = new Query($collection, $queryArray, array());
         $query->execute();
     }
 
@@ -147,7 +147,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
             ->method('near')
             ->with(array(1, 1), array('type' => 1), array('num' => 10, 'spherical' => true));
 
-        $query = new Query($this->getMockDatabase(), $collection, $queryArray, array());
+        $query = new Query($collection, $queryArray, array());
         $query->execute();
     }
 
@@ -157,16 +157,6 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     private function getMockCollection()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->disableOriginalConstructor()
-            ->getMock();
-    }
-
-    /**
-     * @return \Doctrine\MongoDB\Database
-     */
-    private function getMockDatabase()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Database')
             ->disableOriginalConstructor()
             ->getMock();
     }

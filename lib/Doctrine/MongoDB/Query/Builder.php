@@ -588,7 +588,7 @@ class Builder
         $query = $this->query;
         $query['query'] = $this->expr->getQuery();
         $query['newObj'] = $this->expr->getNewObj();
-        return new Query($this->database, $this->collection, $query, $options);
+        return new Query($this->collection, $query, $options);
     }
 
     /**

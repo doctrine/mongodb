@@ -20,7 +20,7 @@
 namespace Doctrine\MongoDB;
 
 /**
- * Wrapper for the PHP MongoCursor class with logging functionality.
+ * Wrapper for the MongoCursor class with logging functionality.
  *
  * @since  1.0
  * @author Jonathan H. Wage <jonwage@gmail.com>
@@ -37,21 +37,20 @@ class LoggableCursor extends Cursor implements Loggable
     /**
      * Constructor.
      *
-     * @param Connection   $connection     Connection used to create this Cursor
      * @param Collection   $collection     Collection used to create this Cursor
      * @param \MongoCursor $mongoCursor    MongoCursor being wrapped
-     * @param callable     $loggerCallable Logger callable
      * @param array        $query          Query criteria
      * @param array        $fields         Selected fields (projection)
      * @param integer      $numRetries     Number of times to retry queries
+     * @param callable     $loggerCallable Logger callable
      */
-    public function __construct(Connection $connection, Collection $collection, \MongoCursor $mongoCursor, $loggerCallable, array $query, array $fields, $numRetries = 0)
+    public function __construct(Collection $collection, \MongoCursor $mongoCursor, array $query, array $fields, $numRetries, $loggerCallable)
     {
         if ( ! is_callable($loggerCallable)) {
             throw new \InvalidArgumentException('$loggerCallable must be a valid callback');
         }
-        parent::__construct($connection, $collection, $mongoCursor, $query, $fields, $numRetries);
         $this->loggerCallable = $loggerCallable;
+        parent::__construct($collection, $mongoCursor, $query, $fields, $numRetries);
     }
 
     /**

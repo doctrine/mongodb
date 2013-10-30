@@ -52,13 +52,6 @@ class Query implements IteratorAggregate
     const TYPE_COUNT           = 11;
 
     /**
-     * The Database instance.
-     *
-     * @var Database
-     */
-    protected $database;
-
-    /**
      * The Collection instance.
      *
      * @var Collection
@@ -87,13 +80,12 @@ class Query implements IteratorAggregate
     /**
      * Constructor.
      *
-     * @param Database $database
      * @param Collection $collection
      * @param array $query
      * @param array $options
      * @throws InvalidArgumentException if query type is invalid
      */
-    public function __construct(Database $database, Collection $collection, array $query, array $options)
+    public function __construct(Collection $collection, array $query, array $options)
     {
         switch ($query['type']) {
             case self::TYPE_FIND:
@@ -113,7 +105,6 @@ class Query implements IteratorAggregate
                 throw new InvalidArgumentException('Invalid query type: ' . $query['type']);
         }
 
-        $this->database   = $database;
         $this->collection = $collection;
         $this->query      = $query;
         $this->options    = $options;
