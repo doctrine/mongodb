@@ -592,24 +592,17 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 
     private function getStubQueryBuilder()
     {
-        return new BuilderStub($this->getMockDatabase(), $this->getMockCollection());
+        return new BuilderStub($this->getMockCollection());
     }
 
     private function getTestQueryBuilder()
     {
-        return new Builder($this->getMockDatabase(), $this->getMockCollection());
+        return new Builder($this->getMockCollection());
     }
 
     private function getMockCollection()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->disableOriginalConstructor()
-            ->getMock();
-    }
-
-    private function getMockDatabase()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Database')
             ->disableOriginalConstructor()
             ->getMock();
     }

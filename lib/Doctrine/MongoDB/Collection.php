@@ -187,7 +187,7 @@ class Collection
      */
     public function createQueryBuilder()
     {
-        return new Query\Builder($this->database, $this);
+        return new Query\Builder($this);
     }
 
     /**

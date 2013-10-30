@@ -34,13 +34,6 @@ use BadMethodCallException;
 class Builder
 {
     /**
-     * The Database instance.
-     *
-     * @var Database
-     */
-    protected $database;
-
-    /**
      * The Collection instance.
      *
      * @var Collection
@@ -67,11 +60,10 @@ class Builder
     /**
      * Create a new query builder.
      *
-     * @param Database $database
+     * @param Collection $collection
      */
-    public function __construct(Database $database, Collection $collection)
+    public function __construct(Collection $collection)
     {
-        $this->database = $database;
         $this->collection = $collection;
         $this->expr = new Expr();
     }
