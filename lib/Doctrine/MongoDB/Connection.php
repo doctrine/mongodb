@@ -417,16 +417,19 @@ class Connection
      */
     protected function retry(\Closure $retry)
     {
-        if (!$numRetries = $this->config->getRetryConnect()) {
+        $numRetries = $this->config->getRetryConnect();
+
+        if ($numRetries < 1) {
             return $retry();
         }
 
         $firstException = null;
+
         for ($i = 0; $i <= $numRetries; $i++) {
             try {
                 return $retry();
             } catch (\MongoException $e) {
-                if (!$firstException) {
+                if ($firstException === null) {
                     $firstException = $e;
                 }
                 if ($i === $numRetries) {
@@ -434,7 +437,5 @@ class Connection
                 }
             }
         }
-
-        throw $e;
     }
 }

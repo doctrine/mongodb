@@ -1231,22 +1231,23 @@ class Collection
      */
     protected function retry(\Closure $retry)
     {
-        if ($this->numRetries) {
-            $firstException = null;
-            for ($i = 0; $i <= $this->numRetries; $i++) {
-                try {
-                    return $retry();
-                } catch (\MongoException $e) {
-                    if (!$firstException) {
-                        $firstException = $e;
-                    }
-                    if ($i === $this->numRetries) {
-                        throw $firstException;
-                    }
+        if ($this->numRetries < 1) {
+            return $retry();
+        }
+
+        $firstException = null;
+
+        for ($i = 0; $i <= $this->numRetries; $i++) {
+            try {
+                return $retry();
+            } catch (\MongoException $e) {
+                if ($firstException === null) {
+                    $firstException = $e;
+                }
+                if ($i === $this->numRetries) {
+                    throw $firstException;
                 }
             }
-        } else {
-            return $retry();
         }
     }
 
