@@ -208,54 +208,6 @@ class CursorTest extends BaseTest
         $this->assertSame($cursor, $cursor->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
     }
 
-    /**
-     * In practice, MongoCursor::setReadPreference() will raise an E_WARNING
-     * before we throw an exception.
-     *
-     * @expectedException InvalidArgumentException
-     */
-    public function testSetReadPreferenceExceptionForInvalidReadPreference()
-    {
-        if (!method_exists('MongoCursor', 'setReadPreference')) {
-            $this->markTestSkipped('This test is not applicable to drivers without MongoCursor::setReadPreference()');
-        }
-
-        $mongoCursor = $this->getMockMongoCursor();
-
-        $mongoCursor->expects($this->once())
-            ->method('setReadPreference')
-            ->with('InvalidReadPreference')
-            ->will($this->returnValue(false));
-
-        $cursor = $this->getTestCursor($this->getMockCollection(), $mongoCursor);
-
-        $cursor->setReadPreference('InvalidReadPreference');
-    }
-
-    /**
-     * In practice, MongoCursor::setReadPreference() will raise an E_WARNING
-     * before we throw an exception.
-     *
-     * @expectedException InvalidArgumentException
-     */
-    public function testSetReadPreferenceExceptionForInvalidTags()
-    {
-        if (!method_exists('MongoCursor', 'setReadPreference')) {
-            $this->markTestSkipped('This test is not applicable to drivers without MongoCursor::setReadPreference()');
-        }
-
-        $mongoCursor = $this->getMockMongoCursor();
-
-        $mongoCursor->expects($this->once())
-            ->method('setReadPreference')
-            ->with(\MongoClient::RP_PRIMARY, array(array('dc' => 'east')))
-            ->will($this->returnValue(false));
-
-        $cursor = $this->getTestCursor($this->getMockCollection(), $mongoCursor);
-
-        $cursor->setReadPreference(\MongoClient::RP_PRIMARY, array(array('dc' => 'east')));
-    }
-
     public function testRecreate()
     {
         if (!method_exists('MongoCursor', 'setReadPreference')) {

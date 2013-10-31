@@ -276,30 +276,21 @@ class Cursor implements Iterator
     /**
      * Set the read preference.
      *
-     * This method returns the Cursor object to allow method chaining, unlike
-     * the base MongoCursor method, which returns a boolean value indicating
-     * success or failure.
-     *
      * @see http://php.net/manual/en/mongocursor.setreadpreference.php
      * @param string $readPreference
      * @param array  $tags
      * @return self
-     * @throws \InvalidArgumentException if MongoCursor::setReadPreference() fails
      */
     public function setReadPreference($readPreference, array $tags = null)
     {
+        if ($tags !== null) {
+            $this->mongoCursor->setReadPreference($readPreference, $tags);
+        } else {
+            $this->mongoCursor->setReadPreference($readPreference);
+        }
+
         $this->readPreference = $readPreference;
         $this->readPreferenceTags = $tags;
-
-        if ($tags !== null) {
-            $retval = $this->mongoCursor->setReadPreference($readPreference, $tags);
-        } else {
-            $retval = $this->mongoCursor->setReadPreference($readPreference);
-        }
-
-        if ($retval !== true) {
-            throw new \InvalidArgumentException('Invalid arguments for MongoCursor::setReadPreference()');
-        }
 
         return $this;
     }
