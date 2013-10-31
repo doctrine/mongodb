@@ -465,12 +465,15 @@ class Collection
     /**
      * Wrapper method for MongoCollection::getReadPreference().
      *
+     * For driver versions between 1.3.0 and 1.3.3, the return value will be
+     * converted for consistency with {@link Collection::setReadPreference()}.
+     *
      * @see http://php.net/manual/en/mongocollection.getreadpreference.php
      * @return array
      */
     public function getReadPreference()
     {
-        return $this->mongoCollection->getReadPreference();
+        return ReadPreference::convertReadPreference($this->mongoCollection->getReadPreference());
     }
 
     /**
@@ -507,11 +510,7 @@ class Collection
             return $this->mongoCollection->getSlaveOkay();
         }
 
-        $readPref = $this->mongoCollection->getReadPreference();
-
-        if (is_numeric($readPref['type'])) {
-            $readPref['type'] = ReadPreference::convertNumericType($readPref['type']);
-        }
+        $readPref = $this->getReadPreference();
 
         return \MongoClient::RP_PRIMARY !== $readPref['type'];
     }
@@ -538,8 +537,8 @@ class Collection
 
         if ($ok) {
             // Preserve existing tags for non-primary read preferences
-            $readPref = $this->mongoCollection->getReadPreference();
-            $tags = !empty($readPref['tagsets']) ? ReadPreference::convertTagSets($readPref['tagsets']) : array();
+            $readPref = $this->getReadPreference();
+            $tags = ! empty($readPref['tagsets']) ? $readPref['tagsets'] : array();
             $this->mongoCollection->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
         } else {
             $this->mongoCollection->setReadPreference(\MongoClient::RP_PRIMARY);
