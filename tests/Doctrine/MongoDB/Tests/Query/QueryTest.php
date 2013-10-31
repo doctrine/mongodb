@@ -151,6 +151,74 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $query->execute();
     }
 
+    public function testWithReadPreference()
+    {
+        $collection = $this->getMockCollection();
+
+        $collection->expects($this->at(0))
+            ->method('getReadPreference')
+            ->will($this->returnValue(array('type' => 'primary')));
+
+        $collection->expects($this->at(1))
+            ->method('setReadPreference')
+            ->with('secondary', array(array('dc' => 'east')));
+
+        $collection->expects($this->at(2))
+            ->method('count')
+            ->with(array('foo' => 'bar'))
+            ->will($this->returnValue(100));
+
+        $collection->expects($this->at(3))
+            ->method('setReadPreference')
+            ->with('primary');
+
+        $queryArray = array(
+            'type' => Query::TYPE_COUNT,
+            'query' => array('foo' => 'bar'),
+            'readPreference' => 'secondary',
+            'readPreferenceTags' => array(array('dc' => 'east')),
+        );
+
+        $query = new Query($collection, $queryArray, array());
+
+        $this->assertEquals(100, $query->execute());
+    }
+
+    public function testWithReadPreferenceRestoresReadPreferenceBeforePropagatingException()
+    {
+        $this->setExpectedException('RuntimeException', 'count');
+
+        $collection = $this->getMockCollection();
+
+        $collection->expects($this->at(0))
+            ->method('getReadPreference')
+            ->will($this->returnValue(array('type' => 'primary')));
+
+        $collection->expects($this->at(1))
+            ->method('setReadPreference')
+            ->with('secondary', array(array('dc' => 'east')));
+
+        $collection->expects($this->at(2))
+            ->method('count')
+            ->with(array('foo' => 'bar'))
+            ->will($this->throwException(new \RuntimeException('count')));
+
+        $collection->expects($this->at(3))
+            ->method('setReadPreference')
+            ->with('primary');
+
+        $queryArray = array(
+            'type' => Query::TYPE_COUNT,
+            'query' => array('foo' => 'bar'),
+            'readPreference' => 'secondary',
+            'readPreferenceTags' => array(array('dc' => 'east')),
+        );
+
+        $query = new Query($collection, $queryArray, array());
+
+        $query->execute();
+    }
+
     /**
      * @return \Doctrine\MongoDB\Collection
      */

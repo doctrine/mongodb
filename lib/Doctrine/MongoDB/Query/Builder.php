@@ -1268,6 +1268,23 @@ class Builder
     }
 
     /**
+     * Set the read preference for the query.
+     *
+     * This is only relevant for read-only queries and commands.
+     *
+     * @see http://docs.mongodb.org/manual/core/read-preference/
+     * @param mixed $value
+     * @param boolean $atomic
+     * @return self
+     */
+    public function setReadPreference($readPreference, array $tags = null)
+    {
+        $this->query['readPreference'] = $readPreference;
+        $this->query['readPreferenceTags'] = $tags;
+        return $this;
+    }
+
+    /**
      * Specify $size criteria for the current field.
      *
      * @see Expr::size()

@@ -590,6 +590,15 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $qb->debug('select'));
     }
 
+    public function testSetReadPreference()
+    {
+        $qb = $this->getTestQueryBuilder();
+        $qb->setReadPreference('secondary', array(array('dc' => 'east')));
+
+        $this->assertEquals('secondary', $qb->debug('readPreference'));
+        $this->assertEquals(array(array('dc' => 'east')), $qb->debug('readPreferenceTags'));
+    }
+
     private function getStubQueryBuilder()
     {
         return new BuilderStub($this->getMockCollection());
