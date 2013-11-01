@@ -26,7 +26,7 @@ use Doctrine\MongoDB\Event\MutableEventArgs;
 use Doctrine\MongoDB\Util\ReadPreference;
 
 /**
- * Wrapper for the PHP MongoDB class.
+ * Wrapper for the MongoDB class.
  *
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.org
@@ -37,26 +37,25 @@ use Doctrine\MongoDB\Util\ReadPreference;
 class Database
 {
     /**
-     * The Connection instance used for accessing the wrapped MongoDB class and
-     * creating Collection instances.
+     * The Connection instance to which this database belongs.
      *
      * @var Connection
      */
     protected $connection;
 
     /**
-     * The database name.
-     *
-     * @var string
-     */
-    protected $name;
-
-    /**
      * The EventManager used to dispatch events.
      *
-     * @var \Doctrine\Common\EventManager
+     * @var EventManager
      */
     protected $eventManager;
+
+    /**
+     * The MongoDB instance being wrapped.
+     *
+     * @var \MongoDB
+     */
+    protected $mongoDB;
 
     /**
      * Number of times to retry queries.
@@ -68,15 +67,15 @@ class Database
     /**
      * Constructor.
      *
-     * @param Connection      $connection Connection used to create Collections
-     * @param string          $name       The database name
+     * @param Connection      $connection Connection to which this database belongs
+     * @param \MongoDB        $mongoDB    MongoDB instance being wrapped
      * @param EventManager    $evm        EventManager instance
      * @param boolean|integer $numRetries Number of times to retry queries
      */
-    public function __construct(Connection $connection, $name, EventManager $evm, $numRetries = 0)
+    public function __construct(Connection $connection, \MongoDB $mongoDB, EventManager $evm, $numRetries = 0)
     {
         $this->connection = $connection;
-        $this->name = $name;
+        $this->mongoDB = $mongoDB;
         $this->eventManager = $evm;
         $this->numRetries = (integer) $numRetries;
     }
@@ -91,7 +90,7 @@ class Database
      */
     public function authenticate($username, $password)
     {
-        return $this->getMongoDB()->authenticate($username, $password);
+        return $this->mongoDB->authenticate($username, $password);
     }
 
     /**
@@ -104,7 +103,7 @@ class Database
      */
     public function command(array $data, array $options = array())
     {
-        return $this->getMongoDB()->command($data, $options);
+        return $this->mongoDB->command($data, $options);
     }
 
     /**
@@ -152,7 +151,7 @@ class Database
      */
     public function createDBRef($collection, $a)
     {
-        return $this->getMongoDB()->createDBRef($collection, $a);
+        return $this->mongoDB->createDBRef($collection, $a);
     }
 
     /**
@@ -169,7 +168,7 @@ class Database
             $this->eventManager->dispatchEvent(Events::preDropDatabase, new EventArgs($this));
         }
 
-        $result = $this->getMongoDB()->drop();
+        $result = $this->mongoDB->drop();
 
         if ($this->eventManager->hasListeners(Events::postDropDatabase)) {
             $this->eventManager->dispatchEvent(Events::postDropDatabase, new EventArgs($this));
@@ -187,7 +186,7 @@ class Database
      */
     public function dropCollection($coll)
     {
-        return $this->getMongoDB()->dropCollection($coll);
+        return $this->mongoDB->dropCollection($coll);
     }
 
     /**
@@ -198,7 +197,7 @@ class Database
      */
     public function execute($code, array $args = array())
     {
-        return $this->getMongoDB()->execute($code, $args);
+        return $this->mongoDB->execute($code, $args);
     }
 
     /**
@@ -210,7 +209,17 @@ class Database
      */
     public function forceError()
     {
-        return $this->getMongoDB()->forceError();
+        return $this->mongoDB->forceError();
+    }
+
+    /**
+     * Return the connection for this database.
+     *
+     * @return Connection
+     */
+    public function getConnection()
+    {
+        return $this->connection;
     }
 
     /**
@@ -264,13 +273,13 @@ class Database
     }
 
     /**
-     * Return a new MongoDB instance for this database.
+     * Return the MongoDB instance being wrapped.
      *
      * @return \MongoDB
      */
     public function getMongoDB()
     {
-        return $this->connection->getMongo()->selectDB($this->name);
+        return $this->mongoDB;
     }
 
     /**
@@ -280,7 +289,7 @@ class Database
      */
     public function getName()
     {
-        return $this->name;
+        return $this->mongoDB->__toString();
     }
 
     /**
@@ -291,7 +300,7 @@ class Database
      */
     public function getProfilingLevel()
     {
-        return $this->getMongoDB()->getProfilingLevel();
+        return $this->mongoDB->getProfilingLevel();
     }
 
     /**
@@ -303,18 +312,21 @@ class Database
      */
     public function setProfilingLevel($level)
     {
-        return $this->getMongoDB()->setProfilingLevel($level);
+        return $this->mongoDB->setProfilingLevel($level);
     }
 
     /**
      * Wrapper method for MongoDB::getReadPreference().
+     *
+     * For driver versions between 1.3.0 and 1.3.3, the return value will be
+     * converted for consistency with {@link Database::setReadPreference()}.
      *
      * @see http://php.net/manual/en/mongodb.getreadpreference.php
      * @return array
      */
     public function getReadPreference()
     {
-        return $this->getMongoDB()->getReadPreference();
+        return ReadPreference::convertReadPreference($this->mongoDB->getReadPreference());
     }
 
     /**
@@ -328,10 +340,10 @@ class Database
     public function setReadPreference($readPreference, array $tags = null)
     {
         if (isset($tags)) {
-            return $this->getMongoDB()->setReadPreference($readPreference, $tags);
+            return $this->mongoDB->setReadPreference($readPreference, $tags);
         }
 
-        return $this->getMongoDB()->setReadPreference($readPreference);
+        return $this->mongoDB->setReadPreference($readPreference);
     }
 
     /**
@@ -348,14 +360,10 @@ class Database
     public function getSlaveOkay()
     {
         if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            return $this->getMongoDB()->getSlaveOkay();
+            return $this->mongoDB->getSlaveOkay();
         }
 
-        $readPref = $this->getMongoDB()->getReadPreference();
-
-        if (is_numeric($readPref['type'])) {
-            $readPref['type'] = ReadPreference::convertNumericType($readPref['type']);
-        }
+        $readPref = $this->getReadPreference();
 
         return \MongoClient::RP_PRIMARY !== $readPref['type'];
     }
@@ -375,18 +383,18 @@ class Database
     public function setSlaveOkay($ok = true)
     {
         if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            return $this->getMongoDB()->setSlaveOkay($ok);
+            return $this->mongoDB->setSlaveOkay($ok);
         }
 
         $prevSlaveOkay = $this->getSlaveOkay();
 
         if ($ok) {
             // Preserve existing tags for non-primary read preferences
-            $readPref = $this->getMongoDB()->getReadPreference();
-            $tags = !empty($readPref['tagsets']) ? ReadPreference::convertTagSets($readPref['tagsets']) : array();
-            $this->getMongoDB()->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+            $readPref = $this->getReadPreference();
+            $tags = ! empty($readPref['tagsets']) ? $readPref['tagsets'] : array();
+            $this->mongoDB->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
         } else {
-            $this->getMongoDB()->setReadPreference(\MongoClient::RP_PRIMARY);
+            $this->mongoDB->setReadPreference(\MongoClient::RP_PRIMARY);
         }
 
         return $prevSlaveOkay;
@@ -400,7 +408,7 @@ class Database
      */
     public function lastError()
     {
-        return $this->getMongoDB()->lastError();
+        return $this->mongoDB->lastError();
     }
 
     /**
@@ -411,7 +419,7 @@ class Database
      */
     public function listCollections()
     {
-        return $this->getMongoDB()->listCollections();
+        return $this->mongoDB->listCollections();
     }
 
     /**
@@ -423,7 +431,7 @@ class Database
      */
     public function prevError()
     {
-        return $this->getMongoDB()->prevError();
+        return $this->mongoDB->prevError();
     }
 
     /**
@@ -436,7 +444,7 @@ class Database
      */
     public function repair($preserveClonedFiles = false, $backupOriginalFiles = false)
     {
-        return $this->getMongoDB()->repair($preserveClonedFiles, $backupOriginalFiles);
+        return $this->mongoDB->repair($preserveClonedFiles, $backupOriginalFiles);
     }
 
     /**
@@ -448,7 +456,7 @@ class Database
      */
     public function resetError()
     {
-        return $this->getMongoDB()->resetError();
+        return $this->mongoDB->resetError();
     }
 
     /**
@@ -485,7 +493,7 @@ class Database
      */
     public function __get($name)
     {
-        return $this->getMongoDB()->__get($name);
+        return $this->mongoDB->__get($name);
     }
 
     /**
@@ -496,7 +504,7 @@ class Database
      */
     public function __toString()
     {
-        return $this->name;
+        return $this->mongoDB->__toString();
     }
 
     /**
@@ -508,9 +516,9 @@ class Database
      */
     protected function doGetDBRef(array $reference)
     {
-        $database = $this;
-        return $this->retry(function() use ($database, $reference) {
-            return $database->getMongoDB()->getDBRef($reference);
+        $mongoDB = $this->mongoDB;
+        return $this->retry(function() use ($mongoDB, $reference) {
+            return $mongoDB->getDBRef($reference);
         });
     }
 
@@ -525,9 +533,9 @@ class Database
     protected function doCreateCollection($name, array $options)
     {
         if (version_compare(phpversion('mongo'), '1.4.0', '>=')) {
-            $this->getMongoDB()->createCollection($name, $options);
+            $this->mongoDB->createCollection($name, $options);
         } else {
-            $this->getMongoDB()->createCollection($name, $options['capped'], $options['size'], $options['max']);
+            $this->mongoDB->createCollection($name, $options['capped'], $options['size'], $options['max']);
         }
 
         return $this->doSelectCollection($name);
@@ -542,7 +550,9 @@ class Database
      */
     protected function doGetGridFS($prefix)
     {
-        return new GridFS($this->connection, $prefix, $this, $this->eventManager);
+        $mongoGridFS = $this->mongoDB->getGridFS($prefix);
+
+        return new GridFS($this, $mongoGridFS, $this->eventManager);
     }
 
     /**
@@ -554,7 +564,9 @@ class Database
      */
     protected function doSelectCollection($name)
     {
-        return new Collection($this->connection, $name, $this, $this->eventManager, $this->numRetries);
+        $mongoCollection = $this->mongoDB->selectCollection($name);
+
+        return new Collection($this, $mongoCollection, $this->eventManager, $this->numRetries);
     }
 
     /**
@@ -570,22 +582,23 @@ class Database
      */
     protected function retry(\Closure $retry)
     {
-        if ($this->numRetries) {
-            $firstException = null;
-            for ($i = 0; $i <= $this->numRetries; $i++) {
-                try {
-                    return $retry();
-                } catch (\MongoException $e) {
-                    if (!$firstException) {
-                        $firstException = $e;
-                    }
-                    if ($i === $this->numRetries) {
-                        throw $firstException;
-                    }
+        if ($this->numRetries < 1) {
+            return $retry();
+        }
+
+        $firstException = null;
+
+        for ($i = 0; $i <= $this->numRetries; $i++) {
+            try {
+                return $retry();
+            } catch (\MongoException $e) {
+                if ($firstException === null) {
+                    $firstException = $e;
+                }
+                if ($i === $this->numRetries) {
+                    throw $firstException;
                 }
             }
-        } else {
-            return $retry();
         }
     }
 }

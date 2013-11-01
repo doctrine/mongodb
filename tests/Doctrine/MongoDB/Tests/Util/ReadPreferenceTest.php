@@ -21,6 +21,22 @@ class ReadPreferenceTest extends \PHPUnit_Framework_TestCase
         ReadPreference::convertNumericType(-1);
     }
 
+    public function testConvertReadPreference()
+    {
+        $readPref = array(
+            'type' => 0,
+            'type_string' => \MongoClient::RP_PRIMARY,
+            'tagsets' => array(array('dc:east')),
+        );
+
+        $expected = array(
+            'type' => \MongoClient::RP_PRIMARY,
+            'tagsets' => array(array('dc' => 'east')),
+        );
+
+        $this->assertEquals($expected, ReadPreference::convertReadPreference($readPref));
+    }
+
     /**
      * @dataProvider provideTagSets
      */

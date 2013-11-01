@@ -99,7 +99,7 @@ class CursorTest extends BaseTest
             ->method('slaveOkay')
             ->with(false);
 
-        $cursor = $this->getTestCursor($this->getMockConnection(), $this->getMockCollection(), $mongoCursor);
+        $cursor = $this->getTestCursor($this->getMockCollection(), $mongoCursor);
 
         $cursor->slaveOkay(true);
         $cursor->slaveOkay(false);
@@ -123,7 +123,7 @@ class CursorTest extends BaseTest
         $mongoCursor->expects($this->never())
             ->method('setReadPreference');
 
-        $cursor = $this->getTestCursor($this->getMockConnection(), $this->getMockCollection(), $mongoCursor);
+        $cursor = $this->getTestCursor($this->getMockCollection(), $mongoCursor);
 
         $cursor->slaveOkay(true);
         $cursor->slaveOkay(false);
@@ -153,7 +153,7 @@ class CursorTest extends BaseTest
             ->method('setReadPreference')
             ->with(\MongoClient::RP_PRIMARY);
 
-        $cursor = $this->getTestCursor($this->getMockConnection(), $this->getMockCollection(), $mongoCursor);
+        $cursor = $this->getTestCursor($this->getMockCollection(), $mongoCursor);
 
         $cursor->slaveOkay(true);
         $cursor->slaveOkay(false);
@@ -179,7 +179,7 @@ class CursorTest extends BaseTest
             ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
             ->will($this->returnValue(false));
 
-        $cursor = $this->getTestCursor($this->getMockConnection(), $this->getMockCollection(), $mongoCursor);
+        $cursor = $this->getTestCursor($this->getMockCollection(), $mongoCursor);
 
         $cursor->slaveOkay(true);
     }
@@ -202,58 +202,10 @@ class CursorTest extends BaseTest
             ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
             ->will($this->returnValue(true));
 
-        $cursor = $this->getTestCursor($this->getMockConnection(), $this->getMockCollection(), $mongoCursor);
+        $cursor = $this->getTestCursor($this->getMockCollection(), $mongoCursor);
 
         $this->assertSame($cursor, $cursor->setReadPreference(\MongoClient::RP_PRIMARY));
         $this->assertSame($cursor, $cursor->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
-    }
-
-    /**
-     * In practice, MongoCursor::setReadPreference() will raise an E_WARNING
-     * before we throw an exception.
-     *
-     * @expectedException InvalidArgumentException
-     */
-    public function testSetReadPreferenceExceptionForInvalidReadPreference()
-    {
-        if (!method_exists('MongoCursor', 'setReadPreference')) {
-            $this->markTestSkipped('This test is not applicable to drivers without MongoCursor::setReadPreference()');
-        }
-
-        $mongoCursor = $this->getMockMongoCursor();
-
-        $mongoCursor->expects($this->once())
-            ->method('setReadPreference')
-            ->with('InvalidReadPreference')
-            ->will($this->returnValue(false));
-
-        $cursor = $this->getTestCursor($this->getMockConnection(), $this->getMockCollection(), $mongoCursor);
-
-        $cursor->setReadPreference('InvalidReadPreference');
-    }
-
-    /**
-     * In practice, MongoCursor::setReadPreference() will raise an E_WARNING
-     * before we throw an exception.
-     *
-     * @expectedException InvalidArgumentException
-     */
-    public function testSetReadPreferenceExceptionForInvalidTags()
-    {
-        if (!method_exists('MongoCursor', 'setReadPreference')) {
-            $this->markTestSkipped('This test is not applicable to drivers without MongoCursor::setReadPreference()');
-        }
-
-        $mongoCursor = $this->getMockMongoCursor();
-
-        $mongoCursor->expects($this->once())
-            ->method('setReadPreference')
-            ->with(\MongoClient::RP_PRIMARY, array(array('dc' => 'east')))
-            ->will($this->returnValue(false));
-
-        $cursor = $this->getTestCursor($this->getMockConnection(), $this->getMockCollection(), $mongoCursor);
-
-        $cursor->setReadPreference(\MongoClient::RP_PRIMARY, array(array('dc' => 'east')));
     }
 
     public function testRecreate()
@@ -324,7 +276,7 @@ class CursorTest extends BaseTest
             ->method('getMongoCollection')
             ->will($this->returnValue($mongoCollection));
 
-        $cursor = $this->getTestCursor($this->getMockConnection(), $collection, $mongoCursor, array('x' => 9500));
+        $cursor = $this->getTestCursor($collection, $mongoCursor, array('x' => 9500));
 
         $cursor
             ->hint(array('x' => 1))
@@ -344,20 +296,6 @@ class CursorTest extends BaseTest
         $cursor->recreate();
     }
 
-    private function getMockMongoCursor()
-    {
-        return $this->getMockBuilder('MongoCursor')
-            ->disableOriginalConstructor()
-            ->getMock();
-    }
-
-    private function getMockMongoCollection()
-    {
-        return $this->getMockBuilder('MongoCollection')
-            ->disableOriginalConstructor()
-            ->getMock();
-    }
-
     private function getMockCollection()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Collection')
@@ -365,15 +303,15 @@ class CursorTest extends BaseTest
             ->getMock();
     }
 
-    private function getMockConnection()
+    private function getMockMongoCursor()
     {
-        return $this->getMockBuilder('Doctrine\MongoDB\Connection')
+        return $this->getMockBuilder('MongoCursor')
             ->disableOriginalConstructor()
             ->getMock();
     }
 
-    private function getTestCursor(Connection $connection, Collection $collection, \MongoCursor $mongoCursor, $query = array())
+    private function getTestCursor(Collection $collection, \MongoCursor $mongoCursor, $query = array())
     {
-        return new Cursor($connection, $collection, $mongoCursor, $query);
+        return new Cursor($collection, $mongoCursor, $query);
     }
 }

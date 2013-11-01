@@ -590,26 +590,28 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $qb->debug('select'));
     }
 
+    public function testSetReadPreference()
+    {
+        $qb = $this->getTestQueryBuilder();
+        $qb->setReadPreference('secondary', array(array('dc' => 'east')));
+
+        $this->assertEquals('secondary', $qb->debug('readPreference'));
+        $this->assertEquals(array(array('dc' => 'east')), $qb->debug('readPreferenceTags'));
+    }
+
     private function getStubQueryBuilder()
     {
-        return new BuilderStub($this->getMockDatabase(), $this->getMockCollection());
+        return new BuilderStub($this->getMockCollection());
     }
 
     private function getTestQueryBuilder()
     {
-        return new Builder($this->getMockDatabase(), $this->getMockCollection());
+        return new Builder($this->getMockCollection());
     }
 
     private function getMockCollection()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->disableOriginalConstructor()
-            ->getMock();
-    }
-
-    private function getMockDatabase()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Database')
             ->disableOriginalConstructor()
             ->getMock();
     }

@@ -19,8 +19,10 @@
 
 namespace Doctrine\MongoDB;
 
+use Doctrine\Common\EventManager;
+
 /**
- * Wrapper for the PHP MongoGridFS class.
+ * Wrapper for the MongoGridFS class.
  *
  * This class does not proxy all of the MongoGridFS methods; however, the
  * MongoGridFS object is accessible if those methods are required.
@@ -31,14 +33,34 @@ namespace Doctrine\MongoDB;
 class GridFS extends Collection
 {
     /**
-     * Return a new MongoGridFS instance for this collection.
+     * The MongoGridFS instance being wrapped.
+     *
+     * @var \MongoGridFS
+     */
+    protected $mongoCollection;
+
+    /**
+     * Constructor.
+     *
+     * @param Database     $database    Database to which this collection belongs
+     * @param \MongoGridFS $mongoGridFS MongoGridFS instance being wrapped
+     * @param EventManager $evm         EventManager instance
+     * @param integer      $numRetries  Number of times to retry queries
+     */
+    public function __construct(Database $database, \MongoGridFS $mongoGridFS, EventManager $evm, $numRetries = 0)
+    {
+        parent::__construct($database, $mongoGridFS, $evm, $numRetries);
+    }
+
+    /**
+     * Return the MongoGridFS instance being wrapped.
      *
      * @see Collection::getMongoCollection()
      * @return \MongoGridFS
      */
     public function getMongoCollection()
     {
-        return $this->database->getMongoDB()->getGridFS($this->name);
+        return $this->mongoCollection;
     }
 
     /**
@@ -63,16 +85,16 @@ class GridFS extends Collection
         $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
 
         if ($file->hasUnpersistedFile()) {
-            $id = $this->getMongoCollection()->storeFile($file->getFilename(), $document, $options);
+            $id = $this->mongoCollection->storeFile($file->getFilename(), $document, $options);
         } else {
-            $id = $this->getMongoCollection()->storeBytes($file->getBytes(), $document, $options);
+            $id = $this->mongoCollection->storeBytes($file->getBytes(), $document, $options);
         }
 
         $document = array_merge(array('_id' => $id), $document);
-        $gridFsFile = $this->getMongoCollection()->get($id);
+        $gridFsFile = $this->mongoCollection->get($id);
 
         // TODO: Consider throwing exception if file cannot be fetched
-        $file->setMongoGridFSFile($this->getMongoCollection()->get($id));
+        $file->setMongoGridFSFile($this->mongoCollection->get($id));
 
         return $file;
     }
@@ -106,7 +128,7 @@ class GridFS extends Collection
 
         if (isset($document)) {
             // Remove the file data from the chunks collection
-            $this->getMongoCollection()->chunks->remove(array('files_id' => $document['_id']), $options);
+            $this->mongoCollection->chunks->remove(array('files_id' => $document['_id']), $options);
         }
 
         return $document;
@@ -126,9 +148,9 @@ class GridFS extends Collection
      */
     protected function doFindOne(array $query = array(), array $fields = array())
     {
-        $collection = $this;
-        $file = $this->retry(function() use ($collection, $query, $fields) {
-            return $collection->getMongoCollection()->findOne($query, $fields);
+        $mongoCollection = $this->mongoCollection;
+        $file = $this->retry(function() use ($mongoCollection, $query, $fields) {
+            return $mongoCollection->findOne($query, $fields);
         });
         if ($file) {
             $document = $file->file;
@@ -281,6 +303,6 @@ class GridFS extends Collection
 
         // Now send the original update bringing the file up to date
         $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
-        return $this->getMongoCollection()->update($query, $newObj, $options);
+        return $this->mongoCollection->update($query, $newObj, $options);
     }
 }

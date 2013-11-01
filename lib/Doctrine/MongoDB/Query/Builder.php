@@ -34,13 +34,6 @@ use BadMethodCallException;
 class Builder
 {
     /**
-     * The Database instance.
-     *
-     * @var Database
-     */
-    protected $database;
-
-    /**
      * The Collection instance.
      *
      * @var Collection
@@ -67,11 +60,10 @@ class Builder
     /**
      * Create a new query builder.
      *
-     * @param Database $database
+     * @param Collection $collection
      */
-    public function __construct(Database $database, Collection $collection)
+    public function __construct(Collection $collection)
     {
-        $this->database = $database;
         $this->collection = $collection;
         $this->expr = new Expr();
     }
@@ -588,7 +580,7 @@ class Builder
         $query = $this->query;
         $query['query'] = $this->expr->getQuery();
         $query['newObj'] = $this->expr->getNewObj();
-        return new Query($this->database, $this->collection, $query, $options);
+        return new Query($this->collection, $query, $options);
     }
 
     /**
@@ -1272,6 +1264,23 @@ class Builder
     public function set($value, $atomic = true)
     {
         $this->expr->set($value, $atomic && $this->query['type'] !== Query::TYPE_INSERT);
+        return $this;
+    }
+
+    /**
+     * Set the read preference for the query.
+     *
+     * This is only relevant for read-only queries and commands.
+     *
+     * @see http://docs.mongodb.org/manual/core/read-preference/
+     * @param mixed $value
+     * @param boolean $atomic
+     * @return self
+     */
+    public function setReadPreference($readPreference, array $tags = null)
+    {
+        $this->query['readPreference'] = $readPreference;
+        $this->query['readPreferenceTags'] = $tags;
         return $this;
     }
 

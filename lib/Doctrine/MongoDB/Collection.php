@@ -34,7 +34,7 @@ use Doctrine\MongoDB\Util\ReadPreference;
 use GeoJson\Geometry\Point;
 
 /**
- * Wrapper for the PHP MongoCollection class.
+ * Wrapper for the MongoCollection class.
  *
  * @since  1.0
  * @author Jonathan H. Wage <jonwage@gmail.com>
@@ -42,20 +42,6 @@ use GeoJson\Geometry\Point;
  */
 class Collection
 {
-    /**
-     * The Connection instance used to create Cursors.
-     *
-     * @var Connection
-     */
-    protected $connection;
-
-    /**
-     * The collection name.
-     *
-     * @var string $name
-     */
-    protected $name;
-
     /**
      * The Database instance to which this collection belongs.
      *
@@ -71,6 +57,13 @@ class Collection
     protected $eventManager;
 
     /**
+     * The MongoCollection instance being wrapped.
+     *
+     * @var \MongoCollection
+     */
+    protected $mongoCollection;
+
+    /**
      * Number of times to retry queries.
      *
      * @var integer
@@ -80,17 +73,15 @@ class Collection
     /**
      * Constructor.
      *
-     * @param Connection      $connection Connection used to create Cursors
-     * @param string          $name       The collection name
-     * @param Database        $database   Database to which this collection belongs
-     * @param EventManager    $evm        EventManager instance
-     * @param boolean|integer $numRetries Number of times to retry queries
+     * @param Database         $database        Database to which this collection belongs
+     * @param \MongoCollection $mongoCollection MongoCollection instance being wrapped
+     * @param EventManager     $evm             EventManager instance
+     * @param integer          $numRetries      Number of times to retry queries
      */
-    public function __construct(Connection $connection, $name, Database $database, EventManager $evm, $numRetries = 0)
+    public function __construct(Database $database, \MongoCollection $mongoCollection, EventManager $evm, $numRetries = 0)
     {
-        $this->connection = $connection;
-        $this->name = $name;
         $this->database = $database;
+        $this->mongoCollection = $mongoCollection;
         $this->eventManager = $evm;
         $this->numRetries = (integer) $numRetries;
     }
@@ -171,9 +162,9 @@ class Collection
      */
     public function count(array $query = array(), $limit = 0, $skip = 0)
     {
-        $collection = $this;
-        return $this->retry(function() use ($collection, $query, $limit, $skip) {
-            return $collection->getMongoCollection()->count($query, $limit, $skip);
+        $mongoCollection = $this->mongoCollection;
+        return $this->retry(function() use ($mongoCollection, $query, $limit, $skip) {
+            return $mongoCollection->count($query, $limit, $skip);
         });
     }
 
@@ -186,7 +177,7 @@ class Collection
      */
     public function createDBRef($documentOrId)
     {
-        return $this->getMongoCollection()->createDBRef($documentOrId);
+        return $this->mongoCollection->createDBRef($documentOrId);
     }
 
     /**
@@ -196,7 +187,7 @@ class Collection
      */
     public function createQueryBuilder()
     {
-        return new Query\Builder($this->database, $this);
+        return new Query\Builder($this);
     }
 
     /**
@@ -208,7 +199,7 @@ class Collection
      */
     public function deleteIndex($keys)
     {
-        return $this->getMongoCollection()->deleteIndex($keys);
+        return $this->mongoCollection->deleteIndex($keys);
     }
 
     /**
@@ -219,7 +210,7 @@ class Collection
      */
     public function deleteIndexes()
     {
-        return $this->getMongoCollection()->deleteIndexes();
+        return $this->mongoCollection->deleteIndexes();
     }
 
     /**
@@ -289,7 +280,7 @@ class Collection
      */
     public function ensureIndex(array $keys, array $options = array())
     {
-        return $this->getMongoCollection()->ensureIndex($keys, $options);
+        return $this->mongoCollection->ensureIndex($keys, $options);
     }
 
     /**
@@ -404,7 +395,7 @@ class Collection
     }
 
     /**
-     * Gets the database for this collection.
+     * Return the database for this collection.
      *
      * @return Database
      */
@@ -447,38 +438,42 @@ class Collection
      */
     public function getIndexInfo()
     {
-        return $this->getMongoCollection()->getIndexInfo();
+        return $this->mongoCollection->getIndexInfo();
     }
 
     /**
-     * Return a new MongoCollection instance for this collection.
+     * Return the MongoCollection instance being wrapped.
      *
      * @return \MongoCollection
      */
     public function getMongoCollection()
     {
-        return $this->database->getMongoDB()->selectCollection($this->name);
+        return $this->mongoCollection;
     }
 
     /**
-     * Return the name of this collection.
+     * Wrapper method for MongoCollection::getName().
      *
+     * @see http://php.net/manual/en/mongocollection.getname.php
      * @return string
      */
     public function getName()
     {
-        return $this->name;
+        return $this->mongoCollection->getName();
     }
 
     /**
      * Wrapper method for MongoCollection::getReadPreference().
+     *
+     * For driver versions between 1.3.0 and 1.3.3, the return value will be
+     * converted for consistency with {@link Collection::setReadPreference()}.
      *
      * @see http://php.net/manual/en/mongocollection.getreadpreference.php
      * @return array
      */
     public function getReadPreference()
     {
-        return $this->getMongoCollection()->getReadPreference();
+        return ReadPreference::convertReadPreference($this->mongoCollection->getReadPreference());
     }
 
     /**
@@ -492,10 +487,10 @@ class Collection
     public function setReadPreference($readPreference, array $tags = null)
     {
         if (isset($tags)) {
-            return $this->getMongoCollection()->setReadPreference($readPreference, $tags);
+            return $this->mongoCollection->setReadPreference($readPreference, $tags);
         }
 
-        return $this->getMongoCollection()->setReadPreference($readPreference);
+        return $this->mongoCollection->setReadPreference($readPreference);
     }
 
     /**
@@ -512,14 +507,10 @@ class Collection
     public function getSlaveOkay()
     {
         if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            return $this->getMongoCollection()->getSlaveOkay();
+            return $this->mongoCollection->getSlaveOkay();
         }
 
-        $readPref = $this->getMongoCollection()->getReadPreference();
-
-        if (is_numeric($readPref['type'])) {
-            $readPref['type'] = ReadPreference::convertNumericType($readPref['type']);
-        }
+        $readPref = $this->getReadPreference();
 
         return \MongoClient::RP_PRIMARY !== $readPref['type'];
     }
@@ -539,18 +530,18 @@ class Collection
     public function setSlaveOkay($ok = true)
     {
         if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            return $this->getMongoCollection()->setSlaveOkay($ok);
+            return $this->mongoCollection->setSlaveOkay($ok);
         }
 
         $prevSlaveOkay = $this->getSlaveOkay();
 
         if ($ok) {
             // Preserve existing tags for non-primary read preferences
-            $readPref = $this->getMongoCollection()->getReadPreference();
-            $tags = !empty($readPref['tagsets']) ? ReadPreference::convertTagSets($readPref['tagsets']) : array();
-            $this->getMongoCollection()->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+            $readPref = $this->getReadPreference();
+            $tags = ! empty($readPref['tagsets']) ? $readPref['tagsets'] : array();
+            $this->mongoCollection->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
         } else {
-            $this->getMongoCollection()->setReadPreference(\MongoClient::RP_PRIMARY);
+            $this->mongoCollection->setReadPreference(\MongoClient::RP_PRIMARY);
         }
 
         return $prevSlaveOkay;
@@ -810,7 +801,7 @@ class Collection
      */
     public function validate($scanData = false)
     {
-        return $this->getMongoCollection()->validate($scanData);
+        return $this->mongoCollection->validate($scanData);
     }
 
     /**
@@ -822,7 +813,7 @@ class Collection
      */
     public function __get($name)
     {
-        return $this->getMongoCollection()->__get($name);
+        return $this->mongoCollection->__get($name);
     }
 
     /**
@@ -833,7 +824,7 @@ class Collection
      */
     public function __toString()
     {
-        return $this->getMongoCollection()->__toString();
+        return $this->mongoCollection->__toString();
     }
 
     /**
@@ -847,7 +838,7 @@ class Collection
     protected function doAggregate(array $pipeline)
     {
         $command = array();
-        $command['aggregate'] = $this->getMongoCollection()->getName();
+        $command['aggregate'] = $this->mongoCollection->getName();
         $command['pipeline'] = $pipeline;
 
         $database = $this->database;
@@ -876,7 +867,7 @@ class Collection
     protected function doBatchInsert(array &$a, array $options = array())
     {
         $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
-        return $this->getMongoCollection()->batchInsert($a, $options);
+        return $this->mongoCollection->batchInsert($a, $options);
     }
 
     /**
@@ -892,7 +883,7 @@ class Collection
     protected function doDistinct($field, array $query, array $options)
     {
         $command = array();
-        $command['distinct'] = $this->getMongoCollection()->getName();
+        $command['distinct'] = $this->mongoCollection->getName();
         $command['key'] = $field;
         $command['query'] = (object) $query;
         $command = array_merge($command, $options);
@@ -920,7 +911,7 @@ class Collection
      */
     protected function doDrop()
     {
-        return $this->getMongoCollection()->drop();
+        return $this->mongoCollection->drop();
     }
 
     /**
@@ -933,9 +924,9 @@ class Collection
      */
     protected function doFind(array $query, array $fields)
     {
-        $collection = $this;
-        $cursor = $this->retry(function() use ($collection, $query, $fields) {
-            return $collection->getMongoCollection()->find($query, $fields);
+        $mongoCollection = $this->mongoCollection;
+        $cursor = $this->retry(function() use ($mongoCollection, $query, $fields) {
+            return $mongoCollection->find($query, $fields);
         });
         return $this->wrapCursor($cursor, $query, $fields);
     }
@@ -952,7 +943,7 @@ class Collection
     protected function doFindAndRemove(array $query, array $options = array())
     {
         $command = array();
-        $command['findandmodify'] = $this->getMongoCollection()->getName();
+        $command['findandmodify'] = $this->mongoCollection->getName();
         $command['query'] = (object) $query;
         $command['remove'] = true;
         $command = array_merge($command, $options);
@@ -979,7 +970,7 @@ class Collection
     protected function doFindAndUpdate(array $query, array $newObj, array $options)
     {
         $command = array();
-        $command['findandmodify'] = $this->getMongoCollection()->getName();
+        $command['findandmodify'] = $this->mongoCollection->getName();
         $command['query'] = (object) $query;
         $command['update'] = (object) $newObj;
         $command = array_merge($command, $options);
@@ -1003,9 +994,9 @@ class Collection
      */
     protected function doFindOne(array $query, array $fields)
     {
-        $collection = $this;
-        return $this->retry(function() use ($collection, $query, $fields) {
-            return $collection->getMongoCollection()->findOne($query, $fields);
+        $mongoCollection = $this->mongoCollection;
+        return $this->retry(function() use ($mongoCollection, $query, $fields) {
+            return $mongoCollection->findOne($query, $fields);
         });
     }
 
@@ -1018,9 +1009,9 @@ class Collection
      */
     protected function doGetDBRef(array $reference)
     {
-        $collection = $this;
-        return $this->retry(function() use ($collection, $reference) {
-            return $collection->getMongoCollection()->getDBRef($reference);
+        $mongoCollection = $this->mongoCollection;
+        return $this->retry(function() use ($mongoCollection, $reference) {
+            return $mongoCollection->getDBRef($reference);
         });
     }
 
@@ -1038,7 +1029,7 @@ class Collection
     protected function doGroup($keys, array $initial, $reduce, array $options)
     {
         $command = array();
-        $command['ns'] = $this->getMongoCollection()->getName();
+        $command['ns'] = $this->mongoCollection->getName();
         $command['initial'] = (object) $initial;
         $command['$reduce'] = $reduce;
 
@@ -1087,7 +1078,7 @@ class Collection
     {
         $document = $a;
         $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
-        $result = $this->getMongoCollection()->insert($document, $options);
+        $result = $this->mongoCollection->insert($document, $options);
         if (isset($document['_id'])) {
             $a['_id'] = $document['_id'];
         }
@@ -1109,7 +1100,7 @@ class Collection
     protected function doMapReduce($map, $reduce, $out, array $query, array $options)
     {
         $command = array();
-        $command['mapreduce'] = $this->getMongoCollection()->getName();
+        $command['mapreduce'] = $this->mongoCollection->getName();
         $command['map'] = $map;
         $command['reduce'] = $reduce;
         $command['query'] = (object) $query;
@@ -1134,7 +1125,7 @@ class Collection
 
         if (isset($result['result']) && is_array($result['result']) &&
             isset($result['result']['db'], $result['result']['collection'])) {
-            return $this->connection
+            return $this->database->getConnection()
                 ->selectCollection($result['result']['db'], $result['result']['collection'])
                 ->find();
         }
@@ -1162,7 +1153,7 @@ class Collection
         }
 
         $command = array();
-        $command['geoNear'] = $this->getMongoCollection()->getName();
+        $command['geoNear'] = $this->mongoCollection->getName();
         $command['near'] = $near;
         $command['spherical'] = isset($near['type']);
         $command['query'] = (object) $query;
@@ -1194,7 +1185,7 @@ class Collection
     protected function doRemove(array $query, array $options)
     {
         $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
-        return $this->getMongoCollection()->remove($query, $options);
+        return $this->mongoCollection->remove($query, $options);
     }
 
     /**
@@ -1208,7 +1199,7 @@ class Collection
     protected function doSave(array &$a, array $options)
     {
         $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
-        return $this->getMongoCollection()->save($a, $options);
+        return $this->mongoCollection->save($a, $options);
     }
 
     /**
@@ -1223,7 +1214,7 @@ class Collection
     protected function doUpdate(array $query, array $newObj, array $options)
     {
         $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
-        return $this->getMongoCollection()->update($query, $newObj, $options);
+        return $this->mongoCollection->update($query, $newObj, $options);
     }
 
     /**
@@ -1239,22 +1230,23 @@ class Collection
      */
     protected function retry(\Closure $retry)
     {
-        if ($this->numRetries) {
-            $firstException = null;
-            for ($i = 0; $i <= $this->numRetries; $i++) {
-                try {
-                    return $retry();
-                } catch (\MongoException $e) {
-                    if (!$firstException) {
-                        $firstException = $e;
-                    }
-                    if ($i === $this->numRetries) {
-                        throw $firstException;
-                    }
+        if ($this->numRetries < 1) {
+            return $retry();
+        }
+
+        $firstException = null;
+
+        for ($i = 0; $i <= $this->numRetries; $i++) {
+            try {
+                return $retry();
+            } catch (\MongoException $e) {
+                if ($firstException === null) {
+                    $firstException = $e;
+                }
+                if ($i === $this->numRetries) {
+                    throw $firstException;
                 }
             }
-        } else {
-            return $retry();
         }
     }
 
@@ -1268,7 +1260,7 @@ class Collection
      */
     protected function wrapCursor(\MongoCursor $cursor, $query, $fields)
     {
-        return new Cursor($this->connection, $this, $cursor, $query, $fields, $this->numRetries);
+        return new Cursor($this, $cursor, $query, $fields, $this->numRetries);
     }
 
     /**

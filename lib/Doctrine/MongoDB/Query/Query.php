@@ -52,13 +52,6 @@ class Query implements IteratorAggregate
     const TYPE_COUNT           = 11;
 
     /**
-     * The Database instance.
-     *
-     * @var Database
-     */
-    protected $database;
-
-    /**
      * The Collection instance.
      *
      * @var Collection
@@ -87,13 +80,12 @@ class Query implements IteratorAggregate
     /**
      * Constructor.
      *
-     * @param Database $database
      * @param Collection $collection
      * @param array $query
      * @param array $options
      * @throws InvalidArgumentException if query type is invalid
      */
-    public function __construct(Database $database, Collection $collection, array $query, array $options)
+    public function __construct(Collection $collection, array $query, array $options)
     {
         switch ($query['type']) {
             case self::TYPE_FIND:
@@ -113,7 +105,6 @@ class Query implements IteratorAggregate
                 throw new InvalidArgumentException('Invalid query type: ' . $query['type']);
         }
 
-        $this->database   = $database;
         $this->collection = $collection;
         $this->query      = $query;
         $this->options    = $options;
@@ -204,44 +195,79 @@ class Query implements IteratorAggregate
                     $options['cond'] = $this->query['query'];
                 }
 
-                return $this->collection->group(
-                    $this->query['group']['keys'],
-                    $this->query['group']['initial'],
-                    $this->query['group']['reduce'],
-                    array_merge($options, $this->query['group']['options'])
-                );
+                $collection = $this->collection;
+                $query = $this->query;
+
+                $closure = function() use ($collection, $query, $options) {
+                    return $collection->group(
+                        $query['group']['keys'],
+                        $query['group']['initial'],
+                        $query['group']['reduce'],
+                        array_merge($options, $query['group']['options'])
+                    );
+                };
+
+                return $this->withReadPreference($collection->getDatabase(), $closure);
 
             case self::TYPE_MAP_REDUCE:
                 if (isset($this->query['limit'])) {
                     $options['limit'] = $this->query['limit'];
                 }
 
-                $results = $this->collection->mapReduce(
-                    $this->query['mapReduce']['map'],
-                    $this->query['mapReduce']['reduce'],
-                    $this->query['mapReduce']['out'],
-                    $this->query['query'],
-                    array_merge($options, $this->query['mapReduce']['options'])
-                );
+                $collection = $this->collection;
+                $query = $this->query;
+
+                $closure = function() use ($collection, $query, $options) {
+                    return $collection->mapReduce(
+                        $query['mapReduce']['map'],
+                        $query['mapReduce']['reduce'],
+                        $query['mapReduce']['out'],
+                        $query['query'],
+                        array_merge($options, $query['mapReduce']['options'])
+                    );
+                };
+
+                $results = $this->withReadPreference($collection->getDatabase(), $closure);
 
                 return ($results instanceof Cursor) ? $this->prepareCursor($results) : $results;
 
             case self::TYPE_DISTINCT:
-                return $this->collection->distinct($this->query['distinct'], $this->query['query'], $options);
+                $collection = $this->collection;
+                $query = $this->query;
+
+                $closure = function() use ($collection, $query, $options) {
+                    return $collection->distinct($query['distinct'], $query['query'], $options);
+                };
+
+                return $this->withReadPreference($collection->getDatabase(), $closure);
 
             case self::TYPE_GEO_NEAR:
                 if (isset($this->query['limit'])) {
                     $options['num'] = $this->query['limit'];
                 }
 
-                return $this->collection->near(
-                    $this->query['geoNear']['near'],
-                    $this->query['query'],
-                    array_merge($options, $this->query['geoNear']['options'])
-                );
+                $collection = $this->collection;
+                $query = $this->query;
+
+                $closure = function() use ($collection, $query, $options) {
+                    return $collection->near(
+                        $query['geoNear']['near'],
+                        $query['query'],
+                        array_merge($options, $query['geoNear']['options'])
+                    );
+                };
+
+                return $this->withReadPreference($collection->getDatabase(), $closure);
 
             case self::TYPE_COUNT:
-                return $this->collection->count($this->query['query']);
+                $collection = $this->collection;
+                $query = $this->query;
+
+                $closure = function() use ($collection, $query) {
+                    return $collection->count($query['query']);
+                };
+
+                return $this->withReadPreference($collection, $closure);
         }
     }
 
@@ -349,6 +375,14 @@ class Query implements IteratorAggregate
      */
     protected function prepareCursor(Cursor $cursor)
     {
+        /* Note: if this cursor resulted from a mapReduce command, applying the
+         * read preference may be undesirable. Results would have been written
+         * to the primary and replication may still be in progress.
+         */
+        if (isset($this->query['readPreference'])) {
+            $cursor->setReadPreference($this->query['readPreference'], $this->query['readPreferenceTags']);
+        }
+
         foreach ($this->getQueryOptions('hint', 'immortal', 'limit', 'skip', 'slaveOkay', 'sort') as $key => $value) {
             $cursor->$key($value);
         }
@@ -377,5 +411,37 @@ class Query implements IteratorAggregate
             array_intersect_key($this->query, array_flip(func_get_args())),
             function($value) { return $value !== null; }
         );
+    }
+
+    /**
+     * Executes a closure with a temporary read preference on a database or
+     * collection.
+     *
+     * @param Database|Collection $object
+     * @param \Closure            $closure
+     * @return mixed
+     */
+    private function withReadPreference($object, \Closure $closure)
+    {
+        if ( ! isset($this->query['readPreference'])) {
+            return $closure();
+        }
+
+        $prevReadPref = $object->getReadPreference();
+        $object->setReadPreference($this->query['readPreference'], $this->query['readPreferenceTags']);
+
+        try {
+            $result = $closure();
+        } catch (\Exception $e) {
+        }
+
+        $prevTags = ! empty($prevReadPref['tagsets']) ? $prevReadPref['tagsets'] : null;
+        $object->setReadPreference($prevReadPref['type'], $prevTags);
+
+        if (isset($e)) {
+            throw $e;
+        }
+
+        return $result;
     }
 }

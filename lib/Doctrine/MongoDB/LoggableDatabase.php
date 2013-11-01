@@ -22,7 +22,7 @@ namespace Doctrine\MongoDB;
 use Doctrine\Common\EventManager;
 
 /**
- * Wrapper for the PHP MongoDB class with logging functionality.
+ * Wrapper for the MongoDB class with logging functionality.
  *
  * @since  1.0
  * @author Jonathan H. Wage <jonwage@gmail.com>
@@ -40,18 +40,18 @@ class LoggableDatabase extends Database implements Loggable
     /**
      * Constructor.
      *
-     * @param Connection      $connection     Connection used to create Collections
-     * @param string          $name           The database name
-     * @param EventManager    $evm            EventManager instance
-     * @param boolean|integer $numRetries     Number of times to retry queries
-     * @param callable        $loggerCallable The logger callable
+     * @param Connection   $connection     Connection used to create Collections
+     * @param \MongoDB     $mongoDB        MongoDB instance being wrapped
+     * @param EventManager $evm            EventManager instance
+     * @param integer      $numRetries     Number of times to retry queries
+     * @param callable     $loggerCallable The logger callable
      */
-    public function __construct(Connection $connection, $name, EventManager $evm, $numRetries, $loggerCallable)
+    public function __construct(Connection $connection, \MongoDB $mongoDB, EventManager $evm, $numRetries, $loggerCallable)
     {
         if ( ! is_callable($loggerCallable)) {
             throw new \InvalidArgumentException('$loggerCallable must be a valid callback');
         }
-        parent::__construct($connection, $name, $evm, $numRetries);
+        parent::__construct($connection, $mongoDB, $evm, $numRetries);
         $this->loggerCallable = $loggerCallable;
     }
 
@@ -163,8 +163,8 @@ class LoggableDatabase extends Database implements Loggable
      */
     protected function doSelectCollection($name)
     {
-        return new LoggableCollection(
-            $this->connection, $name, $this, $this->eventManager, $this->loggerCallable, $this->numRetries
-        );
+        $mongoCollection = $this->mongoDB->selectCollection($name);
+
+        return new LoggableCollection($this, $mongoCollection, $this->eventManager, $this->numRetries, $this->loggerCallable);
     }
 }

@@ -68,6 +68,34 @@ final class ReadPreference
     }
 
     /**
+     * Converts return values from getReadPreference() methods to the format
+     * accepted by setReadPreference() methods.
+     *
+     * This is necessary for MongoClient, MongoDB, and MongoCollection classes
+     * in driver versions between 1.3.0 and 1.3.3.
+     *
+     * @since 1.1
+     * @param array $readPref
+     * @return array
+     */
+    public static function convertReadPreference(array $readPref)
+    {
+        if (is_numeric($readPref['type'])) {
+            $readPref['type'] = self::convertNumericType($readPref['type']);
+        }
+
+        if (isset($readPref['type_string'])) {
+            unset($readPref['type_string']);
+        }
+
+        if ( ! empty($readPref['tagsets'])) {
+            $readPref['tagsets'] = self::convertTagSets($readPref['tagsets']);
+        }
+
+        return $readPref;
+    }
+
+    /**
      * Converts tag sets returned by getReadPreference() methods to the format
      * accepted by setReadPreference() methods.
      *

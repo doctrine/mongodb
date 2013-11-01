@@ -6,8 +6,8 @@ use Doctrine\MongoDB\LoggableCollection;
 
 class LoggableCollectionTest extends \PHPUnit_Framework_TestCase
 {
-    const collectionName = 'collection';
-    const databaseName = 'database';
+    const collectionName = 'collectionName';
+    const databaseName = 'databaseName';
 
     public function testLog()
     {
@@ -17,30 +17,34 @@ class LoggableCollectionTest extends \PHPUnit_Framework_TestCase
             $called = $msg;
         };
 
-        $collection = $this->getTestLoggableDatabase($loggerCallable);
+        $collection = $this->getTestLoggableCollection($loggerCallable);
         $collection->log(array('test' => 'test'));
 
         $this->assertEquals(array('collection' => self::collectionName, 'db' => self::databaseName, 'test' => 'test'), $called);
     }
 
-    private function getTestLoggableDatabase($loggerCallable)
+    private function getTestLoggableCollection($loggerCallable)
     {
-        $c = $this->getMockBuilder('Doctrine\MongoDB\Connection')
+        $database = $this->getMockBuilder('Doctrine\MongoDB\Database')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $db = $this->getMockBuilder('Doctrine\MongoDB\Database')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $db->expects($this->any())
+        $database->expects($this->any())
             ->method('getName')
             ->will($this->returnValue(self::databaseName));
 
-        $em = $this->getMockBuilder('Doctrine\Common\EventManager')
+        $mongoCollection = $this->getMockBuilder('MongoCollection')
             ->disableOriginalConstructor()
             ->getMock();
 
-        return new LoggableCollection($c, self::collectionName, $db, $em, $loggerCallable);
+        $mongoCollection->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue(self::collectionName));
+
+        $eventManager = $this->getMockBuilder('Doctrine\Common\EventManager')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        return new LoggableCollection($database, $mongoCollection, $eventManager, 0, $loggerCallable);
     }
 }
