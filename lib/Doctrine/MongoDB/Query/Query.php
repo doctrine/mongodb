@@ -52,6 +52,11 @@ class Query implements IteratorAggregate
     const TYPE_COUNT           = 11;
 
     /**
+     * @deprecated 1.1 Will be removed for 2.0
+     */
+    const TYPE_GEO_LOCATION = 10;
+
+    /**
      * The Collection instance.
      *
      * @var Collection
