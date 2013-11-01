@@ -110,7 +110,7 @@ class FunctionalTest extends BaseTest
             'testing' => 'ok',
             'file' => new GridFSFile(__DIR__.'/FunctionalTest.php')
         );
-        $files->insert($file, array('safe' => true));
+        $files->insert($file);
 
         $this->assertTrue(isset($file['_id']));
 
