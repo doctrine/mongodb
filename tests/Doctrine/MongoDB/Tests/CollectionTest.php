@@ -801,6 +801,40 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(self::collectionName, $coll->__toString());
     }
 
+    public function testWriteConcernOptionIsConverted()
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
+        }
+
+        $mongoCollection = $this->getMockMongoCollection();
+        $mongoCollection->expects($this->once())
+            ->method('insert')
+            ->with(array('x' => 1), array('w' => 1));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+
+        $document = array('x' => 1);
+        $coll->insert($document, array('safe' => true));
+    }
+
+    public function testWriteConcernOptionIsNotConvertedForOlderDrivers()
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {
+            $this->markTestSkipped('This test is not applicable to driver versions >= 1.3.0');
+        }
+
+        $mongoCollection = $this->getMockMongoCollection();
+        $mongoCollection->expects($this->once())
+            ->method('insert')
+            ->with(array('x' => 1), array('safe' => true));
+
+        $coll = $this->getTestCollection($this->getMockConnection(), $mongoCollection, $this->getMockDatabase());
+
+        $document = array('x' => 1);
+        $coll->insert($document, array('safe' => true));
+    }
+
     private function getMockCollection()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Collection')

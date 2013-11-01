@@ -60,6 +60,8 @@ class GridFS extends Collection
             $file = new GridFSFile($file);
         }
 
+        $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
+
         if ($file->hasUnpersistedFile()) {
             $id = $this->getMongoCollection()->storeFile($file->getFilename(), $document, $options);
         } else {
@@ -278,6 +280,7 @@ class GridFS extends Collection
         }
 
         // Now send the original update bringing the file up to date
+        $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
         return $this->getMongoCollection()->update($query, $newObj, $options);
     }
 }
