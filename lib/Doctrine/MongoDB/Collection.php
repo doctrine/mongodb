@@ -177,6 +177,7 @@ class Collection
 
     protected function doBatchInsert(array &$a, array $options = array())
     {
+        $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
         return $this->getMongoCollection()->batchInsert($a, $options);
     }
 
@@ -201,6 +202,7 @@ class Collection
         if (is_scalar($query)) {
             $query = array('_id' => $query);
         }
+        $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
         return $this->getMongoCollection()->update($query, $newObj, $options);
     }
 
@@ -570,6 +572,7 @@ class Collection
     protected function doInsert(array &$a, array $options)
     {
         $document = $a;
+        $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
         $result = $this->getMongoCollection()->insert($document, $options);
         if (isset($document['_id'])) {
             $a['_id'] = $document['_id'];
@@ -594,6 +597,7 @@ class Collection
 
     protected function doRemove(array $query, array $options)
     {
+        $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
         return $this->getMongoCollection()->remove($query, $options);
     }
 
@@ -614,6 +618,7 @@ class Collection
 
     protected function doSave(array &$a, array $options)
     {
+        $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
         return $this->getMongoCollection()->save($a, $options);
     }
 
@@ -695,5 +700,25 @@ class Collection
         } else {
             return $retry();
         }
+    }
+
+    /**
+     * Converts "safe" write option to "w" for driver versions 1.3.0+.
+     *
+     * @param array $options
+     * @return array
+     */
+    protected function convertWriteConcern(array $options)
+    {
+        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
+            return $options;
+        }
+
+        if (isset($options['safe']) && ! isset($options['w'])) {
+            $options['w'] = is_bool($options['safe']) ? (integer) $options['safe'] : $options['safe'];
+            unset($options['safe']);
+        }
+
+        return $options;
     }
 }
