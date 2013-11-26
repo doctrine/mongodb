@@ -17,7 +17,7 @@
         "doctrine/common": ">=2.1.0,<2.5-dev"
     },
     "require-dev": {
-        "jmikola/geojson": "~1.0@dev"
+        "jmikola/geojson": "~1.0"
     },
     "suggest": {
         "jmikola/geojson": "Support GeoJSON geometry objects in 2dsphere queries"
