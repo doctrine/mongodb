@@ -296,7 +296,10 @@ class Cursor implements Iterator
     }
 
     /**
-     * Return the cursor's first result.
+     * Reset the cursor and return its first result.
+     *
+     * The cursor will be reset both before and after the single result is
+     * fetched. The original cursor limit (if any) will remain in place.
      *
      * @see Iterator::getSingleResult()
      * @return array|object|null
@@ -304,6 +307,7 @@ class Cursor implements Iterator
     public function getSingleResult()
     {
         $originalLimit = $this->limit;
+        $this->reset();
         $this->limit(1);
         $result = current($this->toArray()) ?: null;
         $this->reset();

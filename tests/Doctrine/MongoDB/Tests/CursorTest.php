@@ -58,6 +58,15 @@ class CursorTest extends BaseTest
     /**
      * @covers Doctrine\MongoDB\Cursor::getSingleResult
      */
+    public function testCursorIsResetBeforeGetSingleResult()
+    {
+        $this->assertEquals($this->doc1, $this->cursor->getNext());
+        $this->assertEquals($this->doc1, $this->cursor->getSingleResult());
+    }
+
+    /**
+     * @covers Doctrine\MongoDB\Cursor::getSingleResult
+     */
     public function testGetSingleResultReturnsNull()
     {
         $collection = $this->conn->selectCollection(self::$dbName, 'tmp');
