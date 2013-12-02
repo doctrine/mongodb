@@ -877,12 +877,13 @@ class Builder
      *
      * @see Expr::mod()
      * @see http://docs.mongodb.org/manual/reference/operator/mod/
-     * @param float|integer $mod
+     * @param float|integer $divisor
+     * @param float|integer $remainder
      * @return self
      */
-    public function mod($mod)
+    public function mod($divisor, $remainder = 0)
     {
-        $this->expr->mod($mod);
+        $this->expr->mod($divisor, $remainder);
         return $this;
     }
 
