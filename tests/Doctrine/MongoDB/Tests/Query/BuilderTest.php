@@ -333,7 +333,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             'type()' => array('type', array(7)),
             'all()' => array('all', array(array('value1', 'value2'))),
             'maxDistance' => array('maxDistance', array(5)),
-            'mod()' => array('mod', array(2)),
+            'mod()' => array('mod', array(2, 0)),
             'near()' => array('near', array(1, 2)),
             'nearSphere()' => array('nearSphere', array(1, 2)),
             'withinBox()' => array('withinBox', array(1, 2, 3, 4)),

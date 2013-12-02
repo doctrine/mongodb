@@ -541,12 +541,13 @@ class Expr
      *
      * @see Builder::mod()
      * @see http://docs.mongodb.org/manual/reference/operator/mod/
-     * @param float|integer $mod
+     * @param float|integer $divisor
+     * @param float|integer $remainder
      * @return self
      */
-    public function mod($mod)
+    public function mod($divisor, $remainder = 0)
     {
-        return $this->operator('$mod', $mod);
+        return $this->operator('$mod', array($divisor, $remainder));
     }
 
     /**
