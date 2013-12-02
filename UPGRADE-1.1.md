@@ -65,6 +65,7 @@ Pull requests completed for the 1.1.0 release:
    * Convert inconsistent return values for `getReadPreference()` from pre-1.3.3 drivers
    * Don't throw InvalidArgumentException in `Cursor::setReadPreference()`
    * Support read preferences in Query Builder
+ * #147: `Expr::mod()` should take explicit divisor/remainder args
 
 Additional commits included in 1.1.0:
 
