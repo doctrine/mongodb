@@ -113,7 +113,7 @@ class Cursor implements Iterator
      */
     public function batchSize($num)
     {
-        $limit = (integer) $num;
+        $num = (integer) $num;
         $this->batchSize = $num;
         $this->mongoCursor->batchSize($num);
         return $this;
