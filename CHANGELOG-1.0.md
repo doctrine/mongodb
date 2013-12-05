@@ -13,7 +13,8 @@ the older and newer versions, respectively.
 To generate a changelog summary since the last version, run
 `git log --no-merges --oneline XXX...1.0.x`
 
-* 1.0.4 (2013-11-26)
+1.0.4 (2013-11-26)
+------------------
 
  * fabcf49: Allow 1.5.x driver versions in composer.json
  * c7b6ef9: Convert "safe" write option to "w" for drivers 1.3.0+
@@ -24,13 +25,15 @@ To generate a changelog summary since the last version, run
  * d68f7bd: Make Cursor return values consistent with MongoCursor
  * 8bf686d: Clean up Cursor and EagerCursor docs and tests
 
-* 1.0.3 (2013-05-23)
+1.0.3 (2013-05-23)
+------------------
 
  * 531dc00: Allow 1.4.x driver versions in composer.json
  * bcdf464: Test driver 1.3.7 and PHP 5.5 in Travis
  * cbd7ad9: Force driver install for Travis, and test against 1.3.4
 
-* 1.0.2 (2013-03-04)
+1.0.2 (2013-03-04)
+------------------
 
  * ec10f4d: Test MongoCursor read preferences via slaveOkay()
  * 1592926: Add missing use statement in Cursor class
@@ -38,7 +41,8 @@ To generate a changelog summary since the last version, run
  * 24a1e89: Make ReadPreferenceTest skip message consistent </ocd>
  * 51805f8: Skip test if mongo pecl extension is < 1.3.0
 
-* 1.0.1 (2013-01-10)
+1.0.1 (2013-01-10)
+------------------
 
  * adf94c7: Only convert tag sets if necessary for setReadPreference()
  * a0534a0: Only convert numeric read preference types (driver <=1.3.2)
