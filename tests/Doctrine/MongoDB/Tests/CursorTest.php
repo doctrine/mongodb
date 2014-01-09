@@ -66,6 +66,18 @@ class CursorTest extends BaseTest
         $this->assertNull($cursor->getSingleResult());
     }
 
+    public function testGetSingleResultWhenIdIsObject()
+    {
+        $doc = array('_id' => array('key' => 'value'), 'test' => 'value');
+
+        $collection = $this->conn->selectCollection(self::$dbName, 'tmp');
+        $collection->insert($doc);
+
+        $cursor = $collection->find();
+
+        $this->assertNotNull($cursor->getSingleResult());
+    }
+
     public function testToArray()
     {
         $this->assertEquals(
