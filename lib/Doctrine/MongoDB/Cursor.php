@@ -309,7 +309,7 @@ class Cursor implements Iterator
         $originalLimit = $this->limit;
         $this->reset();
         $this->limit(1);
-        $result = current($this->toArray()) ?: null;
+        $result = current($this->toArray(false)) ?: null;
         $this->reset();
         $this->limit($originalLimit);
         return $result;
