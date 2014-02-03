@@ -59,6 +59,26 @@ class Configuration
     }
 
     /**
+     * Set QueryLogger
+     *
+     * @param Logging\QueryLogger $queryLogger
+     */
+    public function setQueryLogger(Logging\QueryLogger $queryLogger)
+    {
+        $this->attributes['queryLogger'] = $queryLogger;
+    }
+
+    /**
+     * Get QueryLogger
+     *
+     * @return null|Logging\QueryLogger
+     */
+    public function getQueryLogger()
+    {
+        return isset($this->attributes['queryLogger']) ? $this->attributes['queryLogger'] : null;
+    }
+
+    /**
      * Get the MongoDB command prefix.
      *
      * @deprecated 1.1 No longer supported; will be removed for 1.2
