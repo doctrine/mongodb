@@ -81,18 +81,10 @@ class LoggableCollection extends Collection implements Loggable
         }
     }
 
-    /**
-     * @param array $log
-     * @param callable $callback
-     * @return mixed
-     */
-    protected function logMethod($log, $callback) {
-        $this->log($log);
-        $data = call_user_func($callback);
-        if ($this->queryLogger instanceof Logging\QueryLogger) {
+    private function logAfter() {
+        if($this->queryLogger instanceof Logging\QueryLogger){
             $this->queryLogger->stopQuery();
         }
-        return $data;
     }
 
     /**
@@ -107,9 +99,10 @@ class LoggableCollection extends Collection implements Loggable
             'options' => $options,
         );
 
-        return $this->logMethod($log, function () use (&$a, $options) {
-            return parent::batchInsert($a, $options);
-        });
+        $this->log($log);
+        $data = parent::batchInsert($a, $options);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -124,9 +117,10 @@ class LoggableCollection extends Collection implements Loggable
             'skip' => $skip,
         );
 
-        return $this->logMethod($log, function () use ($query, $limit, $skip) {
-            return parent::count($query, $limit, $skip);
-        });
+        $this->log($log);
+        $data = parent::count($query, $limit, $skip);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -139,9 +133,10 @@ class LoggableCollection extends Collection implements Loggable
             'keys' => $keys,
         );
 
-        return $this->logMethod($log, function () use ($keys) {
-            return parent::deleteIndex($keys);
-        });
+        $this->log($log);
+        $data = parent::deleteIndex($keys);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -151,9 +146,10 @@ class LoggableCollection extends Collection implements Loggable
     {
         $log = array('deleteIndexes' => true);
 
-        return $this->logMethod($log, function () {
-            return parent::deleteIndexes();
-        });
+        $this->log($log);
+        $data = parent::deleteIndexes();
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -163,9 +159,10 @@ class LoggableCollection extends Collection implements Loggable
     {
         $log = array('drop' => true);
 
-        return $this->logMethod($log, function () {
-            return parent::drop();
-        });
+        $this->log($log);
+        $data = parent::drop();
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -179,9 +176,10 @@ class LoggableCollection extends Collection implements Loggable
             'options' => $options,
         );
 
-        return $this->logMethod($log, function () use ($keys, $options) {
-            return parent::ensureIndex($keys, $options);
-        });
+        $this->log($log);
+        $data = parent::ensureIndex($keys, $options);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -195,9 +193,10 @@ class LoggableCollection extends Collection implements Loggable
             'fields' => $fields,
         );
 
-        return $this->logMethod($log, function () use ($query, $fields) {
-            return parent::find($query, $fields);
-        });
+        $this->log($log);
+        $data = parent::find($query, $fields);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -211,9 +210,10 @@ class LoggableCollection extends Collection implements Loggable
             'fields' => $fields,
         );
 
-        return $this->logMethod($log, function () use ($query, $fields) {
-            return parent::findOne($query, $fields);
-        });
+        $this->log($log);
+        $data = parent::findOne($query, $fields);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -226,9 +226,10 @@ class LoggableCollection extends Collection implements Loggable
             'reference' => $reference,
         );
 
-        return $this->logMethod($log, function () use ($reference) {
-            return parent::getDBRef($reference);
-        });
+        $this->log($log);
+        $data = parent::getDBRef($reference);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -244,9 +245,10 @@ class LoggableCollection extends Collection implements Loggable
             'options' => $options,
         );
 
-        return $this->logMethod($log, function () use ($keys, $initial, $reduce, $options) {
-            return parent::group($keys, $initial, $reduce, $options);
-        });
+        $this->log($log);
+        $data = parent::group($keys, $initial, $reduce, $options);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -260,9 +262,10 @@ class LoggableCollection extends Collection implements Loggable
             'options' => $options,
         );
 
-        return $this->logMethod($log, function () use (&$a, $options) {
-            return parent::insert($a, $options);
-        });
+        $this->log($log);
+        $data = parent::insert($a, $options);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -276,9 +279,10 @@ class LoggableCollection extends Collection implements Loggable
             'options' => $options,
         );
 
-        return $this->logMethod($log, function () use ($query, $options) {
-            return parent::remove($query, $options);
-        });
+        $this->log($log);
+        $data = parent::remove($query, $options);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -292,9 +296,10 @@ class LoggableCollection extends Collection implements Loggable
             'options' => $options,
         );
 
-        return $this->logMethod($log, function () use (&$a, $options) {
-            return parent::save($a, $options);
-        });
+        $this->log($log);
+        $data = parent::save($a, $options);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -309,9 +314,10 @@ class LoggableCollection extends Collection implements Loggable
             'options' => $options,
         );
 
-        return $this->logMethod($log, function () use ($query, $newObj, $options) {
-            return parent::update($query, $newObj, $options);
-        });
+        $this->log($log);
+        $data = parent::update($query, $newObj, $options);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -324,9 +330,10 @@ class LoggableCollection extends Collection implements Loggable
             'scanData' => $scanData,
         );
 
-        return $this->logMethod($log, function () use ($scanData) {
-            return parent::validate($scanData);
-        });
+        $this->log($log);
+        $data = parent::validate($scanData);
+        $this->logAfter();
+        return $data;
     }
 
     /**

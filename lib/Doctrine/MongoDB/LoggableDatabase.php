@@ -80,18 +80,10 @@ class LoggableDatabase extends Database implements Loggable
         }
     }
 
-    /**
-     * @param array $log
-     * @param callable $callback
-     * @return mixed
-     */
-    protected function logMethod($log, $callback) {
-        $this->log($log);
-        $data = call_user_func($callback);
+    private function logAfter() {
         if($this->queryLogger instanceof Logging\QueryLogger){
             $this->queryLogger->stopQuery();
         }
-        return $data;
     }
 
     /**
@@ -105,9 +97,10 @@ class LoggableDatabase extends Database implements Loggable
             'password' => $password,
         );
 
-        return $this->logMethod($log, function () use ($username, $password) {
-            return parent::authenticate($username, $password);
-        });
+        $this->log($log);
+        $data = parent::authenticate($username, $password);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -121,9 +114,10 @@ class LoggableDatabase extends Database implements Loggable
             'options' => $options,
         );
 
-        return $this->logMethod($log, function () use ($data, $options) {
-            return parent::command($data, $options);
-        });
+        $this->log($log);
+        $data = parent::command($data, $options);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -145,9 +139,10 @@ class LoggableDatabase extends Database implements Loggable
             'max' => $options['max'],
         );
 
-        return $this->logMethod($log, function () use ($name, $options) {
-            return parent::createCollection($name, $options);
-        });
+        $this->log($log);
+        $data = parent::createCollection($name, $options);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -157,10 +152,10 @@ class LoggableDatabase extends Database implements Loggable
     {
         $log = array('dropDatabase' => true);
 
-        return $this->logMethod($log,
-            function () {
-                return parent::drop();
-            });
+        $this->log($log);
+        $data = parent::drop();
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -174,9 +169,10 @@ class LoggableDatabase extends Database implements Loggable
             'args' => $args,
         );
 
-        return $this->logMethod($log, function () use ($code, $args) {
-            return parent::execute($code, $args);
-        });
+        $this->log($log);
+        $data = parent::execute($code, $args);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -189,9 +185,10 @@ class LoggableDatabase extends Database implements Loggable
             'reference' => $ref,
         );
 
-        return $this->logMethod($log, function () use ($ref) {
-            return parent::getDBRef($ref);
-        });
+        $this->log($log);
+        $data = parent::getDBRef($ref);
+        $this->logAfter();
+        return $data;
     }
 
     /**

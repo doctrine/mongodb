@@ -79,18 +79,10 @@ class LoggableCursor extends Cursor implements Loggable
         }
     }
 
-    /**
-     * @param array $log
-     * @param callable $callback
-     * @return mixed
-     */
-    protected function logMethod($log, $callback) {
-        $this->log($log);
-        $data = call_user_func($callback);
-        if ($this->queryLogger instanceof Logging\QueryLogger) {
+    private function logAfter() {
+        if($this->queryLogger instanceof Logging\QueryLogger){
             $this->queryLogger->stopQuery();
         }
-        return $data;
     }
 
     /**
@@ -113,9 +105,10 @@ class LoggableCursor extends Cursor implements Loggable
             'keyPattern' => $keyPattern,
         );
 
-        return $this->logMethod($log, function () use ($keyPattern) {
-            return parent::hint($keyPattern);
-        });
+        $this->log($log);
+        $data = parent::hint($keyPattern);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -128,9 +121,10 @@ class LoggableCursor extends Cursor implements Loggable
             'limitNum' => $num,
         );
 
-        return $this->logMethod($log, function () use ($num) {
-            return parent::limit($num);
-        });
+        $this->log($log);
+        $data = parent::limit($num);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -143,9 +137,10 @@ class LoggableCursor extends Cursor implements Loggable
             'skipNum' => $num,
         );
 
-        return $this->logMethod($log, function () use ($num) {
-            return parent::skip($num);
-        });
+        $this->log($log);
+        $data = parent::skip($num);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -157,9 +152,10 @@ class LoggableCursor extends Cursor implements Loggable
             'snapshot' => true,
         );
 
-        return $this->logMethod($log, function () {
-            return parent::snapshot();
-        });
+        $this->log($log);
+        $data = parent::snapshot();
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -172,8 +168,9 @@ class LoggableCursor extends Cursor implements Loggable
             'sortFields' => $fields,
         );
 
-        return $this->logMethod($log, function () use ($fields) {
-            return parent::sort($fields);
-        });
+        $this->log($log);
+        $data = parent::sort($fields);
+        $this->logAfter();
+        return $data;
     }
 }
