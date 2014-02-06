@@ -50,10 +50,10 @@ class LoggableCursor extends Cursor implements Loggable
      * @param callable     $loggerCallable Logger callable
      * @param Logging\QueryLogger $queryLogger QueryLogger object
      */
-    public function __construct(Collection $collection, \MongoCursor $mongoCursor, array $query, array $fields, $numRetries, $loggerCallable, Logging\QueryLogger $queryLogger = null)
+    public function __construct(Collection $collection, \MongoCursor $mongoCursor, array $query, array $fields, $numRetries, $loggerCallable = null, Logging\QueryLogger $queryLogger = null)
     {
-        if ( ! is_callable($loggerCallable)) {
-            throw new \InvalidArgumentException('$loggerCallable must be a valid callback');
+        if ( ! is_callable($loggerCallable) && !($queryLogger instanceof Logging\QueryLogger)) {
+            throw new \InvalidArgumentException('$loggerCallable must be a valid callback or $queryLogger must be an instance of Doctrine\MongoDB\Logging\QueryLogger');
         }
         $this->loggerCallable = $loggerCallable;
         parent::__construct($collection, $mongoCursor, $query, $fields, $numRetries);

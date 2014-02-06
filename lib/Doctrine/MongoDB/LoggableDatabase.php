@@ -52,10 +52,10 @@ class LoggableDatabase extends Database implements Loggable
      * @param callable     $loggerCallable The logger callable
      * @param Logging\QueryLogger $queryLogger The QueryLogger object
      */
-    public function __construct(Connection $connection, \MongoDB $mongoDB, EventManager $evm, $numRetries, $loggerCallable, Logging\QueryLogger $queryLogger = null)
+    public function __construct(Connection $connection, \MongoDB $mongoDB, EventManager $evm, $numRetries, $loggerCallable = null, Logging\QueryLogger $queryLogger = null)
     {
-        if ( ! is_callable($loggerCallable)) {
-            throw new \InvalidArgumentException('$loggerCallable must be a valid callback');
+        if ( ! is_callable($loggerCallable) && !($queryLogger instanceof Logging\QueryLogger)) {
+            throw new \InvalidArgumentException('$loggerCallable must be a valid callback or $queryLogger must be an instance of Doctrine\MongoDB\Logging\QueryLogger');
         }
         parent::__construct($connection, $mongoDB, $evm, $numRetries);
         $this->loggerCallable = $loggerCallable;
