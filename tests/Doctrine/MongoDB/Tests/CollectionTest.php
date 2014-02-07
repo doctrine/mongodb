@@ -559,6 +559,51 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             array($indexInfo, 'baz', false),
         );
     }
+    
+    /**
+     * @covers Doctrine\MongoDB\Collection::getIndexInfo
+     * @dataProvider provideAreFieldsIndex
+     */
+    public function testAreFieldsIndexed($indexInfo, $fields, $expectedResult)
+    {
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->once())
+            ->method('getIndexInfo')
+            ->will($this->returnValue($indexInfo));
+
+        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
+
+        $this->assertEquals($expectedResult, $coll->areFieldsIndexed($fields));
+    }
+    
+    public function provideAreFieldsIndex()
+    {
+        $indexInfo = array(
+            array(
+                'name' => '_id_',
+                'ns' => 'test.foo',
+                'key' => array('_id' => 1)
+            ),
+            array(
+                'name' => 'foo_1_bar_1_baz_1',
+                'ns' => 'test.foo',
+                'key' => array('foo' => 1, 'bar' => 1, 'baz' => 1)
+            )
+        );
+        
+        return array(
+            array($indexInfo, array('_id'), true),
+            array($indexInfo, array('foo'), true),
+            array($indexInfo, array('bar'), false),
+            array($indexInfo, array('ohmy'), false),
+            array($indexInfo, array('foo', 'baz'), false),
+            array($indexInfo, array('foo', 'ohmy'), false),
+            array($indexInfo, array('baz', 'bar'), false),
+            array($indexInfo, array('foo', 'bar'), true),
+            array($indexInfo, array('baz', 'foo', 'bar'), true),
+        );
+    }
 
     public function testMapReduceWithResultsInline()
     {

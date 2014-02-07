@@ -620,6 +620,48 @@ class Collection
         }
         return false;
     }
+    
+    /**
+     * Check if all fields are indexed 
+     * (or are continuous subset of index starting from its begining)
+     * 
+     * @param array $fieldsNames
+     * @return boolean
+     */
+    public function areFieldsIndexed($fieldsNames)
+    {
+        $indexes = $this->getIndexInfo();
+        $numFields = count($fieldsNames);
+        foreach ($indexes as $index) {
+            // no keys or less keys are indexed than we need
+            if (!isset($index['key']) || count($index['key'])<$numFields)
+                continue;
+            // array of index_field => position
+            $indexFieldPositions=array(); $i=0;
+            foreach ($index['key'] as $field=>$order) {
+                $indexFieldPositions[$field]=$i++;
+            }
+            $matchedPositions=array();
+            foreach ($fieldsNames as $field) {
+                if (isset($indexFieldPositions[$field])) {
+                    $matchedPositions[]=$indexFieldPositions[$field];
+                }
+                else {
+                    // field is not indexed, see next index
+                    continue 2;
+                }
+            }
+            sort($matchedPositions);
+            foreach ($matchedPositions as $i=>$expected) {
+                if ($i!=$expected) {
+                    // there's a gap in indexed fields, see next index
+                    continue 2;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Invokes the mapReduce command.
