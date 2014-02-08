@@ -74,13 +74,14 @@ class LoggableCursor extends Cursor implements Loggable
             call_user_func($this->loggerCallable, $data);
         }
 
-        if($this->queryLogger instanceof Logging\QueryLogger){
+        if ($this->queryLogger instanceof Logging\QueryLogger) {
             $this->queryLogger->startQuery($data);
         }
     }
 
-    private function logAfter() {
-        if($this->queryLogger instanceof Logging\QueryLogger){
+    private function logAfter()
+    {
+        if ($this->queryLogger instanceof Logging\QueryLogger) {
             $this->queryLogger->stopQuery();
         }
     }

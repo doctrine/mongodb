@@ -24,7 +24,8 @@ namespace Doctrine\MongoDB\Logging;
  *
  * @author Martin Holzhauer <martin@holzhauer.eu>
  */
-interface QueryLogger {
+interface QueryLogger
+{
     public function startQuery($parameter);
 
     public function stopQuery();

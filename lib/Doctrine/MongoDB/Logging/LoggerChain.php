@@ -24,7 +24,8 @@ namespace Doctrine\MongoDB\Logging;
  *
  * @author Martin Holzhauer <martin@holzhauer.eu>
  */
-class LoggerChain implements QueryLogger {
+class LoggerChain implements QueryLogger
+{
 
     /**
      * @var array|QueryLogger[]
@@ -36,10 +37,14 @@ class LoggerChain implements QueryLogger {
      *
      * @param QueryLogger $queryLogger
      */
-    public function addLogger(QueryLogger $queryLogger){
+    public function addLogger(QueryLogger $queryLogger)
+    {
         $this->logger[] = $queryLogger;
     }
 
+    /**
+     * @param $parameter
+     */
     public function startQuery($parameter)
     {
         foreach($this->logger as $logger)
@@ -48,6 +53,9 @@ class LoggerChain implements QueryLogger {
         }
     }
 
+    /**
+     *
+     */
     public function stopQuery()
     {
         foreach($this->logger as $logger)

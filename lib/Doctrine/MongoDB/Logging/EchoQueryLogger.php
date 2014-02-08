@@ -24,7 +24,8 @@ namespace Doctrine\MongoDB\Logging;
  *
  * @author Martin Holzhauer <martin@holzhauer.eu>
  */
-class EchoQueryLogger implements QueryLogger {
+class EchoQueryLogger implements QueryLogger
+{
 
     public function startQuery($parameter)
     {
@@ -34,6 +35,6 @@ class EchoQueryLogger implements QueryLogger {
 
     public function stopQuery()
     {
-        // TODO: Implement stopQuery() method.
+        // not needed in this case
     }
 }

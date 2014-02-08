@@ -71,17 +71,18 @@ class LoggableDatabase extends Database implements Loggable
     public function log(array $log)
     {
         $log['db'] = $this->getName();
-        if($this->loggerCallable){
+        if ($this->loggerCallable) {
             call_user_func_array($this->loggerCallable, array($log));
         }
 
-        if($this->queryLogger instanceof Logging\QueryLogger){
+        if ($this->queryLogger instanceof Logging\QueryLogger) {
             $this->queryLogger->startQuery($log);
         }
     }
 
-    private function logAfter() {
-        if($this->queryLogger instanceof Logging\QueryLogger){
+    private function logAfter()
+    {
+        if ($this->queryLogger instanceof Logging\QueryLogger) {
             $this->queryLogger->stopQuery();
         }
     }
