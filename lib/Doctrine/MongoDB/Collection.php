@@ -634,26 +634,26 @@ class Collection
         $numFields = count($fieldsNames);
         foreach ($indexes as $index) {
             // no keys or less keys are indexed than we need
-            if (!isset($index['key']) || count($index['key'])<$numFields)
+            if (!isset($index['key']) || count($index['key']) < $numFields) {
                 continue;
-            // array of index_field => position
-            $indexFieldPositions=array(); $i=0;
-            foreach ($index['key'] as $field=>$order) {
-                $indexFieldPositions[$field]=$i++;
             }
-            $matchedPositions=array();
+            // array of index_field => position
+            $indexFieldPositions = array(); $i = 0;
+            foreach ($index['key'] as $field => $order) {
+                $indexFieldPositions[$field] = $i++;
+            }
+            $matchedPositions = array();
             foreach ($fieldsNames as $field) {
                 if (isset($indexFieldPositions[$field])) {
-                    $matchedPositions[]=$indexFieldPositions[$field];
-                }
-                else {
+                    $matchedPositions[] = $indexFieldPositions[$field];
+                } else {
                     // field is not indexed, see next index
                     continue 2;
                 }
             }
             sort($matchedPositions);
-            foreach ($matchedPositions as $i=>$expected) {
-                if ($i!=$expected) {
+            foreach ($matchedPositions as $i => $expected) {
+                if ($i !== $expected) {
                     // there's a gap in indexed fields, see next index
                     continue 2;
                 }

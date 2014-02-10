@@ -522,7 +522,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Doctrine\MongoDB\Collection::getIndexInfo
-     * @dataProvider provideIsFieldIndex
+     * @dataProvider provideIsFieldIndexed
      */
     public function testIsFieldIndexed($indexInfo, $field, $expectedResult)
     {
@@ -537,7 +537,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedResult, $coll->isFieldIndexed($field));
     }
 
-    public function provideIsFieldIndex()
+    public function provideIsFieldIndexed()
     {
         $indexInfo = array(
             array(
@@ -562,7 +562,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     
     /**
      * @covers Doctrine\MongoDB\Collection::getIndexInfo
-     * @dataProvider provideAreFieldsIndex
+     * @dataProvider provideAreFieldsIndexed
      */
     public function testAreFieldsIndexed($indexInfo, $fields, $expectedResult)
     {
@@ -577,7 +577,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedResult, $coll->areFieldsIndexed($fields));
     }
     
-    public function provideAreFieldsIndex()
+    public function provideAreFieldsIndexed()
     {
         $indexInfo = array(
             array(
