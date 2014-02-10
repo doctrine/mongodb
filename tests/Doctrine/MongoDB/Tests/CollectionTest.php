@@ -564,7 +564,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      * @covers Doctrine\MongoDB\Collection::getIndexInfo
      * @dataProvider provideAreFieldsIndexed
      */
-    public function testAreFieldsIndexed($indexInfo, $fields, $expectedResult)
+    public function testAreFieldsIndexed($indexInfo, $fields, $allowLessEfficient, $expectedResult)
     {
         $mongoCollection = $this->getMockMongoCollection();
 
@@ -574,7 +574,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
 
-        $this->assertEquals($expectedResult, $coll->areFieldsIndexed($fields));
+        $this->assertEquals($expectedResult, $coll->areFieldsIndexed($fields, $allowLessEfficient));
     }
     
     public function provideAreFieldsIndexed()
@@ -593,15 +593,16 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         );
         
         return array(
-            array($indexInfo, array('_id'), true),
-            array($indexInfo, array('foo'), true),
-            array($indexInfo, array('bar'), false),
-            array($indexInfo, array('ohmy'), false),
-            array($indexInfo, array('foo', 'baz'), false),
-            array($indexInfo, array('foo', 'ohmy'), false),
-            array($indexInfo, array('baz', 'bar'), false),
-            array($indexInfo, array('foo', 'bar'), true),
-            array($indexInfo, array('baz', 'foo', 'bar'), true),
+            array($indexInfo, array('_id'), false, true),
+            array($indexInfo, array('foo'), false, true),
+            array($indexInfo, array('bar'), false, false),
+            array($indexInfo, array('ohmy'), false, false),
+            array($indexInfo, array('foo', 'baz'), false, false),
+            array($indexInfo, array('foo', 'baz'), true, true),
+            array($indexInfo, array('foo', 'ohmy'), false, false),
+            array($indexInfo, array('baz', 'bar'), false, false),
+            array($indexInfo, array('foo', 'bar'), false, true),
+            array($indexInfo, array('baz', 'foo', 'bar'), false, true),
         );
     }
 

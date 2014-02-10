@@ -626,9 +626,10 @@ class Collection
      * (or are continuous subset of index starting from its begining)
      * 
      * @param array $fieldsNames
+     * @param boolean $allowLessEfficient
      * @return boolean
      */
-    public function areFieldsIndexed($fieldsNames)
+    public function areFieldsIndexed($fieldsNames, $allowLessEfficient = false)
     {
         $indexes = $this->getIndexInfo();
         $numFields = count($fieldsNames);
@@ -652,6 +653,9 @@ class Collection
                 }
             }
             sort($matchedPositions);
+            if ($allowLessEfficient && $matchedPositions[0] === 0) {
+                return true;
+            }
             foreach ($matchedPositions as $i => $expected) {
                 if ($i !== $expected) {
                     // there's a gap in indexed fields, see next index
