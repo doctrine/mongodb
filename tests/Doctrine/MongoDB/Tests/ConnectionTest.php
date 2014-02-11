@@ -5,6 +5,7 @@ namespace Doctrine\MongoDB\Tests;
 use Doctrine\MongoDB\Connection;
 use PHPUnit_Framework_TestCase;
 use Mongo;
+use Doctrine\Common\EventManager;
 
 class ConnectionTest extends PHPUnit_Framework_TestCase
 {
@@ -205,6 +206,23 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
         $conn = $this->getTestConnection($mockMongo);
         $this->assertEquals('Test', (string) $conn);
     }
+    
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testExceptionTriggersPreThrowExceptionHandler()
+    {
+        $mongoDB = $this->getMockBuilder('MongoDB')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $evm = new EventManager();
+        $exceptionListenerMock = $this->getMock('TestExceptionListener', array('preThrowException'));
+        $exceptionListenerMock  ->expects($this->once())
+                                ->method(\Doctrine\MongoDB\Events::preThrowException);
+        $evm->addEventListener(array(\Doctrine\MongoDB\Events::preThrowException), $exceptionListenerMock);
+        $conn = new Connection(null, array(), null, $evm);
+        $conn->setMongo($mongoDB);
+    }
 
     private function getTestConnection($mongo)
     {
@@ -232,4 +250,11 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
     {
         return $this->getMock('MongoCollection', array(), array(), '', false, false);
     }
+}
+
+class TestExceptionListener
+{
+
+    public function preThrowException(\Doctrine\MongoDB\Event\EventArgs $eventArgs) {}
+    
 }

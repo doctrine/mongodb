@@ -96,4 +96,7 @@ final class Events
 
     const preUpdate = 'collectionPreUpdate';
     const postUpdate = 'collectionPostUpdate';
+    
+    const preThrowException = 'preThrowException';
+    
 }
