@@ -622,14 +622,21 @@ class Collection
     }
     
     /**
-     * Check if all fields are indexed 
-     * (or are continuous subset of index starting from its begining)
+     * Check if given fields are prefix of any existing index
+     * 
+     * http://docs.mongodb.org/manual/core/index-compound/#prefixes
+     * Given the following index: { "item": 1, "location": 1, "stock": 1 }
+     * Supported queries are those including
+     *  * item
+     *  * item and location
+     *  * item and location and stock
+     *  * item and stock [however, this index would be less efficient than an index on only item and stock]
      * 
      * @param array $fieldsNames
      * @param boolean $allowLessEfficient
      * @return boolean
      */
-    public function areFieldsIndexed($fieldsNames, $allowLessEfficient = false)
+    public function areFieldsIndexed($fieldsNames, $allowLessEfficient = true)
     {
         $indexes = $this->getIndexInfo();
         $numFields = count($fieldsNames);
@@ -648,8 +655,7 @@ class Collection
                 if (isset($indexFieldPositions[$field])) {
                     $matchedPositions[] = $indexFieldPositions[$field];
                 } else {
-                    // field is not indexed, see next index
-                    continue 2;
+                    continue 2; // field is not indexed, see next index
                 }
             }
             sort($matchedPositions);
@@ -658,8 +664,7 @@ class Collection
             }
             foreach ($matchedPositions as $i => $expected) {
                 if ($i !== $expected) {
-                    // there's a gap in indexed fields, see next index
-                    continue 2;
+                    continue 2; // prefix is not continuous subset
                 }
             }
             return true;
