@@ -562,6 +562,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     
     /**
      * @covers Doctrine\MongoDB\Collection::getIndexInfo
+     * @covers Doctrine\MongoDB\Collection::areFieldsIndexed
      * @dataProvider provideAreFieldsIndexed
      */
     public function testAreFieldsIndexed($indexInfo, $fields, $allowLessEfficient, $expectedResult)
@@ -603,6 +604,63 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             array($indexInfo, array('baz', 'bar'), false, false),
             array($indexInfo, array('foo', 'bar'), false, true),
             array($indexInfo, array('baz', 'foo', 'bar'), false, true),
+        );
+    }
+    
+    /**
+     * @covers Doctrine\MongoDB\Collection::getIndexInfo
+     * @covers Doctrine\MongoDB\Collection::areFieldsIndexedForSorting
+     * @dataProvider provideAreFieldsIndexedForSorting
+     */
+    public function testAreFieldsIndexedForSorting($indexInfo, $fields, $allowLessEfficient, $expectedResult)
+    {
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->once())
+            ->method('getIndexInfo')
+            ->will($this->returnValue($indexInfo));
+
+        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
+
+        $this->assertEquals($expectedResult, $coll->areFieldsIndexedForSorting($fields, $allowLessEfficient));
+    }
+    
+    public function provideAreFieldsIndexedForSorting()
+    {
+        $indexInfo = array(
+            array(
+                'name' => '_id_',
+                'ns' => 'test.foo',
+                'key' => array('_id' => 1)
+            ),
+            array(
+                'name' => 'foo_1_bar_1_baz_1',
+                'ns' => 'test.foo',
+                'key' => array('foo' => 1, 'bar' => 1, 'baz' => 1)
+            )
+        );
+        
+        return array(
+            array($indexInfo, array('_id' => 1), false, true),
+            array($indexInfo, array('_id' => -1), false, true),
+            array($indexInfo, array('foo' => 1), false, true),
+            array($indexInfo, array('foo' => -1), false, true),
+            array($indexInfo, array('bar' => 1), false, false),
+            array($indexInfo, array('ohmy' => -1), false, false), // not indexed
+            array($indexInfo, array('foo' => 1, 'baz' => 1), false, false), // inefficient
+            array($indexInfo, array('foo' => 1, 'baz' => 1), true, true),
+            array($indexInfo, array('foo' => -1, 'baz' => -1), true, true),
+            array($indexInfo, array('foo' => 1, 'baz' => -1), true, false), // no index with this sort order
+            array($indexInfo, array('foo' => 1, 'ohmy' => -1), false, false), // not indexed
+            array($indexInfo, array('baz' => 1, 'bar' => 1), false, false),
+            array($indexInfo, array('bar' => 1, 'baz' => 1), false, false), // not a prefix
+            array($indexInfo, array('foo' => 1, 'bar' => 1), false, true),
+            array($indexInfo, array('foo' => -1, 'bar' => -1), false, true),
+            array($indexInfo, array('foo' => 1, 'bar' => -1), false, false), // no index with this sort order
+            array($indexInfo, array('foo' => 1, 'bar' => 1, 'baz' => 1), false, true),
+            array($indexInfo, array('foo' => -1, 'bar' => -1, 'baz' => -1), false, true),
+            array($indexInfo, array('foo' => 1, 'bar' => 1, 'baz' => -1), false, false), // no index with this sort order
+            array($indexInfo, array('baz' => 1, 'foo' => 1, 'bar' => 1), false, false), // wrong order of fields
         );
     }
 

@@ -622,7 +622,8 @@ class Collection
     }
     
     /**
-     * Check if given fields are prefix of any existing index
+     * Check if given fields are prefix of any existing index. Fields'
+     * order does NOT matter in this method.
      * 
      * http://docs.mongodb.org/manual/core/index-compound/#prefixes
      * Given the following index: { "item": 1, "location": 1, "stock": 1 }
@@ -630,7 +631,7 @@ class Collection
      *  * item
      *  * item and location
      *  * item and location and stock
-     *  * item and stock [however, this index would be less efficient than an index on only item and stock]
+     *  * item and stock (however, this index would be less efficient than an index on only item and stock)
      * 
      * @param array $fieldsNames
      * @param boolean $allowLessEfficient
@@ -668,6 +669,51 @@ class Collection
                 }
             }
             return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Checks if there is any index capable of sorting results in
+     * required order. For notes about Compound Indexes see {@link Collection::areFieldsIndexed()}
+     * 
+     * @param array $fields [ field => -1|1, .. ]
+     * @param boolean $allowLessEfficient
+     * @return boolean
+     */
+    public function areFieldsIndexedForSorting($fields, $allowLessEfficient = true)
+    {
+        $indexes = $this->getIndexInfo();
+        $numFields = count($fields);
+        foreach ($indexes as $index) {
+            // no keys or less keys are indexed than we need
+            if (!isset($index['key']) || count($index['key']) < $numFields) {
+                continue;
+            }
+            // array of index_field => position
+            $indexFieldPositions = array(); $i = 0;
+            foreach ($index['key'] as $field => $order) {
+                $indexFieldPositions[$field] = $i++;
+            }
+            $indexToUse = array(); $currentIndexPosition=-1;
+            foreach ($fields as $field => $order) {
+                if (!isset($indexFieldPositions[$field])) {
+                    continue 2; // field is not indexed
+                }
+                if ($currentIndexPosition === -1 && $indexFieldPositions[$field] !== 0) {
+                    continue 2; // it's not a prefix
+                }
+                if (!$allowLessEfficient && $indexFieldPositions[$field] !== $currentIndexPosition + 1) {
+                    continue 2; // prefix is not continuous subset
+                }
+                $currentIndexPosition = $indexFieldPositions[$field];
+                $indexToUse[$field] = $index['key'][$field];
+            }
+            // Mongo can traverse index from end to beginning as well
+            $reversedIndexToUse = array_map(function($order) { return -$order; }, $indexToUse);
+            if ($fields === $indexToUse || $fields === $reversedIndexToUse) {
+                return true;
+            }
         }
         return false;
     }
