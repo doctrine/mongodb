@@ -675,16 +675,18 @@ class Collection
     
     /**
      * Checks if there is any index capable of sorting results in
-     * required order. For notes about Compound Indexes see {@link Collection::areFieldsIndexed()}
+     * required order. This method does not run index check against
+     * $prefixPrepend
      * 
-     * @param array $fields [ field => -1|1, .. ]
+     * @param array $sort [ field => -1|1, .. ]
+     * @param array $prefixPrepend list of fields from find() that made an equality check
      * @param boolean $allowLessEfficient
      * @return boolean
      */
-    public function areFieldsIndexedForSorting($fields, $allowLessEfficient = true)
+    public function areFieldsIndexedForSorting($sort, $prefixPrepend = array(), $allowLessEfficient = true)
     {
         $indexes = $this->getIndexInfo();
-        $numFields = count($fields);
+        $numFields = count($sort);
         foreach ($indexes as $index) {
             // no keys or less keys are indexed than we need
             if (!isset($index['key']) || count($index['key']) < $numFields) {
@@ -695,23 +697,36 @@ class Collection
             foreach ($index['key'] as $field => $order) {
                 $indexFieldPositions[$field] = $i++;
             }
+            $matchedPositions = array();
+            foreach ($prefixPrepend as $p) {
+                $matchedPositions[] = $indexFieldPositions[$p];
+            }
             $indexToUse = array(); $currentIndexPosition=-1;
-            foreach ($fields as $field => $order) {
+            foreach ($sort as $field => $order) {
                 if (!isset($indexFieldPositions[$field])) {
                     continue 2; // field is not indexed
                 }
-                if ($currentIndexPosition === -1 && $indexFieldPositions[$field] !== 0) {
-                    continue 2; // it's not a prefix
-                }
-                if (!$allowLessEfficient && $indexFieldPositions[$field] !== $currentIndexPosition + 1) {
-                    continue 2; // prefix is not continuous subset
+                if ($indexFieldPositions[$field] < $currentIndexPosition) {
+                    continue 2; // wrong field order in index
                 }
                 $currentIndexPosition = $indexFieldPositions[$field];
+                $matchedPositions[] = $currentIndexPosition;
                 $indexToUse[$field] = $index['key'][$field];
+            }
+            sort($matchedPositions);
+            if ($matchedPositions[0] !== 0) {
+                continue; // this is not prefix
+            }
+            if (!$allowLessEfficient) {
+                foreach ($matchedPositions as $i => $expected) {
+                    if ($i !== $expected) {
+                        continue 2; // prefix is not continuous subset
+                    }
+                }
             }
             // Mongo can traverse index from end to beginning as well
             $reversedIndexToUse = array_map(function($order) { return -$order; }, $indexToUse);
-            if ($fields === $indexToUse || $fields === $reversedIndexToUse) {
+            if ($sort === $indexToUse || $sort === $reversedIndexToUse) {
                 return true;
             }
         }

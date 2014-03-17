@@ -612,7 +612,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      * @covers Doctrine\MongoDB\Collection::areFieldsIndexedForSorting
      * @dataProvider provideAreFieldsIndexedForSorting
      */
-    public function testAreFieldsIndexedForSorting($indexInfo, $fields, $allowLessEfficient, $expectedResult)
+    public function testAreFieldsIndexedForSorting($indexInfo, $fields, $prependPrefix, $allowLessEfficient, $expectedResult)
     {
         $mongoCollection = $this->getMockMongoCollection();
 
@@ -622,7 +622,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
 
-        $this->assertEquals($expectedResult, $coll->areFieldsIndexedForSorting($fields, $allowLessEfficient));
+        $this->assertEquals($expectedResult, $coll->areFieldsIndexedForSorting($fields, $prependPrefix, $allowLessEfficient));
     }
     
     public function provideAreFieldsIndexedForSorting()
@@ -641,26 +641,27 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         );
         
         return array(
-            array($indexInfo, array('_id' => 1), false, true),
-            array($indexInfo, array('_id' => -1), false, true),
-            array($indexInfo, array('foo' => 1), false, true),
-            array($indexInfo, array('foo' => -1), false, true),
-            array($indexInfo, array('bar' => 1), false, false),
-            array($indexInfo, array('ohmy' => -1), false, false), // not indexed
-            array($indexInfo, array('foo' => 1, 'baz' => 1), false, false), // inefficient
-            array($indexInfo, array('foo' => 1, 'baz' => 1), true, true),
-            array($indexInfo, array('foo' => -1, 'baz' => -1), true, true),
-            array($indexInfo, array('foo' => 1, 'baz' => -1), true, false), // no index with this sort order
-            array($indexInfo, array('foo' => 1, 'ohmy' => -1), false, false), // not indexed
-            array($indexInfo, array('baz' => 1, 'bar' => 1), false, false),
-            array($indexInfo, array('bar' => 1, 'baz' => 1), false, false), // not a prefix
-            array($indexInfo, array('foo' => 1, 'bar' => 1), false, true),
-            array($indexInfo, array('foo' => -1, 'bar' => -1), false, true),
-            array($indexInfo, array('foo' => 1, 'bar' => -1), false, false), // no index with this sort order
-            array($indexInfo, array('foo' => 1, 'bar' => 1, 'baz' => 1), false, true),
-            array($indexInfo, array('foo' => -1, 'bar' => -1, 'baz' => -1), false, true),
-            array($indexInfo, array('foo' => 1, 'bar' => 1, 'baz' => -1), false, false), // no index with this sort order
-            array($indexInfo, array('baz' => 1, 'foo' => 1, 'bar' => 1), false, false), // wrong order of fields
+            array($indexInfo, array('_id' => 1), array(), false, true),
+            array($indexInfo, array('_id' => -1), array(), false, true),
+            array($indexInfo, array('foo' => 1), array(), false, true),
+            array($indexInfo, array('foo' => -1), array(), false, true),
+            array($indexInfo, array('bar' => 1), array(), false, false),
+            array($indexInfo, array('ohmy' => -1), array(), false, false), // not indexed
+            array($indexInfo, array('foo' => 1, 'baz' => 1), array(), false, false), // inefficient
+            array($indexInfo, array('foo' => 1, 'baz' => 1), array(), true, true),
+            array($indexInfo, array('foo' => -1, 'baz' => -1), array(), true, true),
+            array($indexInfo, array('foo' => 1, 'baz' => -1), array(), true, false), // no index with this sort order
+            array($indexInfo, array('foo' => 1, 'ohmy' => -1), array(), false, false), // not indexed
+            array($indexInfo, array('baz' => 1, 'bar' => 1), array(), false, false),
+            array($indexInfo, array('bar' => 1, 'baz' => 1), array(), false, false), // not a prefix
+            array($indexInfo, array('bar' => 1, 'baz' => 1), array('foo'), false, true), // can be executed because equality check on foo
+            array($indexInfo, array('foo' => 1, 'bar' => 1), array(), false, true),
+            array($indexInfo, array('foo' => -1, 'bar' => -1), array(), false, true),
+            array($indexInfo, array('foo' => 1, 'bar' => -1), array(), false, false), // no index with this sort order
+            array($indexInfo, array('foo' => 1, 'bar' => 1, 'baz' => 1), array(), false, true),
+            array($indexInfo, array('foo' => -1, 'bar' => -1, 'baz' => -1), array(), false, true),
+            array($indexInfo, array('foo' => 1, 'bar' => 1, 'baz' => -1), array(), false, false), // no index with this sort order
+            array($indexInfo, array('baz' => 1, 'foo' => 1, 'bar' => 1), array(), false, false), // wrong order of fields
         );
     }
 
