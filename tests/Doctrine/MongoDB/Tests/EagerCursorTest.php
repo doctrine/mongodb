@@ -51,7 +51,7 @@ class EagerCursorTest extends BaseTest
         $this->assertTrue($eagerCursor->isInitialized());
     }
 
-    public function testGetSingleResult()
+    public function testGetSingleResultShouldAlwaysReturnTheFirstResult()
     {
         $results = array(
             array('_id' => 1, 'x' => 'foo'),
@@ -69,6 +69,9 @@ class EagerCursorTest extends BaseTest
         $this->assertFalse($eagerCursor->isInitialized());
         $this->assertEquals($results[0], $eagerCursor->getSingleResult());
         $this->assertTrue($eagerCursor->isInitialized());
+
+        $eagerCursor->next();
+        $this->assertEquals($results[0], $eagerCursor->getSingleResult());
     }
 
     public function testToArray()
