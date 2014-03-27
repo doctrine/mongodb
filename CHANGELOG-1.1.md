@@ -4,6 +4,13 @@ CHANGELOG for 1.1.x
 This changelog references the relevant changes (bug and security fixes) done
 in 1.1.x patch versions.
 
+1.1.3 (2014-03-27)
+------------------
+
+ * [#157](https://github.com/doctrine/mongodb/pull/157): Fix createCollection event dispatching
+ * [#159](https://github.com/doctrine/mongodb/pull/159): Allow string or array `Cursor::hint()` argument
+ * [#161](https://github.com/doctrine/mongodb/pull/161): Fix `EagerCursor::getSingleResult()` behavior
+
 1.1.2 (2014-01-09)
 ------------------
 
