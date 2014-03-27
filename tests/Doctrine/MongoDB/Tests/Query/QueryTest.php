@@ -254,7 +254,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \Doctrine\MongoDB\EagerCursor
+     * @return \Doctrine\MongoDB\Cursor
      */
     private function getMockCursor()
     {
