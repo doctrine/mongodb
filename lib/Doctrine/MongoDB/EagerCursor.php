@@ -156,6 +156,11 @@ class EagerCursor implements Iterator
     {
         $this->initialize();
         reset($this->data);
-        return current($this->data);
+
+        if (key($this->data) !== null) {
+            return current($this->data);
+        }
+
+        return null;
     }
 }

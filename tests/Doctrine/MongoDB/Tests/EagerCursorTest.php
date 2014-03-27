@@ -74,6 +74,19 @@ class EagerCursorTest extends BaseTest
         $this->assertEquals($results[0], $eagerCursor->getSingleResult());
     }
 
+    public function testGetSingleResultShouldReturnNullForNoResults()
+    {
+        $cursor = $this->getMockCursor();
+
+        $cursor->expects($this->once())
+            ->method('toArray')
+            ->will($this->returnValue(array()));
+
+        $eagerCursor = new EagerCursor($cursor);
+
+        $this->assertNull($eagerCursor->getSingleResult());
+    }
+
     public function testToArray()
     {
         $results = array(
