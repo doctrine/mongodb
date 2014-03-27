@@ -251,7 +251,7 @@ class Cursor implements Iterator
     /**
      * @see \MongoCursor::hint()
      */
-    public function hint(array $keyPattern)
+    public function hint($keyPattern)
     {
         $this->hints[] = $keyPattern;
         $this->mongoCursor->hint($keyPattern);
