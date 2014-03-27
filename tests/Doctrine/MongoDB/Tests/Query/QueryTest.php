@@ -79,6 +79,30 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $query->execute();
     }
 
+    public function testEagerCursorPreparation()
+    {
+        $cursor = $this->getMockCursor();
+        $collection = $this->getMockCollection();
+
+        $collection->expects($this->once())
+            ->method('find')
+            ->with(array('foo' => 'bar'))
+            ->will($this->returnValue($cursor));
+
+        $queryArray = array(
+            'type' => Query::TYPE_FIND,
+            'query' => array('foo' => 'bar'),
+            'eagerCursor' => true,
+        );
+
+        $query = new Query($collection, $queryArray, array());
+
+        $eagerCursor = $query->execute();
+
+        $this->assertInstanceOf('Doctrine\MongoDB\EagerCursor', $eagerCursor);
+        $this->assertSame($cursor, $eagerCursor->getCursor());
+    }
+
     /**
      * @return \Doctrine\MongoDB\Collection
      */
@@ -97,5 +121,15 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         return $this->getMockBuilder('Doctrine\MongoDB\Database')
                     ->disableOriginalConstructor()
                     ->getMock();
+    }
+
+    /**
+     * @return \Doctrine\MongoDB\EagerCursor
+     */
+    private function getMockCursor()
+    {
+        return $this->getMockBuilder('Doctrine\MongoDB\Cursor')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 }

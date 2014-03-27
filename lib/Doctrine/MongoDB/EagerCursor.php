@@ -155,6 +155,12 @@ class EagerCursor implements Iterator
     public function getSingleResult()
     {
         $this->initialize();
-        return $this->current();
+        reset($this->data);
+
+        if (key($this->data) !== null) {
+            return current($this->data);
+        }
+
+        return null;
     }
 }
