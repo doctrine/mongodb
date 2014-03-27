@@ -138,6 +138,9 @@ class EagerCursorTest extends BaseTest
         }
     }
 
+    /**
+     * @return \Doctrine\MongoDB\Cursor
+     */
     private function getMockCursor()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Cursor')
