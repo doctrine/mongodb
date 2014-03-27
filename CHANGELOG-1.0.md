@@ -13,9 +13,19 @@ the older and newer versions, respectively.
 To generate a changelog summary since the last version, run
 `git log --no-merges --oneline XXX...1.0.x`
 
-1.0.5 (2014-01-09)
+1.0.6 (2014-03-27)
+------------------
 
- * 4a8822b: Cursor::getSingleResult() should not use keys in toArray() 
+ * acf548c Allow string or array Cursor::hint() argument
+ * 5b85faf EagerCursor::getSingleResult() should return null for no results
+ * 204b326 EagerCursor::getSingleResult() should always return first element
+ * 0253ded Split EagerCursorTest into unit and functional tests
+ * 4f06d4c Fixed pre and post CreateCollection dispatching
+
+1.0.5 (2014-01-09)
+------------------
+
+ * 4a8822b: Cursor::getSingleResult() should not use keys in toArray()
 
 1.0.4 (2013-11-26)
 ------------------
