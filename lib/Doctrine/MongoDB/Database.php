@@ -20,6 +20,7 @@
 namespace Doctrine\MongoDB;
 
 use Doctrine\Common\EventManager;
+use Doctrine\MongoDB\Event\CreateCollectionEventArgs;
 use Doctrine\MongoDB\Event\EventArgs;
 use Doctrine\MongoDB\Util\ReadPreference;
 
@@ -128,7 +129,7 @@ class Database
         $result = $this->selectCollection($name);
 
         if ($this->eventManager->hasListeners(Events::postCreateCollection)) {
-            $this->eventManager->dispatchEvent(Events::postCreateCollection, new EventArgs($this, $prefix));
+            $this->eventManager->dispatchEvent(Events::postCreateCollection, new EventArgs($this, $result));
         }
 
         return $result;
