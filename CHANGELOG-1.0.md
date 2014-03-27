@@ -14,8 +14,9 @@ To generate a changelog summary since the last version, run
 `git log --no-merges --oneline XXX...1.0.x`
 
 1.0.5 (2014-01-09)
+------------------
 
- * 4a8822b: Cursor::getSingleResult() should not use keys in toArray() 
+ * 4a8822b: Cursor::getSingleResult() should not use keys in toArray()
 
 1.0.4 (2013-11-26)
 ------------------
