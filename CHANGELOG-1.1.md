@@ -4,6 +4,12 @@ CHANGELOG for 1.1.x
 This changelog references the relevant changes (bug and security fixes) done
 in 1.1.x patch versions.
 
+1.1.4 (2014-03-28)
+------------------
+
+ * [#163](https://github.com/doctrine/mongodb/pull/163): Revert "Allow string or array Cursor::hint() argument"
+ * [#164](https://github.com/doctrine/mongodb/pull/154): Allow string or array `Cursor::hint()` argument
+
 1.1.3 (2014-03-27)
 ------------------
 
