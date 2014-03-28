@@ -79,7 +79,7 @@ class LoggableCursor extends Cursor implements Loggable
     /**
      * @see Cursor::hint()
      */
-    public function hint(array $keyPattern)
+    public function hint($keyPattern)
     {
         $this->log(array(
             'hint' => true,
