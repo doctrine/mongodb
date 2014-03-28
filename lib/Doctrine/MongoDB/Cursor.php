@@ -336,7 +336,7 @@ class Cursor implements Iterator
      * @param array|string $keyPattern
      * @return self
      */
-    public function hint($keyPattern)
+    public function hint(array $keyPattern)
     {
         $this->hint = $keyPattern;
         $this->mongoCursor->hint($keyPattern);
