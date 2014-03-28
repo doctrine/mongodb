@@ -232,10 +232,18 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $queryArray = array(
             'type' => Query::TYPE_FIND,
             'query' => array('foo' => 'bar'),
+            'select' => array(),
             'eagerCursor' => true,
+            'hints' => array(),
+            'immortal' => false,
+            'limit' => null,
+            'slaveOkay' => null,
+            'skip' => null,
+            'snapshot' => false,
+            'sort' => array(),
         );
 
-        $query = new Query($collection, $queryArray, array());
+        $query = new Query($this->getMockDatabase(), $collection, $queryArray, array(), '');
 
         $eagerCursor = $query->execute();
 
