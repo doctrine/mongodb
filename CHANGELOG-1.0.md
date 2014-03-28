@@ -13,6 +13,12 @@ the older and newer versions, respectively.
 To generate a changelog summary since the last version, run
 `git log --no-merges --oneline XXX...1.0.x`
 
+1.0.8 (2014-03-28)
+------------------
+
+ * 8d697ad Fix Query construction in EagerCursor preparation test
+ * ac1ca70 Use current() in EagerCursor::getSingleResult()
+
 1.0.7 (2014-03-28)
 ------------------
 
