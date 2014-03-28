@@ -13,6 +13,12 @@ the older and newer versions, respectively.
 To generate a changelog summary since the last version, run
 `git log --no-merges --oneline XXX...1.0.x`
 
+1.0.7 (2014-03-28)
+------------------
+
+ * 91429c0 Revert "Allow string or array Cursor::hint() argument"
+ * 3bddf57 Fix getMockCursor doc blocks in EagerCursor and Query tests
+
 1.0.6 (2014-03-27)
 ------------------
 
