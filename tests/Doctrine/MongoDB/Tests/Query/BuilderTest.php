@@ -333,6 +333,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             'type()' => array('type', array(7)),
             'all()' => array('all', array(array('value1', 'value2'))),
             'maxDistance' => array('maxDistance', array(5)),
+            'minDistance' => array('minDistance', array(5)),
             'mod()' => array('mod', array(2, 0)),
             'near()' => array('near', array(1, 2)),
             'nearSphere()' => array('nearSphere', array(1, 2)),
@@ -454,6 +455,19 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $qb = $this->getTestQueryBuilder();
 
         $this->assertSame($qb, $qb->geoNear(0, 0)->maxDistance(5));
+        $this->assertEquals($expected, $qb->debug('geoNear'));
+    }
+
+    public function testMinDistanceWithGeoNearCommand()
+    {
+        $expected = array(
+            'near' => array(0, 0),
+            'options' => array('spherical' => false, 'minDistance' => 5),
+        );
+
+        $qb = $this->getTestQueryBuilder();
+
+        $this->assertSame($qb, $qb->geoNear(0, 0)->minDistance(5));
         $this->assertEquals($expected, $qb->debug('geoNear'));
     }
 
