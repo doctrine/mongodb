@@ -485,6 +485,7 @@ class Collection
 
     public function ensureIndex(array $keys, array $options = array())
     {
+        $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
         return $this->getMongoCollection()->ensureIndex($keys, $options);
     }
 
