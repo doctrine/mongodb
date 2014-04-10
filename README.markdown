@@ -8,5 +8,5 @@ The Doctrine MongoDB project is a library that provides a wrapper around the nat
 
 * [Website](http://www.doctrine-project.org)
 * [Documentation](http://docs.doctrine-project.org/projects/doctrine-mongodb-odm/en/latest/index.html)
-* [Issue Tracker](http://www.doctrine-project.org/jira/browse/MODM)
-* [Downloads](http://github.com/doctrine/mongodb/downloads)
+* [Issue Tracker](https://github.com/doctrine/mongodb/issues)
+* [Releases](https://github.com/doctrine/mongodb/releases)
