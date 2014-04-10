@@ -421,9 +421,9 @@ class Builder
      *
      * This method sets the "near" option for the geoNear command. The "num"
      * option may be set using {@link Expr::limit()}. The "distanceMultiplier",
-     * "maxDistance", and "spherical" options may be set using their respective
-     * builder methods. Additional query criteria will be assigned to the
-     * "query" option.
+     * "maxDistance", "minDistance", and "spherical" options may be set using
+     * their respective builder methods. Additional query criteria will be
+     * assigned to the "query" option.
      *
      * @see http://docs.mongodb.org/manual/reference/command/geoNear/
      * @param float|array|Point $x
@@ -868,6 +868,36 @@ class Builder
             $this->query['geoNear']['options']['maxDistance'] = $maxDistance;
         } else {
             $this->expr->maxDistance($maxDistance);
+        }
+        return $this;
+    }
+
+    /**
+     * Set the "minDistance" option for a geoNear command query or add
+     * $minDistance criteria to the query.
+     *
+     * If the query is a geoNear command ({@link Expr::geoNear()} was called),
+     * the "minDistance" command option will be set; otherwise, $minDistance
+     * will be added to the current expression.
+     *
+     * If the query uses GeoJSON points, $minDistance will be interpreted in
+     * meters. If legacy point coordinates are used, $minDistance will be
+     * interpreted in radians.
+     *
+     * @see Expr::minDistance()
+     * @see http://docs.mongodb.org/manual/reference/command/geoNear/
+     * @see http://docs.mongodb.org/manual/reference/operator/minDistance/
+     * @see http://docs.mongodb.org/manual/reference/operator/near/
+     * @see http://docs.mongodb.org/manual/reference/operator/nearSphere/
+     * @param float $minDistance
+     * @return self
+     */
+    public function minDistance($minDistance)
+    {
+        if ($this->query['type'] === Query::TYPE_GEO_NEAR) {
+            $this->query['geoNear']['options']['minDistance'] = $minDistance;
+        } else {
+            $this->expr->minDistance($minDistance);
         }
         return $this;
     }

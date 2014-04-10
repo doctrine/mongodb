@@ -113,6 +113,56 @@ class ExprTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideGeoJsonPoint
      */
+    public function testMinDistanceWithNearAndGeoJsonPoint($point, array $expected)
+    {
+        $expr = new Expr();
+        $expr->near($point);
+
+        $this->assertSame($expr, $expr->minDistance(1));
+        $this->assertEquals(array('$near' => $expected + array('$minDistance' => 1)), $expr->getQuery());
+    }
+
+    public function testMinDistanceWithNearAndLegacyCoordinates()
+    {
+        $expr = new Expr();
+        $expr->near(1, 2);
+
+        $this->assertSame($expr, $expr->minDistance(1));
+        $this->assertEquals(array('$near' => array(1, 2), '$minDistance' => 1), $expr->getQuery());
+    }
+
+    public function testMinDistanceWithNearSphereAndGeoJsonPoint()
+    {
+        $json = array('type' => 'Point', 'coordinates' => array(1, 2));
+
+        $expr = new Expr();
+        $expr->nearSphere($this->getMockPoint($json));
+
+        $this->assertSame($expr, $expr->minDistance(1));
+        $this->assertEquals(array('$nearSphere' => array('$geometry' => $json, '$minDistance' => 1)), $expr->getQuery());
+    }
+
+    public function testMinDistanceWithNearSphereAndLegacyCoordinates()
+    {
+        $expr = new Expr();
+        $expr->nearSphere(1, 2);
+
+        $this->assertSame($expr, $expr->minDistance(1));
+        $this->assertEquals(array('$nearSphere' => array(1, 2), '$minDistance' => 1), $expr->getQuery());
+    }
+
+    /**
+     * @expectedException BadMethodCallException
+     */
+    public function testMinDistanceRequiresNearOrNearSphereOperator()
+    {
+        $expr = new Expr();
+        $expr->minDistance(1);
+    }
+
+    /**
+     * @dataProvider provideGeoJsonPoint
+     */
     public function testNearWithGeoJsonPoint($point, array $expected)
     {
         $expr = new Expr();
