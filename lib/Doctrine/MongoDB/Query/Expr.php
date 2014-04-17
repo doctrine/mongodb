@@ -675,7 +675,7 @@ class Expr
      */
     public function notIn(array $values)
     {
-        return $this->operator('$nin', $values);
+        return $this->operator('$nin', array_values($values));
     }
 
     /**
