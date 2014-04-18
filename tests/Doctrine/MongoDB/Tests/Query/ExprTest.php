@@ -445,4 +445,38 @@ class ExprTest extends \PHPUnit_Framework_TestCase
 
         return $point;
     }
+
+    public function testIn()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->in(array('value1', 'value2')));
+        $this->assertEquals(array('$in' => array('value1', 'value2')), $expr->getQuery());
+    }
+
+    public function testInSendsRealBSONArray()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->field('_id')->in(array(1 => 'value1', 'some' => 'value2')));
+        $this->assertEquals(array('_id' => array('$in' => array('value1', 'value2'))), $expr->getQuery());
+    }
+
+    public function testNotIn()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->notIn(array('value1', 'value2')));
+        $this->assertEquals(array('$nin' => array('value1', 'value2')), $expr->getQuery());
+    }
+
+    public function testNotInSendsRealBSONArray()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->field('_id')->notIn(array(1 => 'value1', 'some' => 'value2')));
+        $this->assertEquals(array('_id' => array('$nin' => array('value1', 'value2'))), $expr->getQuery());
+    }
+
+
 }
