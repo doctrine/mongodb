@@ -453,7 +453,7 @@ class Expr
      */
     public function in(array $values)
     {
-        return $this->operator('$in', $values);
+        return $this->operator('$in', array_values($values));
     }
 
     /**
@@ -638,7 +638,7 @@ class Expr
      */
     public function notIn(array $values)
     {
-        return $this->operator('$nin', $values);
+        return $this->operator('$nin', array_values($values));
     }
 
     /**
