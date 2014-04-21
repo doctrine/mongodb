@@ -276,10 +276,8 @@ class Connection
         $server = $this->server ?: 'mongodb://localhost:27017';
         $options = $this->options;
 
-        if (version_compare(phpversion('mongo'), '1.4.0', '>=') && isset($options['timeout'])) {
-            $options['connectTimeoutMS'] = $options['timeout'];
-            unset($options['timeout']);
-        }
+        $options = isset($options['timeout']) ? $this->convertConnectTimeout($options) : $options;
+        $options = isset($options['wTimeout']) ? $this->convertWriteTimeout($options) : $options;
 
         $this->mongoClient = $this->retry(function() use ($server, $options) {
             return version_compare(phpversion('mongo'), '1.3.0', '<')
@@ -446,5 +444,53 @@ class Connection
                 }
             }
         }
+    }
+
+    /**
+     * Converts "timeout" MongoClient constructor option to "connectTimeoutMS"
+     * for driver versions 1.4.0+.
+     *
+     * Note: MongoClient actually allows case-insensitive option names, but
+     * we'll only process the canonical version here.
+     *
+     * @param array $options
+     * @return array
+     */
+    protected function convertConnectTimeout(array $options)
+    {
+        if (version_compare(phpversion('mongo'), '1.4.0', '<')) {
+            return $options;
+        }
+
+        if (isset($options['timeout']) && ! isset($options['connectTimeoutMS'])) {
+            $options['connectTimeoutMS'] = $options['timeout'];
+            unset($options['timeout']);
+        }
+
+        return $options;
+    }
+
+    /**
+     * Converts "timeout" MongoClient constructor option to "connectTimeoutMS"
+     * for driver versions 1.4.0+.
+     *
+     * Note: MongoClient actually allows case-insensitive option names, but
+     * we'll only process the canonical version here.
+     *
+     * @param array $options
+     * @return array
+     */
+    protected function convertWriteTimeout(array $options)
+    {
+        if (version_compare(phpversion('mongo'), '1.4.0', '<')) {
+            return $options;
+        }
+
+        if (isset($options['wTimeout']) && ! isset($options['wTimeoutMS'])) {
+            $options['wTimeoutMS'] = $options['wTimeout'];
+            unset($options['wTimeout']);
+        }
+
+        return $options;
     }
 }
