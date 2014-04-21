@@ -206,6 +206,22 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Test', (string) $conn);
     }
 
+    public function testConnectTimeoutOptionIsConverted()
+    {
+        if (version_compare(phpversion('mongo'), '1.4.0', '<')) {
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.4.0');
+        }
+
+        /* Since initialize() creates MongoClient directly, we cannot examine
+         * the options passed to its constructor.
+         *
+         * Note: we do not test "wTimeout" conversion, since the driver does not
+         * raise a deprecation notice for its usage (see: PHP-1079).
+         */
+        $conn = new Connection(null, array('timeout' => 10000));
+        $conn->initialize();
+    }
+
     private function getTestConnection($mongo)
     {
         return new Connection($mongo);
