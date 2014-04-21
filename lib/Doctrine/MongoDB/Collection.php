@@ -281,6 +281,9 @@ class Collection
     public function ensureIndex(array $keys, array $options = array())
     {
         $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
+        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+        $options = isset($options['wtimeout']) ? $this->convertWriteTimeout($options) : $options;
+
         return $this->mongoCollection->ensureIndex($keys, $options);
     }
 
@@ -868,6 +871,8 @@ class Collection
     protected function doBatchInsert(array &$a, array $options = array())
     {
         $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
+        $options = isset($options['wtimeout']) ? $this->convertWriteTimeout($options) : $options;
+        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
         return $this->mongoCollection->batchInsert($a, $options);
     }
 
@@ -883,6 +888,8 @@ class Collection
      */
     protected function doDistinct($field, array $query, array $options)
     {
+        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+
         $command = array();
         $command['distinct'] = $this->mongoCollection->getName();
         $command['key'] = $field;
@@ -943,6 +950,8 @@ class Collection
      */
     protected function doFindAndRemove(array $query, array $options = array())
     {
+        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+
         $command = array();
         $command['findandmodify'] = $this->mongoCollection->getName();
         $command['query'] = (object) $query;
@@ -970,6 +979,8 @@ class Collection
      */
     protected function doFindAndUpdate(array $query, array $newObj, array $options)
     {
+        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+
         $command = array();
         $command['findandmodify'] = $this->mongoCollection->getName();
         $command['query'] = (object) $query;
@@ -1029,6 +1040,8 @@ class Collection
      */
     protected function doGroup($keys, array $initial, $reduce, array $options)
     {
+        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+
         $command = array();
         $command['ns'] = $this->mongoCollection->getName();
         $command['initial'] = (object) $initial;
@@ -1079,6 +1092,8 @@ class Collection
     {
         $document = $a;
         $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
+        $options = isset($options['wtimeout']) ? $this->convertWriteTimeout($options) : $options;
+        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
         $result = $this->mongoCollection->insert($document, $options);
         if (isset($document['_id'])) {
             $a['_id'] = $document['_id'];
@@ -1100,6 +1115,8 @@ class Collection
      */
     protected function doMapReduce($map, $reduce, $out, array $query, array $options)
     {
+        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+
         $command = array();
         $command['mapreduce'] = $this->mongoCollection->getName();
         $command['map'] = $map;
@@ -1149,6 +1166,8 @@ class Collection
      */
     protected function doNear($near, array $query, array $options)
     {
+        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+
         if ($near instanceof Point) {
             $near = $near->jsonSerialize();
         }
@@ -1186,6 +1205,8 @@ class Collection
     protected function doRemove(array $query, array $options)
     {
         $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
+        $options = isset($options['wtimeout']) ? $this->convertWriteTimeout($options) : $options;
+        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
         return $this->mongoCollection->remove($query, $options);
     }
 
@@ -1200,6 +1221,8 @@ class Collection
     protected function doSave(array &$a, array $options)
     {
         $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
+        $options = isset($options['wtimeout']) ? $this->convertWriteTimeout($options) : $options;
+        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
         return $this->mongoCollection->save($a, $options);
     }
 
@@ -1215,6 +1238,8 @@ class Collection
     protected function doUpdate(array $query, array $newObj, array $options)
     {
         $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
+        $options = isset($options['wtimeout']) ? $this->convertWriteTimeout($options) : $options;
+        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
         return $this->mongoCollection->update($query, $newObj, $options);
     }
 
@@ -1279,6 +1304,48 @@ class Collection
         if (isset($options['safe']) && ! isset($options['w'])) {
             $options['w'] = is_bool($options['safe']) ? (integer) $options['safe'] : $options['safe'];
             unset($options['safe']);
+        }
+
+        return $options;
+    }
+
+    /**
+     * Convert "wtimeout" write option to "wTimeoutMS" for driver version
+     * 1.5.0+.
+     *
+     * @param array $options
+     * @return array
+     */
+    protected function convertWriteTimeout(array $options)
+    {
+        if (version_compare(phpversion('mongo'), '1.5.0', '<')) {
+            return $options;
+        }
+
+        if (isset($options['wtimeout'])) {
+            $options['wTimeoutMS'] = isset($options['wTimeoutMS']) ? $options['wTimeoutMS'] : $options['wtimeout'];
+            unset($options['wtimeout']);
+        }
+
+        return $options;
+    }
+
+    /**
+     * Convert "timeout" write option to "socketTimeoutMS" for driver version
+     * 1.5.0+.
+     *
+     * @param array $options
+     * @return array
+     */
+    protected function convertSocketTimeout(array $options)
+    {
+        if (version_compare(phpversion('mongo'), '1.5.0', '<')) {
+            return $options;
+        }
+
+        if (isset($options['timeout'])) {
+            $options['socketTimeoutMS'] = isset($options['socketTimeoutMS']) ? $options['socketTimeoutMS'] : $options['timeout'];
+            unset($options['timeout']);
         }
 
         return $options;
