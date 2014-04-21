@@ -81,7 +81,7 @@ class Connection
     {
         if ($server instanceof \MongoClient || $server instanceof \Mongo) {
             $this->mongoClient = $server;
-        } elseif ($server !== null) {
+        } else {
             $this->server = $server;
             $this->options = $options;
         }
