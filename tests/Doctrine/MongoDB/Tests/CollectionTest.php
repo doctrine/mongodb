@@ -845,6 +845,74 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $coll->insert($document, array('safe' => true));
     }
 
+    public function testSocketTimeoutOptionIsConverted()
+    {
+        if (version_compare(phpversion('mongo'), '1.5.0', '<')) {
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.5.0');
+        }
+
+        $mongoCollection = $this->getMockMongoCollection();
+        $mongoCollection->expects($this->once())
+            ->method('insert')
+            ->with(array('x' => 1), array('socketTimeoutMS' => 1000));
+
+        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
+
+        $document = array('x' => 1);
+        $coll->insert($document, array('timeout' => 1000));
+    }
+
+    public function testSocketTimeoutOptionIsNotConvertedForOlderDrivers()
+    {
+        if (version_compare(phpversion('mongo'), '1.5.0', '>=')) {
+            $this->markTestSkipped('This test is not applicable to driver versions >= 1.5.0');
+        }
+
+        $mongoCollection = $this->getMockMongoCollection();
+        $mongoCollection->expects($this->once())
+            ->method('insert')
+            ->with(array('x' => 1), array('timeout' => 1000));
+
+        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
+
+        $document = array('x' => 1);
+        $coll->insert($document, array('timeout' => 1000));
+    }
+
+    public function testWriteTimeoutOptionIsConverted()
+    {
+        if (version_compare(phpversion('mongo'), '1.5.0', '<')) {
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.5.0');
+        }
+
+        $mongoCollection = $this->getMockMongoCollection();
+        $mongoCollection->expects($this->once())
+            ->method('insert')
+            ->with(array('x' => 1), array('wTimeoutMS' => 1000));
+
+        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
+
+        $document = array('x' => 1);
+        $coll->insert($document, array('wtimeout' => 1000));
+    }
+
+    public function testWriteTimeoutOptionIsNotConvertedForOlderDrivers()
+    {
+        if (version_compare(phpversion('mongo'), '1.5.0', '>=')) {
+            $this->markTestSkipped('This test is not applicable to driver versions >= 1.5.0');
+        }
+
+        $mongoCollection = $this->getMockMongoCollection();
+        $mongoCollection->expects($this->once())
+            ->method('insert')
+            ->with(array('x' => 1), array('wtimeout' => 1000));
+
+        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
+
+        $document = array('x' => 1);
+        $coll->insert($document, array('wtimeout' => 1000));
+    }
+
     private function getMockCollection()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Collection')
