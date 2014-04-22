@@ -1322,8 +1322,8 @@ class Collection
             return $options;
         }
 
-        if (isset($options['wtimeout'])) {
-            $options['wTimeoutMS'] = isset($options['wTimeoutMS']) ? $options['wTimeoutMS'] : $options['wtimeout'];
+        if (isset($options['wtimeout']) && ! isset($options['wTimeoutMS'])) {
+            $options['wTimeoutMS'] = $options['wtimeout'];
             unset($options['wtimeout']);
         }
 
@@ -1343,8 +1343,8 @@ class Collection
             return $options;
         }
 
-        if (isset($options['timeout'])) {
-            $options['socketTimeoutMS'] = isset($options['socketTimeoutMS']) ? $options['socketTimeoutMS'] : $options['timeout'];
+        if (isset($options['timeout']) && ! isset($options['socketTimeoutMS'])) {
+            $options['socketTimeoutMS'] = $options['timeout'];
             unset($options['timeout']);
         }
 
