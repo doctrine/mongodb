@@ -13,6 +13,15 @@ the older and newer versions, respectively.
 To generate a changelog summary since the last version, run
 `git log --no-merges --oneline XXX...1.0.x`
 
+1.0.9 (2014-04-29)
+------------------
+
+ * 74cc098 Respect $options when $server is null in Connection constructor
+ * f8a382d Add driver 1.4.5 and 1.5.1 to test matrix
+ * 251ae2b Add PHP 5.6 and no longer allow failures for 5.5 builds
+ * 30aa713 Collection::ensureIndex() should convert write options (fixes #168)
+ * f781f2b Update issues/releases links in README
+
 1.0.8 (2014-03-28)
 ------------------
 
