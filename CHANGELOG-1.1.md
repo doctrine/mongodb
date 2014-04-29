@@ -4,6 +4,17 @@ CHANGELOG for 1.1.x
 This changelog references the relevant changes (bug and security fixes) done
 in 1.1.x patch versions.
 
+1.1.6 (2014-04-29)
+------------------
+
+ * [#172](https://github.com/doctrine/mongodb/pull/172): `Collection::ensureIndex()` should convert write options
+ * [#174](https://github.com/doctrine/mongodb/pull/174): MongoDB 2.6: Ensure $in argument is a real BSON array
+ * [#175](https://github.com/doctrine/mongodb/pull/175): Convert timeout options for driver >= 1.5.0
+ * [#176](https://github.com/doctrine/mongodb/pull/176): Add new PHP and driver versions to Travis CI
+ * [#177](https://github.com/doctrine/mongodb/pull/177): Respect `$options` when `$server` is null in Connection constructor
+ * [#178](https://github.com/doctrine/mongodb/pull/178): Convert deprecated MongoClient constructor options for driver >= 1.4.0
+ * [#179](https://github.com/doctrine/mongodb/pull/179): Cast `createCollection()` options for MongoDB 2.6 compatibility
+
 1.1.5 (2014-03-28)
 ------------------
 
