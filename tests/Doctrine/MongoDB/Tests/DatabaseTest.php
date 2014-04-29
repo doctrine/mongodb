@@ -60,6 +60,31 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Doctrine\MongoDB\Collection', $collection);
     }
 
+    public function testCreateCollectionCappedOptionsAreCast()
+    {
+        $mongoDB = $this->getMockMongoDB();
+
+        if (version_compare(phpversion('mongo'), '1.4.0', '>=')) {
+            $mongoDB->expects($this->once())
+                ->method('createCollection')
+                ->with('foo', array('capped' => false, 'size' => 0, 'max' => 0));
+        } else {
+            $mongoDB->expects($this->once())
+                ->method('createCollection')
+                ->with('foo', false, 0, 0);
+        }
+
+        $mongoDB->expects($this->once())
+            ->method('selectCollection')
+            ->with('foo')
+            ->will($this->returnValue($this->getMockMongoCollection()));
+
+        $database = new Database($this->getMockConnection(), $mongoDB, $this->getMockEventManager());
+        $collection = $database->createCollection('foo', array('capped' => 0, 'size' => null, 'max' => null));
+
+        $this->assertInstanceOf('Doctrine\MongoDB\Collection', $collection);
+    }
+
     public function testGetSetSlaveOkay()
     {
         if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {
