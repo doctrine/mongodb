@@ -128,6 +128,10 @@ class Database
             ? array_merge(array('capped' => false, 'size' => 0, 'max' => 0), $cappedOrOptions)
             : array('capped' => $cappedOrOptions, 'size' => $size, 'max' => $max);
 
+        $options['capped'] = (boolean) $options['capped'];
+        $options['size'] = (integer) $options['size'];
+        $options['max'] = (integer) $options['max'];
+
         if ($this->eventManager->hasListeners(Events::preCreateCollection)) {
             $this->eventManager->dispatchEvent(Events::preCreateCollection, new CreateCollectionEventArgs($this, $name, $options));
         }
