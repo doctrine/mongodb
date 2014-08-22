@@ -1240,6 +1240,7 @@ class Collection
         $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
         $options = isset($options['wtimeout']) ? $this->convertWriteTimeout($options) : $options;
         $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+        $options = isset($options['multi']) ? $this->convertMulti($options) : $options;
         return $this->mongoCollection->update($query, $newObj, $options);
     }
 
@@ -1346,6 +1347,28 @@ class Collection
         if (isset($options['timeout']) && ! isset($options['socketTimeoutMS'])) {
             $options['socketTimeoutMS'] = $options['timeout'];
             unset($options['timeout']);
+        }
+
+        return $options;
+    }
+
+    /**
+     * Convert 'multi' option to 'multiple'.
+     *
+     * PHP's MongoCollection uses 'multiple' (http://php.net/manual/en/mongocollection.update.php)
+     * but MongoDB uses 'multi' (http://docs.mongodb.org/manual/reference/method/db.collection.update)
+     *
+     * It's easy to write 'multi' like you would in native queries and other libraries
+     * and not notice that PHP has a different name.
+     *
+     * @param array $options
+     * @return array
+     */
+    protected function convertMulti(array $options)
+    {
+        if (isset($options['multi']) && ! isset($options['multiple'])) {
+            $options['multiple'] = $options['multi'];
+            unset($options['multi']);
         }
 
         return $options;
