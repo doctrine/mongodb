@@ -32,6 +32,24 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('$addToSet' => array('a' => array('$each' => array(1, 2)))), $expr->getNewObj());
     }
 
+    public function testLanguageWithText()
+    {
+        $expr = new Expr();
+        $expr->text('foo');
+
+        $this->assertSame($expr, $expr->language('en'));
+        $this->assertEquals(array('$text' => array('$search' => 'foo', '$language' => 'en')), $expr->getQuery());
+    }
+
+    /**
+     * @expectedException BadMethodCallException
+     */
+    public function testLanguageRequiresTextOperator()
+    {
+        $expr = new Expr();
+        $expr->language('en');
+    }
+
     public function testOperatorWithCurrentField()
     {
         $expr = new Expr();
@@ -367,6 +385,15 @@ class ExprTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($expr, $expr->field('a.b.c')->set(1, false));
         $this->assertEquals(array('a' => array('b' => array('c' => 1))), $expr->getNewObj());
+    }
+
+    public function testText()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->text('foo'));
+        $this->assertEquals(array('$text' => array('$search' => 'foo')), $expr->getQuery());
+        $this->assertNull($expr->getCurrentField());
     }
 
     public function testWhere()

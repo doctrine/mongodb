@@ -736,6 +736,22 @@ class Builder
     }
 
     /**
+     * Set the $language option for $text criteria.
+     *
+     * This method must be called after text().
+     *
+     * @see Expr::language()
+     * @see http://docs.mongodb.org/manual/reference/operator/text/
+     * @param string $language
+     * @return self
+     */
+    public function language($language)
+    {
+        $this->expr->language($language);
+        return $this;
+    }
+
+    /**
      * Set the limit for the query.
      *
      * This is only relevant for find queries and geoNear and mapReduce
@@ -1416,6 +1432,22 @@ class Builder
         }
 
         $this->query['geoNear']['options']['spherical'] = $spherical;
+        return $this;
+    }
+
+    /**
+     * Specify $text criteria for the current field.
+     *
+     * The $language option may be set with {@link Builder::language()}.
+     *
+     * @see Expr::text()
+     * @see http://docs.mongodb.org/master/reference/operator/query/text/
+     * @param string $search
+     * @return self
+     */
+    public function text($search)
+    {
+        $this->expr->text($search);
         return $this;
     }
 

@@ -368,6 +368,8 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             'elemMatch() array' => array('elemMatch', array(array())),
             'elemMatch() Expr' => array('elemMatch', array($this->getMockExpr())),
             'not()' => array('not', array($this->getMockExpr())),
+            'language()' => array('language', array('en')),
+            'text()' => array('text', array('foo')),
         );
     }
 

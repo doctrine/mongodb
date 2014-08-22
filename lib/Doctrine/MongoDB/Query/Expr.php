@@ -474,6 +474,28 @@ class Expr
     }
 
     /**
+     * Set the $language option for $text criteria.
+     *
+     * This method must be called after text().
+     *
+     * @see Builder::language()
+     * @see http://docs.mongodb.org/manual/reference/operator/text/
+     * @param string $language
+     * @return self
+     * @throws BadMethodCallException if the query does not already have $text criteria
+     */
+    public function language($language)
+    {
+        if ( ! isset($this->query['$text'])) {
+            throw new BadMethodCallException('This method requires a $text operator (call text() first)');
+        }
+
+        $this->query['$text']['$language'] = (string) $language;
+
+        return $this;
+    }
+
+    /**
      * Specify $lt criteria for the current field.
      *
      * @see Builder::lte()
@@ -941,6 +963,22 @@ class Expr
         }
 
         return $this->operator('$sort', $sort);
+    }
+
+    /**
+     * Specify $text criteria for the current query.
+     *
+     * The $language option may be set with {@link Expr::language()}.
+     *
+     * @see Builder::text()
+     * @see http://docs.mongodb.org/master/reference/operator/query/text/
+     * @param string $search
+     * @return self
+     */
+    public function text($search)
+    {
+        $this->query['$text'] = array('$search' => (string) $search);
+        return $this;
     }
 
     /**
