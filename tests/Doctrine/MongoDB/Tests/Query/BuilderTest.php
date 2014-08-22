@@ -606,6 +606,16 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $qb->debug('select'));
     }
 
+    public function testSelectMeta()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->selectMeta('score', 'textScore');
+
+        $expected = array('score' => array('$meta' => 'textScore'));
+
+        $this->assertEquals($expected, $qb->debug('select'));
+    }
+
     public function testSetReadPreference()
     {
         $qb = $this->getTestQueryBuilder();
@@ -652,6 +662,28 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ->sort(array('foo' => 1, 'bar' => -1));
 
         $this->assertEquals(array('foo' => 1, 'bar' => -1), $qb->debug('sort'));
+    }
+
+    public function testSortMetaDoesProjectMissingField()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->select('score')
+            ->sortMeta('score', 'textScore');
+
+        /* This will likely yield a server error, but sortMeta() should only set
+         * the projection if it doesn't already exist.
+         */
+        $this->assertEquals(array('score' => 1), $qb->debug('select'));
+        $this->assertEquals(array('score' => array('$meta' => 'textScore')), $qb->debug('sort'));
+    }
+
+    public function testSortMetaDoesNotProjectExistingField()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->sortMeta('score', 'textScore');
+
+        $this->assertEquals(array('score' => array('$meta' => 'textScore')), $qb->debug('select'));
+        $this->assertEquals(array('score' => array('$meta' => 'textScore')), $qb->debug('sort'));
     }
 
     private function getStubQueryBuilder()

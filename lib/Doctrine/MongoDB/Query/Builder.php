@@ -1269,6 +1269,24 @@ class Builder
     }
 
     /**
+     * Select a metadata field for the query projection.
+     *
+     * @see http://docs.mongodb.org/master/reference/operator/projection/meta/
+     * @param string $fieldName
+     * @param string $metaDataKeyword
+     * @return self
+     */
+    public function selectMeta($fieldName, $metaDataKeyword)
+    {
+        if ( ! isset($this->query['select'])) {
+            $this->query['select'] = array();
+        }
+
+        $this->query['select'][$fieldName] = array('$meta' => $metaDataKeyword);
+        return $this;
+    }
+
+    /**
      * Select a slice of an array field for the query projection.
      *
      * The $countOrSkip parameter has two very different meanings, depending on
@@ -1414,6 +1432,38 @@ class Builder
             }
             $this->query['sort'][$fieldName] = (integer) $order;
         }
+
+        return $this;
+    }
+
+    /**
+     * Specify a projected metadata field on which to sort the query.
+     *
+     * Sort order is not configurable for metadata fields. Sorting by a metadata
+     * field requires the same field and $meta expression to exist in the
+     * projection document. This method will call {@link Builder::selectMeta()}
+     * if the field is not already set in the projection.
+     *
+     * @see http://docs.mongodb.org/master/reference/operator/projection/meta/#sort
+     * @param string $fieldName       Field name of the projected metadata
+     * @param string $metaDataKeyword
+     * @return self
+     */
+    public function sortMeta($fieldName, $metaDataKeyword)
+    {
+        /* It's possible that the field is already projected without the $meta
+         * operator. We'll assume that the user knows what they're doing in that
+         * case and will not attempt to override the projection.
+         */
+        if ( ! isset($this->query['select'][$fieldName])) {
+            $this->selectMeta($fieldName, $metaDataKeyword);
+        }
+
+        if ( ! isset($this->query['sort'])) {
+            $this->query['sort'] = array();
+        }
+
+        $this->query['sort'][$fieldName] = array('$meta' => $metaDataKeyword);
 
         return $this;
     }
