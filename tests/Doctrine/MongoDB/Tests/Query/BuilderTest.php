@@ -615,6 +615,45 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(array('dc' => 'east')), $qb->debug('readPreferenceTags'));
     }
 
+    public function testSortWithFieldNameAndDefaultOrder()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->sort('foo');
+
+        $this->assertEquals(array('foo' => 1), $qb->debug('sort'));
+    }
+
+    /**
+     * @dataProvider provideSortOrders
+     */
+    public function testSortWithFieldNameAndOrder($order, $expectedOrder)
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->sort('foo', $order);
+
+        $this->assertEquals(array('foo' => $expectedOrder), $qb->debug('sort'));
+    }
+
+    public function provideSortOrders()
+    {
+        return array(
+            array(1, 1),
+            array(-1, -1),
+            array('asc', 1),
+            array('desc', -1),
+            array('ASC', 1),
+            array('DESC', -1),
+        );
+    }
+
+    public function testSortWithArrayOfFieldNameAndOrderPairs()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->sort(array('foo' => 1, 'bar' => -1));
+
+        $this->assertEquals(array('foo' => 1, 'bar' => -1), $qb->debug('sort'));
+    }
+
     private function getStubQueryBuilder()
     {
         return new BuilderStub($this->getMockCollection());
