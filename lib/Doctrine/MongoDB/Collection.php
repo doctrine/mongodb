@@ -1240,6 +1240,15 @@ class Collection
         $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
         $options = isset($options['wtimeout']) ? $this->convertWriteTimeout($options) : $options;
         $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+
+        /* Allow "multi" to be used instead of "multiple", as it's accepted in
+         * the MongoDB shell and other (non-PHP) drivers.
+         */
+        if (isset($options['multi']) && ! isset($options['multiple'])) {
+            $options['multiple'] = $options['multi'];
+            unset($options['multi']);
+        }
+
         return $this->mongoCollection->update($query, $newObj, $options);
     }
 
