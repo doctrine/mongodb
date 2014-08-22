@@ -278,7 +278,7 @@ class Builder
      * If fields have been selected for inclusion, only the "_id" field may be
      * excluded.
      *
-     * @param array|string $fieldName
+     * @param array|string $fieldName,...
      * @return self
      */
     public function exclude($fieldName = null)
@@ -1228,7 +1228,7 @@ class Builder
     /**
      * Set one or more fields to be included in the query projection.
      *
-     * @param array|string $fieldName
+     * @param array|string $fieldName,...
      * @return self
      */
     public function select($fieldName = null)
