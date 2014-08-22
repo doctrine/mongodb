@@ -4,6 +4,17 @@
 
 The Doctrine MongoDB project is a library that provides a wrapper around the native PHP Mongo PECL extension to provide additional functionality.
 
+## Contributing
+
+To get your local environment setup:
+
+	curl -sS https://getcomposer.org/installer | php
+	php composer.phar install
+
+To run the tests:
+
+	phpunit
+
 ## More resources:
 
 * [Website](http://www.doctrine-project.org)
