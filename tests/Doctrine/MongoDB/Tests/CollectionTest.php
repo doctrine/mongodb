@@ -785,6 +785,24 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $coll->update('id', array());
     }
 
+    public function testUpdateShouldRenameMultiToMultiple()
+    {
+        $criteria = array('x' => 1);
+        $newObj = array('$set' => array('x' => 2));
+        $options = array('multi'=> true);
+
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->once())
+            ->method('update')
+            ->with($criteria, $newObj, array('multiple' => true))
+            ->will($this->returnValue(true));
+
+        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
+
+        $this->assertTrue($coll->update($criteria, $newObj, $options));
+    }
+
     public function testValidate()
     {
         $mongoCollection = $this->getMockMongoCollection();
