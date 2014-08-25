@@ -1257,10 +1257,6 @@ class Builder
      */
     public function selectElemMatch($fieldName, $expression)
     {
-        if ( ! isset($this->query['select'])) {
-            $this->query['select'] = array();
-        }
-
         if ($expression instanceof Expr) {
             $expression = $expression->getQuery();
         }
@@ -1278,10 +1274,6 @@ class Builder
      */
     public function selectMeta($fieldName, $metaDataKeyword)
     {
-        if ( ! isset($this->query['select'])) {
-            $this->query['select'] = array();
-        }
-
         $this->query['select'][$fieldName] = array('$meta' => $metaDataKeyword);
         return $this;
     }
@@ -1301,10 +1293,6 @@ class Builder
      */
     public function selectSlice($fieldName, $countOrSkip, $limit = null)
     {
-        if ( ! isset($this->query['select'])) {
-            $this->query['select'] = array();
-        }
-
         $slice = $countOrSkip;
         if ($limit !== null) {
             $slice = array($slice, $limit);
@@ -1457,10 +1445,6 @@ class Builder
          */
         if ( ! isset($this->query['select'][$fieldName])) {
             $this->selectMeta($fieldName, $metaDataKeyword);
-        }
-
-        if ( ! isset($this->query['sort'])) {
-            $this->query['sort'] = array();
         }
 
         $this->query['sort'][$fieldName] = array('$meta' => $metaDataKeyword);
