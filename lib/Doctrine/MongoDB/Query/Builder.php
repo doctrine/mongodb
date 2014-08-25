@@ -278,7 +278,7 @@ class Builder
      * If fields have been selected for inclusion, only the "_id" field may be
      * excluded.
      *
-     * @param array|string $fieldName
+     * @param array|string $fieldName,...
      * @return self
      */
     public function exclude($fieldName = null)
@@ -732,6 +732,22 @@ class Builder
     public function insert()
     {
         $this->query['type'] = Query::TYPE_INSERT;
+        return $this;
+    }
+
+    /**
+     * Set the $language option for $text criteria.
+     *
+     * This method must be called after text().
+     *
+     * @see Expr::language()
+     * @see http://docs.mongodb.org/manual/reference/operator/text/
+     * @param string $language
+     * @return self
+     */
+    public function language($language)
+    {
+        $this->expr->language($language);
         return $this;
     }
 
@@ -1212,7 +1228,7 @@ class Builder
     /**
      * Set one or more fields to be included in the query projection.
      *
-     * @param array|string $fieldName
+     * @param array|string $fieldName,...
      * @return self
      */
     public function select($fieldName = null)
@@ -1241,14 +1257,24 @@ class Builder
      */
     public function selectElemMatch($fieldName, $expression)
     {
-        if ( ! isset($this->query['select'])) {
-            $this->query['select'] = array();
-        }
-
         if ($expression instanceof Expr) {
             $expression = $expression->getQuery();
         }
         $this->query['select'][$fieldName] = array('$elemMatch' => $expression);
+        return $this;
+    }
+
+    /**
+     * Select a metadata field for the query projection.
+     *
+     * @see http://docs.mongodb.org/master/reference/operator/projection/meta/
+     * @param string $fieldName
+     * @param string $metaDataKeyword
+     * @return self
+     */
+    public function selectMeta($fieldName, $metaDataKeyword)
+    {
+        $this->query['select'][$fieldName] = array('$meta' => $metaDataKeyword);
         return $this;
     }
 
@@ -1267,10 +1293,6 @@ class Builder
      */
     public function selectSlice($fieldName, $countOrSkip, $limit = null)
     {
-        if ( ! isset($this->query['select'])) {
-            $this->query['select'] = array();
-        }
-
         $slice = $countOrSkip;
         if ($limit !== null) {
             $slice = array($slice, $limit);
@@ -1403,6 +1425,34 @@ class Builder
     }
 
     /**
+     * Specify a projected metadata field on which to sort the query.
+     *
+     * Sort order is not configurable for metadata fields. Sorting by a metadata
+     * field requires the same field and $meta expression to exist in the
+     * projection document. This method will call {@link Builder::selectMeta()}
+     * if the field is not already set in the projection.
+     *
+     * @see http://docs.mongodb.org/master/reference/operator/projection/meta/#sort
+     * @param string $fieldName       Field name of the projected metadata
+     * @param string $metaDataKeyword
+     * @return self
+     */
+    public function sortMeta($fieldName, $metaDataKeyword)
+    {
+        /* It's possible that the field is already projected without the $meta
+         * operator. We'll assume that the user knows what they're doing in that
+         * case and will not attempt to override the projection.
+         */
+        if ( ! isset($this->query['select'][$fieldName])) {
+            $this->selectMeta($fieldName, $metaDataKeyword);
+        }
+
+        $this->query['sort'][$fieldName] = array('$meta' => $metaDataKeyword);
+
+        return $this;
+    }
+
+    /**
      * Set the "spherical" option for a geoNear command query.
      *
      * @param bool $spherical
@@ -1416,6 +1466,22 @@ class Builder
         }
 
         $this->query['geoNear']['options']['spherical'] = $spherical;
+        return $this;
+    }
+
+    /**
+     * Specify $text criteria for the current field.
+     *
+     * The $language option may be set with {@link Builder::language()}.
+     *
+     * @see Expr::text()
+     * @see http://docs.mongodb.org/master/reference/operator/query/text/
+     * @param string $search
+     * @return self
+     */
+    public function text($search)
+    {
+        $this->expr->text($search);
         return $this;
     }
 
