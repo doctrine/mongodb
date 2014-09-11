@@ -294,6 +294,7 @@ class Connection
      * Checks whether the connection is initialized and connected.
      *
      * @return boolean
+     * @deprecated Deprecated since PECL mongo >= 1.5.0
      */
     public function isConnected()
     {
