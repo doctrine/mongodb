@@ -471,7 +471,7 @@ class Connection
     }
 
     /**
-     * Converts "timeout" MongoClient constructor option to "connectTimeoutMS"
+     * Converts "wTimeout" MongoClient constructor option to "wTimeoutMS"
      * for driver versions 1.4.0+.
      *
      * Note: MongoClient actually allows case-insensitive option names, but
