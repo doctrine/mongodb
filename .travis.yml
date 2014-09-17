@@ -20,6 +20,6 @@ env:
 services: mongodb
 
 before_script:
-  - yes '' | pecl -q install -f mongo-${MONGO_VERSION} && echo "extension=mongo.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
+  - yes '' | pecl -q install -f mongo-${MONGO_VERSION}
   - php --ri mongo
   - composer install --dev --no-interaction --prefer-source
