@@ -93,7 +93,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         );
 
         if (version_compare(phpversion('mongo'), '1.5.0', '<')) {
-            $expectedOptions = array('socket' => 45);
+            $expectedOptions = array('timeout' => 45);
         } else {
             $expectedOptions = array('socketTimeoutMS' => 45);
         }
