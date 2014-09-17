@@ -74,6 +74,40 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $coll->aggregate(array());
     }
 
+    public function testAggregateWithTimeout()
+    {
+        $pipeline = array(
+            array('$match' => array('_id' => 'bar')),
+            array('$project' => array('_id' => 1)),
+        );
+        $options = array(
+            'timeout' => 45
+        );
+
+        $aggregated = array(array('_id' => 'bar'));
+        $commandResult = array('ok' => 1, 'result' => $aggregated);
+
+        $expectedCommand = array(
+            'aggregate' => self::collectionName,
+            'pipeline' => $pipeline,
+        );
+
+        if (version_compare(phpversion('mongo'), '1.5.0', '<')) {
+            $expectedOptions = array('socket' => 45);
+        } else {
+            $expectedOptions = array('socketTimeoutMS' => 45);
+        }
+
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with($expectedCommand, $expectedOptions)
+            ->willReturn($commandResult);
+
+        $coll = $this->getTestCollection($database);
+        $coll->aggregate($pipeline, $options);
+    }
+
     public function testBatchInsert()
     {
         $docs = array(array('x' => 1, 'y' => 2));

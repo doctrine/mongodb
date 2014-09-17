@@ -94,11 +94,12 @@ class Collection
      * @see http://php.net/manual/en/mongocollection.aggregate.php
      * @see http://docs.mongodb.org/manual/reference/command/aggregate/
      * @param array $pipeline Array of pipeline operators, or the first operator
+     * @param array $options
      * @param array $op,...   Additional operators (if $pipeline was the first)
      * @return ArrayIterator
      * @throws ResultException if the command fails
      */
-    public function aggregate(array $pipeline /* , array $op, ... */)
+    public function aggregate(array $pipeline, array $options = array() /* , array $op, ... */)
     {
         /* If the single array argument contains a zeroth index, consider it an
          * array of pipeline operators. Otherwise, assume that each argument is
@@ -106,13 +107,14 @@ class Collection
          */
         if ( ! array_key_exists(0, $pipeline)) {
             $pipeline = func_get_args();
+            $options = array();
         }
 
         if ($this->eventManager->hasListeners(Events::preAggregate)) {
             $this->eventManager->dispatchEvent(Events::preAggregate, new AggregateEventArgs($this, $pipeline));
         }
 
-        $result = $this->doAggregate($pipeline);
+        $result = $this->doAggregate($pipeline, $options);
 
         if ($this->eventManager->hasListeners(Events::postAggregate)) {
             $eventArgs = new MutableEventArgs($this, $result);
@@ -836,18 +838,23 @@ class Collection
      *
      * @see Collection::aggregate()
      * @param array $pipeline
+     * @param array $options
+     * @throws \Exception
+     * @throws \MongoException
+     * @throws null
      * @return ArrayIterator
-     * @throws ResultException if the command fails
      */
-    protected function doAggregate(array $pipeline)
+    protected function doAggregate(array $pipeline, array $options = array())
     {
+        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+
         $command = array();
         $command['aggregate'] = $this->mongoCollection->getName();
         $command['pipeline'] = $pipeline;
 
         $database = $this->database;
-        $result = $this->retry(function() use ($database, $command) {
-            return $database->command($command);
+        $result = $this->retry(function() use ($database, $command, $options) {
+            return $database->command($command, $options);
         });
 
         if (empty($result['ok'])) {
