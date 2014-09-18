@@ -106,9 +106,7 @@ class CursorTest extends BaseTest
 
     public function testSlaveOkay()
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {
-            $this->markTestSkipped('This test is not applicable to driver versions >= 1.3.0');
-        }
+        BaseTest::markTestSkippedByMongoVersion('1.3.0', '>=');
 
         $mongoCursor = $this->getMockMongoCursor();
 
