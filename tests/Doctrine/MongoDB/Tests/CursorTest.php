@@ -229,33 +229,39 @@ class CursorTest extends BaseTest
         $this->assertSame($cursor, $cursor->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
     }
 
-    public function testSortCastingOfNoneIntegersToArraysOrObjects()
+    /**
+     * @dataProvider provideSortOrderValues
+     */
+    public function testSortOrderConversion($actual, $expected)
     {
         $mongoCursor = $this->getMockMongoCursor();
 
-        $mongoCursor->expects($this->at(0))
+        $mongoCursor->expects($this->once())
             ->method('sort')
-            ->with(array('test' => 1));
-
-        $mongoCursor->expects($this->at(1))
-            ->method('sort')
-            ->with(array('test' => -1));
-
-        $mongoCursor->expects($this->at(2))
-            ->method('sort')
-            ->with(array('test' => -1));
-
-        $mongoCursor->expects($this->at(3))
-            ->method('sort')
-            ->with(array('test' => array( '$meta' => "textScore" )));
+            ->with(array('x' => $expected));
 
         $cursor = $this->getTestCursor($this->getMockCollection(), $mongoCursor);
 
+        $cursor->sort(array('x' => $actual));
+    }
 
-        $cursor->sort(array('test' => "asc"));
-        $cursor->sort(array('test' => "desc"));
-        $cursor->sort(array('test' => "somethingelse"));
-        $cursor->sort(array('test' => array( '$meta' => "textScore" )));
+    public function provideSortOrderValues()
+    {
+        return array(
+            // Strings should be compared to "asc"
+            array('asc', 1),
+            array('ASC', 1),
+            array('desc', -1),
+            array('DESC', -1),
+            array('not-asc', -1),
+            // Scalar values should be cast to integers (even though boolean false doesn't make sense)
+            array(1.0, 1),
+            array(-1.0, -1),
+            array(true, 1),
+            array(false, 0),
+            // Non-scalar values should be left as-is
+            array(array('$meta' => 'textScore'), array('$meta' => 'textScore')),
+        );
     }
 
     public function testRecreate()
