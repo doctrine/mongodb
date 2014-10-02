@@ -574,7 +574,10 @@ class Cursor implements Iterator
             if (is_string($order)) {
                 $order = strtolower($order) === 'asc' ? 1 : -1;
             }
-            $fields[$fieldName] = (integer) $order;
+
+            if (is_scalar($order)) {
+                $fields[$fieldName] = (integer) $order;
+            }
         }
         $this->sort = $fields;
         $this->mongoCursor->sort($fields);
