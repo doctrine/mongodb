@@ -229,6 +229,35 @@ class CursorTest extends BaseTest
         $this->assertSame($cursor, $cursor->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
     }
 
+    public function testSortCastingOfNoneIntegersToArraysOrObjects()
+    {
+        $mongoCursor = $this->getMockMongoCursor();
+
+        $mongoCursor->expects($this->at(0))
+            ->method('sort')
+            ->with(array('test' => 1));
+
+        $mongoCursor->expects($this->at(1))
+            ->method('sort')
+            ->with(array('test' => -1));
+
+        $mongoCursor->expects($this->at(2))
+            ->method('sort')
+            ->with(array('test' => -1));
+
+        $mongoCursor->expects($this->at(3))
+            ->method('sort')
+            ->with(array('test' => array( '$meta' => "textScore" )));
+
+        $cursor = $this->getTestCursor($this->getMockCollection(), $mongoCursor);
+
+
+        $cursor->sort(array('test' => "asc"));
+        $cursor->sort(array('test' => "desc"));
+        $cursor->sort(array('test' => "somethingelse"));
+        $cursor->sort(array('test' => array( '$meta' => "textScore" )));
+    }
+
     public function testRecreate()
     {
         if (!method_exists('MongoCursor', 'setReadPreference')) {
