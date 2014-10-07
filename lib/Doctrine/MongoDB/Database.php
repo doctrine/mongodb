@@ -419,7 +419,7 @@ class Database
      * Wrapper method for MongoDB::listCollections().
      *
      * @see http://php.net/manual/en/mongodb.listcollections.php
-     * @return array
+     * @return array|\MongoCollection[]
      */
     public function listCollections()
     {
