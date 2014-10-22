@@ -294,6 +294,7 @@ class Connection
      * Checks whether the connection is initialized and connected.
      *
      * @return boolean
+     * @deprecated Deprecated since PECL mongo >= 1.5.0
      */
     public function isConnected()
     {
@@ -471,7 +472,7 @@ class Connection
     }
 
     /**
-     * Converts "timeout" MongoClient constructor option to "connectTimeoutMS"
+     * Converts "wTimeout" MongoClient constructor option to "wTimeoutMS"
      * for driver versions 1.4.0+.
      *
      * Note: MongoClient actually allows case-insensitive option names, but
