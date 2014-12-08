@@ -143,7 +143,12 @@ class Connection
             return false;
         }
 
-        return $this->mongo->connected;
+        /* MongoClient::$connected is deprecated in 1.5.0+, so count the list of
+         * connected hosts instead.
+         */
+        return version_compare(phpversion('mongo'), '1.5.0', '<')
+            ? $this->mongo->connected
+            : count($this->mongo->getHosts()) > 0;
     }
 
     /**
