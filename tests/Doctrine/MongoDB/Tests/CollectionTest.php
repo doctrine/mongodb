@@ -913,7 +913,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $coll->insert($document, array('wtimeout' => 1000));
     }
 
-    public function testCommandAndClientOptionsAreSplit()
+    public function testSplittingOfCommandAndClientOptions()
     {
         $expectedCommand = array(
             'distinct' => self::collectionName,
@@ -932,6 +932,56 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $coll = $this->getTestCollection($database);
         $coll->distinct('foo', array(), array('maxTimeMS' => 1000, 'socketTimeoutMS' => 2000));
+    }
+
+    public function testSplitSocketTimeoutOptionIsConverted()
+    {
+        if (version_compare(phpversion('mongo'), '1.5.0', '<')) {
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.5.0');
+        }
+
+        $expectedCommand = array(
+            'distinct' => self::collectionName,
+            'key' => 'foo',
+            'query' => new \stdClass(),
+            'maxTimeMS' => 1000,
+        );
+
+        $expectedClientOptions = array('socketTimeoutMS' => 2000);
+
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with($expectedCommand, $expectedClientOptions)
+            ->will($this->returnValue(array('ok' => 1)));
+
+        $coll = $this->getTestCollection($database);
+        $coll->distinct('foo', array(), array('maxTimeMS' => 1000, 'timeout' => 2000));
+    }
+
+    public function testSplitSocketTimeoutOptionIsNotConvertedForOlderDrivers()
+    {
+        if (version_compare(phpversion('mongo'), '1.5.0', '>=')) {
+            $this->markTestSkipped('This test is not applicable to driver versions >= 1.5.0');
+        }
+
+        $expectedCommand = array(
+            'distinct' => self::collectionName,
+            'key' => 'foo',
+            'query' => new \stdClass(),
+            'maxTimeMS' => 1000,
+        );
+
+        $expectedClientOptions = array('timeout' => 2000);
+
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with($expectedCommand, $expectedClientOptions)
+            ->will($this->returnValue(array('ok' => 1)));
+
+        $coll = $this->getTestCollection($database);
+        $coll->distinct('foo', array(), array('maxTimeMS' => 1000, 'timeout' => 2000));
     }
 
     private function getMockCollection()
