@@ -888,17 +888,19 @@ class Collection
      */
     protected function doDistinct($field, array $query, array $options)
     {
-        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+        list($commandOptions, $clientOptions) = isset($options['socketTimeoutMS']) || isset($options['timeout'])
+            ? $this->splitCommandAndClientOptions($options)
+            : array($options, array());
 
         $command = array();
         $command['distinct'] = $this->mongoCollection->getName();
         $command['key'] = $field;
         $command['query'] = (object) $query;
-        $command = array_merge($command, $options);
+        $command = array_merge($command, $commandOptions);
 
         $database = $this->database;
-        $result = $this->retry(function() use ($database, $command) {
-            return $database->command($command);
+        $result = $this->retry(function() use ($database, $command, $clientOptions) {
+            return $database->command($command, $clientOptions);
         });
 
         if (empty($result['ok'])) {
@@ -950,15 +952,17 @@ class Collection
      */
     protected function doFindAndRemove(array $query, array $options = array())
     {
-        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+        list($commandOptions, $clientOptions) = isset($options['socketTimeoutMS']) || isset($options['timeout'])
+            ? $this->splitCommandAndClientOptions($options)
+            : array($options, array());
 
         $command = array();
         $command['findandmodify'] = $this->mongoCollection->getName();
         $command['query'] = (object) $query;
         $command['remove'] = true;
-        $command = array_merge($command, $options);
+        $command = array_merge($command, $commandOptions);
 
-        $result = $this->database->command($command);
+        $result = $this->database->command($command, $clientOptions);
 
         if (empty($result['ok'])) {
             throw new ResultException($result);
@@ -979,15 +983,17 @@ class Collection
      */
     protected function doFindAndUpdate(array $query, array $newObj, array $options)
     {
-        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+        list($commandOptions, $clientOptions) = isset($options['socketTimeoutMS']) || isset($options['timeout'])
+            ? $this->splitCommandAndClientOptions($options)
+            : array($options, array());
 
         $command = array();
         $command['findandmodify'] = $this->mongoCollection->getName();
         $command['query'] = (object) $query;
         $command['update'] = (object) $newObj;
-        $command = array_merge($command, $options);
+        $command = array_merge($command, $commandOptions);
 
-        $result = $this->database->command($command);
+        $result = $this->database->command($command, $clientOptions);
 
         if (empty($result['ok'])) {
             throw new ResultException($result);
@@ -1040,7 +1046,9 @@ class Collection
      */
     protected function doGroup($keys, array $initial, $reduce, array $options)
     {
-        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+        list($commandOptions, $clientOptions) = isset($options['socketTimeoutMS']) || isset($options['timeout'])
+            ? $this->splitCommandAndClientOptions($options)
+            : array($options, array());
 
         $command = array();
         $command['ns'] = $this->mongoCollection->getName();
@@ -1053,7 +1061,7 @@ class Collection
             $command['key'] = $keys;
         }
 
-        $command = array_merge($command, $options);
+        $command = array_merge($command, $commandOptions);
 
         foreach (array('$keyf', '$reduce', 'finalize') as $key) {
             if (isset($command[$key]) && is_string($command[$key])) {
@@ -1066,8 +1074,8 @@ class Collection
         }
 
         $database = $this->database;
-        $result = $this->retry(function() use ($database, $command) {
-            return $database->command(array('group' => $command));
+        $result = $this->retry(function() use ($database, $command, $clientOptions) {
+            return $database->command(array('group' => $command), $clientOptions);
         });
 
         if (empty($result['ok'])) {
@@ -1115,7 +1123,9 @@ class Collection
      */
     protected function doMapReduce($map, $reduce, $out, array $query, array $options)
     {
-        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+        list($commandOptions, $clientOptions) = isset($options['socketTimeoutMS']) || isset($options['timeout'])
+            ? $this->splitCommandAndClientOptions($options)
+            : array($options, array());
 
         $command = array();
         $command['mapreduce'] = $this->mongoCollection->getName();
@@ -1123,7 +1133,7 @@ class Collection
         $command['reduce'] = $reduce;
         $command['query'] = (object) $query;
         $command['out'] = $out;
-        $command = array_merge($command, $options);
+        $command = array_merge($command, $commandOptions);
 
         foreach (array('map', 'reduce', 'finalize') as $key) {
             if (isset($command[$key]) && is_string($command[$key])) {
@@ -1131,7 +1141,7 @@ class Collection
             }
         }
 
-        $result = $this->database->command($command);
+        $result = $this->database->command($command, $clientOptions);
 
         if (empty($result['ok'])) {
             throw new ResultException($result);
@@ -1166,22 +1176,24 @@ class Collection
      */
     protected function doNear($near, array $query, array $options)
     {
-        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
-
         if ($near instanceof Point) {
             $near = $near->jsonSerialize();
         }
+
+        list($commandOptions, $clientOptions) = isset($options['socketTimeoutMS']) || isset($options['timeout'])
+            ? $this->splitCommandAndClientOptions($options)
+            : array($options, array());
 
         $command = array();
         $command['geoNear'] = $this->mongoCollection->getName();
         $command['near'] = $near;
         $command['spherical'] = isset($near['type']);
         $command['query'] = (object) $query;
-        $command = array_merge($command, $options);
+        $command = array_merge($command, $commandOptions);
 
         $database = $this->database;
-        $result = $this->retry(function() use ($database, $command) {
-            return $database->command($command);
+        $result = $this->retry(function() use ($database, $command, $clientOptions) {
+            return $database->command($command, $clientOptions);
         });
 
         if (empty($result['ok'])) {
@@ -1349,5 +1361,24 @@ class Collection
         }
 
         return $options;
+    }
+
+    /**
+     * Splits a command helper's options array into command and client options.
+     *
+     * Command options are intended to be merged into the command document.
+     * Client options (e.g. socket timeout) are for {@link Database::command()}.
+     *
+     * @param array $options
+     * @return array Tuple of command options and client options
+     */
+    protected function splitCommandAndClientOptions(array $options)
+    {
+        $keys = array('socketTimeoutMS' => 1, 'timeout' => 1);
+
+        return array(
+            array_diff_key($options, $keys),
+            array_intersect_key($options, $keys),
+        );
     }
 }

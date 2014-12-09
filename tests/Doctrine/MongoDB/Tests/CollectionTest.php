@@ -913,6 +913,27 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $coll->insert($document, array('wtimeout' => 1000));
     }
 
+    public function testCommandAndClientOptionsAreSplit()
+    {
+        $expectedCommand = array(
+            'distinct' => self::collectionName,
+            'key' => 'foo',
+            'query' => new \stdClass(),
+            'maxTimeMS' => 1000,
+        );
+
+        $expectedClientOptions = array('socketTimeoutMS' => 2000);
+
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with($expectedCommand, $expectedClientOptions)
+            ->will($this->returnValue(array('ok' => 1)));
+
+        $coll = $this->getTestCollection($database);
+        $coll->distinct('foo', array(), array('maxTimeMS' => 1000, 'socketTimeoutMS' => 2000));
+    }
+
     private function getMockCollection()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Collection')
