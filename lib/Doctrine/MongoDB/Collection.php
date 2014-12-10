@@ -91,6 +91,10 @@ class Collection
      *
      * This method will dispatch preAggregate and postAggregate events.
      *
+     * By default, the results from a non-cursor aggregate command will be
+     * returned as an ArrayIterator; however, if the pipeline ends in an $out
+     * operator, a cursor on the output collection will be returned instead.
+     *
      * @see http://php.net/manual/en/mongocollection.aggregate.php
      * @see http://docs.mongodb.org/manual/reference/command/aggregate/
      * @param array $pipeline Array of pipeline operators, or the first operator
@@ -862,6 +866,15 @@ class Collection
 
         if (empty($result['ok'])) {
             throw new ResultException($result);
+        }
+
+        /* If the pipeline ends with an $out operator, return a cursor on that
+         * collection so a table scan may be performed.
+         */
+        if (isset($pipeline[count($pipeline) - 1]['$out'])) {
+            $outputCollection = $pipeline[count($pipeline) - 1]['$out'];
+
+            return $database->selectCollection($outputCollection)->find();
         }
 
         $arrayIterator = new ArrayIterator(isset($result['result']) ? $result['result'] : array());
