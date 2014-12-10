@@ -186,6 +186,38 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($database->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
     }
 
+    public function testSocketTimeoutOptionIsConverted()
+    {
+        if (version_compare(phpversion('mongo'), '1.5.0', '<')) {
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.5.0');
+        }
+
+        $mongoDB = $this->getMockMongoDB();
+        $mongoDB->expects($this->any())
+            ->method('command')
+            ->with(array('count' => 'foo'), array('socketTimeoutMS' => 1000));
+
+        $database = new Database($this->getMockConnection(), $mongoDB, $this->getMockEventManager());
+
+        $database->command(array('count' => 'foo'), array('timeout' => 1000));
+    }
+
+    public function testSocketTimeoutOptionIsNotConvertedForOlderDrivers()
+    {
+        if (version_compare(phpversion('mongo'), '1.5.0', '>=')) {
+            $this->markTestSkipped('This test is not applicable to driver versions >= 1.5.0');
+        }
+
+        $mongoDB = $this->getMockMongoDB();
+        $mongoDB->expects($this->any())
+            ->method('command')
+            ->with(array('count' => 'foo'), array('timeout' => 1000));
+
+        $database = new Database($this->getMockConnection(), $mongoDB, $this->getMockEventManager());
+
+        $database->command(array('count' => 'foo'), array('timeout' => 1000));
+    }
+
     private function getMockConnection()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Connection')
