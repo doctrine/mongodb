@@ -60,6 +60,111 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($arrayIterator, $result);
     }
 
+    public function testAggregateShouldReturnCursorForPipelineEndingWithOut()
+    {
+        $pipeline = array(
+            array('$match' => array('x' => '1')),
+            array('$out' => 'foo'),
+        );
+        $commandResult = array('ok' => 1);
+
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with(array('aggregate' => self::collectionName, 'pipeline' => $pipeline))
+            ->will($this->returnValue($commandResult));
+
+        $collection = $this->getMockCollection();
+        $database->expects($this->once())
+            ->method('selectCollection')
+            ->with('foo')
+            ->will($this->returnValue($collection));
+
+        $cursor = $this->getMockCursor();
+        $collection->expects($this->once())
+            ->method('find')
+            ->will($this->returnValue($cursor));
+
+        $coll = $this->getTestCollection($database);
+        $result = $coll->aggregate($pipeline);
+
+        $this->assertSame($cursor, $result);
+    }
+
+    public function testAggregateWithCursorOption()
+    {
+        $pipeline = array(
+            array('$match' => array('_id' => 'bar')),
+            array('$project' => array('_id' => 1)),
+        );
+        $options = array('cursor' => true);
+        $mongoCommandCursor = $this->getMockMongoCommandCursor();
+
+        $mongoCollection = $this->getMockMongoCollection();
+        $mongoCollection->expects($this->once())
+            ->method('aggregateCursor')
+            ->with($pipeline, array())
+            ->will($this->returnValue($mongoCommandCursor));
+
+        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
+        $result = $coll->aggregate($pipeline, $options);
+
+        $this->assertInstanceOf('Doctrine\MongoDB\CommandCursor', $result);
+        $this->assertSame($mongoCommandCursor, $result->getMongoCommandCursor());
+    }
+
+    public function testAggregateWithCursorOptionAndBatchSize()
+    {
+        $pipeline = array(
+            array('$match' => array('_id' => 'bar')),
+            array('$project' => array('_id' => 1)),
+        );
+        $options = array('cursor' => array('batchSize' => 10));
+        $mongoCommandCursor = $this->getMockMongoCommandCursor();
+
+        $mongoCollection = $this->getMockMongoCollection();
+        $mongoCollection->expects($this->once())
+            ->method('aggregateCursor')
+            ->with($pipeline, $options)
+            ->will($this->returnValue($mongoCommandCursor));
+
+        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
+        $result = $coll->aggregate($pipeline, $options);
+
+        $this->assertInstanceOf('Doctrine\MongoDB\CommandCursor', $result);
+        $this->assertSame($mongoCommandCursor, $result->getMongoCommandCursor());
+    }
+
+    public function testAggregateWithCursorOptionAndTimeout()
+    {
+        if (version_compare(phpversion('mongo'), '1.6.0', '<')) {
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.6.0');
+        }
+
+        $pipeline = array(
+            array('$match' => array('_id' => 'bar')),
+            array('$project' => array('_id' => 1)),
+        );
+        $options = array('cursor' => true, 'socketTimeoutMS' => 1000);
+        $mongoCommandCursor = $this->getMockMongoCommandCursor();
+
+        $mongoCollection = $this->getMockMongoCollection();
+        $mongoCollection->expects($this->once())
+            ->method('aggregateCursor')
+            ->with($pipeline, array())
+            ->will($this->returnValue($mongoCommandCursor));
+
+        $mongoCommandCursor->expects($this->once())
+            ->method('timeout')
+            ->with(1000);
+
+        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
+        $result = $coll->aggregate($pipeline, $options);
+
+        $this->assertInstanceOf('Doctrine\MongoDB\CommandCursor', $result);
+        $this->assertSame($mongoCommandCursor, $result->getMongoCommandCursor());
+    }
+
     /**
      * @expectedException \Doctrine\MongoDB\Exception\ResultException
      */
@@ -996,6 +1101,13 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(self::collectionName));
 
         return $mc;
+    }
+
+    private function getMockMongoCommandCursor()
+    {
+        return $this->getMockBuilder('MongoCommandCursor')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
     private function getMockMongoCursor()

@@ -32,6 +32,7 @@ use Doctrine\MongoDB\Event\UpdateEventArgs;
 use Doctrine\MongoDB\Exception\ResultException;
 use Doctrine\MongoDB\Util\ReadPreference;
 use GeoJson\Geometry\Point;
+use MongoCommandCursor;
 
 /**
  * Wrapper for the MongoCollection class.
@@ -95,12 +96,15 @@ class Collection
      * returned as an ArrayIterator; however, if the pipeline ends in an $out
      * operator, a cursor on the output collection will be returned instead.
      *
+     * If the "cursor" option is true or an array, a command cursor will be
+     * returned (requires driver >= 1.5.0 and MongoDB >= 2.6).
+     *
      * @see http://php.net/manual/en/mongocollection.aggregate.php
      * @see http://docs.mongodb.org/manual/reference/command/aggregate/
      * @param array $pipeline Array of pipeline operators, or the first operator
-     * @param array $options
+     * @param array $options  Command options (if $pipeline was an array of pipeline operators)
      * @param array $op,...   Additional operators (if $pipeline was the first)
-     * @return ArrayIterator
+     * @return Iterator
      * @throws ResultException if the command fails
      */
     public function aggregate(array $pipeline, array $options = array() /* , array $op, ... */)
@@ -843,13 +847,16 @@ class Collection
      * @see Collection::aggregate()
      * @param array $pipeline
      * @param array $options
-     * @throws \Exception
-     * @throws \MongoException
-     * @throws null
-     * @return ArrayIterator
+     * @return Iterator
      */
     protected function doAggregate(array $pipeline, array $options = array())
     {
+        if (isset($options['cursor']) && ($options['cursor'] || is_array($options['cursor']))) {
+            return $this->doAggregateCursor($pipeline, $options);
+        }
+
+        unset($options['cursor']);
+
         list($commandOptions, $clientOptions) = isset($options['socketTimeoutMS']) || isset($options['timeout'])
             ? $this->splitCommandAndClientOptions($options)
             : array($options, array());
@@ -881,6 +888,41 @@ class Collection
         $arrayIterator->setCommandResult($result);
 
         return $arrayIterator;
+    }
+
+    /**
+     * Executes the aggregate command and returns a MongoCommandCursor.
+     *
+     * @param array $pipeline
+     * @param array $options
+     * @return CommandCursor
+     */
+    protected function doAggregateCursor(array $pipeline, array $options = array())
+    {
+        list($commandOptions, $clientOptions) = isset($options['socketTimeoutMS']) || isset($options['timeout'])
+            ? $this->splitCommandAndClientOptions($options)
+            : array($options, array());
+
+        if (is_scalar($commandOptions['cursor'])) {
+            unset($commandOptions['cursor']);
+        }
+
+        $timeout = isset($clientOptions['socketTimeoutMS'])
+            ? $clientOptions['socketTimeoutMS']
+            : (isset($clientOptions['timeout']) ? isset($clientOptions['timeout']) : null);
+
+        $mongoCollection = $this->mongoCollection;
+        $commandCursor = $this->retry(function() use ($mongoCollection, $pipeline, $commandOptions) {
+            return $mongoCollection->aggregateCursor($pipeline, $commandOptions);
+        });
+
+        $commandCursor = $this->wrapCommandCursor($commandCursor);
+
+        if (isset($timeout)) {
+            $commandCursor->timeout($timeout);
+        }
+
+        return $commandCursor;
     }
 
     /**
@@ -1318,6 +1360,17 @@ class Collection
                 }
             }
         }
+    }
+
+    /**
+     * Wraps a MongoCommandCursor instance with a CommandCursor.
+     *
+     * @param \MongoCommandCursor $commandCursor
+     * @return CommandCursor
+     */
+    protected function wrapCommandCursor(\MongoCommandCursor $commandCursor)
+    {
+        return new CommandCursor($commandCursor, $this->numRetries);
     }
 
     /**
