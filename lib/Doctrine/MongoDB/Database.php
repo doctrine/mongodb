@@ -97,15 +97,21 @@ class Database
      * Wrapper method for MongoDB::command().
      *
      * @see http://php.net/manual/en/mongodb.command.php
-     * @param array $data
-     * @param array $options
+     * @param array  $command Command document
+     * @param array  $options Client-side options (e.g. socket timeout)
+     * @param string $hash    Optional reference argument to collect the server
+     *                        hash for command cursors (for driver 1.5+ only)
      * @return array
      */
-    public function command(array $data, array $options = array())
+    public function command(array $command, array $options = array(), &$hash = null)
     {
         $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
 
-        return $this->mongoDB->command($data, $options);
+        if (func_num_args() > 2) {
+            return $this->mongoDB->command($command, $options, $hash);
+        }
+
+        return $this->mongoDB->command($command, $options);
     }
 
     /**

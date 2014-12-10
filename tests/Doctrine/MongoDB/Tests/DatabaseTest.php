@@ -10,6 +10,21 @@ use Doctrine\Common\EventManager;
 
 class DatabaseTest extends \PHPUnit_Framework_TestCase
 {
+    public function testCommandPassesServerHashOnlyIfProvided()
+    {
+        $mongoDB = $this->getMockMongoDB();
+
+        $mongoDB->expects($this->any())
+            ->method('command')
+            ->will($this->returnArgument(2));
+
+        $database = new Database($this->getMockConnection(), $mongoDB, $this->getMockEventManager());
+
+        $hash = true;
+        $this->assertTrue($database->command(array('count' => 'foo'), array(), $hash));
+        $this->assertNull($database->command(array('count' => 'foo'), array()));
+    }
+
     public function testCreateCollectionWithMultipleArguments()
     {
         $mongoDB = $this->getMockMongoDB();
