@@ -892,8 +892,6 @@ class Collection
             ? $this->splitCommandAndClientOptions($options)
             : array($options, array());
 
-        $clientOptions = isset($clientOptions['timeout']) ? $this->convertSocketTimeout($clientOptions) : $clientOptions;
-
         $command = array();
         $command['distinct'] = $this->mongoCollection->getName();
         $command['key'] = $field;
@@ -958,8 +956,6 @@ class Collection
             ? $this->splitCommandAndClientOptions($options)
             : array($options, array());
 
-        $clientOptions = isset($clientOptions['timeout']) ? $this->convertSocketTimeout($clientOptions) : $clientOptions;
-
         $command = array();
         $command['findandmodify'] = $this->mongoCollection->getName();
         $command['query'] = (object) $query;
@@ -990,8 +986,6 @@ class Collection
         list($commandOptions, $clientOptions) = isset($options['socketTimeoutMS']) || isset($options['timeout'])
             ? $this->splitCommandAndClientOptions($options)
             : array($options, array());
-
-        $clientOptions = isset($clientOptions['timeout']) ? $this->convertSocketTimeout($clientOptions) : $clientOptions;
 
         $command = array();
         $command['findandmodify'] = $this->mongoCollection->getName();
@@ -1055,8 +1049,6 @@ class Collection
         list($commandOptions, $clientOptions) = isset($options['socketTimeoutMS']) || isset($options['timeout'])
             ? $this->splitCommandAndClientOptions($options)
             : array($options, array());
-
-        $clientOptions = isset($clientOptions['timeout']) ? $this->convertSocketTimeout($clientOptions) : $clientOptions;
 
         $command = array();
         $command['ns'] = $this->mongoCollection->getName();
@@ -1135,8 +1127,6 @@ class Collection
             ? $this->splitCommandAndClientOptions($options)
             : array($options, array());
 
-        $clientOptions = isset($clientOptions['timeout']) ? $this->convertSocketTimeout($clientOptions) : $clientOptions;
-
         $command = array();
         $command['mapreduce'] = $this->mongoCollection->getName();
         $command['map'] = $map;
@@ -1193,8 +1183,6 @@ class Collection
         list($commandOptions, $clientOptions) = isset($options['socketTimeoutMS']) || isset($options['timeout'])
             ? $this->splitCommandAndClientOptions($options)
             : array($options, array());
-
-        $clientOptions = isset($clientOptions['timeout']) ? $this->convertSocketTimeout($clientOptions) : $clientOptions;
 
         $command = array();
         $command['geoNear'] = $this->mongoCollection->getName();
