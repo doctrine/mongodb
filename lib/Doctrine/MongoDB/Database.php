@@ -103,6 +103,8 @@ class Database
      */
     public function command(array $data, array $options = array())
     {
+        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+
         return $this->mongoDB->command($data, $options);
     }
 
@@ -604,5 +606,26 @@ class Database
                 }
             }
         }
+    }
+
+    /**
+     * Convert "timeout" write option to "socketTimeoutMS" for driver version
+     * 1.5.0+.
+     *
+     * @param array $options
+     * @return array
+     */
+    protected function convertSocketTimeout(array $options)
+    {
+        if (version_compare(phpversion('mongo'), '1.5.0', '<')) {
+            return $options;
+        }
+
+        if (isset($options['timeout']) && ! isset($options['socketTimeoutMS'])) {
+            $options['socketTimeoutMS'] = $options['timeout'];
+            unset($options['timeout']);
+        }
+
+        return $options;
     }
 }
