@@ -111,7 +111,7 @@ class Collection
         }
 
         if ($this->eventManager->hasListeners(Events::preAggregate)) {
-            $this->eventManager->dispatchEvent(Events::preAggregate, new AggregateEventArgs($this, $pipeline));
+            $this->eventManager->dispatchEvent(Events::preAggregate, new AggregateEventArgs($this, $pipeline, $options));
         }
 
         $result = $this->doAggregate($pipeline, $options);
