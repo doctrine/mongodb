@@ -846,15 +846,18 @@ class Collection
      */
     protected function doAggregate(array $pipeline, array $options = array())
     {
-        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+        list($commandOptions, $clientOptions) = isset($options['socketTimeoutMS']) || isset($options['timeout'])
+            ? $this->splitCommandAndClientOptions($options)
+            : array($options, array());
 
         $command = array();
         $command['aggregate'] = $this->mongoCollection->getName();
         $command['pipeline'] = $pipeline;
+        $command = array_merge($command, $commandOptions);
 
         $database = $this->database;
-        $result = $this->retry(function() use ($database, $command, $options) {
-            return $database->command($command, $options);
+        $result = $this->retry(function() use ($database, $command, $clientOptions) {
+            return $database->command($command, $clientOptions);
         });
 
         if (empty($result['ok'])) {
