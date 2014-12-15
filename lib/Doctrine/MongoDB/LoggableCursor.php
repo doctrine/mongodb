@@ -35,6 +35,11 @@ class LoggableCursor extends Cursor implements Loggable
     protected $loggerCallable;
 
     /**
+     * @var Logging\QueryLogger
+     */
+    protected $queryLogger;
+
+    /**
      * Constructor.
      *
      * @param Collection   $collection     Collection used to create this Cursor
@@ -43,14 +48,16 @@ class LoggableCursor extends Cursor implements Loggable
      * @param array        $fields         Selected fields (projection)
      * @param integer      $numRetries     Number of times to retry queries
      * @param callable     $loggerCallable Logger callable
+     * @param Logging\QueryLogger $queryLogger QueryLogger object
      */
-    public function __construct(Collection $collection, \MongoCursor $mongoCursor, array $query, array $fields, $numRetries, $loggerCallable)
+    public function __construct(Collection $collection, \MongoCursor $mongoCursor, array $query, array $fields, $numRetries, $loggerCallable = null, Logging\QueryLogger $queryLogger = null)
     {
-        if ( ! is_callable($loggerCallable)) {
-            throw new \InvalidArgumentException('$loggerCallable must be a valid callback');
+        if ( ! is_callable($loggerCallable) && !($queryLogger instanceof Logging\QueryLogger)) {
+            throw new \InvalidArgumentException('$loggerCallable must be a valid callback or $queryLogger must be an instance of Doctrine\MongoDB\Logging\QueryLogger');
         }
         $this->loggerCallable = $loggerCallable;
         parent::__construct($collection, $mongoCursor, $query, $fields, $numRetries);
+        $this->queryLogger = $queryLogger;
     }
 
     /**
@@ -63,7 +70,20 @@ class LoggableCursor extends Cursor implements Loggable
     {
         $data['query'] = $this->query;
         $data['fields'] = $this->fields;
-        call_user_func($this->loggerCallable, $data);
+        if ($this->loggerCallable) {
+            call_user_func($this->loggerCallable, $data);
+        }
+
+        if ($this->queryLogger instanceof Logging\QueryLogger) {
+            $this->queryLogger->startQuery($data);
+        }
+    }
+
+    private function logAfter()
+    {
+        if ($this->queryLogger instanceof Logging\QueryLogger) {
+            $this->queryLogger->stopQuery();
+        }
     }
 
     /**
@@ -81,12 +101,15 @@ class LoggableCursor extends Cursor implements Loggable
      */
     public function hint($keyPattern)
     {
-        $this->log(array(
+        $log = array(
             'hint' => true,
             'keyPattern' => $keyPattern,
-        ));
+        );
 
-        return parent::hint($keyPattern);
+        $this->log($log);
+        $data = parent::hint($keyPattern);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -94,12 +117,15 @@ class LoggableCursor extends Cursor implements Loggable
      */
     public function limit($num)
     {
-        $this->log(array(
+        $log = array(
             'limit' => true,
             'limitNum' => $num,
-        ));
+        );
 
-        return parent::limit($num);
+        $this->log($log);
+        $data = parent::limit($num);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -107,12 +133,15 @@ class LoggableCursor extends Cursor implements Loggable
      */
     public function skip($num)
     {
-        $this->log(array(
+        $log = array(
             'skip' => true,
             'skipNum' => $num,
-        ));
+        );
 
-        return parent::skip($num);
+        $this->log($log);
+        $data = parent::skip($num);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -120,11 +149,14 @@ class LoggableCursor extends Cursor implements Loggable
      */
     public function snapshot()
     {
-        $this->log(array(
+        $log = array(
             'snapshot' => true,
-        ));
+        );
 
-        return parent::snapshot();
+        $this->log($log);
+        $data = parent::snapshot();
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -132,11 +164,14 @@ class LoggableCursor extends Cursor implements Loggable
      */
     public function sort($fields)
     {
-        $this->log(array(
+        $log = array(
             'sort' => true,
             'sortFields' => $fields,
-        ));
+        );
 
-        return parent::sort($fields);
+        $this->log($log);
+        $data = parent::sort($fields);
+        $this->logAfter();
+        return $data;
     }
 }

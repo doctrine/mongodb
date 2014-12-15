@@ -412,9 +412,10 @@ class Connection
         $mongoDB = $this->mongoClient->selectDB($name);
         $numRetries = $this->config->getRetryQuery();
         $loggerCallable = $this->config->getLoggerCallable();
+        $queryLogger = $this->config->getQueryLogger();
 
-        return $loggerCallable !== null
-            ? new LoggableDatabase($this, $mongoDB, $this->eventManager, $numRetries, $loggerCallable)
+        return ($loggerCallable !== null || $queryLogger!== null)
+            ? new LoggableDatabase($this, $mongoDB, $this->eventManager, $numRetries, $loggerCallable, $queryLogger)
             : new Database($this, $mongoDB, $this->eventManager, $numRetries);
     }
 

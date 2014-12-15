@@ -38,6 +38,11 @@ class LoggableDatabase extends Database implements Loggable
     protected $loggerCallable;
 
     /**
+     * @var Logging\QueryLogger
+     */
+    protected $queryLogger;
+
+    /**
      * Constructor.
      *
      * @param Connection   $connection     Connection used to create Collections
@@ -45,14 +50,16 @@ class LoggableDatabase extends Database implements Loggable
      * @param EventManager $evm            EventManager instance
      * @param integer      $numRetries     Number of times to retry queries
      * @param callable     $loggerCallable The logger callable
+     * @param Logging\QueryLogger $queryLogger The QueryLogger object
      */
-    public function __construct(Connection $connection, \MongoDB $mongoDB, EventManager $evm, $numRetries, $loggerCallable)
+    public function __construct(Connection $connection, \MongoDB $mongoDB, EventManager $evm, $numRetries, $loggerCallable = null, Logging\QueryLogger $queryLogger = null)
     {
-        if ( ! is_callable($loggerCallable)) {
-            throw new \InvalidArgumentException('$loggerCallable must be a valid callback');
+        if ( ! is_callable($loggerCallable) && !($queryLogger instanceof Logging\QueryLogger)) {
+            throw new \InvalidArgumentException('$loggerCallable must be a valid callback or $queryLogger must be an instance of Doctrine\MongoDB\Logging\QueryLogger');
         }
         parent::__construct($connection, $mongoDB, $evm, $numRetries);
         $this->loggerCallable = $loggerCallable;
+        $this->queryLogger = $queryLogger;
     }
 
     /**
@@ -64,7 +71,20 @@ class LoggableDatabase extends Database implements Loggable
     public function log(array $log)
     {
         $log['db'] = $this->getName();
-        call_user_func_array($this->loggerCallable, array($log));
+        if ($this->loggerCallable) {
+            call_user_func_array($this->loggerCallable, array($log));
+        }
+
+        if ($this->queryLogger instanceof Logging\QueryLogger) {
+            $this->queryLogger->startQuery($log);
+        }
+    }
+
+    private function logAfter()
+    {
+        if ($this->queryLogger instanceof Logging\QueryLogger) {
+            $this->queryLogger->stopQuery();
+        }
     }
 
     /**
@@ -72,13 +92,16 @@ class LoggableDatabase extends Database implements Loggable
      */
     public function authenticate($username, $password)
     {
-        $this->log(array(
+        $log = array(
             'authenticate' => true,
             'username' => $username,
             'password' => $password,
-        ));
+        );
 
-        return parent::authenticate($username, $password);
+        $this->log($log);
+        $data = parent::authenticate($username, $password);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -86,13 +109,16 @@ class LoggableDatabase extends Database implements Loggable
      */
     public function command(array $data, array $options = array())
     {
-        $this->log(array(
+        $log = array(
             'command' => true,
             'data' => $data,
             'options' => $options,
-        ));
+        );
 
-        return parent::command($data, $options);
+        $this->log($log);
+        $data = parent::command($data, $options);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -104,7 +130,7 @@ class LoggableDatabase extends Database implements Loggable
             ? array_merge(array('capped' => false, 'size' => 0, 'max' => 0), $cappedOrOptions)
             : array('capped' => $cappedOrOptions, 'size' => $size, 'max' => $max);
 
-        $this->log(array(
+        $log = array(
             'createCollection' => true,
             'name' => $name,
             'options' => $options,
@@ -112,9 +138,12 @@ class LoggableDatabase extends Database implements Loggable
             'capped' => $options['capped'],
             'size' => $options['size'],
             'max' => $options['max'],
-        ));
+        );
 
-        return parent::createCollection($name, $options);
+        $this->log($log);
+        $data = parent::createCollection($name, $options);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -122,9 +151,12 @@ class LoggableDatabase extends Database implements Loggable
      */
     public function drop()
     {
-        $this->log(array('dropDatabase' => true));
+        $log = array('dropDatabase' => true);
 
-        return parent::drop();
+        $this->log($log);
+        $data = parent::drop();
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -132,13 +164,16 @@ class LoggableDatabase extends Database implements Loggable
      */
     public function execute($code, array $args = array())
     {
-        $this->log(array(
+        $log = array(
             'execute' => true,
             'code' => $code,
             'args' => $args,
-        ));
+        );
 
-        return parent::execute($code, $args);
+        $this->log($log);
+        $data = parent::execute($code, $args);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -146,12 +181,15 @@ class LoggableDatabase extends Database implements Loggable
      */
     public function getDBRef(array $ref)
     {
-        $this->log(array(
+        $log = array(
             'getDBRef' => true,
             'reference' => $ref,
-        ));
+        );
 
-        return parent::getDBRef($ref);
+        $this->log($log);
+        $data = parent::getDBRef($ref);
+        $this->logAfter();
+        return $data;
     }
 
     /**
@@ -165,6 +203,6 @@ class LoggableDatabase extends Database implements Loggable
     {
         $mongoCollection = $this->mongoDB->selectCollection($name);
 
-        return new LoggableCollection($this, $mongoCollection, $this->eventManager, $this->numRetries, $this->loggerCallable);
+        return new LoggableCollection($this, $mongoCollection, $this->eventManager, $this->numRetries, $this->loggerCallable, $this->queryLogger);
     }
 }
