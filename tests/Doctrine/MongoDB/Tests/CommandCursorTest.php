@@ -6,6 +6,13 @@ use Doctrine\MongoDB\CommandCursor;
 
 class CommandCursorTest extends \PHPUnit_Framework_TestCase
 {
+    public function setUp()
+    {
+        if ( ! class_exists('MongoCommandCursor')) {
+            $this->markTestSkipped('This test is not applicable to drivers without MongoCommandCursor');
+        }
+    }
+
     public function testBatchSize()
     {
         $mongoCommandCursor = $this->getMockMongoCommandCursor();
@@ -51,8 +58,8 @@ class CommandCursorTest extends \PHPUnit_Framework_TestCase
 
     public function testTimeout()
     {
-        if (version_compare(phpversion('mongo'), '1.6.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.6.0');
+        if ( ! method_exists('MongoCommandCursor', 'timeout')) {
+            $this->markTestSkipped('This test is not applicable to drivers without MongoCommandCursor::timeout()');
         }
 
         $mongoCommandCursor = $this->getMockMongoCommandCursor();

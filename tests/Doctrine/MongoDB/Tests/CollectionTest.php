@@ -93,6 +93,10 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testAggregateWithCursorOption()
     {
+        if ( ! method_exists('MongoCollection', 'aggregateCursor')) {
+            $this->markTestSkipped('This test is not applicable to drivers without MongoCollection::aggregateCursor()');
+        }
+
         $pipeline = array(
             array('$match' => array('_id' => 'bar')),
             array('$project' => array('_id' => 1)),
@@ -115,6 +119,10 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testAggregateWithCursorOptionAndBatchSize()
     {
+        if ( ! method_exists('MongoCollection', 'aggregateCursor')) {
+            $this->markTestSkipped('This test is not applicable to drivers without MongoCollection::aggregateCursor()');
+        }
+
         $pipeline = array(
             array('$match' => array('_id' => 'bar')),
             array('$project' => array('_id' => 1)),
@@ -137,8 +145,12 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testAggregateWithCursorOptionAndTimeout()
     {
-        if (version_compare(phpversion('mongo'), '1.6.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.6.0');
+        if ( ! method_exists('MongoCollection', 'aggregateCursor')) {
+            $this->markTestSkipped('This test is not applicable to drivers without MongoCollection::aggregateCursor()');
+        }
+
+        if ( ! method_exists('MongoCommandCursor', 'timeout')) {
+            $this->markTestSkipped('This test is not applicable to drivers without MongoCommandCursor::timeout()');
         }
 
         $pipeline = array(
