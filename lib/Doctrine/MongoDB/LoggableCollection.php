@@ -69,6 +69,25 @@ class LoggableCollection extends Collection implements Loggable
     }
 
     /**
+     * @see Collection::aggregate()
+     */
+    public function aggregate(array $pipeline, array $options = array() /* , array $op, ... */)
+    {
+        if ( ! array_key_exists(0, $pipeline)) {
+            $pipeline = func_get_args();
+            $options = array();
+        }
+
+        $this->log(array(
+            'aggregate' => true,
+            'pipeline' => $pipeline,
+            'options' => $options,
+        ));
+
+        return parent::aggregate($pipeline, $options);
+    }
+
+    /**
      * @see Collection::batchInsert()
      */
     public function batchInsert(array &$a, array $options = array())
@@ -98,6 +117,10 @@ class LoggableCollection extends Collection implements Loggable
         return parent::count($query, $limit, $skip);
     }
 
+    /* Collection::createDBRef() is intentionally omitted because it does not
+     * interact with the server.
+     */
+
     /**
      * @see Collection::deleteIndex()
      */
@@ -119,6 +142,21 @@ class LoggableCollection extends Collection implements Loggable
         $this->log(array('deleteIndexes' => true));
 
         return parent::deleteIndexes();
+    }
+
+    /**
+     * @see Collection::distinct()
+     */
+    public function distinct($field, array $query = array(), array $options = array())
+    {
+        $this->log(array(
+            'distinct' => true,
+            'field' => $field,
+            'query' => $query,
+            'options' => $options,
+        ));
+
+        return parent::distinct($field, $query, $options);
     }
 
     /**
@@ -160,6 +198,35 @@ class LoggableCollection extends Collection implements Loggable
     }
 
     /**
+     * @see Collection::findAndRemove()
+     */
+    public function findAndRemove(array $query, array $options = array())
+    {
+        $this->log(array(
+            'findAndRemove' => true,
+            'query' => $query,
+            'options' => $options,
+        ));
+
+        return parent::findAndRemove($query, $options);
+    }
+
+    /**
+     * @see Collection::findAndUpdate()
+     */
+    public function findAndUpdate(array $query, array $newObj, array $options = array())
+    {
+        $this->log(array(
+            'findAndUpdate' => true,
+            'query' => $query,
+            'newObj' => $newObj,
+            'options' => $options,
+        ));
+
+        return parent::findAndUpdate($query, $newObj, $options);
+    }
+
+    /**
      * @see Collection::findOne()
      */
     public function findOne(array $query = array(), array $fields = array())
@@ -184,6 +251,16 @@ class LoggableCollection extends Collection implements Loggable
         ));
 
         return parent::getDBRef($reference);
+    }
+
+    /**
+     * @see Collection::getIndexInfo()
+     */
+    public function getIndexInfo()
+    {
+        $this->log(array('getIndexInfo' => true));
+
+        return parent::getIndexInfo();
     }
 
     /**
@@ -214,6 +291,38 @@ class LoggableCollection extends Collection implements Loggable
         ));
 
         return parent::insert($a, $options);
+    }
+
+    /**
+     * @see Collection::mapReduce()
+     */
+    public function mapReduce($map, $reduce, $out = array('inline' => true), array $query = array(), array $options = array())
+    {
+        $this->log(array(
+            'mapReduce' => true,
+            'map' => $map,
+            'reduce' => $reduce,
+            'out' => $out,
+            'query' => $query,
+            'options' => $options,
+        ));
+
+        return parent::mapReduce($map, $reduce, $out, $query, $options);
+    }
+
+    /**
+     * @see Collection::near()
+     */
+    public function near($near, array $query = array(), array $options = array())
+    {
+        $this->log(array(
+            'geoNear' => true,
+            'near' => $near,
+            'query' => $query,
+            'options' => $options,
+        ));
+
+        return parent::near($near, $query, $options);
     }
 
     /**

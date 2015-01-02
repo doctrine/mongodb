@@ -84,13 +84,17 @@ class LoggableDatabase extends Database implements Loggable
     /**
      * @see Database::command()
      */
-    public function command(array $data, array $options = array())
+    public function command(array $data, array $options = array(), &$hash = null)
     {
         $this->log(array(
             'command' => true,
             'data' => $data,
             'options' => $options,
         ));
+
+        if (func_num_args() > 2) {
+            return parent::command($data, $options, $hash);
+        }
 
         return parent::command($data, $options);
     }
