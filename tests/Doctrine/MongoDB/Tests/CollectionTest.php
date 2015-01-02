@@ -178,6 +178,19 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException \BadMethodCallException
+     */
+    public function testAggregateWithCursorOptionShouldThrowExceptionForOldDrivers()
+    {
+        if (method_exists('MongoCollection', 'aggregateCursor')) {
+            $this->markTestSkipped('This test is not applicable to drivers with MongoCollection::aggregateCursor()');
+        }
+
+        $coll = $this->getTestCollection();
+        $coll->aggregate(array(array('$limit' => 1)), array('cursor' => true));
+    }
+
+    /**
      * @expectedException \Doctrine\MongoDB\Exception\ResultException
      */
     public function testAggregateShouldThrowExceptionOnError()

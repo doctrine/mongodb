@@ -19,6 +19,7 @@
 
 namespace Doctrine\MongoDB;
 
+use BadMethodCallException;
 use MongoCommandCursor;
 
 /**
@@ -200,9 +201,14 @@ class CommandCursor implements Iterator
      * @see http://php.net/manual/en/mongocommandcursor.timeout.php
      * @param integer $ms
      * @return self
+     * @throws BadMethodCallException if MongoCommandCursor::timeout() is not available
      */
     public function timeout($ms)
     {
+        if ( ! method_exists('MongoCommandCursor', 'timeout')) {
+            throw new BadMethodCallException('MongoCommandCursor::timeout() is not available');
+        }
+
         $this->timeout = (integer) $ms;
         $this->mongoCommandCursor->timeout($ms);
 

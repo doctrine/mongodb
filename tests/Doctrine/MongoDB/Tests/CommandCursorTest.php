@@ -72,6 +72,19 @@ class CommandCursorTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($commandCursor, $commandCursor->timeout(1000));
     }
 
+    /**
+     * @expectedException \BadMethodCallException
+     */
+    public function testTimeoutShouldThrowExceptionForOldDrivers()
+    {
+        if (method_exists('MongoCommandCursor', 'timeout')) {
+            $this->markTestSkipped('This test is not applicable to drivers with MongoCommandCursor::timeout()');
+        }
+
+        $commandCursor = new CommandCursor($this->getMockMongoCommandCursor());
+        $commandCursor->timeout(1000);
+    }
+
     private function getMockMongoCommandCursor()
     {
         return $this->getMockBuilder('MongoCommandCursor')

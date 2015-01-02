@@ -32,6 +32,7 @@ use Doctrine\MongoDB\Event\UpdateEventArgs;
 use Doctrine\MongoDB\Exception\ResultException;
 use Doctrine\MongoDB\Util\ReadPreference;
 use GeoJson\Geometry\Point;
+use BadMethodCallException;
 use MongoCommandCursor;
 
 /**
@@ -896,9 +897,14 @@ class Collection
      * @param array $pipeline
      * @param array $options
      * @return CommandCursor
+     * @throws BadMethodCallException if MongoCollection::aggregateCursor() is not available
      */
     protected function doAggregateCursor(array $pipeline, array $options = array())
     {
+        if ( ! method_exists('MongoCollection', 'aggregateCursor')) {
+            throw new BadMethodCallException('MongoCollection::aggregateCursor() is not available');
+        }
+
         list($commandOptions, $clientOptions) = isset($options['socketTimeoutMS']) || isset($options['timeout'])
             ? $this->splitCommandAndClientOptions($options)
             : array($options, array());
