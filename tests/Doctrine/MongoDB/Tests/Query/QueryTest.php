@@ -77,6 +77,23 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testFindAndModifyOptionsAreRenamed()
+    {
+        $queryArray = array(
+            'type' => Query::TYPE_FIND_AND_REMOVE,
+            'query' => array('type' => 1),
+            'select' => array('_id' => 1),
+        );
+
+        $collection = $this->getMockCollection();
+        $collection->expects($this->once())
+            ->method('findAndRemove')
+            ->with(array('type' => 1), array('fields' => array('_id' => 1)));
+
+        $query = new Query($collection, $queryArray, array());
+        $query->execute();
+    }
+
     public function testGroup()
     {
         $keys = array('a' => 1);
