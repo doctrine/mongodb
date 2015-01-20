@@ -712,6 +712,8 @@ class Expr
      */
     public function operator($operator, $value)
     {
+        $this->wrapEqualityCriteria();
+
         if ($this->currentField) {
             $this->query[$this->currentField][$operator] = $value;
         } else {
@@ -1142,5 +1144,42 @@ class Expr
         if ( ! $this->currentField) {
             throw new LogicException('This method requires you set a current field using field().');
         }
+    }
+
+    /**
+     * Wraps equality criteria with an operator.
+     *
+     * If equality criteria was previously specified for a field, it cannot be
+     * merged with other operators without first being wrapped in an operator of
+     * its own. Ideally, we would wrap it with $eq, but that is only available
+     * in MongoDB 2.8. Using a single-element $in is backwards compatible.
+     *
+     * @see Expr::operator()
+     */
+    private function wrapEqualityCriteria()
+    {
+        /* If the current field has no criteria yet, do nothing. This ensures
+         * that we do not inadvertently inject {"$in": null} into the query.
+         */
+        if ($this->currentField && ! isset($this->query[$this->currentField]) && ! array_key_exists($this->currentField, $this->query)) {
+            return;
+        }
+
+        if ($this->currentField) {
+            $query = &$this->query[$this->currentField];
+        } else {
+            $query = &$this->query;
+        }
+
+        /* If the query is an empty array, we'll assume that the user has not
+         * specified criteria. Otherwise, check if the array includes a query
+         * operator (checking the first key is sufficient). If neither of these
+         * conditions are met, we'll wrap the query value with $in.
+         */
+        if (is_array($query) && (empty($query) || strpos(key($query), '$') === 0)) {
+            return;
+        }
+
+        $query = array('$in' => array($query));
     }
 }

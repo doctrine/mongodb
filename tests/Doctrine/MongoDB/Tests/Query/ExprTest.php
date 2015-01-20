@@ -59,12 +59,60 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('field' => array('$op' => 'value')), $expr->getQuery());
     }
 
+    public function testOperatorWithCurrentFieldWrapsEqualityCriteria()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->field('a')->equals(1));
+        $this->assertSame($expr, $expr->field('a')->lt(2));
+        $this->assertSame($expr, $expr->field('b')->equals(null));
+        $this->assertSame($expr, $expr->field('b')->lt(2));
+        $this->assertSame($expr, $expr->field('c')->equals(array()));
+        $this->assertSame($expr, $expr->field('c')->lt(2));
+        $this->assertSame($expr, $expr->field('d')->equals(array('x' => 1)));
+        $this->assertSame($expr, $expr->field('d')->lt(2));
+
+        $expectedQuery = array(
+            'a' => array('$in' => array(1), '$lt' => 2),
+            'b' => array('$in' => array(null), '$lt' => 2),
+            // Equality match on empty array cannot be distinguished from no criteria and will be overridden
+            'c' => array('$lt' => 2),
+            'd' => array('$in' => array(array('x' => 1)), '$lt' => 2),
+        );
+
+        $this->assertEquals($expectedQuery, $expr->getQuery());
+    }
+
     public function testOperatorWithoutCurrentField()
     {
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->operator('$op', 'value'));
         $this->assertEquals(array('$op' => 'value'), $expr->getQuery());
+    }
+
+    public function testOperatorWithoutCurrentFieldWrapsEqualityCriteria()
+    {
+        $expr = new Expr();
+        $this->assertSame($expr, $expr->equals(1));
+        $this->assertSame($expr, $expr->lt(2));
+        $this->assertEquals(array('$in' => array(1), '$lt' => 2), $expr->getQuery());
+
+        $expr = new Expr();
+        $this->assertSame($expr, $expr->equals(null));
+        $this->assertSame($expr, $expr->lt(2));
+        $this->assertEquals(array('$in' => array(null), '$lt' => 2), $expr->getQuery());
+
+        $expr = new Expr();
+        $this->assertSame($expr, $expr->equals(array()));
+        $this->assertSame($expr, $expr->lt(2));
+        // Equality match on empty array cannot be distinguished from no criteria and will be overridden
+        $this->assertEquals(array('$lt' => 2), $expr->getQuery());
+
+        $expr = new Expr();
+        $this->assertSame($expr, $expr->equals(array('x' => 1)));
+        $this->assertSame($expr, $expr->lt(2));
+        $this->assertEquals(array('$in' => array(array('x' => 1)), '$lt' => 2), $expr->getQuery());
     }
 
     /**
