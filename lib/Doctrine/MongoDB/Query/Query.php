@@ -432,6 +432,10 @@ class Query implements IteratorAggregate
      */
     private function renameQueryOptions(array $options, array $rename)
     {
+        if (empty($options)) {
+            return $options;
+        }
+
         return array_combine(
             array_map(
                 function($key) use ($rename) { return isset($rename[$key]) ? $rename[$key] : $key; },
