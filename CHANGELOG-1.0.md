@@ -13,6 +13,17 @@ the older and newer versions, respectively.
 To generate a changelog summary since the last version, run
 `git log --no-merges --oneline XXX...1.0.x`
 
+1.1.10 (2015-01-30)
+------------------
+
+ * 7cc3ad0 Fix Connection::isConnected() for driver versions 1.5.0+
+ * 2a68c2a Allow 1.6.x driver versions in composer.json
+ * 3d0c361 Do not allow PHP 5.6 test failures
+ * 95140f4 Removed php.ini modify because mongo extension is already installed in travis box
+ * e7277dc Removed 1.5.1 version from travis build matrix
+ * 1a20082 Show mongo extension info in travis log
+ * 2a51491 Added last stable mongo extension version to travis build matrix
+
 1.0.9 (2014-04-29)
 ------------------
 
