@@ -4,6 +4,16 @@ CHANGELOG for 1.1.x
 This changelog references the relevant changes (bug and security fixes) done
 in 1.1.x patch versions.
 
+1.1.7 (2015-01-30)
+------------------
+
+ * [#188](https://github.com/doctrine/mongodb/pull/188): Added last stable mongo extension version to travis build matrix
+ * [#193](https://github.com/doctrine/mongodb/pull/193): Do not allow PHP 5.6 test failures
+ * [#195](https://github.com/doctrine/mongodb/pull/195): Fix `Connection::isConnected()` for driver versions 1.5.0+
+ * [#196](https://github.com/doctrine/mongodb/pull/196): Fix handling of client options (e.g. socket timeout) in command helpers
+ * [#198](https://github.com/doctrine/mongodb/pull/198): Convert deprecated "timeout" option for `Database::command()`
+ * [#199](https://github.com/doctrine/mongodb/pull/199): Remove "timeout" conversion from Collection command wrappers
+
 1.1.6 (2014-04-29)
 ------------------
 
