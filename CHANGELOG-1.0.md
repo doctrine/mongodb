@@ -13,7 +13,7 @@ the older and newer versions, respectively.
 To generate a changelog summary since the last version, run
 `git log --no-merges --oneline XXX...1.0.x`
 
-1.1.10 (2015-01-30)
+1.0.10 (2015-01-30)
 ------------------
 
  * 7cc3ad0 Fix Connection::isConnected() for driver versions 1.5.0+
