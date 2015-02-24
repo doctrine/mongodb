@@ -13,8 +13,14 @@ the older and newer versions, respectively.
 To generate a changelog summary since the last version, run
 `git log --no-merges --oneline XXX...1.0.x`
 
+1.0.11 (2015-02-24)
+-------------------
+
+ * e18ed83 Start tracking composer.lock in git
+ * 996a4d3 Allow ~2.1 for doctrine/common
+
 1.0.10 (2015-01-30)
-------------------
+-------------------
 
  * 7cc3ad0 Fix Connection::isConnected() for driver versions 1.5.0+
  * 2a68c2a Allow 1.6.x driver versions in composer.json
