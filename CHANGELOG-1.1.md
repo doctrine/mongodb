@@ -4,6 +4,11 @@ CHANGELOG for 1.1.x
 This changelog references the relevant changes (bug and security fixes) done
 in 1.1.x patch versions.
 
+1.1.8 (2015-02-24)
+------------------
+
+ * [#207](https://github.com/doctrine/mongodb/pull/207): Bump doctrine/common dependency
+
 1.1.7 (2015-01-30)
 ------------------
 
