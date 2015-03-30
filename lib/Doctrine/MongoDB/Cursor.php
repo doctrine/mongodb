@@ -27,7 +27,7 @@ use Doctrine\MongoDB\Util\ReadPreference;
  * @since  1.0
  * @author Jonathan H. Wage <jonwage@gmail.com>
  */
-class Cursor implements Iterator
+class Cursor implements CursorInterface
 {
     /**
      * The Collection instance used for recreating this cursor.
