@@ -162,6 +162,21 @@ class Expr
     }
 
     /**
+     * Sets the value of the current field to the current date, either as a date or a timestamp.
+     *
+     * @see Builder::currentDate()
+     * @see http://docs.mongodb.org/manual/reference/operator/currentDate/
+     * @param bool $useTimestamp
+     * @return self
+     */
+    public function currentDate($useTimestamp = false)
+    {
+        $this->requiresCurrentField();
+        $this->newObj['$currentDate'][$this->currentField]['$type'] = $useTimestamp ? 'timestamp' : 'date';
+        return $this;
+    }
+
+    /**
      * Add $each criteria to the expression for a $push operation.
      *
      * @see Expr::push()

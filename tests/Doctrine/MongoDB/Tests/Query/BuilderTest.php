@@ -687,6 +687,35 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('score' => array('$meta' => 'textScore')), $qb->debug('sort'));
     }
 
+    /**
+     * @dataProvider provideCurrentDateOptions
+     */
+    public function testCurrentDateUpdateQuery($timestamp, $expectedType)
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->update()
+            ->field('lastUpdated')->currentDate($timestamp)
+            ->field('username')->equals('boo');
+
+        $expected = array(
+            'username' => 'boo'
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+
+        $expected = array('$currentDate' => array(
+            'lastUpdated' => array('$type' => $expectedType)
+        ));
+        $this->assertEquals($expected, $qb->getNewObj());
+    }
+
+    public static function provideCurrentDateOptions()
+    {
+        return array(
+            array(false, 'date'),
+            array(true, 'timestamp')
+        );
+    }
+
     private function getStubQueryBuilder()
     {
         return new BuilderStub($this->getMockCollection());

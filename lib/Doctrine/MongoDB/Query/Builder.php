@@ -186,6 +186,20 @@ class Builder
     }
 
     /**
+     * Sets the value of the current field to the current date, either as a date or a timestamp.
+     *
+     * @see Expr::currentDate()
+     * @see http://docs.mongodb.org/manual/reference/operator/currentDate/
+     * @param bool $useTimestamp
+     * @return self
+     */
+    public function currentDate($useTimestamp = false)
+    {
+        $this->expr->currentDate($useTimestamp);
+        return $this;
+    }
+
+    /**
      * Return an array of information about the Builder state for debugging.
      *
      * The $name parameter may be used to return a specific key from the
