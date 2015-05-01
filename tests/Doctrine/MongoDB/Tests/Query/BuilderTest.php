@@ -708,6 +708,60 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $qb->getNewObj());
     }
 
+    public function testBitAndUpdateQuery()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->update()
+            ->field('flags')->bitAnd(15)
+            ->field('username')->equals('boo');
+
+        $expected = array(
+            'username' => 'boo'
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+
+        $expected = array('$bit' => array(
+            'flags' => array('and' => 15)
+        ));
+        $this->assertEquals($expected, $qb->getNewObj());
+    }
+
+    public function testBitOrUpdateQuery()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->update()
+            ->field('flags')->bitOr(15)
+            ->field('username')->equals('boo');
+
+        $expected = array(
+            'username' => 'boo'
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+
+        $expected = array('$bit' => array(
+            'flags' => array('or' => 15)
+        ));
+        $this->assertEquals($expected, $qb->getNewObj());
+    }
+
+    public function testBitXorUpdateQuery()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->update()
+            ->field('flags')->bitXor(15)
+            ->field('username')->equals('boo');
+
+        $expected = array(
+            'username' => 'boo'
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+
+        $expected = array('$bit' => array(
+            'flags' => array('xor' => 15)
+        ));
+        $this->assertEquals($expected, $qb->getNewObj());
+    }
+
     public static function provideCurrentDateOptions()
     {
         return array(

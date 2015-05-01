@@ -162,6 +162,60 @@ class Expr
     }
 
     /**
+     * Apply a bitwise operation on the current field
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
+     * @param string $operator
+     * @param int $value
+     * @return self
+     */
+    protected function bit($operator, $value)
+    {
+        $this->requiresCurrentField();
+        $this->newObj['$bit'][$this->currentField][$operator] = $value;
+        return $this;
+    }
+
+    /**
+     * Apply a bitwise and operation on the current field.
+     *
+     * @see Builder::bitAnd()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
+     * @param int $value
+     * @return self
+     */
+    public function bitAnd($value)
+    {
+        return $this->bit('and', $value);
+    }
+
+    /**
+     * Apply a bitwise or operation on the current field.
+     *
+     * @see Builder::bitOr()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
+     * @param int $value
+     * @return self
+     */
+    public function bitOr($value)
+    {
+        return $this->bit('or', $value);
+    }
+
+    /**
+     * Apply a bitwise xor operation on the current field.
+     *
+     * @see Builder::bitXor()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
+     * @param int $value
+     * @return self
+     */
+    public function bitXor($value)
+    {
+        return $this->bit('xor', $value);
+    }
+
+    /**
      * Sets the value of the current field to the current date, either as a date or a timestamp.
      *
      * @see Builder::currentDate()

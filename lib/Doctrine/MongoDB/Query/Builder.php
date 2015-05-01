@@ -175,6 +175,48 @@ class Builder
     }
 
     /**
+     * Apply a bitwise and operation on the current field.
+     *
+     * @see Expr::bitAnd()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
+     * @param int $value
+     * @return self
+     */
+    public function bitAnd($value)
+    {
+        $this->expr->bitAnd($value);
+        return $this;
+    }
+
+    /**
+     * Apply a bitwise or operation on the current field.
+     *
+     * @see Expr::bitOr()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
+     * @param int $value
+     * @return self
+     */
+    public function bitOr($value)
+    {
+        $this->expr->bitOr($value);
+        return $this;
+    }
+
+    /**
+     * Apply a bitwise xor operation on the current field.
+     *
+     * @see Expr::bitXor()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
+     * @param int $value
+     * @return self
+     */
+    public function bitXor($value)
+    {
+        $this->expr->bitXor($value);
+        return $this;
+    }
+
+    /**
      * Change the query type to count.
      *
      * @return self
