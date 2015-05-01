@@ -915,6 +915,20 @@ class Builder
     }
 
     /**
+     * Updates the value of the field to a specified value if the specified value is greater than the current value of the field.
+     *
+     * @see Expr::max()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/max/
+     * @param mixed $value
+     * @return self
+     */
+    public function max($value)
+    {
+        $this->expr->max($value);
+        return $this;
+    }
+
+    /**
      * Set the "maxDistance" option for a geoNear command query or add
      * $maxDistance criteria to the query.
      *
@@ -941,6 +955,20 @@ class Builder
         } else {
             $this->expr->maxDistance($maxDistance);
         }
+        return $this;
+    }
+
+    /**
+     * Updates the value of the field to a specified value if the specified value is less than the current value of the field.
+     *
+     * @see Expr::min()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/min/
+     * @param mixed $value
+     * @return self
+     */
+    public function min($value)
+    {
+        $this->expr->min($value);
         return $this;
     }
 

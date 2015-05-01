@@ -371,6 +371,8 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             'not()' => array('not', array($this->getMockExpr())),
             'language()' => array('language', array('en')),
             'text()' => array('text', array('foo')),
+            'max()' => array('max', array(1)),
+            'min()' => array('min', array(1)),
         );
     }
 

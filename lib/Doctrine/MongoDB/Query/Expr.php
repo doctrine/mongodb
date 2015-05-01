@@ -591,6 +591,21 @@ class Expr
     }
 
     /**
+     * Updates the value of the field to a specified value if the specified value is greater than the current value of the field.
+     *
+     * @see Builder::max()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/max/
+     * @param mixed $value
+     * @return self
+     */
+    public function max($value)
+    {
+        $this->requiresCurrentField();
+        $this->newObj['$max'][$this->currentField] = $value;
+        return $this;
+    }
+
+    /**
      * Set the $maxDistance option for $near or $nearSphere criteria.
      *
      * This method must be called after near() or nearSphere(), since placement
@@ -624,6 +639,21 @@ class Expr
             $query['$maxDistance'] = $maxDistance;
         }
 
+        return $this;
+    }
+
+    /**
+     * Updates the value of the field to a specified value if the specified value is less than the current value of the field.
+     *
+     * @see Builder::min()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/min/
+     * @param mixed $value
+     * @return self
+     */
+    public function min($value)
+    {
+        $this->requiresCurrentField();
+        $this->newObj['$min'][$this->currentField] = $value;
         return $this;
     }
 
