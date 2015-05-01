@@ -348,6 +348,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             'geoWithinCenterSphere()' => array('geoWithinCenterSphere', array(1, 2, 3)),
             'geoWithinPolygon()' => array('geoWithinPolygon', array(array(0, 0), array(1, 1), array(1, 0))),
             'inc()' => array('inc', array(1)),
+            'mul()' => array('mul', array(1)),
             'unsetField()' => array('unsetField'),
             'push() with value' => array('push', array('value')),
             'push() with Expr' => array('push', array($this->getMockExpr())),

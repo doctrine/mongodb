@@ -610,6 +610,23 @@ class Expr
     }
 
     /**
+     * Multiply the current field.
+     *
+     * If the field does not exist, it will be set to 0.
+     *
+     * @see Builder::mul()
+     * @see http://docs.mongodb.org/manual/reference/operator/mul/
+     * @param float|integer $value
+     * @return self
+     */
+    public function mul($value)
+    {
+        $this->requiresCurrentField();
+        $this->newObj['$mul'][$this->currentField] = $value;
+        return $this;
+    }
+
+    /**
      * Add $near criteria to the expression.
      *
      * A GeoJSON point may be provided as the first and only argument for

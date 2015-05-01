@@ -934,6 +934,22 @@ class Builder
     }
 
     /**
+     * Multiply the current field.
+     *
+     * If the field does not exist, it will be set to 0.
+     *
+     * @see Expr::mul()
+     * @see http://docs.mongodb.org/manual/reference/operator/mul/
+     * @param float|integer $value
+     * @return self
+     */
+    public function mul($value)
+    {
+        $this->expr->mul($value);
+        return $this;
+    }
+
+    /**
      * Set the "multiple" option for an update query.
      *
      * @param boolean $bool
