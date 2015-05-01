@@ -867,6 +867,21 @@ class Expr
     }
 
     /**
+     * Add $position criteria to the expression for a $push operation.
+     *
+     * This is useful in conjunction with {@link Expr::each()} for a
+     * {@link Expr::push()} operation.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/update/position/
+     * @param integer $position
+     * @return self
+     */
+    public function position($position)
+    {
+        return $this->operator('$position', $position);
+    }
+
+    /**
      * Remove all elements matching the given value or expression from the
      * current array field.
      *
