@@ -19,22 +19,118 @@
 
 namespace Doctrine\MongoDB\Aggregation\Stage;
 
-use Doctrine\MongoDB\Aggregation\Stage;
-
 /**
  * Fluent interface for adding a $group stage to an aggregation pipeline.
  *
  * @author alcaeus <alcaeus@alcaeus.org>
  */
-class Group extends Stage
+class Group extends Operator
 {
+    /**
+     * Returns an array of all unique values that results from applying an expression to each document in a group of documents that share the same group by key. Order of the elements in the output array is unspecified.
+     *
+     * AddToSet is an accumulator operation only available in the group stage.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/addToSet/
+     * @param mixed|Operator $expression
+     * @return $this
+     */
+    public function addToSet($expression)
+    {
+        return $this->operator('$addToSet', $expression);
+    }
+
+    /**
+     * Returns the average value of the numeric values that result from applying a specified expression to each document in a group of documents that share the same group by key. Ignores nun-numeric values.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/avg/
+     * @param mixed|Operator $expression
+     * @return $this
+     */
+    public function avg($expression)
+    {
+        return $this->operator('$avg', $expression);
+    }
+
+    /**
+     * Returns the value that results from applying an expression to the first document in a group of documents that share the same group by key. Only meaningful when documents are in a defined order.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/first/
+     * @param mixed|Operator $expression
+     * @return $this
+     */
+    public function first($expression)
+    {
+        return $this->operator('$first', $expression);
+    }
+
     /**
      * {@inheritdoc}
      */
     public function getExpression()
     {
         return array(
-            '$group' => array()
+            '$group' => $this->expr
         );
+    }
+
+    /**
+     * Returns the value that results from applying an expression to the last document in a group of documents that share the same group by a field. Only meaningful when documents are in a defined order.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/last/
+     * @param mixed|Operator $expression
+     * @return $this
+     */
+    public function last($expression)
+    {
+        return $this->operator('$last', $expression);
+    }
+
+    /**
+     * Returns the highest value that results from applying an expression to each document in a group of documents that share the same group by key.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/max/
+     * @param mixed|Operator $expression
+     * @return $this
+     */
+    public function max($expression)
+    {
+        return $this->operator('$max', $expression);
+    }
+
+    /**
+     * Returns the lowest value that results from applying an expression to each document in a group of documents that share the same group by key.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/min/
+     * @param mixed|Operator $expression
+     * @return $this
+     */
+    public function min($expression)
+    {
+        return $this->operator('$min', $expression);
+    }
+
+    /**
+     * Returns an array of all values that result from applying an expression to each document in a group of documents that share the same group by key.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/push/
+     * @param mixed|Operator $expression
+     * @return $this
+     */
+    public function push($expression)
+    {
+        return $this->operator('$push', $expression);
+    }
+
+    /**
+     * Calculates and returns the sum of all the numeric values that result from applying a specified expression to each document in a group of documents that share the same group by key. Ignores nun-numeric values.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/sum/
+     * @param mixed|Operator $expression
+     * @return $this
+     */
+    public function sum($expression)
+    {
+        return $this->operator('$sum', $expression);
     }
 }

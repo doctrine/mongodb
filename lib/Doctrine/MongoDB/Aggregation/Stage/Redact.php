@@ -19,14 +19,12 @@
 
 namespace Doctrine\MongoDB\Aggregation\Stage;
 
-use Doctrine\MongoDB\Aggregation\Stage;
-
 /**
  * Fluent interface for adding a $redact stage to an aggregation pipeline.
  *
  * @author alcaeus <alcaeus@alcaeus.org>
  */
-class Redact extends Stage
+class Redact extends Operator
 {
     /**
      * {@inheritdoc}
@@ -34,7 +32,7 @@ class Redact extends Stage
     public function getExpression()
     {
         return array(
-            '$redact' => array()
+            '$redact' => $this->expr
         );
     }
 }
