@@ -180,6 +180,16 @@ class Collection
     }
 
     /**
+     * Creates a new aggregation builder instance.
+     *
+     * @return Aggregation\Builder
+     */
+    public function createAggregationBuilder()
+    {
+        return new Aggregation\Builder($this);
+    }
+
+    /**
      * Wrapper method for MongoCollection::createDBRef().
      *
      * @see http://php.net/manual/en/mongocollection.createdbref.php
