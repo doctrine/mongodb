@@ -30,10 +30,44 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ),
             array('$unwind' => 'a'),
             array('$unwind' => 'b'),
-            array('$redact' => array()),
-            array('$project' => array()),
-            array('$group' => array()),
-            array('$sort' => array('a' => 0, 'b' => 1, 'c' => -1)),
+            array('$redact' =>
+                array(
+                    '$cond' => array(
+                        'if' => array('$lte' => array('$accessLevel', 3)),
+                        'then' => '$$KEEP',
+                        'else' => '$$REDACT',
+                    )
+                )
+            ),
+            array('$project' =>
+                array(
+                    '_id' => false,
+                    'user' => true,
+                    'amount' => true,
+                    'invoiceAddress' => true,
+                    'deliveryAddress' => array(
+                        '$cond' => array(
+                            'if' => array(
+                                '$and' => array(
+                                    array('$eq' => array('$useAlternateDeliveryAddress', true)),
+                                    array('$ne' => array('$deliveryAddress', null))
+                                )
+                            ),
+                            'then' => '$deliveryAddress',
+                            'else' => '$invoiceAddress'
+                        )
+                    )
+                )
+            ),
+            array('$group' =>
+                array(
+                    '_id' => '$user',
+                    'numOrders' => array('$sum' => 1),
+                    'totalAmount' => array('$sum' => '$amount'),
+                    'avgAmount' => array('$avg' => '$amount')
+                )
+            ),
+            array('$sort' => array('totalAmount' => 0, 'numOrders' => -1, 'avgAmount' => 1)),
             array('$limit' => 5),
             array('$skip' => 2),
             array('$out' => 'collectionName')
@@ -53,11 +87,34 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                 ->in(array('a', 'b'))
             ->unwind('a')
             ->unwind('b')
-            ->redact() // To be implemented
-            ->project() // To be implemented
-            ->group() // To be implemented
-            ->sort('a')
-            ->sort(array('b' => 'asc', 'c' => 'desc')) // Multiple subsequent sorts are combined into a single stage
+            ->redact()
+                ->cond(
+                    $builder->operator()->lte('$accessLevel', 3),
+                    '$$KEEP',
+                    '$$REDACT'
+                )
+            ->project()
+                ->excludeIdField()
+                ->includeFields(array('user', 'amount', 'invoiceAddress'))
+                ->field('deliveryAddress')
+                ->cond(
+                    $builder->operator()
+                        ->addAnd($builder->operator()->eq('$useAlternateDeliveryAddress', true))
+                        ->addAnd($builder->operator()->ne('$deliveryAddress', null)),
+                    '$deliveryAddress',
+                    '$invoiceAddress'
+                )
+            ->group()
+                ->field('_id')
+                ->value('$user')
+                ->field('numOrders')
+                ->sum(1)
+                ->field('totalAmount')
+                ->sum('$amount')
+                ->field('avgAmount')
+                ->avg('$amount')
+            ->sort('totalAmount')
+            ->sort(array('numOrders' => 'desc', 'avgAmount' => 'asc')) // Multiple subsequent sorts are combined into a single stage
             ->limit(5)
             ->skip(2)
             ->out('collectionName');
