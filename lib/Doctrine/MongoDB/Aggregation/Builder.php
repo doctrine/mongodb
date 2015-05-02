@@ -53,6 +53,14 @@ class Builder
     }
 
     /**
+     * @return Stage\Operator
+     */
+    public function operator()
+    {
+        return new Stage\Operator($this);
+    }
+
+    /**
      * Executes the aggregation pipeline
      *
      * @param array $options
