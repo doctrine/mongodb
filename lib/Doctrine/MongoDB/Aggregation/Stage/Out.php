@@ -48,7 +48,7 @@ class Out extends Stage
     /**
      * {@inheritdoc}
      */
-    public function assemble()
+    public function getExpression()
     {
         return array(
             '$out' => $this->collection

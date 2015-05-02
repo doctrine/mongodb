@@ -47,7 +47,7 @@ abstract class Stage
      *
      * @return array
      */
-    abstract public function assemble();
+    abstract public function getExpression();
 
     /**
      * Executes the aggregation pipeline

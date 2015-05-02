@@ -50,7 +50,7 @@ class Unwind extends Stage
      *
      * @return array
      */
-    public function assemble()
+    public function getExpression()
     {
         return array(
             '$unwind' => $this->fieldName

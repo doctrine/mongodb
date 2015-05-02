@@ -92,7 +92,7 @@ class Builder
         $pipeline = array();
 
         foreach ($this->stages as $stage) {
-            $pipeline[] = $stage->assemble();
+            $pipeline[] = $stage->getExpression();
         }
 
         return $pipeline;

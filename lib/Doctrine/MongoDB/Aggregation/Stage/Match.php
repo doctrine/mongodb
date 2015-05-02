@@ -49,7 +49,7 @@ class Match extends Stage
     /**
      * {@inheritdoc}
      */
-    public function assemble()
+    public function getExpression()
     {
         return array(
             '$match' => $this->query->getQuery()

@@ -84,7 +84,7 @@ class GeoNear extends Match
     /**
      * {@inheritdoc}
      */
-    public function assemble()
+    public function getExpression()
     {
         $geoNear = array(
             'near' => $this->near,

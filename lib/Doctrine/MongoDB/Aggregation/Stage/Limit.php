@@ -48,7 +48,7 @@ class Limit extends Stage
     /**
      * {@inheritdoc}
      */
-    public function assemble()
+    public function getExpression()
     {
         return array(
             '$limit' => $this->limit
