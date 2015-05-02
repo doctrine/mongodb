@@ -91,6 +91,21 @@ class Builder
     }
 
     /**
+     * Returns a certain stage from the pipeline
+     *
+     * @param integer $index
+     * @return Stage
+     */
+    public function getStage($index)
+    {
+        if (!isset($this->stages[$index])) {
+            throw new \InvalidArgumentException("Could not find stage with index {$index}.");
+        }
+
+        return $this->stages[$index];
+    }
+
+    /**
      * Returns the assembled aggregation pipeline
      *
      * @return array
