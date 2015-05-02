@@ -17,13 +17,14 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                     'spherical' => true,
                     'distanceField' => 'distance',
                     'query' => array(
-                        'hasCoordinates' => array('$exists' => true)
-                    )
+                        'hasCoordinates' => array('$exists' => true),
+                        'username' => 'foo',
+                    ),
+                    'num' => 10
                 )
             ),
             array('$match' =>
                 array(
-                    'username' => 'foo',
                     'group' => array('$in' => array('a', 'b'))
                 )
             ),
@@ -49,7 +50,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                 ->equals('foo')
             ->match()
                 ->field('group')
-                ->in(['a', 'b'])
+                ->in(array('a', 'b'))
             ->unwind('a')
             ->unwind('b')
             ->redact() // To be implemented
