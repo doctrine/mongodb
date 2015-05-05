@@ -37,44 +37,4 @@ class Project extends Operator
             '$project' => $this->expr
         );
     }
-
-    /**
-     * Shorthand method to exclude the _id field.
-     * @param bool $exclude
-     * @return $this
-     */
-    public function excludeIdField($exclude = true)
-    {
-        return $this->field('_id')->includeField(!$exclude);
-    }
-
-    /**
-     * Shorthand method to define which fields to be included.
-     *
-     * @param array $fields
-     * @return $this
-     */
-    public function includeFields(array $fields)
-    {
-        foreach ($fields as $fieldName) {
-            $this->field($fieldName)->includeField(true);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Includes or excludes the current field. Used in the project stage to include or exclude individual fields.
-     *
-     * @param boolean $include
-     * @return $this
-     * @throws LogicException If no field is set
-     */
-    protected function includeField($include = true)
-    {
-        $this->requiresCurrentField();
-        $this->expr[$this->currentField] = (boolean) $include;
-
-        return $this;
-    }
 }

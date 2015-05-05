@@ -86,6 +86,20 @@ class Operator extends Stage
     }
 
     /**
+     * Returns an array of all unique values that results from applying an expression to each document in a group of documents that share the same group by key. Order of the elements in the output array is unspecified.
+     *
+     * AddToSet is an accumulator operation only available in the group stage.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/addToSet/
+     * @param mixed|Operator $expression
+     * @return $this
+     */
+    public function addToSet($expression)
+    {
+        return $this->operator('$addToSet', $expression);
+    }
+
+    /**
      * Evaluates an array as a set and returns true if no element in the array is false. Otherwise, returns false. An empty array returns true.
      *
      * The expression must resolve to an array.
@@ -111,6 +125,18 @@ class Operator extends Stage
     public function anyElementTrue($expression)
     {
         return $this->operator('$anyElementTrue', $expression);
+    }
+
+    /**
+     * Returns the average value of the numeric values that result from applying a specified expression to each document in a group of documents that share the same group by key. Ignores nun-numeric values.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/avg/
+     * @param mixed|Operator $expression
+     * @return $this
+     */
+    public function avg($expression)
+    {
+        return $this->operator('$avg', $expression);
     }
 
     /**
@@ -272,6 +298,16 @@ class Operator extends Stage
     }
 
     /**
+     * Shorthand method to exclude the _id field.
+     * @param bool $exclude
+     * @return $this
+     */
+    public function excludeIdField($exclude = true)
+    {
+        return $this->field('_id')->includeField(!$exclude);
+    }
+
+    /**
      * Used to use an expression as field value. Can be any expression
      *
      * @see http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#aggregation-expressions
@@ -297,6 +333,18 @@ class Operator extends Stage
         $this->currentField = (string) $fieldName;
 
         return $this;
+    }
+
+    /**
+     * Returns the value that results from applying an expression to the first document in a group of documents that share the same group by key. Only meaningful when documents are in a defined order.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/first/
+     * @param mixed|Operator $expression
+     * @return $this
+     */
+    public function first($expression)
+    {
+        return $this->operator('$first', $expression);
     }
 
     /**
@@ -364,6 +412,48 @@ class Operator extends Stage
     public function ifNull($expression, $replacementExpression)
     {
         return $this->operator('$ifNull', array($expression, $replacementExpression));
+    }
+
+    /**
+     * Includes or excludes the current field. Used in the project stage to include or exclude individual fields.
+     *
+     * @param boolean $include
+     * @return $this
+     * @throws LogicException If no field is set
+     */
+    protected function includeField($include = true)
+    {
+        $this->requiresCurrentField();
+        $this->expr[$this->currentField] = (boolean) $include;
+
+        return $this;
+    }
+
+    /**
+     * Shorthand method to define which fields to be included.
+     *
+     * @param array $fields
+     * @return $this
+     */
+    public function includeFields(array $fields)
+    {
+        foreach ($fields as $fieldName) {
+            $this->field($fieldName)->includeField(true);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Returns the value that results from applying an expression to the last document in a group of documents that share the same group by a field. Only meaningful when documents are in a defined order.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/last/
+     * @param mixed|Operator $expression
+     * @return $this
+     */
+    public function last($expression)
+    {
+        return $this->operator('$last', $expression);
     }
 
     /**
@@ -436,6 +526,18 @@ class Operator extends Stage
     }
 
     /**
+     * Returns the highest value that results from applying an expression to each document in a group of documents that share the same group by key.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/max/
+     * @param mixed|Operator $expression
+     * @return $this
+     */
+    public function max($expression)
+    {
+        return $this->operator('$max', $expression);
+    }
+
+    /**
      * Returns the metadata associated with a document in a pipeline operations.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/meta/
@@ -459,6 +561,18 @@ class Operator extends Stage
     public function millisecond($expression)
     {
         return $this->operator('$millisecond', $expression);
+    }
+
+    /**
+     * Returns the lowest value that results from applying an expression to each document in a group of documents that share the same group by key.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/min/
+     * @param mixed|Operator $expression
+     * @return $this
+     */
+    public function min($expression)
+    {
+        return $this->operator('$min', $expression);
     }
 
     /**
@@ -566,6 +680,18 @@ class Operator extends Stage
         }
 
         return $this;
+    }
+
+    /**
+     * Returns an array of all values that result from applying an expression to each document in a group of documents that share the same group by key.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/push/
+     * @param mixed|Operator $expression
+     * @return $this
+     */
+    public function push($expression)
+    {
+        return $this->operator('$push', $expression);
     }
 
     /**
@@ -733,6 +859,18 @@ class Operator extends Stage
     public function subtract($expression1, $expression2)
     {
         return $this->operator('$subtract', array($expression1, $expression2));
+    }
+
+    /**
+     * Calculates and returns the sum of all the numeric values that result from applying a specified expression to each document in a group of documents that share the same group by key. Ignores nun-numeric values.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/sum/
+     * @param mixed|Operator $expression
+     * @return $this
+     */
+    public function sum($expression)
+    {
+        return $this->operator('$sum', $expression);
     }
 
     /**
