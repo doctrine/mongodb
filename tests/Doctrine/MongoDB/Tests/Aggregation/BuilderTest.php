@@ -106,7 +106,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                 )
             ->group()
                 ->field('_id')
-                ->value('$user')
+                ->expression('$user')
                 ->field('numOrders')
                 ->sum(1)
                 ->field('totalAmount')

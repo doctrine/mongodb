@@ -272,6 +272,21 @@ class Operator extends Stage
     }
 
     /**
+     * Used to use an expression as field value. Can be any expression
+     *
+     * @see http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#aggregation-expressions
+     * @param mixed|Operator $value
+     * @return $this
+     */
+    public function expression($value)
+    {
+        $this->requiresCurrentField();
+        $this->expr[$this->currentField] = $this->ensureArray($value);
+
+        return $this;
+    }
+
+    /**
      * Set the current field for building the expression.
      *
      * @param string $fieldName
@@ -746,20 +761,6 @@ class Operator extends Stage
     public function toUpper($expression)
     {
         return $this->operator('$toUpper', $expression);
-    }
-
-    /**
-     * Used to set a value directly. Similar to $literal, except that the pipeline will parse any expressions contained.
-     *
-     * @param mixed|Operator $value
-     * @return $this
-     */
-    public function value($value)
-    {
-        $this->requiresCurrentField();
-        $this->expr[$this->currentField] = $this->ensureArray($value);
-
-        return $this;
     }
 
     /**
