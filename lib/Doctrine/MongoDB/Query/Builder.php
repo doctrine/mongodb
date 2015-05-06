@@ -457,7 +457,7 @@ class Builder
      * @param array|Geometry $geometry
      * @return self
      */
-    public function geoWithin(Geometry $geometry)
+    public function geoWithin($geometry)
     {
         $this->expr->geoWithin($geometry);
         return $this;
