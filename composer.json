@@ -14,7 +14,7 @@
     "require": {
         "php": ">=5.3.2",
         "ext-mongo": ">=1.2.12,<1.7-dev",
-        "doctrine/common": "~2.1"
+        "doctrine/common": "~2.2"
     },
     "require-dev": {
         "jmikola/geojson": "~1.0"
