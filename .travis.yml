@@ -19,4 +19,5 @@ services: mongodb
 before_script:
   - yes '' | pecl -q install -f mongo-${MONGO_VERSION}
   - php --ri mongo
+  - composer self-update
   - composer update --dev --no-interaction --prefer-source $PREFER_LOWEST
