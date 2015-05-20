@@ -32,7 +32,7 @@ class Group extends Operator
     public function getExpression()
     {
         return array(
-            '$group' => $this->expr
+            '$group' => $this->expr->getExpression()
         );
     }
 }

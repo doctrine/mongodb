@@ -53,11 +53,11 @@ class Builder
     }
 
     /**
-     * @return Stage\Operator
+     * @return Expr
      */
-    public function operator()
+    public function expr()
     {
-        return new Stage\Operator($this);
+        return new Expr();
     }
 
     /**

@@ -63,8 +63,10 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                 array(
                     '_id' => '$user',
                     'numOrders' => array('$sum' => 1),
-                    'totalAmount' => array('$sum' => '$amount'),
-                    'avgAmount' => array('$avg' => '$amount')
+                    'amount' => array(
+                        'total' => array('$sum' => '$amount'),
+                        'avg' => array('$avg' => '$amount')
+                    )
                 )
             ),
             array('$sort' => array('totalAmount' => 0, 'numOrders' => -1, 'avgAmount' => 1)),
@@ -89,7 +91,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ->unwind('b')
             ->redact()
                 ->cond(
-                    $builder->operator()->lte('$accessLevel', 3),
+                    $builder->expr()->lte('$accessLevel', 3),
                     '$$KEEP',
                     '$$REDACT'
                 )
@@ -98,9 +100,9 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                 ->includeFields(array('user', 'amount', 'invoiceAddress'))
                 ->field('deliveryAddress')
                 ->cond(
-                    $builder->operator()
-                        ->addAnd($builder->operator()->eq('$useAlternateDeliveryAddress', true))
-                        ->addAnd($builder->operator()->ne('$deliveryAddress', null)),
+                    $builder->expr()
+                        ->addAnd($builder->expr()->eq('$useAlternateDeliveryAddress', true))
+                        ->addAnd($builder->expr()->ne('$deliveryAddress', null)),
                     '$deliveryAddress',
                     '$invoiceAddress'
                 )
@@ -109,10 +111,14 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                 ->expression('$user')
                 ->field('numOrders')
                 ->sum(1)
-                ->field('totalAmount')
-                ->sum('$amount')
-                ->field('avgAmount')
-                ->avg('$amount')
+                ->field('amount')
+                ->expression(
+                    $builder->expr()
+                        ->field('total')
+                        ->sum('$amount')
+                        ->field('avg')
+                        ->avg('$amount')
+                )
             ->sort('totalAmount')
             ->sort(array('numOrders' => 'desc', 'avgAmount' => 'asc')) // Multiple subsequent sorts are combined into a single stage
             ->limit(5)

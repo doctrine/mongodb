@@ -34,7 +34,32 @@ class Project extends Operator
     public function getExpression()
     {
         return array(
-            '$project' => $this->expr
+            '$project' => $this->expr->getExpression()
         );
+    }
+
+    /**
+     * Shorthand method to exclude the _id field.
+     * @param bool $exclude
+     * @return $this
+     */
+    public function excludeIdField($exclude = true)
+    {
+        return $this->field('_id')->expression(!$exclude);
+    }
+
+    /**
+     * Shorthand method to define which fields to be included.
+     *
+     * @param array $fields
+     * @return $this
+     */
+    public function includeFields(array $fields)
+    {
+        foreach ($fields as $fieldName) {
+            $this->field($fieldName)->expression(true);
+        }
+
+        return $this;
     }
 }

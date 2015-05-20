@@ -32,7 +32,7 @@ class Redact extends Operator
     public function getExpression()
     {
         return array(
-            '$redact' => $this->expr
+            '$redact' => $this->expr->getExpression()
         );
     }
 }
