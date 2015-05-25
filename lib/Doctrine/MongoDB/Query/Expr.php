@@ -162,6 +162,75 @@ class Expr
     }
 
     /**
+     * Apply a bitwise operation on the current field
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
+     * @param string $operator
+     * @param int $value
+     * @return self
+     */
+    protected function bit($operator, $value)
+    {
+        $this->requiresCurrentField();
+        $this->newObj['$bit'][$this->currentField][$operator] = $value;
+        return $this;
+    }
+
+    /**
+     * Apply a bitwise and operation on the current field.
+     *
+     * @see Builder::bitAnd()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
+     * @param int $value
+     * @return self
+     */
+    public function bitAnd($value)
+    {
+        return $this->bit('and', $value);
+    }
+
+    /**
+     * Apply a bitwise or operation on the current field.
+     *
+     * @see Builder::bitOr()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
+     * @param int $value
+     * @return self
+     */
+    public function bitOr($value)
+    {
+        return $this->bit('or', $value);
+    }
+
+    /**
+     * Apply a bitwise xor operation on the current field.
+     *
+     * @see Builder::bitXor()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
+     * @param int $value
+     * @return self
+     */
+    public function bitXor($value)
+    {
+        return $this->bit('xor', $value);
+    }
+
+    /**
+     * Sets the value of the current field to the current date, either as a date or a timestamp.
+     *
+     * @see Builder::currentDate()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/currentDate/
+     * @param bool $useTimestamp
+     * @return self
+     */
+    public function currentDate($useTimestamp = false)
+    {
+        $this->requiresCurrentField();
+        $this->newObj['$currentDate'][$this->currentField]['$type'] = $useTimestamp ? 'timestamp' : 'date';
+        return $this;
+    }
+
+    /**
      * Add $each criteria to the expression for a $push operation.
      *
      * @see Expr::push()
@@ -522,6 +591,21 @@ class Expr
     }
 
     /**
+     * Updates the value of the field to a specified value if the specified value is greater than the current value of the field.
+     *
+     * @see Builder::max()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/max/
+     * @param mixed $value
+     * @return self
+     */
+    public function max($value)
+    {
+        $this->requiresCurrentField();
+        $this->newObj['$max'][$this->currentField] = $value;
+        return $this;
+    }
+
+    /**
      * Set the $maxDistance option for $near or $nearSphere criteria.
      *
      * This method must be called after near() or nearSphere(), since placement
@@ -555,6 +639,21 @@ class Expr
             $query['$maxDistance'] = $maxDistance;
         }
 
+        return $this;
+    }
+
+    /**
+     * Updates the value of the field to a specified value if the specified value is less than the current value of the field.
+     *
+     * @see Builder::min()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/min/
+     * @param mixed $value
+     * @return self
+     */
+    public function min($value)
+    {
+        $this->requiresCurrentField();
+        $this->newObj['$min'][$this->currentField] = $value;
         return $this;
     }
 
@@ -607,6 +706,23 @@ class Expr
     public function mod($divisor, $remainder = 0)
     {
         return $this->operator('$mod', array($divisor, $remainder));
+    }
+
+    /**
+     * Multiply the current field.
+     *
+     * If the field does not exist, it will be set to 0.
+     *
+     * @see Builder::mul()
+     * @see http://docs.mongodb.org/manual/reference/operator/mul/
+     * @param float|integer $value
+     * @return self
+     */
+    public function mul($value)
+    {
+        $this->requiresCurrentField();
+        $this->newObj['$mul'][$this->currentField] = $value;
+        return $this;
     }
 
     /**
@@ -748,6 +864,21 @@ class Expr
         $this->requiresCurrentField();
         $this->newObj['$pop'][$this->currentField] = -1;
         return $this;
+    }
+
+    /**
+     * Add $position criteria to the expression for a $push operation.
+     *
+     * This is useful in conjunction with {@link Expr::each()} for a
+     * {@link Expr::push()} operation.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/update/position/
+     * @param integer $position
+     * @return self
+     */
+    public function position($position)
+    {
+        return $this->operator('$position', $position);
     }
 
     /**

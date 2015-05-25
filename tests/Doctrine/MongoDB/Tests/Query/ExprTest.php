@@ -332,6 +332,25 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expectedNewObj, $expr->getNewObj());
     }
 
+    public function testPushWithPosition()
+    {
+        $expr = new Expr();
+        $innerExpr = new Expr();
+        $innerExpr
+            ->each(array(20, 30))
+            ->position(0);
+
+        $expectedNewObj = array(
+            '$push' => array('a' => array(
+                '$each' => array(20, 30),
+                '$position' => 0,
+            )),
+        );
+
+        $this->assertSame($expr, $expr->field('a')->push($innerExpr));
+        $this->assertEquals($expectedNewObj, $expr->getNewObj());
+    }
+
     /**
      * @dataProvider provideGeoJsonPolygon
      */

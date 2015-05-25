@@ -175,6 +175,48 @@ class Builder
     }
 
     /**
+     * Apply a bitwise and operation on the current field.
+     *
+     * @see Expr::bitAnd()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
+     * @param int $value
+     * @return self
+     */
+    public function bitAnd($value)
+    {
+        $this->expr->bitAnd($value);
+        return $this;
+    }
+
+    /**
+     * Apply a bitwise or operation on the current field.
+     *
+     * @see Expr::bitOr()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
+     * @param int $value
+     * @return self
+     */
+    public function bitOr($value)
+    {
+        $this->expr->bitOr($value);
+        return $this;
+    }
+
+    /**
+     * Apply a bitwise xor operation on the current field.
+     *
+     * @see Expr::bitXor()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
+     * @param int $value
+     * @return self
+     */
+    public function bitXor($value)
+    {
+        $this->expr->bitXor($value);
+        return $this;
+    }
+
+    /**
      * Change the query type to count.
      *
      * @return self
@@ -182,6 +224,20 @@ class Builder
     public function count()
     {
         $this->query['type'] = Query::TYPE_COUNT;
+        return $this;
+    }
+
+    /**
+     * Sets the value of the current field to the current date, either as a date or a timestamp.
+     *
+     * @see Expr::currentDate()
+     * @see http://docs.mongodb.org/manual/reference/operator/currentDate/
+     * @param bool $useTimestamp
+     * @return self
+     */
+    public function currentDate($useTimestamp = false)
+    {
+        $this->expr->currentDate($useTimestamp);
         return $this;
     }
 
@@ -859,6 +915,20 @@ class Builder
     }
 
     /**
+     * Updates the value of the field to a specified value if the specified value is greater than the current value of the field.
+     *
+     * @see Expr::max()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/max/
+     * @param mixed $value
+     * @return self
+     */
+    public function max($value)
+    {
+        $this->expr->max($value);
+        return $this;
+    }
+
+    /**
      * Set the "maxDistance" option for a geoNear command query or add
      * $maxDistance criteria to the query.
      *
@@ -885,6 +955,20 @@ class Builder
         } else {
             $this->expr->maxDistance($maxDistance);
         }
+        return $this;
+    }
+
+    /**
+     * Updates the value of the field to a specified value if the specified value is less than the current value of the field.
+     *
+     * @see Expr::min()
+     * @see http://docs.mongodb.org/manual/reference/operator/update/min/
+     * @param mixed $value
+     * @return self
+     */
+    public function min($value)
+    {
+        $this->expr->min($value);
         return $this;
     }
 
@@ -930,6 +1014,22 @@ class Builder
     public function mod($divisor, $remainder = 0)
     {
         $this->expr->mod($divisor, $remainder);
+        return $this;
+    }
+
+    /**
+     * Multiply the current field.
+     *
+     * If the field does not exist, it will be set to 0.
+     *
+     * @see Expr::mul()
+     * @see http://docs.mongodb.org/manual/reference/operator/mul/
+     * @param float|integer $value
+     * @return self
+     */
+    public function mul($value)
+    {
+        $this->expr->mul($value);
         return $this;
     }
 

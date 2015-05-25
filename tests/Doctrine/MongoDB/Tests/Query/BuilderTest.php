@@ -348,6 +348,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             'geoWithinCenterSphere()' => array('geoWithinCenterSphere', array(1, 2, 3)),
             'geoWithinPolygon()' => array('geoWithinPolygon', array(array(0, 0), array(1, 1), array(1, 0))),
             'inc()' => array('inc', array(1)),
+            'mul()' => array('mul', array(1)),
             'unsetField()' => array('unsetField'),
             'push() with value' => array('push', array('value')),
             'push() with Expr' => array('push', array($this->getMockExpr())),
@@ -370,6 +371,8 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             'not()' => array('not', array($this->getMockExpr())),
             'language()' => array('language', array('en')),
             'text()' => array('text', array('foo')),
+            'max()' => array('max', array(1)),
+            'min()' => array('min', array(1)),
         );
     }
 
@@ -684,6 +687,89 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(array('score' => array('$meta' => 'textScore')), $qb->debug('select'));
         $this->assertEquals(array('score' => array('$meta' => 'textScore')), $qb->debug('sort'));
+    }
+
+    /**
+     * @dataProvider provideCurrentDateOptions
+     */
+    public function testCurrentDateUpdateQuery($timestamp, $expectedType)
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->update()
+            ->field('lastUpdated')->currentDate($timestamp)
+            ->field('username')->equals('boo');
+
+        $expected = array(
+            'username' => 'boo'
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+
+        $expected = array('$currentDate' => array(
+            'lastUpdated' => array('$type' => $expectedType)
+        ));
+        $this->assertEquals($expected, $qb->getNewObj());
+    }
+
+    public function testBitAndUpdateQuery()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->update()
+            ->field('flags')->bitAnd(15)
+            ->field('username')->equals('boo');
+
+        $expected = array(
+            'username' => 'boo'
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+
+        $expected = array('$bit' => array(
+            'flags' => array('and' => 15)
+        ));
+        $this->assertEquals($expected, $qb->getNewObj());
+    }
+
+    public function testBitOrUpdateQuery()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->update()
+            ->field('flags')->bitOr(15)
+            ->field('username')->equals('boo');
+
+        $expected = array(
+            'username' => 'boo'
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+
+        $expected = array('$bit' => array(
+            'flags' => array('or' => 15)
+        ));
+        $this->assertEquals($expected, $qb->getNewObj());
+    }
+
+    public function testBitXorUpdateQuery()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->update()
+            ->field('flags')->bitXor(15)
+            ->field('username')->equals('boo');
+
+        $expected = array(
+            'username' => 'boo'
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+
+        $expected = array('$bit' => array(
+            'flags' => array('xor' => 15)
+        ));
+        $this->assertEquals($expected, $qb->getNewObj());
+    }
+
+    public static function provideCurrentDateOptions()
+    {
+        return array(
+            array(false, 'date'),
+            array(true, 'timestamp')
+        );
     }
 
     private function getStubQueryBuilder()
