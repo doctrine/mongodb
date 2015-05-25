@@ -219,7 +219,7 @@ class Expr
      * Sets the value of the current field to the current date, either as a date or a timestamp.
      *
      * @see Builder::currentDate()
-     * @see http://docs.mongodb.org/manual/reference/operator/currentDate/
+     * @see http://docs.mongodb.org/manual/reference/operator/update/currentDate/
      * @param bool $useTimestamp
      * @return self
      */
