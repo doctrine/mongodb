@@ -53,7 +53,6 @@ interface CursorInterface extends Iterator
      *
      * @see http://php.net/manual/en/countable.count.php
      * @see http://php.net/manual/en/mongocursor.count.php
-     * @param boolean $foundOnly
      * @return integer
      */
     public function count();
