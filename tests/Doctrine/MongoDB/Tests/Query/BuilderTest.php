@@ -692,11 +692,11 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideCurrentDateOptions
      */
-    public function testCurrentDateUpdateQuery($timestamp, $expectedType)
+    public function testCurrentDateUpdateQuery($type)
     {
         $qb = $this->getTestQueryBuilder()
             ->update()
-            ->field('lastUpdated')->currentDate($timestamp)
+            ->field('lastUpdated')->currentDate($type)
             ->field('username')->equals('boo');
 
         $expected = array(
@@ -705,9 +705,27 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $qb->getQueryArray());
 
         $expected = array('$currentDate' => array(
-            'lastUpdated' => array('$type' => $expectedType)
+            'lastUpdated' => array('$type' => $type)
         ));
         $this->assertEquals($expected, $qb->getNewObj());
+    }
+
+    public static function provideCurrentDateOptions()
+    {
+        return array(
+            array('date'),
+            array('timestamp')
+        );
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testCurrentDateInvalidType()
+    {
+        $this->getTestQueryBuilder()
+            ->update()
+            ->field('lastUpdated')->currentDate('notADate');
     }
 
     public function testBitAndUpdateQuery()
@@ -762,14 +780,6 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             'flags' => array('xor' => 15)
         ));
         $this->assertEquals($expected, $qb->getNewObj());
-    }
-
-    public static function provideCurrentDateOptions()
-    {
-        return array(
-            array(false, 'date'),
-            array(true, 'timestamp')
-        );
     }
 
     private function getStubQueryBuilder()

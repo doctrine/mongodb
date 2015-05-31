@@ -232,12 +232,12 @@ class Builder
      *
      * @see Expr::currentDate()
      * @see http://docs.mongodb.org/manual/reference/operator/currentDate/
-     * @param bool $useTimestamp
+     * @param string $type
      * @return self
      */
-    public function currentDate($useTimestamp = false)
+    public function currentDate($type = 'date')
     {
-        $this->expr->currentDate($useTimestamp);
+        $this->expr->currentDate($type);
         return $this;
     }
 
