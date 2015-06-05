@@ -220,13 +220,18 @@ class Expr
      *
      * @see Builder::currentDate()
      * @see http://docs.mongodb.org/manual/reference/operator/update/currentDate/
-     * @param bool $useTimestamp
+     * @param string $type
      * @return self
+     * @throws InvalidArgumentException if an invalid type is given
      */
-    public function currentDate($useTimestamp = false)
+    public function currentDate($type = 'date')
     {
+        if (!in_array($type, array('date', 'timestamp'))) {
+            throw new InvalidArgumentException('Type for currentDate operator must be date or timestamp.');
+        }
+
         $this->requiresCurrentField();
-        $this->newObj['$currentDate'][$this->currentField]['$type'] = $useTimestamp ? 'timestamp' : 'date';
+        $this->newObj['$currentDate'][$this->currentField]['$type'] = $type;
         return $this;
     }
 
