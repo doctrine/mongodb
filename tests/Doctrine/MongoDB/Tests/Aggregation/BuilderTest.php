@@ -25,6 +25,10 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ),
             array('$match' =>
                 array(
+                    '$or' => array(
+                        array('username' => 'admin'),
+                        array('username' => 'administrator')
+                    ),
                     'group' => array('$in' => array('a', 'b'))
                 )
             ),
@@ -87,6 +91,8 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ->match()
                 ->field('group')
                 ->in(array('a', 'b'))
+                ->addOr($builder->queryExpr()->field('username')->equals('admin'))
+                ->addOr($builder->queryExpr()->field('username')->equals('administrator'))
             ->unwind('a')
             ->unwind('b')
             ->redact()

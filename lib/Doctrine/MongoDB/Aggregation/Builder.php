@@ -21,6 +21,7 @@ namespace Doctrine\MongoDB\Aggregation;
 
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Iterator;
+use Doctrine\MongoDB\Query\Expr as QueryExpr;
 use GeoJson\Geometry\Point;
 
 /**
@@ -181,6 +182,16 @@ class Builder
     public function project()
     {
         return $this->addStage(new Stage\Project($this));
+    }
+
+    /**
+     * Returns a query expression to be used in match stages
+     *
+     * @return QueryExpr
+     */
+    public function queryExpr()
+    {
+        return new QueryExpr();
     }
 
     /**
