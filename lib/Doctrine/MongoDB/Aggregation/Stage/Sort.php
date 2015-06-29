@@ -74,7 +74,7 @@ class Sort extends Stage
                 }
             }
 
-            $this->sort[$fieldName] = (integer) $order;
+            $this->sort[$fieldName] = $order;
         }
 
         return $this;
