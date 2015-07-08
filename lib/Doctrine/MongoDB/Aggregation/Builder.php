@@ -189,7 +189,7 @@ class Builder
      *
      * @return QueryExpr
      */
-    public function queryExpr()
+    public function matchExpr()
     {
         return new QueryExpr();
     }
