@@ -55,7 +55,7 @@ abstract class Operator extends Stage
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
      * @param mixed|Expr $expression3,... Additional expressions
-     * @return $this
+     * @return self
      */
     public function add($expression1, $expression2 /* , $expression3, ... */)
     {
@@ -70,7 +70,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/and/
      * @see Expr::addAnd
      * @param array|Expr $expression
-     * @return $this
+     * @return self
      */
     public function addAnd($expression)
     {
@@ -85,7 +85,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/or/
      * @see Expr::addOr
      * @param array|Expr $expression
-     * @return $this
+     * @return self
      */
     public function addOr($expression)
     {
@@ -102,7 +102,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/addToSet/
      * @see Expr::addToSet
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function addToSet($expression)
     {
@@ -119,7 +119,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/allElementsTrue/
      * @see Expr::allElementsTrue
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function allElementsTrue($expression)
     {
@@ -136,7 +136,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/anyElementTrue/
      * @see Expr::anyElementTrue
      * @param array|Expr $expression
-     * @return $this
+     * @return self
      */
     public function anyElementTrue($expression)
     {
@@ -151,7 +151,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/avg/
      * @see Expr::avg
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function avg($expression)
     {
@@ -170,7 +170,7 @@ abstract class Operator extends Stage
      * @see Expr::cmp
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
-     * @return $this
+     * @return self
      */
     public function cmp($expression1, $expression2)
     {
@@ -189,7 +189,7 @@ abstract class Operator extends Stage
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
      * @param mixed|Expr $expression3,... Additional expressions
-     * @return $this
+     * @return self
      */
     public function concat($expression1, $expression2 /* , $expression3, ... */)
     {
@@ -208,7 +208,7 @@ abstract class Operator extends Stage
      * @param mixed|Expr $if
      * @param mixed|Expr $then
      * @param mixed|Expr $else
-     * @return $this
+     * @return self
      */
     public function cond($if, $then, $else)
     {
@@ -227,7 +227,7 @@ abstract class Operator extends Stage
      * @see Expr::dateToString
      * @param string $format
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function dateToString($format, $expression)
     {
@@ -244,7 +244,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/dayOfMonth/
      * @see Expr::dayOfMonth
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function dayOfMonth($expression)
     {
@@ -261,7 +261,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/dayOfWeek/
      * @see Expr::dayOfWeek
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function dayOfWeek($expression)
     {
@@ -278,7 +278,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/dayOfYear/
      * @see Expr::dayOfYear
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function dayOfYear($expression)
     {
@@ -296,7 +296,7 @@ abstract class Operator extends Stage
      * @see Expr::divide
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
-     * @return $this
+     * @return self
      */
     public function divide($expression1, $expression2)
     {
@@ -314,7 +314,7 @@ abstract class Operator extends Stage
      * @see Expr::eq
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
-     * @return $this
+     * @return self
      */
     public function eq($expression1, $expression2)
     {
@@ -329,7 +329,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#aggregation-expressions
      * @see Expr::expression
      * @param mixed|Expr $value
-     * @return $this
+     * @return self
      */
     public function expression($value)
     {
@@ -343,7 +343,7 @@ abstract class Operator extends Stage
      *
      * @see Expr::field
      * @param string $fieldName
-     * @return $this
+     * @return self
      */
     public function field($fieldName)
     {
@@ -358,7 +358,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/first/
      * @see Expr::first
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function first($expression)
     {
@@ -376,7 +376,7 @@ abstract class Operator extends Stage
      * @see Expr::gt
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
-     * @return $this
+     * @return self
      */
     public function gt($expression1, $expression2)
     {
@@ -394,7 +394,7 @@ abstract class Operator extends Stage
      * @see Expr::gte
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
-     * @return $this
+     * @return self
      */
     public function gte($expression1, $expression2)
     {
@@ -411,7 +411,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/hour/
      * @see Expr::hour
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function hour($expression)
     {
@@ -429,7 +429,7 @@ abstract class Operator extends Stage
      * @see Expr::ifNull
      * @param mixed|Expr $expression
      * @param mixed|Expr $replacementExpression
-     * @return $this
+     * @return self
      */
     public function ifNull($expression, $replacementExpression)
     {
@@ -444,7 +444,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/last/
      * @see Expr::last
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function last($expression)
     {
@@ -460,7 +460,7 @@ abstract class Operator extends Stage
      * @see Expr::let
      * @param mixed|Expr $vars Assignment block for the variables accessible in the in expression. To assign a variable, specify a string for the variable name and assign a valid expression for the value.
      * @param mixed|Expr $in   The expression to evaluate.
-     * @return $this
+     * @return self
      */
     public function let($vars, $in)
     {
@@ -475,7 +475,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/literal/
      * @see Expr::literal
      * @param mixed|Expr $value
-     * @return $this
+     * @return self
      */
     public function literal($value)
     {
@@ -493,7 +493,7 @@ abstract class Operator extends Stage
      * @see Expr::lt
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
-     * @return $this
+     * @return self
      */
     public function lt($expression1, $expression2)
     {
@@ -511,7 +511,7 @@ abstract class Operator extends Stage
      * @see Expr::lte
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
-     * @return $this
+     * @return self
      */
     public function lte($expression1, $expression2)
     {
@@ -528,7 +528,7 @@ abstract class Operator extends Stage
      * @param mixed|Expr $input An expression that resolves to an array.
      * @param string $as        The variable name for the items in the input array. The in expression accesses each item in the input array by this variable.
      * @param mixed|Expr $in    The expression to apply to each item in the input array. The expression accesses the item by its variable name.
-     * @return $this
+     * @return self
      */
     public function map($input, $as, $in)
     {
@@ -543,7 +543,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/max/
      * @see Expr::max
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function max($expression)
     {
@@ -558,7 +558,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/meta/
      * @see Expr::meta
      * @param $metaDataKeyword
-     * @return $this
+     * @return self
      */
     public function meta($metaDataKeyword)
     {
@@ -575,7 +575,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/millisecond/
      * @see Expr::millisecond
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function millisecond($expression)
     {
@@ -590,7 +590,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/min/
      * @see Expr::min
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function min($expression)
     {
@@ -607,7 +607,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/minute/
      * @see Expr::minute
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function minute($expression)
     {
@@ -625,7 +625,7 @@ abstract class Operator extends Stage
      * @see Expr::mod
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
-     * @return $this
+     * @return self
      */
     public function mod($expression1, $expression2)
     {
@@ -642,7 +642,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/month/
      * @see Expr::month
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function month($expression)
     {
@@ -661,7 +661,7 @@ abstract class Operator extends Stage
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
      * @param mixed|Expr $expression3,... Additional expressions
-     * @return $this
+     * @return self
      */
     public function multiply($expression1, $expression2 /* , $expression3, ... */)
     {
@@ -679,7 +679,7 @@ abstract class Operator extends Stage
      * @see Expr::ne
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
-     * @return $this
+     * @return self
      */
     public function ne($expression1, $expression2)
     {
@@ -694,7 +694,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/not/
      * @see Expr::not
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function not($expression)
     {
@@ -709,7 +709,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/push/
      * @see Expr::push
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function push($expression)
     {
@@ -726,7 +726,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/second/
      * @see Expr::second
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function second($expression)
     {
@@ -744,7 +744,7 @@ abstract class Operator extends Stage
      * @see Expr::setDifference
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
-     * @return $this
+     * @return self
      */
     public function setDifference($expression1, $expression2)
     {
@@ -763,7 +763,7 @@ abstract class Operator extends Stage
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
      * @param mixed|Expr $expression3,...   Additional sets
-     * @return $this
+     * @return self
      */
     public function setEquals($expression1, $expression2 /* , $expression3, ... */)
     {
@@ -782,7 +782,7 @@ abstract class Operator extends Stage
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
      * @param mixed|Expr $expression3,...   Additional sets
-     * @return $this
+     * @return self
      */
     public function setIntersection($expression1, $expression2 /* , $expression3, ... */)
     {
@@ -800,7 +800,7 @@ abstract class Operator extends Stage
      * @see Expr::setIsSubset
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
-     * @return $this
+     * @return self
      */
     public function setIsSubset($expression1, $expression2)
     {
@@ -819,7 +819,7 @@ abstract class Operator extends Stage
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
      * @param mixed|Expr $expression3,...   Additional sets
-     * @return $this
+     * @return self
      */
     public function setUnion($expression1, $expression2 /* , $expression3, ... */)
     {
@@ -836,7 +836,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/size/
      * @see Expr::size
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function size($expression)
     {
@@ -857,7 +857,7 @@ abstract class Operator extends Stage
      * @see Expr::strcasecmp
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
-     * @return $this
+     * @return self
      */
     public function strcasecmp($expression1, $expression2)
     {
@@ -876,7 +876,7 @@ abstract class Operator extends Stage
      * @param mixed|Expr $string
      * @param mixed|Expr $start
      * @param mixed|Expr $length
-     * @return $this
+     * @return self
      */
     public function substr($string, $start, $length)
     {
@@ -894,7 +894,7 @@ abstract class Operator extends Stage
      * @see Expr::subtract
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2
-     * @return $this
+     * @return self
      */
     public function subtract($expression1, $expression2)
     {
@@ -909,7 +909,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/sum/
      * @see Expr::sum
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function sum($expression)
     {
@@ -926,7 +926,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/toLower/
      * @see Expr::toLower
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function toLower($expression)
     {
@@ -943,7 +943,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/toUpper/
      * @see Expr::toUpper
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function toUpper($expression)
     {
@@ -960,7 +960,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/week/
      * @see Expr::week
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function week($expression)
     {
@@ -977,7 +977,7 @@ abstract class Operator extends Stage
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/year/
      * @see Expr::year
      * @param mixed|Expr $expression
-     * @return $this
+     * @return self
      */
     public function year($expression)
     {

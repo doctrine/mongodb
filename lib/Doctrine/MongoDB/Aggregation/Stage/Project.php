@@ -41,7 +41,7 @@ class Project extends Operator
     /**
      * Shorthand method to exclude the _id field.
      * @param bool $exclude
-     * @return $this
+     * @return self
      */
     public function excludeIdField($exclude = true)
     {
@@ -52,7 +52,7 @@ class Project extends Operator
      * Shorthand method to define which fields to be included.
      *
      * @param array $fields
-     * @return $this
+     * @return self
      */
     public function includeFields(array $fields)
     {

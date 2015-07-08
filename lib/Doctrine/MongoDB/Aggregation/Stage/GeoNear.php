@@ -110,7 +110,7 @@ class GeoNear extends Match
      * The output field that contains the calculated distance. To specify a field within an embedded document, use dot notation.
      *
      * @param string $distanceField
-     * @return $this
+     * @return self
      */
     public function distanceField($distanceField)
     {
@@ -123,7 +123,7 @@ class GeoNear extends Match
      * The factor to multiply all distances returned by the query.
      *
      * @param float $distanceMultiplier
-     * @return $this
+     * @return self
      */
     public function distanceMultiplier($distanceMultiplier)
     {
@@ -136,7 +136,7 @@ class GeoNear extends Match
      * This specifies the output field that identifies the location used to calculate the distance.
      *
      * @param string $includeLocs
-     * @return $this
+     * @return self
      */
     public function includeLocs($includeLocs)
     {
@@ -149,7 +149,7 @@ class GeoNear extends Match
      * The maximum number of documents to return.
      *
      * @param integer $limit
-     * @return $this
+     * @return self
      */
     public function limit($limit)
     {
@@ -160,7 +160,7 @@ class GeoNear extends Match
      * The maximum distance from the center point that the documents can be.
      *
      * @param float $maxDistance
-     * @return $this
+     * @return self
      */
     public function maxDistance($maxDistance)
     {
@@ -179,7 +179,7 @@ class GeoNear extends Match
      *
      * @param float|array|Point $x
      * @param float $y
-     * @return $this
+     * @return self
      */
     public function near($x, $y = null)
     {
@@ -197,7 +197,7 @@ class GeoNear extends Match
      * The maximum number of documents to return.
      *
      * @param integer $num
-     * @return $this
+     * @return self
      */
     public function num($num)
     {
@@ -210,7 +210,7 @@ class GeoNear extends Match
      * Required if using a 2dsphere index. Determines how MongoDB calculates the distance.
      *
      * @param boolean $spherical
-     * @return $this
+     * @return self
      */
     public function spherical($spherical = true)
     {
@@ -223,7 +223,7 @@ class GeoNear extends Match
      * If this value is true, the query returns a matching document once, even if more than one of the document’s location fields match the query.
      *
      * @param boolean $uniqueDocs
-     * @return $this
+     * @return self
      */
     public function uniqueDocs($uniqueDocs = true)
     {
