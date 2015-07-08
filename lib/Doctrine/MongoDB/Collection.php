@@ -707,6 +707,28 @@ class Collection
     }
 
     /**
+     * Wrapper method for MongoCollection::parallelCollectionScan()
+     *
+     * @param int $numCursors
+     * @return CommandCursor[]
+     *
+     * @throws BadMethodCallException if MongoCollection::parallelCollectionScan() is not available
+     */
+    public function parallelCollectionScan($numCursors)
+    {
+        if ( ! method_exists('MongoCollection', 'parallelCollectionScan')) {
+            throw new BadMethodCallException('MongoCollection::parallelCollectionScan() is not available');
+        }
+
+        $mongoCollection = $this->mongoCollection;
+        $commandCursors = $this->retry(function() use ($mongoCollection, $numCursors) {
+            return $mongoCollection->parallelCollectionScan($numCursors);
+        });
+
+        return array_map(array($this, 'wrapCommandCursor'), $commandCursors);
+    }
+
+    /**
      * Wrapper method for MongoCollection::remove().
      *
      * This method will dispatch preRemove and postRemove events.

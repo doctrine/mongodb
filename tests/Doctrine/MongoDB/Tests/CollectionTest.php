@@ -1080,6 +1080,36 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $coll->distinct('foo', array(), array('maxTimeMS' => 1000, 'socketTimeoutMS' => 2000));
     }
 
+    public function testParallelCollectionScan()
+    {
+        if ( ! method_exists('MongoCollection', 'parallelCollectionScan')) {
+            $this->markTestSkipped('This test is not applicable to drivers without MongoCollection::parallelCollectionScan()');
+        }
+
+        $numCursors = 3;
+        $mongoCommandCursors = array(
+            $this->getMockMongoCommandCursor(),
+            $this->getMockMongoCommandCursor(),
+            $this->getMockMongoCommandCursor(),
+        );
+
+        $mongoCollection = $this->getMockMongoCollection();
+        $mongoCollection->expects($this->once())
+            ->method('parallelCollectionScan')
+            ->with($numCursors)
+            ->will($this->returnValue($mongoCommandCursors));
+
+        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
+        $result = $coll->parallelCollectionScan($numCursors);
+
+        $this->assertCount(3, $result);
+
+        foreach ($result as $index => $cursor) {
+            $this->assertInstanceOf('Doctrine\MongoDB\CommandCursor', $cursor);
+            $this->assertSame($mongoCommandCursors[$index], $cursor->getMongoCommandCursor());
+        }
+    }
+
     private function getMockCollection()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Collection')
