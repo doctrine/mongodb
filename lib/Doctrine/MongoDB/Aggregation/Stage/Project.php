@@ -19,8 +19,6 @@
 
 namespace Doctrine\MongoDB\Aggregation\Stage;
 
-use LogicException;
-
 /**
  * Fluent interface for adding a $project stage to an aggregation pipeline.
  *
