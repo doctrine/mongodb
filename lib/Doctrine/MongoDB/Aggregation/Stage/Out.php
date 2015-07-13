@@ -32,7 +32,7 @@ class Out extends Stage
     /**
      * @var string
      */
-    protected $collection;
+    private $collection;
 
     /**
      * @param Builder $builder

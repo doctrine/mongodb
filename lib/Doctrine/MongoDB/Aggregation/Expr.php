@@ -31,14 +31,14 @@ class Expr
     /**
      * @var array
      */
-    protected $expr = array();
+    private $expr = array();
 
     /**
      * The current field we are operating on.
      *
      * @var string
      */
-    protected $currentField;
+    private $currentField;
 
     /**
      * Adds numbers together or adds numbers and a date. If one of the arguments
@@ -212,7 +212,7 @@ class Expr
      * @param mixed|self $expression
      * @return mixed
      */
-    protected function ensureArray($expression)
+    private function ensureArray($expression)
     {
         if (is_array($expression)) {
             $array = array();
@@ -667,7 +667,7 @@ class Expr
      * @param array|self[]|self $expression
      * @return self
      */
-    protected function operator($operator, $expression)
+    private function operator($operator, $expression)
     {
         if ($this->currentField) {
             $this->expr[$this->currentField][$operator] = $this->ensureArray($expression);
@@ -696,7 +696,7 @@ class Expr
      *
      * @throws LogicException if a current field has not been set
      */
-    protected function requiresCurrentField()
+    private function requiresCurrentField()
     {
         if (!$this->currentField) {
             throw new LogicException('This method requires you set a current field using field().');

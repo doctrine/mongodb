@@ -32,7 +32,7 @@ class Limit extends Stage
     /**
      * @var integer
      */
-    protected $limit;
+    private $limit;
 
     /**
      * @param Builder $builder

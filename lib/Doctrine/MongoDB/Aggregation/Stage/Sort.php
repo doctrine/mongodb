@@ -32,7 +32,7 @@ class Sort extends Stage
     /**
      * @var array
      */
-    protected $sort = array();
+    private $sort = array();
 
     /**
      * @param Builder $builder

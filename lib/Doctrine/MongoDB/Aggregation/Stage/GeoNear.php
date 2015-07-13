@@ -32,42 +32,42 @@ class GeoNear extends Match
     /**
      * @var string
      */
-    protected $distanceField;
+    private $distanceField;
 
     /**
      * @var float
      */
-    protected $distanceMultiplier;
+    private $distanceMultiplier;
 
     /**
      * @var string
      */
-    protected $includeLocs;
+    private $includeLocs;
 
     /**
      * @var float
      */
-    protected $maxDistance;
+    private $maxDistance;
 
     /**
      * @var array
      */
-    protected $near;
+    private $near;
 
     /**
      * @var integer
      */
-    protected $num;
+    private $num;
 
     /**
      * @var boolean
      */
-    protected $spherical = false;
+    private $spherical = false;
 
     /**
      * @var boolean
      */
-    protected $uniqueDocs;
+    private $uniqueDocs;
 
     /**
      * @param Builder $builder

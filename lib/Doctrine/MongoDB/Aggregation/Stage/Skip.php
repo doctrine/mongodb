@@ -32,7 +32,7 @@ class Skip extends Stage
     /**
      * @var integer
      */
-    protected $skip;
+    private $skip;
 
     /**
      * @param Builder $builder

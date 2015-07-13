@@ -32,7 +32,7 @@ class Unwind extends Stage
     /**
      * @var string
      */
-    protected $fieldName;
+    private $fieldName;
 
     /**
      * @param Builder $builder

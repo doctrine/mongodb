@@ -36,12 +36,12 @@ class Builder
      *
      * @var Collection
      */
-    protected $collection;
+    private $collection;
 
     /**
      * @var Stage[]
      */
-    protected $stages;
+    private $stages;
 
     /**
      * Create a new aggregation builder.
@@ -265,7 +265,7 @@ class Builder
      * @param Stage $stage
      * @return Stage
      */
-    protected function addStage(Stage $stage)
+    private function addStage(Stage $stage)
     {
         $this->stages[] = $stage;
 
