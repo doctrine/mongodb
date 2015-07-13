@@ -68,7 +68,11 @@ class Expr
      */
     public function addAnd($expression)
     {
-        $this->expr['$and'][] = $this->ensureArray($expression);
+        if ($this->currentField) {
+            $this->expr[$this->currentField]['$and'][] = $this->ensureArray($expression);
+        } else {
+            $this->expr['$and'][] = $this->ensureArray($expression);
+        }
 
         return $this;
     }
@@ -82,7 +86,11 @@ class Expr
      */
     public function addOr($expression)
     {
-        $this->expr['$or'][] = $this->ensureArray($expression);
+        if ($this->currentField) {
+            $this->expr[$this->currentField]['$or'][] = $this->ensureArray($expression);
+        } else {
+            $this->expr['$or'][] = $this->ensureArray($expression);
+        }
 
         return $this;
     }
