@@ -43,7 +43,7 @@ class Project extends Operator
      */
     public function excludeIdField($exclude = true)
     {
-        return $this->field('_id')->expression(!$exclude);
+        return $this->field('_id')->expression( ! $exclude);
     }
 
     /**

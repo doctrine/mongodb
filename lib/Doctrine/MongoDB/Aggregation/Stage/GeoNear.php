@@ -94,7 +94,7 @@ class GeoNear extends Match
         );
 
         foreach (array('distanceMultiplier', 'includeLocs', 'maxDistance', 'num', 'uniqueDocs') as $option) {
-            if (!$this->$option) {
+            if ( ! $this->$option) {
                 continue;
             }
 

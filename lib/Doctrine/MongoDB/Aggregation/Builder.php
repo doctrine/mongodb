@@ -101,8 +101,8 @@ class Builder
      */
     public function getStage($index)
     {
-        if (!isset($this->stages[$index])) {
-            throw new \InvalidArgumentException("Could not find stage with index {$index}.");
+        if ( ! isset($this->stages[$index])) {
+            throw new \OutOfRangeException("Could not find stage with index {$index}.");
         }
 
         return $this->stages[$index];
@@ -115,13 +115,10 @@ class Builder
      */
     public function getPipeline()
     {
-        $pipeline = array();
-
-        foreach ($this->stages as $stage) {
-            $pipeline[] = $stage->getExpression();
-        }
-
-        return $pipeline;
+        return array_map(
+            function (Stage $stage) { return $stage->getExpression(); },
+            $this->stages
+        );
     }
 
     /**
