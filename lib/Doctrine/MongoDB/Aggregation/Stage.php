@@ -61,7 +61,8 @@ abstract class Stage
     }
 
     /**
-     * Outputs documents in order of nearest to farthest from a specified point. You can only use this as the first stage of a pipeline.
+     * Outputs documents in order of nearest to farthest from a specified point.
+     * You can only use this as the first stage of a pipeline.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/geoNear/
      *
@@ -85,7 +86,8 @@ abstract class Stage
     }
 
     /**
-     * Groups documents by some specified expression and outputs to the next stage a document for each distinct grouping.
+     * Groups documents by some specified expression and outputs to the next
+     * stage a document for each distinct grouping.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/group/
      *
@@ -110,7 +112,8 @@ abstract class Stage
     }
 
     /**
-     * Filters the documents to pass only the documents that match the specified condition(s) to the next pipeline stage.
+     * Filters the documents to pass only the documents that match the specified
+     * condition(s) to the next pipeline stage.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/match/
      *
@@ -122,7 +125,8 @@ abstract class Stage
     }
 
     /**
-     * Takes the documents returned by the aggregation pipeline and writes them to a specified collection. This must be the last stage in the pipeline.
+     * Takes the documents returned by the aggregation pipeline and writes them
+     * to a specified collection. This must be the last stage in the pipeline.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/out/
      *
@@ -135,7 +139,9 @@ abstract class Stage
     }
 
     /**
-     * Passes along the documents with only the specified fields to the next stage in the pipeline. The specified fields can be existing fields from the input documents or newly computed fields.
+     * Passes along the documents with only the specified fields to the next
+     * stage in the pipeline. The specified fields can be existing fields from
+     * the input documents or newly computed fields.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/project/
      *
@@ -147,7 +153,8 @@ abstract class Stage
     }
 
     /**
-     * Restricts the contents of the documents based on information stored in the documents themselves.
+     * Restricts the contents of the documents based on information stored in
+     * the documents themselves.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/redact/
      *
@@ -159,7 +166,8 @@ abstract class Stage
     }
 
     /**
-     * Skips over the specified number of documents that pass into the stage and passes the remaining documents to the next stage in the pipeline.
+     * Skips over the specified number of documents that pass into the stage and
+     * passes the remaining documents to the next stage in the pipeline.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/skip/
      *
@@ -189,7 +197,9 @@ abstract class Stage
     }
 
     /**
-     * Deconstructs an array field from the input documents to output a document for each element. Each output document is the input document with the value of the array field replaced by the element.
+     * Deconstructs an array field from the input documents to output a document
+     * for each element. Each output document is the input document with the
+     * value of the array field replaced by the element.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/unwind/
      *

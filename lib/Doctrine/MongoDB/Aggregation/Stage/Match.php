@@ -59,7 +59,8 @@ class Match extends Stage
     /**
      * Add an $and clause to the current query.
      *
-     * You can create a new expression using the {@link Builder::expr()} method.
+     * You can create a new expression using the {@link Builder::matchExpr()}
+     * method.
      *
      * @see Expr::addAnd()
      * @see http://docs.mongodb.org/manual/reference/operator/and/
@@ -76,7 +77,8 @@ class Match extends Stage
     /**
      * Add a $nor clause to the current query.
      *
-     * You can create a new expression using the {@link Builder::expr()} method.
+     * You can create a new expression using the {@link Builder::matchExpr()}
+     * method.
      *
      * @see Expr::addNor()
      * @see http://docs.mongodb.org/manual/reference/operator/nor/
@@ -93,7 +95,8 @@ class Match extends Stage
     /**
      * Add an $or clause to the current query.
      *
-     * You can create a new expression using the {@link Builder::expr()} method.
+     * You can create a new expression using the {@link Builder::matchExpr()}
+     * method.
      *
      * @see Expr::addOr()
      * @see http://docs.mongodb.org/manual/reference/operator/or/
@@ -140,7 +143,8 @@ class Match extends Stage
     /**
      * Specify $elemMatch criteria for the current field.
      *
-     * You can create a new expression using the {@link Builder::expr()} method.
+     * You can create a new expression using the {@link Builder::matchExpr()}
+     * method.
      *
      * @see Expr::elemMatch()
      * @see http://docs.mongodb.org/manual/reference/operator/elemMatch/
@@ -485,7 +489,8 @@ class Match extends Stage
     /**
      * Negates an expression for the current field.
      *
-     * You can create a new expression using the {@link Builder::expr()} method.
+     * You can create a new expression using the {@link Builder::matchExpr()}
+     * method.
      *
      * @see Expr::not()
      * @see http://docs.mongodb.org/manual/reference/operator/not/
@@ -566,6 +571,8 @@ class Match extends Stage
      * Specify $text criteria for the current field.
      *
      * The $language option may be set with {@link Builder::language()}.
+     *
+     * You can only use this in the first $match stage of a pipeline.
      *
      * @see Expr::text()
      * @see http://docs.mongodb.org/master/reference/operator/query/text/

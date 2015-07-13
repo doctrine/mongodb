@@ -44,7 +44,7 @@ class Builder
     protected $stages;
 
     /**
-     * Create a new query builder.
+     * Create a new aggregation builder.
      *
      * @param Collection $collection
      */
@@ -73,12 +73,14 @@ class Builder
     }
 
     /**
-     * Outputs documents in order of nearest to farthest from a specified point. You can only use this as the first stage of a pipeline.
+     * Outputs documents in order of nearest to farthest from a specified point.
      *
      * A GeoJSON point may be provided as the first and only argument for
      * 2dsphere queries. This single parameter may be a GeoJSON point object or
      * an array corresponding to the point's JSON representation. If GeoJSON is
      * used, the "spherical" option will default to true.
+     *
+     * You can only use this as the first stage of a pipeline.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/geoNear/
      *
@@ -123,7 +125,8 @@ class Builder
     }
 
     /**
-     * Groups documents by some specified expression and outputs to the next stage a document for each distinct grouping.
+     * Groups documents by some specified expression and outputs to the next
+     * stage a document for each distinct grouping.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/group/
      *
@@ -148,7 +151,8 @@ class Builder
     }
 
     /**
-     * Filters the documents to pass only the documents that match the specified condition(s) to the next pipeline stage.
+     * Filters the documents to pass only the documents that match the specified
+     * condition(s) to the next pipeline stage.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/match/
      *
@@ -160,7 +164,8 @@ class Builder
     }
 
     /**
-     * Takes the documents returned by the aggregation pipeline and writes them to a specified collection. This must be the last stage in the pipeline.
+     * Takes the documents returned by the aggregation pipeline and writes them
+     * to a specified collection. This must be the last stage in the pipeline.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/out/
      *
@@ -173,7 +178,9 @@ class Builder
     }
 
     /**
-     * Passes along the documents with only the specified fields to the next stage in the pipeline. The specified fields can be existing fields from the input documents or newly computed fields.
+     * Passes along the documents with only the specified fields to the next
+     * stage in the pipeline. The specified fields can be existing fields from
+     * the input documents or newly computed fields.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/project/
      *
@@ -195,7 +202,8 @@ class Builder
     }
 
     /**
-     * Restricts the contents of the documents based on information stored in the documents themselves.
+     * Restricts the contents of the documents based on information stored in
+     * the documents themselves.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/redact/
      *
@@ -207,7 +215,8 @@ class Builder
     }
 
     /**
-     * Skips over the specified number of documents that pass into the stage and passes the remaining documents to the next stage in the pipeline.
+     * Skips over the specified number of documents that pass into the stage and
+     * passes the remaining documents to the next stage in the pipeline.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/skip/
      *
@@ -220,7 +229,8 @@ class Builder
     }
 
     /**
-     * Sorts all input documents and returns them to the pipeline in sorted order.
+     * Sorts all input documents and returns them to the pipeline in sorted
+     * order.
      *
      * If sorting by multiple fields, the first argument should be an array of
      * field name (key) and order (value) pairs.
@@ -237,7 +247,9 @@ class Builder
     }
 
     /**
-     * Deconstructs an array field from the input documents to output a document for each element. Each output document is the input document with the value of the array field replaced by the element.
+     * Deconstructs an array field from the input documents to output a document
+     * for each element. Each output document is the input document with the
+     * value of the array field replaced by the element.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/unwind/
      *

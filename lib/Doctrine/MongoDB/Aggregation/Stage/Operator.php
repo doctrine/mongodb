@@ -46,7 +46,9 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Adds numbers together or adds numbers and a date. If one of the arguments is a date, $add treats the other arguments as milliseconds to add to the date.
+     * Adds numbers together or adds numbers and a date. If one of the arguments
+     * is a date, $add treats the other arguments as milliseconds to add to the
+     * date.
      *
      * The arguments can be any valid expression as long as they resolve to either all numbers or to numbers and a date.
      *
@@ -95,7 +97,9 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Returns an array of all unique values that results from applying an expression to each document in a group of documents that share the same group by key. Order of the elements in the output array is unspecified.
+     * Returns an array of all unique values that results from applying an
+     * expression to each document in a group of documents that share the same
+     * group by key. Order of the elements in the output array is unspecified.
      *
      * AddToSet is an accumulator operation only available in the group stage.
      *
@@ -112,7 +116,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Evaluates an array as a set and returns true if no element in the array is false. Otherwise, returns false. An empty array returns true.
+     * Evaluates an array as a set and returns true if no element in the array
+     * is false. Otherwise, returns false. An empty array returns true.
      *
      * The expression must resolve to an array.
      *
@@ -129,7 +134,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Evaluates an array as a set and returns true if any of the elements are true and false otherwise. An empty array returns false.
+     * Evaluates an array as a set and returns true if any of the elements are
+     * true and false otherwise. An empty array returns false.
      *
      * The expression must resolve to an array.
      *
@@ -146,7 +152,9 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Returns the average value of the numeric values that result from applying a specified expression to each document in a group of documents that share the same group by key. Ignores nun-numeric values.
+     * Returns the average value of the numeric values that result from applying
+     * a specified expression to each document in a group of documents that
+     * share the same group by key. Ignores nun-numeric values.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/avg/
      * @see Expr::avg
@@ -182,7 +190,9 @@ abstract class Operator extends Stage
     /**
      * Concatenates strings and returns the concatenated string.
      *
-     * The arguments can be any valid expression as long as they resolve to strings. If the argument resolves to a value of null or refers to a field that is missing, $concat returns null.
+     * The arguments can be any valid expression as long as they resolve to
+     * strings. If the argument resolves to a value of null or refers to a field
+     * that is missing, $concat returns null.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/concat/
      * @see Expr::concat
@@ -199,7 +209,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Evaluates a boolean expression to return one of the two specified return expressions.
+     * Evaluates a boolean expression to return one of the two specified return
+     * expressions.
      *
      * The arguments can be any valid expression.
      *
@@ -220,7 +231,8 @@ abstract class Operator extends Stage
     /**
      * Converts a date object to a string according to a user-specified format.
      *
-     * The format string can be any string literal, containing 0 or more format specifiers.
+     * The format string can be any string literal, containing 0 or more format
+     * specifiers.
      * The date argument can be any expression as long as it resolves to a date.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/dateToString/
@@ -254,7 +266,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Returns the day of the week for a date as a number between 1 (Sunday) and 7 (Saturday).
+     * Returns the day of the week for a date as a number between 1 (Sunday) and
+     * 7 (Saturday).
      *
      * The argument can be any expression as long as it resolves to a date.
      *
@@ -288,7 +301,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Divides one number by another and returns the result. The first argument is divided by the second argument.
+     * Divides one number by another and returns the result. The first argument
+     * is divided by the second argument.
      *
      * The arguments can be any valid expression as long as the resolve to numbers.
      *
@@ -306,9 +320,7 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Compares two values and returns:
-     * true when the values are equivalent.
-     * false when the values are not equivalent.
+     * Compares two values and returns whether they are equivalent.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/eq/
      * @see Expr::eq
@@ -353,7 +365,9 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Returns the value that results from applying an expression to the first document in a group of documents that share the same group by key. Only meaningful when documents are in a defined order.
+     * Returns the value that results from applying an expression to the first
+     * document in a group of documents that share the same group by key. Only
+     * meaningful when documents are in a defined order.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/first/
      * @see Expr::first
@@ -421,7 +435,10 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Evaluates an expression and returns the value of the expression if the expression evaluates to a non-null value. If the expression evaluates to a null value, including instances of undefined values or missing fields, returns the value of the replacement expression.
+     * Evaluates an expression and returns the value of the expression if the
+     * expression evaluates to a non-null value. If the expression evaluates to
+     * a null value, including instances of undefined values or missing fields,
+     * returns the value of the replacement expression.
      *
      * The arguments can be any valid expression.
      *
@@ -439,7 +456,9 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Returns the value that results from applying an expression to the last document in a group of documents that share the same group by a field. Only meaningful when documents are in a defined order.
+     * Returns the value that results from applying an expression to the last
+     * document in a group of documents that share the same group by a field.
+     * Only meaningful when documents are in a defined order.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/last/
      * @see Expr::last
@@ -454,7 +473,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Binds variables for use in the specified expression, and returns the result of the expression.
+     * Binds variables for use in the specified expression, and returns the
+     * result of the expression.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/let/
      * @see Expr::let
@@ -470,7 +490,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Returns a value without parsing. Use for values that the aggregation pipeline may interpret as an expression.
+     * Returns a value without parsing. Use for values that the aggregation
+     * pipeline may interpret as an expression.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/literal/
      * @see Expr::literal
@@ -521,7 +542,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Applies an expression to each item in an array and returns an array with the applied results.
+     * Applies an expression to each item in an array and returns an array with
+     * the applied results.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/map/
      * @see Expr::map
@@ -538,7 +560,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Returns the highest value that results from applying an expression to each document in a group of documents that share the same group by key.
+     * Returns the highest value that results from applying an expression to
+     * each document in a group of documents that share the same group by key.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/max/
      * @see Expr::max
@@ -585,7 +608,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Returns the lowest value that results from applying an expression to each document in a group of documents that share the same group by key.
+     * Returns the lowest value that results from applying an expression to each
+     * document in a group of documents that share the same group by key.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/min/
      * @see Expr::min
@@ -617,7 +641,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Divides one number by another and returns the remainder. The first argument is divided by the second argument.
+     * Divides one number by another and returns the remainder. The first
+     * argument is divided by the second argument.
      *
      * The arguments can be any valid expression as long as they resolve to numbers.
      *
@@ -704,7 +729,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Returns an array of all values that result from applying an expression to each document in a group of documents that share the same group by key.
+     * Returns an array of all values that result from applying an expression to
+     * each document in a group of documents that share the same group by key.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/push/
      * @see Expr::push
@@ -719,7 +745,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Returns the second portion of a date as a number between 0 and 59, but can be 60 to account for leap seconds.
+     * Returns the second portion of a date as a number between 0 and 59, but
+     * can be 60 to account for leap seconds.
      *
      * The argument can be any expression as long as it resolves to a date.
      *
@@ -736,7 +763,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Takes two sets and returns an array containing the elements that only exist in the first set.
+     * Takes two sets and returns an array containing the elements that only
+     * exist in the first set.
      *
      * The arguments can be any valid expression as long as they each resolve to an array.
      *
@@ -754,7 +782,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Compares two or more arrays and returns true if they have the same distinct elements and false otherwise.
+     * Compares two or more arrays and returns true if they have the same
+     * distinct elements and false otherwise.
      *
      * The arguments can be any valid expression as long as they each resolve to an array.
      *
@@ -773,7 +802,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Takes two or more arrays and returns an array that contains the elements that appear in every input array.
+     * Takes two or more arrays and returns an array that contains the elements
+     * that appear in every input array.
      *
      * The arguments can be any valid expression as long as they each resolve to an array.
      *
@@ -792,7 +822,9 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Takes two arrays and returns true when the first array is a subset of the second, including when the first array equals the second array, and false otherwise.
+     * Takes two arrays and returns true when the first array is a subset of the
+     * second, including when the first array equals the second array, and false
+     * otherwise.
      *
      * The arguments can be any valid expression as long as they each resolve to an array.
      *
@@ -810,7 +842,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Takes two or more arrays and returns an array containing the elements that appear in any input array.
+     * Takes two or more arrays and returns an array containing the elements
+     * that appear in any input array.
      *
      * The arguments can be any valid expression as long as they each resolve to an array.
      *
@@ -867,7 +900,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Returns a substring of a string, starting at a specified index position and including the specified number of characters. The index is zero-based.
+     * Returns a substring of a string, starting at a specified index position
+     * and including the specified number of characters. The index is zero-based.
      *
      * The arguments can be any valid expression as long as long as the first argument resolves to a string, and the second and third arguments resolve to integers.
      *
@@ -886,7 +920,8 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Subtracts two numbers to return the difference. The second argument is subtracted from the first argument.
+     * Subtracts two numbers to return the difference. The second argument is
+     * subtracted from the first argument.
      *
      * The arguments can be any valid expression as long as they resolve to numbers and/or dates.
      *
@@ -904,7 +939,9 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Calculates and returns the sum of all the numeric values that result from applying a specified expression to each document in a group of documents that share the same group by key. Ignores nun-numeric values.
+     * Calculates and returns the sum of all the numeric values that result from
+     * applying a specified expression to each document in a group of documents
+     * that share the same group by key. Ignores nun-numeric values.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/sum/
      * @see Expr::sum
