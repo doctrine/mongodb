@@ -147,6 +147,23 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * @expectedException \LogicException
+     */
+    public function testExpressionWithoutField()
+    {
+        $nestedExpr = new Expr();
+        $nestedExpr
+            ->field('dayOfMonth')
+            ->dayOfMonth('$dateField')
+            ->field('dayOfWeek')
+            ->dayOfWeek('$dateField');
+
+        $expr = new Expr();
+
+        $expr->expression($nestedExpr);
+    }
+
     public function testFirst()
     {
         $expr = new Expr();

@@ -326,7 +326,7 @@ class Expr
      */
     public function expression($value)
     {
-        $this->requiresCurrentField();
+        $this->requiresCurrentField(__METHOD__);
         $this->expr[$this->currentField] = $this->ensureArray($value);
 
         return $this;
@@ -694,12 +694,14 @@ class Expr
     /**
      * Ensure that a current field has been set.
      *
+     * @param string $method
+     *
      * @throws LogicException if a current field has not been set
      */
-    private function requiresCurrentField()
+    private function requiresCurrentField($method = null)
     {
-        if (!$this->currentField) {
-            throw new LogicException('This method requires you set a current field using field().');
+        if ( ! $this->currentField) {
+            throw new LogicException(($method ?: 'This method') . ' requires you set a current field using field().');
         }
     }
 
