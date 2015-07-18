@@ -97,25 +97,6 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Returns an array of all unique values that results from applying an
-     * expression to each document in a group of documents that share the same
-     * group by key. Order of the elements in the output array is unspecified.
-     *
-     * AddToSet is an accumulator operation only available in the group stage.
-     *
-     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/addToSet/
-     * @see Expr::addToSet
-     * @param mixed|Expr $expression
-     * @return self
-     */
-    public function addToSet($expression)
-    {
-        $this->expr->addToSet($expression);
-
-        return $this;
-    }
-
-    /**
      * Evaluates an array as a set and returns true if no element in the array
      * is false. Otherwise, returns false. An empty array returns true.
      *
@@ -147,23 +128,6 @@ abstract class Operator extends Stage
     public function anyElementTrue($expression)
     {
         $this->expr->anyElementTrue($expression);
-
-        return $this;
-    }
-
-    /**
-     * Returns the average value of the numeric values that result from applying
-     * a specified expression to each document in a group of documents that
-     * share the same group by key. Ignores nun-numeric values.
-     *
-     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/avg/
-     * @see Expr::avg
-     * @param mixed|Expr $expression
-     * @return self
-     */
-    public function avg($expression)
-    {
-        $this->expr->avg($expression);
 
         return $this;
     }
@@ -365,23 +329,6 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Returns the value that results from applying an expression to the first
-     * document in a group of documents that share the same group by key. Only
-     * meaningful when documents are in a defined order.
-     *
-     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/first/
-     * @see Expr::first
-     * @param mixed|Expr $expression
-     * @return self
-     */
-    public function first($expression)
-    {
-        $this->expr->first($expression);
-
-        return $this;
-    }
-
-    /**
      * Compares two values and returns:
      * true when the first value is greater than the second value.
      * false when the first value is less than or equivalent to the second value.
@@ -451,23 +398,6 @@ abstract class Operator extends Stage
     public function ifNull($expression, $replacementExpression)
     {
         $this->expr->ifNull($expression, $replacementExpression);
-
-        return $this;
-    }
-
-    /**
-     * Returns the value that results from applying an expression to the last
-     * document in a group of documents that share the same group by a field.
-     * Only meaningful when documents are in a defined order.
-     *
-     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/last/
-     * @see Expr::last
-     * @param mixed|Expr $expression
-     * @return self
-     */
-    public function last($expression)
-    {
-        $this->expr->last($expression);
 
         return $this;
     }
@@ -560,22 +490,6 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Returns the highest value that results from applying an expression to
-     * each document in a group of documents that share the same group by key.
-     *
-     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/max/
-     * @see Expr::max
-     * @param mixed|Expr $expression
-     * @return self
-     */
-    public function max($expression)
-    {
-        $this->expr->max($expression);
-
-        return $this;
-    }
-
-    /**
      * Returns the metadata associated with a document in a pipeline operations.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/meta/
@@ -603,22 +517,6 @@ abstract class Operator extends Stage
     public function millisecond($expression)
     {
         $this->expr->millisecond($expression);
-
-        return $this;
-    }
-
-    /**
-     * Returns the lowest value that results from applying an expression to each
-     * document in a group of documents that share the same group by key.
-     *
-     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/min/
-     * @see Expr::min
-     * @param mixed|Expr $expression
-     * @return self
-     */
-    public function min($expression)
-    {
-        $this->expr->min($expression);
 
         return $this;
     }
@@ -724,22 +622,6 @@ abstract class Operator extends Stage
     public function not($expression)
     {
         $this->expr->not($expression);
-
-        return $this;
-    }
-
-    /**
-     * Returns an array of all values that result from applying an expression to
-     * each document in a group of documents that share the same group by key.
-     *
-     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/push/
-     * @see Expr::push
-     * @param mixed|Expr $expression
-     * @return self
-     */
-    public function push($expression)
-    {
-        $this->expr->push($expression);
 
         return $this;
     }
@@ -934,23 +816,6 @@ abstract class Operator extends Stage
     public function subtract($expression1, $expression2)
     {
         $this->expr->subtract($expression1, $expression2);
-
-        return $this;
-    }
-
-    /**
-     * Calculates and returns the sum of all the numeric values that result from
-     * applying a specified expression to each document in a group of documents
-     * that share the same group by key. Ignores nun-numeric values.
-     *
-     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/sum/
-     * @see Expr::sum
-     * @param mixed|Expr $expression
-     * @return self
-     */
-    public function sum($expression)
-    {
-        $this->expr->sum($expression);
 
         return $this;
     }
