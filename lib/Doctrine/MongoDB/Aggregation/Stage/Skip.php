@@ -42,7 +42,7 @@ class Skip extends Stage
     {
         parent::__construct($builder);
 
-        $this->skip($skip);
+        $this->skip = (integer) $skip;
     }
 
     /**
@@ -53,15 +53,5 @@ class Skip extends Stage
         return array(
             '$skip' => $this->skip
         );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function skip($skip)
-    {
-        $this->skip = (integer) $skip;
-
-        return $this;
     }
 }

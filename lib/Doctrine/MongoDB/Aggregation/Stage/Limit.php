@@ -42,7 +42,7 @@ class Limit extends Stage
     {
         parent::__construct($builder);
 
-        $this->limit($limit);
+        $this->limit = (integer) $limit;
     }
 
     /**
@@ -53,15 +53,5 @@ class Limit extends Stage
         return array(
             '$limit' => $this->limit
         );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function limit($limit)
-    {
-        $this->limit = (integer) $limit;
-
-        return $this;
     }
 }

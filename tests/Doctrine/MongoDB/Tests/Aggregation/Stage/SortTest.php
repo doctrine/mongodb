@@ -28,16 +28,6 @@ class SortTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array(array('$sort' => $expectedSort)), $builder->getPipeline());
     }
 
-    public function testSubsequentSortStagesAreCombined()
-    {
-        $builder = $this->getTestAggregationBuilder();
-        $builder
-            ->sort('field', 'asc')
-            ->sort('otherField', 'desc');
-
-        $this->assertSame(array(array('$sort' => array('field' => 1, 'otherField' => -1))), $builder->getPipeline());
-    }
-
     public static function provideSortOptions()
     {
         return array(

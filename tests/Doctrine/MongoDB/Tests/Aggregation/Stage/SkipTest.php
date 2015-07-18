@@ -22,16 +22,6 @@ class SkipTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array(array('$skip' => 10)), $builder->getPipeline());
     }
 
-    public function testSubsequentSkipStagesAreOverwritten()
-    {
-        $builder = $this->getTestAggregationBuilder();
-        $builder
-            ->skip(10)
-            ->skip(15);
-
-        $this->assertSame(array(array('$skip' => 15)), $builder->getPipeline());
-    }
-
     private function getTestAggregationBuilder()
     {
         return new Builder($this->getMockCollection());

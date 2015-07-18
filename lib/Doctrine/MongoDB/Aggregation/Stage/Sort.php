@@ -43,24 +43,6 @@ class Sort extends Stage
     {
         parent::__construct($builder);
 
-        $this->sort($fieldName, $order);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getExpression()
-    {
-        return array(
-            '$sort' => $this->sort
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function sort($fieldName, $order = null)
-    {
         $allowedMetaSort = array('textScore');
 
         $fields = is_array($fieldName) ? $fieldName : array($fieldName => $order);
@@ -76,7 +58,15 @@ class Sort extends Stage
 
             $this->sort[$fieldName] = $order;
         }
+    }
 
-        return $this;
+    /**
+     * {@inheritdoc}
+     */
+    public function getExpression()
+    {
+        return array(
+            '$sort' => $this->sort
+        );
     }
 }

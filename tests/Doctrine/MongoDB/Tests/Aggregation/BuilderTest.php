@@ -73,7 +73,8 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                     )
                 )
             ),
-            array('$sort' => array('totalAmount' => 0, 'numOrders' => -1, 'avgAmount' => 1)),
+            array('$sort' => array('totalAmount' => 0)),
+            array('$sort' => array('numOrders' => -1, 'avgAmount' => 1)),
             array('$limit' => 5),
             array('$skip' => 2),
             array('$out' => 'collectionName')
