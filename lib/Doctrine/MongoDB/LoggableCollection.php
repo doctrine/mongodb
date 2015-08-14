@@ -105,16 +105,22 @@ class LoggableCollection extends Collection implements Loggable
     /**
      * @see Collection::count()
      */
-    public function count(array $query = array(), $limit = 0, $skip = 0)
+    public function count(array $query = array(), $limitOrOptions = 0, $skip = 0)
     {
+        $options = is_array($limitOrOptions)
+            ? array_merge(array('limit' => 0, 'skip' => 0), $limitOrOptions)
+            : array('limit' => $limitOrOptions, 'skip' => $skip);
+
         $this->log(array(
             'count' => true,
             'query' => $query,
-            'limit' => $limit,
-            'skip' => $skip,
+            'options' => $options,
+            /* @deprecated 1.2 Replaced by options; will be removed for 2.0 */
+            'limit' => $options['limit'],
+            'skip' => $options['skip'],
         ));
 
-        return parent::count($query, $limit, $skip);
+        return parent::count($query, $options);
     }
 
     /* Collection::createDBRef() is intentionally omitted because it does not

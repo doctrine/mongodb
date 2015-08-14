@@ -221,34 +221,71 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($coll->batchInsert($docs, $options));
     }
 
+    public function testCountWithOptionsArray()
+    {
+        $expectedCommand = array(
+            'count' => self::collectionName,
+            'query' => (object) array('x' => 1),
+            'limit' => 0,
+            'skip' => 0,
+            'maxTimeMS' => 5000,
+        );
+
+        $expectedClientOptions = array('socketTimeoutMS' => 15000);
+
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with($expectedCommand, $expectedClientOptions)
+            ->will($this->returnValue(array('ok' => 1, 'n' => 3)));
+
+        $coll = $this->getTestCollection($database, $this->getMockMongoCollection());
+
+        $this->assertEquals(3, $coll->count(array('x' => 1), array('maxTimeMS' => 5000, 'socketTimeoutMS' => 15000)));
+    }
+
     public function testCountWithParameters()
     {
-        $query = array('x' => 1);
+        $expectedCommand = array(
+            'count' => self::collectionName,
+            'query' => (object) array('x' => 1),
+            'limit' => 1,
+            'skip' => 1,
+        );
 
-        $mongoCollection = $this->getMockMongoCollection();
+        $expectedClientOptions = array();
 
-        $mongoCollection->expects($this->once())
-            ->method('count')
-            ->with($query, 1, 1)
-            ->will($this->returnValue(1));
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with($expectedCommand, $expectedClientOptions)
+            ->will($this->returnValue(array('ok' => 1, 'n' => 1)));
 
-        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
+        $coll = $this->getTestCollection($database, $this->getMockMongoCollection());
 
-        $this->assertEquals(1, $coll->count($query, 1, 1));
+        $this->assertEquals(1, $coll->count(array('x' => 1), 1, 1));
     }
 
     public function testCountWithoutParameters()
     {
-        $mongoCollection = $this->getMockMongoCollection();
+        $expectedCommand = array(
+            'count' => self::collectionName,
+            'query' => (object) array('x' => 1),
+            'limit' => 0,
+            'skip' => 0,
+        );
 
-        $mongoCollection->expects($this->once())
-            ->method('count')
-            ->with(array(), 0, 0)
-            ->will($this->returnValue(1));
+        $expectedClientOptions = array();
 
-        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with($expectedCommand, $expectedClientOptions)
+            ->will($this->returnValue(array('ok' => 1, 'n' => 3)));
 
-        $this->assertEquals(1, $coll->count());
+        $coll = $this->getTestCollection($database, $this->getMockMongoCollection());
+
+        $this->assertEquals(3, $coll->count(array('x' => 1)));
     }
 
     public function testCreateDBRef()
