@@ -50,13 +50,27 @@ class EagerCursor implements CursorInterface
     protected $initialized = false;
 
     /**
+     * Whether to preserve keys from the Cursor (i.e. "_id" values) when
+     * initializing the $data array.
+     *
+     * @var boolean
+     */
+    protected $useKeys = true;
+
+    /**
      * Constructor.
      *
+     * If documents in the result set use BSON objects for their "_id", the
+     * $useKeys parameter may be set to false to avoid errors attempting to cast
+     * arrays (i.e. BSON objects) to string keys.
+     *
      * @param Cursor $cursor
+     * @param boolean $useKeys
      */
-    public function __construct(Cursor $cursor)
+    public function __construct(Cursor $cursor, $useKeys = true)
     {
         $this->cursor = $cursor;
+        $this->useKeys = (boolean) $useKeys;
     }
 
     /**
@@ -109,7 +123,7 @@ class EagerCursor implements CursorInterface
     public function initialize()
     {
         if ($this->initialized === false) {
-            $this->data = $this->cursor->toArray();
+            $this->data = $this->cursor->toArray($this->useKeys);
         }
         $this->initialized = true;
     }

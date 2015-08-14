@@ -20,6 +20,7 @@ class EagerCursorTest extends BaseTest
 
         $cursor->expects($this->once())
             ->method('toArray')
+            ->with(true) // Constructor $useKeys option defaults to true
             ->will($this->returnValue(array()));
 
         $eagerCursor = new EagerCursor($cursor);
@@ -29,6 +30,29 @@ class EagerCursorTest extends BaseTest
         $this->assertTrue($eagerCursor->isInitialized());
         $eagerCursor->initialize();
         $this->assertTrue($eagerCursor->isInitialized());
+    }
+
+    /**
+     * @dataProvider provideUseKeys
+     */
+    public function testInitializationForwardsUseKeysOption($useKeys)
+    {
+        $cursor = $this->getMockCursor();
+
+        $cursor->expects($this->once())
+            ->method('toArray')
+            ->with($useKeys);
+
+        $eagerCursor = new EagerCursor($cursor, $useKeys);
+        $eagerCursor->initialize();
+    }
+
+    public function provideUseKeys()
+    {
+        return array(
+            array(true),
+            array(false),
+        );
     }
 
     public function testCount()
