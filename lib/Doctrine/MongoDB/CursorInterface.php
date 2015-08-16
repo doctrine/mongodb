@@ -19,12 +19,10 @@
 
 namespace Doctrine\MongoDB;
 
-use Doctrine\MongoDB\Util\ReadPreference;
-
 /**
  * Wrapper for the PHP MongoCursor class.
  *
- * @since  1.0
+ * @since  1.2
  * @author alcaeus <alcaeus@alcaeus.org>
  */
 interface CursorInterface extends Iterator
@@ -76,10 +74,41 @@ interface CursorInterface extends Iterator
     /**
      * Wrapper method for MongoCursor::fields().
      *
+     * @param array $f Fields to return (or not return).
+     *
      * @see http://php.net/manual/en/mongocursor.fields.php
      * @return self
      */
     public function fields(array $f);
+
+    /**
+     * Return the collection for this cursor.
+     *
+     * @return Collection
+     */
+    public function getCollection();
+
+    /**
+     * Return the selected fields (projection).
+     *
+     * @return array
+     */
+    public function getFields();
+
+    /**
+     * Wrapper method for MongoCursor::getNext().
+     *
+     * @see http://php.net/manual/en/mongocursor.getnext.php
+     * @return array|null
+     */
+    public function getNext();
+
+    /**
+     * Return the query criteria.
+     *
+     * @return array
+     */
+    public function getQuery();
 
     /**
      * Wrapper method for MongoCursor::getReadPreference().
@@ -98,6 +127,14 @@ interface CursorInterface extends Iterator
      * @return self
      */
     public function setReadPreference($readPreference, array $tags = null);
+
+    /**
+     * Wrapper method for MongoCursor::hasNext().
+     *
+     * @see http://php.net/manual/en/mongocursor.hasnext.php
+     * @return boolean
+     */
+    public function hasNext();
 
     /**
      * Wrapper method for MongoCursor::hint().
@@ -133,6 +170,11 @@ interface CursorInterface extends Iterator
      * @return self
      */
     public function limit($num);
+
+    /**
+     * Recreates the internal MongoCursor.
+     */
+    public function recreate();
 
     /**
      * Wrapper method for MongoCursor::reset().

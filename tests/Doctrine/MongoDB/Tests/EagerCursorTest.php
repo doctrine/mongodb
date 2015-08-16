@@ -162,6 +162,36 @@ class EagerCursorTest extends BaseTest
         }
     }
 
+    public function testGetNextHasNext()
+    {
+        $results = array(
+            array('_id' => 1, 'x' => 'foo'),
+            array('_id' => 2, 'x' => 'bar'),
+        );
+
+        $cursor = $this->getMockCursor();
+
+        $cursor->expects($this->once())
+            ->method('toArray')
+            ->will($this->returnValue($results));
+
+        $eagerCursor = new EagerCursor($cursor);
+
+        $this->assertTrue($eagerCursor->hasNext());
+        $this->assertEquals($results[0], $eagerCursor->getNext());
+
+        $this->assertTrue($eagerCursor->hasNext());
+        $this->assertEquals($results[0], $eagerCursor->current(), 'hasNext does not advance internal cursor');
+        $this->assertEquals($results[1], $eagerCursor->getNext());
+
+        $this->assertFalse($eagerCursor->hasNext());
+        $this->assertNull($eagerCursor->getNext());
+
+        $eagerCursor->rewind();
+        $this->assertTrue($eagerCursor->hasNext());
+        $this->assertEquals($results[0], $eagerCursor->getNext());
+    }
+
     /**
      * @return \Doctrine\MongoDB\Cursor
      */

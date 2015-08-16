@@ -181,6 +181,8 @@ class Cursor implements CursorInterface
     /**
      * Wrapper method for MongoCursor::fields().
      *
+     * @param array $f Fields to return (or not return).
+     *
      * @see http://php.net/manual/en/mongocursor.fields.php
      * @return self
      */
@@ -406,7 +408,7 @@ class Cursor implements CursorInterface
     {
         $cursor = $this;
         $this->retry(function() use ($cursor) {
-            return $cursor->getMongoCursor()->next();
+            $cursor->getMongoCursor()->next();
         }, false);
     }
 
@@ -480,7 +482,7 @@ class Cursor implements CursorInterface
     {
         $cursor = $this;
         $this->retry(function() use ($cursor) {
-            return $cursor->getMongoCursor()->rewind();
+            $cursor->getMongoCursor()->rewind();
         }, false);
     }
 

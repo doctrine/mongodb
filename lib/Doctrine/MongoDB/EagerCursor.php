@@ -58,6 +58,15 @@ class EagerCursor implements CursorInterface
     protected $useKeys = true;
 
     /**
+     * Whether the cursor started iterating.
+     *
+     * This is necessary to get getNext() and hasNext() to work properly
+     *
+     * @var boolean
+     */
+    private $iterating = false;
+
+    /**
      * Constructor.
      *
      * If documents in the result set use BSON objects for their "_id", the
@@ -144,6 +153,7 @@ class EagerCursor implements CursorInterface
     public function key()
     {
         $this->initialize();
+        $this->iterating = true;
 
         return key($this->data);
     }
@@ -154,6 +164,7 @@ class EagerCursor implements CursorInterface
     public function next()
     {
         $this->initialize();
+        $this->iterating = true;
         next($this->data);
     }
 
@@ -163,6 +174,7 @@ class EagerCursor implements CursorInterface
     public function rewind()
     {
         $this->initialize();
+        $this->iterating = false;
         reset($this->data);
     }
 
@@ -182,6 +194,7 @@ class EagerCursor implements CursorInterface
     public function valid()
     {
         $this->initialize();
+        $this->iterating = true;
 
         return key($this->data) !== null;
     }
@@ -233,6 +246,43 @@ class EagerCursor implements CursorInterface
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function getCollection()
+    {
+        return $this->cursor->getCollection();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getFields()
+    {
+        return $this->cursor->getFields();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getNext()
+    {
+        $this->initialize();
+
+        $next = ($this->iterating) ? next($this->data) : current($this->data);
+        $this->iterating = true;
+
+        return ($next !== false) ? $next : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getQuery()
+    {
+        return $this->cursor->getQuery();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getReadPreference()
@@ -248,6 +298,26 @@ class EagerCursor implements CursorInterface
         $this->cursor->setReadPreference($readPreference, $tags);
 
         return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function hasNext()
+    {
+        $this->initialize();
+
+        $wasIterating = $this->iterating;
+        $hasNext = $this->getNext() !== null;
+
+        // Reset the internal cursor if we weren't iterating
+        if ($wasIterating) {
+            prev($this->data);
+        } else {
+            $this->iterating = false;
+        }
+
+        return $hasNext;
     }
 
     /**
@@ -286,6 +356,17 @@ class EagerCursor implements CursorInterface
         $this->cursor->limit($num);
 
         return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function recreate()
+    {
+        $this->initialized = false;
+        $this->data = array();
+        $this->iterating = false;
+        $this->cursor->recreate();
     }
 
     /**
