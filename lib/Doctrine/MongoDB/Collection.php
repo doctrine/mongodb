@@ -167,7 +167,7 @@ class Collection
      * @see http://php.net/manual/en/mongocollection.count.php
      * @see http://docs.mongodb.org/manual/reference/command/count/
      * @param array         $query
-     * @param boolean|array $limitOrOptions Limit or options array
+     * @param integer|array $limitOrOptions Limit or options array
      * @param integer       $skip
      * @return integer
      */
