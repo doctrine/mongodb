@@ -31,7 +31,7 @@ class EagerCursor implements CursorInterface
     /**
      * The Cursor instance being wrapped.
      *
-     * @var Cursor
+     * @var CursorInterface
      */
     protected $cursor;
 
@@ -73,10 +73,10 @@ class EagerCursor implements CursorInterface
      * $useKeys parameter may be set to false to avoid errors attempting to cast
      * arrays (i.e. BSON objects) to string keys.
      *
-     * @param Cursor $cursor
+     * @param CursorInterface $cursor
      * @param boolean $useKeys
      */
-    public function __construct(Cursor $cursor, $useKeys = true)
+    public function __construct(CursorInterface $cursor, $useKeys = true)
     {
         $this->cursor = $cursor;
         $this->useKeys = (boolean) $useKeys;
@@ -105,7 +105,7 @@ class EagerCursor implements CursorInterface
     /**
      * Return the wrapped Cursor.
      *
-     * @return Cursor
+     * @return CursorInterface
      */
     public function getCursor()
     {
