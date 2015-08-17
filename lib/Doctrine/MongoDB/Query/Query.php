@@ -403,7 +403,8 @@ class Query implements IteratorAggregate
         }
 
         if ( ! empty($this->query['eagerCursor'])) {
-            $cursor = new EagerCursor($cursor);
+            $useKeys = isset($this->query['useKeys']) && $this->query['useKeys'];
+            $cursor = new EagerCursor($cursor, $useKeys);
         }
 
         return $cursor;
