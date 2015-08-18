@@ -36,3 +36,4 @@ Pull requests completed for the 1.2.0 release:
  * [#225](https://github.com/doctrine/mongodb/pull/225): Include all cursor methods in cursor interface
    * Expands the common CursorInterface to support all methods in Cursor and EagerCursor
    * Allows ODM to be more agnostic when decorating a Cursor or EagerCursor
+ * [#226](https://github.com/doctrine/mongodb/pull/226): Implement getter for cursor `useIdentifierKeys` option
