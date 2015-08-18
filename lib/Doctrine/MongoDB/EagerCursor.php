@@ -31,7 +31,7 @@ class EagerCursor implements CursorInterface
     /**
      * The Cursor instance being wrapped.
      *
-     * @var Cursor
+     * @var CursorInterface
      */
     protected $cursor;
 
@@ -50,27 +50,22 @@ class EagerCursor implements CursorInterface
     protected $initialized = false;
 
     /**
-     * Whether to preserve keys from the Cursor (i.e. "_id" values) when
-     * initializing the $data array.
+     * Whether the cursor has started iterating.
+     *
+     * This is necessary for getNext() and hasNext() to work properly.
      *
      * @var boolean
      */
-    protected $useKeys = true;
+    private $iterating = false;
 
     /**
      * Constructor.
      *
-     * If documents in the result set use BSON objects for their "_id", the
-     * $useKeys parameter may be set to false to avoid errors attempting to cast
-     * arrays (i.e. BSON objects) to string keys.
-     *
-     * @param Cursor $cursor
-     * @param boolean $useKeys
+     * @param CursorInterface $cursor
      */
-    public function __construct(Cursor $cursor, $useKeys = true)
+    public function __construct(CursorInterface $cursor)
     {
         $this->cursor = $cursor;
-        $this->useKeys = (boolean) $useKeys;
     }
 
     /**
@@ -96,7 +91,7 @@ class EagerCursor implements CursorInterface
     /**
      * Return the wrapped Cursor.
      *
-     * @return Cursor
+     * @return CursorInterface
      */
     public function getCursor()
     {
@@ -123,7 +118,7 @@ class EagerCursor implements CursorInterface
     public function initialize()
     {
         if ($this->initialized === false) {
-            $this->data = $this->cursor->toArray($this->useKeys);
+            $this->data = $this->cursor->toArray();
         }
         $this->initialized = true;
     }
@@ -144,6 +139,7 @@ class EagerCursor implements CursorInterface
     public function key()
     {
         $this->initialize();
+        $this->iterating = true;
 
         return key($this->data);
     }
@@ -154,6 +150,7 @@ class EagerCursor implements CursorInterface
     public function next()
     {
         $this->initialize();
+        $this->iterating = true;
         next($this->data);
     }
 
@@ -163,6 +160,7 @@ class EagerCursor implements CursorInterface
     public function rewind()
     {
         $this->initialize();
+        $this->iterating = false;
         reset($this->data);
     }
 
@@ -182,6 +180,7 @@ class EagerCursor implements CursorInterface
     public function valid()
     {
         $this->initialize();
+        $this->iterating = true;
 
         return key($this->data) !== null;
     }
@@ -233,6 +232,43 @@ class EagerCursor implements CursorInterface
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function getCollection()
+    {
+        return $this->cursor->getCollection();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getFields()
+    {
+        return $this->cursor->getFields();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getNext()
+    {
+        $this->initialize();
+
+        $next = ($this->iterating) ? next($this->data) : current($this->data);
+        $this->iterating = true;
+
+        return ($next !== false) ? $next : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getQuery()
+    {
+        return $this->cursor->getQuery();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getReadPreference()
@@ -248,6 +284,26 @@ class EagerCursor implements CursorInterface
         $this->cursor->setReadPreference($readPreference, $tags);
 
         return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function hasNext()
+    {
+        $this->initialize();
+
+        $wasIterating = $this->iterating;
+        $hasNext = $this->getNext() !== null;
+
+        // Reset the internal cursor if we weren't iterating
+        if ($wasIterating) {
+            prev($this->data);
+        } else {
+            $this->iterating = false;
+        }
+
+        return $hasNext;
     }
 
     /**
@@ -289,11 +345,32 @@ class EagerCursor implements CursorInterface
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function recreate()
+    {
+        $this->initialized = false;
+        $this->data = array();
+        $this->iterating = false;
+        $this->cursor->recreate();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function reset()
     {
         $this->cursor->reset();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setUseIdentifierKeys($useIdentifierKeys)
+    {
+        $this->cursor->setUseIdentifierKeys($useIdentifierKeys);
+
+        return $this;
     }
 
     /**

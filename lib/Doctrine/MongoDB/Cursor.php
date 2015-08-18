@@ -53,6 +53,16 @@ class Cursor implements CursorInterface
      */
     protected $numRetries;
 
+    /**
+     * Whether to use the document's "_id" value as its iteration key.
+     *
+     * If false, the position of the document in the result set will be reported
+     * instead. This is useful for documents that have non-scalar IDs.
+     *
+     * @var boolean
+     */
+    protected $useIdentifierKeys = true;
+
     protected $query = array();
     protected $fields = array();
     protected $hint;
@@ -181,6 +191,8 @@ class Cursor implements CursorInterface
     /**
      * Wrapper method for MongoCursor::fields().
      *
+     * @param array $f Fields to return (or not return).
+     *
      * @see http://php.net/manual/en/mongocursor.fields.php
      * @return self
      */
@@ -307,11 +319,18 @@ class Cursor implements CursorInterface
     public function getSingleResult()
     {
         $originalLimit = $this->limit;
+        $originalUseIdentifierKeys = $this->useIdentifierKeys;
+
         $this->reset();
         $this->limit(1);
-        $result = current($this->toArray(false)) ?: null;
+        $this->setUseIdentifierKeys(false);
+
+        $result = current($this->toArray()) ?: null;
+
         $this->reset();
         $this->limit($originalLimit);
+        $this->setUseIdentifierKeys($originalUseIdentifierKeys);
+
         return $result;
     }
 
@@ -374,10 +393,17 @@ class Cursor implements CursorInterface
      *
      * @see http://php.net/manual/en/iterator.key.php
      * @see http://php.net/manual/en/mongocursor.key.php
-     * @return string
+     * @return mixed
      */
     public function key()
     {
+        // TODO: Track position internally to avoid repeated info() calls
+        if ( ! $this->useIdentifierKeys) {
+            $info = $this->mongoCursor->info();
+
+            return isset($info['at']) ? $info['at'] : null;
+        }
+
         return $this->mongoCursor->key();
     }
 
@@ -406,7 +432,7 @@ class Cursor implements CursorInterface
     {
         $cursor = $this;
         $this->retry(function() use ($cursor) {
-            return $cursor->getMongoCursor()->next();
+            $cursor->getMongoCursor()->next();
         }, false);
     }
 
@@ -480,7 +506,7 @@ class Cursor implements CursorInterface
     {
         $cursor = $this;
         $this->retry(function() use ($cursor) {
-            return $cursor->getMongoCursor()->rewind();
+            $cursor->getMongoCursor()->rewind();
         }, false);
     }
 
@@ -516,6 +542,20 @@ class Cursor implements CursorInterface
         } else {
             $this->mongoCursor->setReadPreference(\MongoClient::RP_PRIMARY);
         }
+    }
+
+    /**
+     * Set whether to use the document's "_id" value as its iteration key.
+     *
+     * @since 1.2
+     * @param boolean $useIdentifierKeys
+     * @return self
+     */
+    public function setUseIdentifierKeys($useIdentifierKeys)
+    {
+        $this->useIdentifierKeys = (boolean) $useIdentifierKeys;
+
+        return $this;
     }
 
     /**
@@ -616,20 +656,29 @@ class Cursor implements CursorInterface
     /**
      * Return the cursor's results as an array.
      *
-     * If documents in the result set use BSON objects for their "_id", the
-     * $useKeys parameter may be set to false to avoid errors attempting to cast
-     * arrays (i.e. BSON objects) to string keys.
-     *
      * @see Iterator::toArray()
-     * @param boolean $useKeys
+     * @param boolean $useIdentifierKeys Deprecated since 1.2; will be removed in 2.0
      * @return array
      */
-    public function toArray($useKeys = true)
+    public function toArray($useIdentifierKeys = null)
     {
+        $originalUseIdentifierKeys = $this->useIdentifierKeys;
+        $useIdentifierKeys = isset($useIdentifierKeys) ? (boolean) $useIdentifierKeys : $this->useIdentifierKeys;
         $cursor = $this;
-        return $this->retry(function() use ($cursor, $useKeys) {
-            return iterator_to_array($cursor, $useKeys);
+
+        /* Let iterator_to_array() decide to use keys or not. This will avoid
+         * superfluous MongoCursor::info() from the key() method until the
+         * cursor position is tracked internally.
+         */
+        $this->useIdentifierKeys = true;
+
+        $results = $this->retry(function() use ($cursor, $useIdentifierKeys) {
+            return iterator_to_array($cursor, $useIdentifierKeys);
         }, true);
+
+        $this->useIdentifierKeys = $originalUseIdentifierKeys;
+
+        return $results;
     }
 
     /**

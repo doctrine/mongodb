@@ -87,20 +87,48 @@ class CursorTest extends BaseTest
         $this->assertNotNull($cursor->getSingleResult());
     }
 
+    public function testSetUseIdentifierKeys()
+    {
+        $this->cursor->setUseIdentifierKeys(false);
+
+        foreach ($this->cursor as $key => $document) {
+            /* Note: Driver versions before 1.5.0 had an off-by-one error and
+             * count from one, so just assert the key's type here.
+             */
+            $this->assertTrue(is_integer($key));
+        }
+    }
+
     public function testToArray()
     {
         $this->assertEquals(
             array(
                 (string) $this->doc1['_id'] => $this->doc1,
                 (string) $this->doc2['_id'] => $this->doc2,
-                (string) $this->doc3['_id'] => $this->doc3
+                (string) $this->doc3['_id'] => $this->doc3,
             ),
             $this->cursor->toArray()
         );
     }
 
-    public function testToArrayWithoutKeys()
+    public function testToArrayWithKeysOverridesClassOption()
     {
+        $this->cursor->setUseIdentifierKeys(false);
+
+        $this->assertEquals(
+            array(
+                (string) $this->doc1['_id'] => $this->doc1,
+                (string) $this->doc2['_id'] => $this->doc2,
+                (string) $this->doc3['_id'] => $this->doc3,
+            ),
+            $this->cursor->toArray(true)
+        );
+    }
+
+    public function testToArrayWithoutKeysOverridesClassOption()
+    {
+        $this->cursor->setUseIdentifierKeys(false);
+
         $this->assertEquals(array($this->doc1, $this->doc2, $this->doc3), $this->cursor->toArray(false));
     }
 

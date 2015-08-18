@@ -20,7 +20,6 @@ class EagerCursorTest extends BaseTest
 
         $cursor->expects($this->once())
             ->method('toArray')
-            ->with(true) // Constructor $useKeys option defaults to true
             ->will($this->returnValue(array()));
 
         $eagerCursor = new EagerCursor($cursor);
@@ -30,29 +29,6 @@ class EagerCursorTest extends BaseTest
         $this->assertTrue($eagerCursor->isInitialized());
         $eagerCursor->initialize();
         $this->assertTrue($eagerCursor->isInitialized());
-    }
-
-    /**
-     * @dataProvider provideUseKeys
-     */
-    public function testInitializationForwardsUseKeysOption($useKeys)
-    {
-        $cursor = $this->getMockCursor();
-
-        $cursor->expects($this->once())
-            ->method('toArray')
-            ->with($useKeys);
-
-        $eagerCursor = new EagerCursor($cursor, $useKeys);
-        $eagerCursor->initialize();
-    }
-
-    public function provideUseKeys()
-    {
-        return array(
-            array(true),
-            array(false),
-        );
     }
 
     public function testCount()
@@ -73,6 +49,23 @@ class EagerCursorTest extends BaseTest
         $this->assertFalse($eagerCursor->isInitialized());
         $this->assertEquals(2, count($eagerCursor));
         $this->assertTrue($eagerCursor->isInitialized());
+    }
+
+    public function testSetUseIdentifierKeys()
+    {
+        $cursor = $this->getMockCursor();
+
+        $cursor->expects($this->at(0))
+            ->method('setUseIdentifierKeys')
+            ->with(true);
+
+        $cursor->expects($this->at(1))
+            ->method('setUseIdentifierKeys')
+            ->with(false);
+
+        $eagerCursor = new EagerCursor($cursor);
+        $eagerCursor->setUseIdentifierKeys(true);
+        $eagerCursor->setUseIdentifierKeys(false);
     }
 
     public function testGetSingleResultShouldAlwaysReturnTheFirstResult()
@@ -162,12 +155,42 @@ class EagerCursorTest extends BaseTest
         }
     }
 
+    public function testGetNextHasNext()
+    {
+        $results = array(
+            array('_id' => 1, 'x' => 'foo'),
+            array('_id' => 2, 'x' => 'bar'),
+        );
+
+        $cursor = $this->getMockCursor();
+
+        $cursor->expects($this->once())
+            ->method('toArray')
+            ->will($this->returnValue($results));
+
+        $eagerCursor = new EagerCursor($cursor);
+
+        $this->assertTrue($eagerCursor->hasNext());
+        $this->assertEquals($results[0], $eagerCursor->getNext());
+
+        $this->assertTrue($eagerCursor->hasNext());
+        $this->assertEquals($results[0], $eagerCursor->current(), 'hasNext does not advance internal cursor');
+        $this->assertEquals($results[1], $eagerCursor->getNext());
+
+        $this->assertFalse($eagerCursor->hasNext());
+        $this->assertNull($eagerCursor->getNext());
+
+        $eagerCursor->rewind();
+        $this->assertTrue($eagerCursor->hasNext());
+        $this->assertEquals($results[0], $eagerCursor->getNext());
+    }
+
     /**
      * @return \Doctrine\MongoDB\Cursor
      */
     private function getMockCursor()
     {
-        return $this->getMockBuilder('Doctrine\MongoDB\Cursor')
+        return $this->getMockBuilder('Doctrine\MongoDB\CursorInterface')
             ->disableOriginalConstructor()
             ->getMock();
     }
