@@ -50,17 +50,9 @@ class EagerCursor implements CursorInterface
     protected $initialized = false;
 
     /**
-     * Whether to preserve keys from the Cursor (i.e. "_id" values) when
-     * initializing the $data array.
+     * Whether the cursor has started iterating.
      *
-     * @var boolean
-     */
-    protected $useKeys = true;
-
-    /**
-     * Whether the cursor started iterating.
-     *
-     * This is necessary to get getNext() and hasNext() to work properly
+     * This is necessary for getNext() and hasNext() to work properly.
      *
      * @var boolean
      */
@@ -69,17 +61,11 @@ class EagerCursor implements CursorInterface
     /**
      * Constructor.
      *
-     * If documents in the result set use BSON objects for their "_id", the
-     * $useKeys parameter may be set to false to avoid errors attempting to cast
-     * arrays (i.e. BSON objects) to string keys.
-     *
      * @param CursorInterface $cursor
-     * @param boolean $useKeys
      */
-    public function __construct(CursorInterface $cursor, $useKeys = true)
+    public function __construct(CursorInterface $cursor)
     {
         $this->cursor = $cursor;
-        $this->useKeys = (boolean) $useKeys;
     }
 
     /**
@@ -132,7 +118,7 @@ class EagerCursor implements CursorInterface
     public function initialize()
     {
         if ($this->initialized === false) {
-            $this->data = $this->cursor->toArray($this->useKeys);
+            $this->data = $this->cursor->toArray();
         }
         $this->initialized = true;
     }
@@ -375,6 +361,16 @@ class EagerCursor implements CursorInterface
     public function reset()
     {
         $this->cursor->reset();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setUseIdentifierKeys($useIdentifierKeys)
+    {
+        $this->cursor->setUseIdentifierKeys($useIdentifierKeys);
+
+        return $this;
     }
 
     /**

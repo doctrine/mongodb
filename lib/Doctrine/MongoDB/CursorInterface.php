@@ -185,6 +185,15 @@ interface CursorInterface extends Iterator
     public function reset();
 
     /**
+     * Set whether to use the document's "_id" value as its iteration key.
+     *
+     * @since 1.2
+     * @param boolean $useIdentifierKeys
+     * @return self
+     */
+    public function setUseIdentifierKeys($useIdentifierKeys);
+
+    /**
      * Wrapper method for MongoCursor::skip().
      *
      * @see http://php.net/manual/en/mongocursor.skip.php
