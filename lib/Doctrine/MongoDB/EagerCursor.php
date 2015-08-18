@@ -287,6 +287,24 @@ class EagerCursor implements CursorInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getUseIdentifierKeys()
+    {
+        return $this->cursor->getUseIdentifierKeys();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setUseIdentifierKeys($useIdentifierKeys)
+    {
+        $this->cursor->setUseIdentifierKeys($useIdentifierKeys);
+
+        return $this;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function hasNext()
@@ -361,16 +379,6 @@ class EagerCursor implements CursorInterface
     public function reset()
     {
         $this->cursor->reset();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setUseIdentifierKeys($useIdentifierKeys)
-    {
-        $this->cursor->setUseIdentifierKeys($useIdentifierKeys);
-
-        return $this;
     }
 
     /**
