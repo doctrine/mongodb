@@ -15,11 +15,11 @@
     ],
     "require": {
         "php": ">=5.3.2",
-        "ext-mongo": ">=1.2.12,<1.7-dev",
-        "doctrine/common": "~2.2"
+        "ext-mongo": "^1.2.12",
+        "doctrine/common": "^2.2"
     },
     "require-dev": {
-        "jmikola/geojson": "~1.0"
+        "jmikola/geojson": "^1.0"
     },
     "suggest": {
         "jmikola/geojson": "Support GeoJSON geometry objects in 2dsphere queries"
