@@ -260,6 +260,32 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($cursor, $eagerCursor->getCursor());
     }
 
+    public function testUseIdentifierKeys()
+    {
+        $cursor = $this->getMockCursor();
+        $collection = $this->getMockCollection();
+
+        $collection->expects($this->once())
+            ->method('find')
+            ->with(array('foo' => 'bar'))
+            ->will($this->returnValue($cursor));
+
+        $cursor->expects($this->once())
+            ->method('setUseIdentifierKeys')
+            ->with(false)
+            ->will($this->returnValue($cursor));
+
+        $queryArray = array(
+            'type' => Query::TYPE_FIND,
+            'query' => array('foo' => 'bar'),
+            'useIdentifierKeys' => false,
+        );
+
+        $query = new Query($collection, $queryArray, array());
+
+        $this->assertSame($cursor, $query->execute());
+    }
+
     /**
      * @return \Doctrine\MongoDB\Collection
      */
