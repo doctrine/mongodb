@@ -129,6 +129,23 @@ interface CursorInterface extends Iterator
     public function setReadPreference($readPreference, array $tags = null);
 
     /**
+     * Return whether the document's "_id" value is used as its iteration key.
+     *
+     * @since 1.2
+     * @return boolean
+     */
+    public function getUseIdentifierKeys();
+
+    /**
+     * Set whether to use the document's "_id" value as its iteration key.
+     *
+     * @since 1.2
+     * @param boolean $useIdentifierKeys
+     * @return self
+     */
+    public function setUseIdentifierKeys($useIdentifierKeys);
+
+    /**
      * Wrapper method for MongoCursor::hasNext().
      *
      * @see http://php.net/manual/en/mongocursor.hasnext.php
@@ -183,15 +200,6 @@ interface CursorInterface extends Iterator
      * @see http://php.net/manual/en/mongocursor.reset.php
      */
     public function reset();
-
-    /**
-     * Set whether to use the document's "_id" value as its iteration key.
-     *
-     * @since 1.2
-     * @param boolean $useIdentifierKeys
-     * @return self
-     */
-    public function setUseIdentifierKeys($useIdentifierKeys);
 
     /**
      * Wrapper method for MongoCursor::skip().

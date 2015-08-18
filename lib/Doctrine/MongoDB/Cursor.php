@@ -335,6 +335,31 @@ class Cursor implements CursorInterface
     }
 
     /**
+     * Return whether the document's "_id" value is used as its iteration key.
+     *
+     * @since 1.2
+     * @return boolean
+     */
+    public function getUseIdentifierKeys()
+    {
+        return $this->useIdentifierKeys;
+    }
+
+    /**
+     * Set whether to use the document's "_id" value as its iteration key.
+     *
+     * @since 1.2
+     * @param boolean $useIdentifierKeys
+     * @return self
+     */
+    public function setUseIdentifierKeys($useIdentifierKeys)
+    {
+        $this->useIdentifierKeys = (boolean) $useIdentifierKeys;
+
+        return $this;
+    }
+
+    /**
      * Wrapper method for MongoCursor::hasNext().
      *
      * @see http://php.net/manual/en/mongocursor.hasnext.php
@@ -542,20 +567,6 @@ class Cursor implements CursorInterface
         } else {
             $this->mongoCursor->setReadPreference(\MongoClient::RP_PRIMARY);
         }
-    }
-
-    /**
-     * Set whether to use the document's "_id" value as its iteration key.
-     *
-     * @since 1.2
-     * @param boolean $useIdentifierKeys
-     * @return self
-     */
-    public function setUseIdentifierKeys($useIdentifierKeys)
-    {
-        $this->useIdentifierKeys = (boolean) $useIdentifierKeys;
-
-        return $this;
     }
 
     /**

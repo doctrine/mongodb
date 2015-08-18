@@ -90,6 +90,7 @@ class CursorTest extends BaseTest
     public function testSetUseIdentifierKeys()
     {
         $this->cursor->setUseIdentifierKeys(false);
+        $this->assertFalse($this->cursor->getUseIdentifierKeys());
 
         foreach ($this->cursor as $key => $document) {
             /* Note: Driver versions before 1.5.0 had an off-by-one error and
