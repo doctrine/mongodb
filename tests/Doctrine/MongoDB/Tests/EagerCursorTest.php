@@ -51,6 +51,23 @@ class EagerCursorTest extends BaseTest
         $this->assertTrue($eagerCursor->isInitialized());
     }
 
+    public function testGetUseIdentifierKeys()
+    {
+        $cursor = $this->getMockCursor();
+
+        $cursor->expects($this->at(0))
+            ->method('getUseIdentifierKeys')
+            ->will($this->returnValue(true));
+
+        $cursor->expects($this->at(1))
+            ->method('getUseIdentifierKeys')
+            ->will($this->returnValue(false));
+
+        $eagerCursor = new EagerCursor($cursor);
+        $this->assertTrue($eagerCursor->getUseIdentifierKeys());
+        $this->assertFalse($eagerCursor->getUseIdentifierKeys());
+    }
+
     public function testSetUseIdentifierKeys()
     {
         $cursor = $this->getMockCursor();
