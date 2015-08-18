@@ -21,6 +21,7 @@ namespace Doctrine\MongoDB\Query;
 
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Cursor;
+use Doctrine\MongoDB\CursorInterface;
 use Doctrine\MongoDB\Database;
 use Doctrine\MongoDB\EagerCursor;
 use Doctrine\MongoDB\Iterator;
@@ -152,7 +153,7 @@ class Query implements IteratorAggregate
      * (e.g. aggregate, inline mapReduce) may return an ArrayIterator. Other
      * commands and operations may return a status array or a boolean, depending
      * on the driver's write concern. Queries and some mapReduce commands will
-     * return a Cursor.
+     * return a CursorInterface.
      *
      * @return mixed
      */
@@ -382,7 +383,7 @@ class Query implements IteratorAggregate
      * array. The Cursor may also be wrapped with an EagerCursor.
      *
      * @param Cursor $cursor
-     * @return Cursor|EagerCursor
+     * @return CursorInterface
      */
     protected function prepareCursor(Cursor $cursor)
     {
