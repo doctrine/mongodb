@@ -1073,6 +1073,18 @@ class Builder
     }
 
     /**
+     * Specifies a cumulative time limit in milliseconds for processing operations on a cursor.
+     *
+     * @param int $ms
+     * @return $this
+     */
+    public function maxTimeMS($ms)
+    {
+        $this->query['maxTimeMS'] = $ms;
+        return $this;
+    }
+
+    /**
      * Updates the value of the field to a specified value if the specified value is less than the current value of the field.
      *
      * @see Expr::min()

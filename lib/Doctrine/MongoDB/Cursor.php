@@ -68,6 +68,7 @@ class Cursor implements CursorInterface
     protected $options = array();
     protected $batchSize;
     protected $limit;
+    protected $maxTimeMS;
     protected $readPreference;
     protected $readPreferenceTags;
     protected $skip;
@@ -446,6 +447,20 @@ class Cursor implements CursorInterface
     }
 
     /**
+     * Wrapper method for MongoCursor::maxTimeMS().
+     *
+     * @see http://php.net/manual/en/mongocursor.maxtimems.php
+     * @param integer $ms
+     * @return self
+     */
+    public function maxTimeMS($ms)
+    {
+        $this->maxTimeMS = (integer) $ms;
+        $this->mongoCursor->maxTimeMS($this->maxTimeMS);
+        return $this;
+    }
+
+    /**
      * Wrapper method for MongoCursor::next().
      *
      * @see http://php.net/manual/en/iterator.next.php
@@ -479,6 +494,9 @@ class Cursor implements CursorInterface
         }
         if ($this->limit !== null) {
             $this->mongoCursor->limit($this->limit);
+        }
+        if ($this->maxTimeMS !== null) {
+            $this->mongoCursor->maxTimeMS($this->maxTimeMS);
         }
         if ($this->skip !== null) {
             $this->mongoCursor->skip($this->skip);

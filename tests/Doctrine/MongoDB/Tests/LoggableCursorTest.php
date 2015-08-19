@@ -23,6 +23,7 @@ class LoggableCursorTest extends BaseTest
             array('limit'),
             array('hint', array()),
             array('snapshot'),
+            array('maxTimeMS', array())
         );
     }
 }

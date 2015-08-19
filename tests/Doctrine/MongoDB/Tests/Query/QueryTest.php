@@ -286,6 +286,32 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($cursor, $query->execute());
     }
 
+    public function testSpecifyMaxTimeMSOnCursor()
+    {
+        $cursor = $this->getMockCursor();
+        $collection = $this->getMockCollection();
+
+        $collection->expects($this->once())
+            ->method('find')
+            ->with($this->equalTo(array('foo' => 'bar')))
+            ->will($this->returnValue($cursor));
+
+        $cursor->expects($this->once())
+            ->method('maxTimeMS')
+            ->with($this->equalTo(30000))
+            ->will($this->returnValue($cursor));
+
+        $queryArray = array(
+            'type' => Query::TYPE_FIND,
+            'query' => array('foo' => 'bar'),
+            'maxTimeMS' => 30000
+        );
+
+        $query = new Query($collection, $queryArray, array());
+
+        $this->assertSame($cursor, $query->execute());
+    }
+
     /**
      * @return \Doctrine\MongoDB\Collection
      */
