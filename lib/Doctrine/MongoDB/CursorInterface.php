@@ -253,4 +253,13 @@ interface CursorInterface extends Iterator
      * @return self
      */
     public function timeout($ms);
+
+    /**
+     * Wrapper method for MongoCursor::maxTimeMS().
+     *
+     * @see http://php.net/manual/en/mongocursor.maxtimems.php
+     * @param integer $ms
+     * @return self
+     */
+    public function maxTimeMS($ms);
 }

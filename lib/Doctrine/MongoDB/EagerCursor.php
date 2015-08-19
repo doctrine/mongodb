@@ -440,4 +440,15 @@ class EagerCursor implements CursorInterface
 
         return $this;
     }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function maxTimeMS($ms)
+    {
+        $this->cursor->maxTimeMS($ms);
+
+        return $this;
+    }
 }

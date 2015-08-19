@@ -395,7 +395,7 @@ class Query implements IteratorAggregate
             $cursor->setReadPreference($this->query['readPreference'], $this->query['readPreferenceTags']);
         }
 
-        foreach ($this->getQueryOptions('hint', 'immortal', 'limit', 'skip', 'slaveOkay', 'sort') as $key => $value) {
+        foreach ($this->getQueryOptions('hint', 'immortal', 'limit', 'skip', 'slaveOkay', 'sort', 'maxTimeMS') as $key => $value) {
             $cursor->$key($value);
         }
 
