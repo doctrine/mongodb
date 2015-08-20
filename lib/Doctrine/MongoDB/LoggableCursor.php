@@ -139,4 +139,17 @@ class LoggableCursor extends Cursor implements Loggable
 
         return parent::sort($fields);
     }
+
+    /**
+     * @see Cursor::maxTimeMS()
+     */
+    public function maxTimeMS($ms)
+    {
+        $this->log(array(
+            'maxTimeMS' => true,
+            'maxTimeMSNum' => $ms,
+        ));
+
+        return parent::maxTimeMS($ms);
+    }
 }
