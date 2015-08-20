@@ -202,8 +202,38 @@ class EagerCursorTest extends BaseTest
         $this->assertEquals($results[0], $eagerCursor->getNext());
     }
 
+    public function testLimit()
+    {
+        $cursor = $this->getMockCursor();
+
+        $limit = 10;
+        $cursor->expects($this->once())
+            ->method('limit')
+            ->with($limit);
+
+        $eagerCursor = new EagerCursor($cursor);
+        $result = $eagerCursor->limit($limit);
+
+        $this->assertInstanceOf('\Doctrine\MongoDB\EagerCursor', $result);
+    }
+
+    public function testSkip()
+    {
+        $cursor = $this->getMockCursor();
+
+        $offset = 10;
+        $cursor->expects($this->once())
+            ->method('skip')
+            ->with($offset);
+
+        $eagerCursor = new EagerCursor($cursor);
+        $result = $eagerCursor->skip($offset);
+
+        $this->assertInstanceOf('\Doctrine\MongoDB\EagerCursor', $result);
+    }
+
     /**
-     * @return \Doctrine\MongoDB\Cursor
+     * @return \Doctrine\MongoDB\Cursor|\PHPUnit_Framework_MockObject_MockObject
      */
     private function getMockCursor()
     {
