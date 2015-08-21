@@ -509,6 +509,9 @@ class Cursor implements CursorInterface
         if ($this->timeout !== null) {
             $this->mongoCursor->timeout($this->timeout);
         }
+        if ($this->maxTimeMS !== null) {
+            $this->mongoCursor->maxTimeMS($this->maxTimeMS);
+        }
     }
 
     /**

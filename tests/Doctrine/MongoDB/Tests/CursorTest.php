@@ -342,6 +342,9 @@ class CursorTest extends BaseTest
             $mongoCursor->expects($self->once())
                 ->method('timeout')
                 ->with(1000);
+            $mongoCursor->expects($self->once())
+                ->method('maxTimeMS')
+                ->with(30000);
         };
 
         $mongoCursor = $this->getMockMongoCursor();
@@ -376,7 +379,8 @@ class CursorTest extends BaseTest
             ->snapshot()
             ->sort(array('x' => -1))
             ->tailable(false)
-            ->timeout(1000);
+            ->timeout(1000)
+            ->maxTimeMS(30000);
 
         $cursor->recreate();
     }
