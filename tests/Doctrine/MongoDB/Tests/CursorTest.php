@@ -342,9 +342,6 @@ class CursorTest extends BaseTest
             $mongoCursor->expects($self->once())
                 ->method('timeout')
                 ->with(1000);
-            $mongoCursor->expects($self->once())
-                ->method('maxTimeMS')
-                ->with(30000);
         };
 
         $mongoCursor = $this->getMockMongoCursor();
@@ -379,8 +376,45 @@ class CursorTest extends BaseTest
             ->snapshot()
             ->sort(array('x' => -1))
             ->tailable(false)
-            ->timeout(1000)
-            ->maxTimeMS(30000);
+            ->timeout(1000);
+
+        $cursor->recreate();
+    }
+
+    public function testSetMaxTimeMSWhenRecreateCursor()
+    {
+        if (version_compare(phpversion('mongo'), '1.5.0', '<')) {
+            $this->markTestSkipped('This test is not applicable to driver versions < 1.5.0');
+        }
+
+        $self = $this;
+
+        $setCursorExpectations = function($mongoCursor) use ($self) {
+            $mongoCursor->expects($self->once())
+                ->method('maxTimeMS')
+                ->with(30000);
+        };
+
+        $mongoCursor = $this->getMockMongoCursor();
+        $recreatedMongoCursor = $this->getMockMongoCursor();
+
+        $setCursorExpectations($mongoCursor);
+        $setCursorExpectations($recreatedMongoCursor);
+
+        $mongoCollection = $this->getMockCollection();
+        $mongoCollection->expects($this->once())
+            ->method('find')
+            ->with(array('x' => 9500), array())
+            ->will($this->returnValue($recreatedMongoCursor));
+
+        $collection = $this->getMockCollection();
+        $collection->expects($this->once())
+            ->method('getMongoCollection')
+            ->will($this->returnValue($mongoCollection));
+
+        $cursor = $this->getTestCursor($collection, $mongoCursor, array('x' => 9500));
+
+        $cursor->maxTimeMS(30000);
 
         $cursor->recreate();
     }
