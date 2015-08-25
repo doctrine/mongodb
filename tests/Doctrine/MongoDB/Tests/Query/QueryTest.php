@@ -288,10 +288,6 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 
     public function testSpecifyMaxTimeMSOnCursor()
     {
-        if(version_compare(phpversion('mongo'), '1.5.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.5.0');
-        }
-
         $cursor = $this->getMockCursor();
         $collection = $this->getMockCollection();
 

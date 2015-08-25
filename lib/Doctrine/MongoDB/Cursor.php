@@ -510,7 +510,7 @@ class Cursor implements CursorInterface
             $this->mongoCursor->timeout($this->timeout);
         }
         if ($this->maxTimeMS !== null) {
-            $this->mongoCursor->maxTimeMS($this->maxTimeMS);
+            $this->mongoCursor->addOption('$maxTimeMS', $this->maxTimeMS);
         }
     }
 
@@ -677,10 +677,8 @@ class Cursor implements CursorInterface
      */
     public function maxTimeMS($ms)
     {
-        if (version_compare(phpversion('mongo'), '1.5.0', '>=')) {
-            $this->maxTimeMS = (integer)$ms;
-            $this->mongoCursor->maxTimeMS((integer)$ms);
-        }
+        $this->maxTimeMS = (integer)$ms;
+        $this->mongoCursor->addOption('$maxTimeMS', (integer)$ms);
         return $this;
     }
 

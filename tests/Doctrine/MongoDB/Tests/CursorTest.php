@@ -383,16 +383,15 @@ class CursorTest extends BaseTest
 
     public function testSetMaxTimeMSWhenRecreateCursor()
     {
-        if (version_compare(phpversion('mongo'), '1.5.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.5.0');
-        }
-
         $self = $this;
 
         $setCursorExpectations = function($mongoCursor) use ($self) {
             $mongoCursor->expects($self->once())
-                ->method('maxTimeMS')
-                ->with(30000);
+                ->method('addOption')
+                ->with(
+                    $self->equalTo('$maxTimeMS'),
+                    $self->equalTo(30000)
+                );
         };
 
         $mongoCursor = $this->getMockMongoCursor();
