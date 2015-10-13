@@ -813,7 +813,9 @@ class Collection
         }
 
         if ($this->eventManager->hasListeners(Events::preUpdate)) {
-            $this->eventManager->dispatchEvent(Events::preUpdate, new UpdateEventArgs($this, $query, $newObj, $options));
+            $updateEventArgs = new UpdateEventArgs($this, $query, $newObj, $options);
+            $this->eventManager->dispatchEvent(Events::preUpdate, $updateEventArgs);
+            $query = $updateEventArgs->getQuery();
         }
 
         $result = $this->doUpdate($query, $newObj, $options);
