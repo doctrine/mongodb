@@ -216,6 +216,20 @@ class Expr
     }
 
     /**
+     * Associates a comment to any expression taking a query predicate.
+     *
+     * @see Builder::comment()
+     * @see http://docs.mongodb.org/manual/reference/operator/query/comment/
+     * @param string $comment
+     * @return self
+     */
+    public function comment($comment)
+    {
+        $this->query['$comment'] = $comment;
+        return $this;
+    }
+
+    /**
      * Sets the value of the current field to the current date, either as a date or a timestamp.
      *
      * @see Builder::currentDate()

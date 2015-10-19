@@ -217,6 +217,20 @@ class Builder
     }
 
     /**
+     * Associates a comment to any expression taking a query predicate.
+     *
+     * @see Expr::comment()
+     * @see http://docs.mongodb.org/manual/reference/operator/query/comment/
+     * @param string $comment
+     * @return self
+     */
+    public function comment($comment)
+    {
+        $this->expr->comment($comment);
+        return $this;
+    }
+
+    /**
      * Change the query type to count.
      *
      * @return self
