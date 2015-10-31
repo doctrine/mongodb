@@ -43,17 +43,18 @@ class FunctionalTest extends BaseTest
     public function testFindAndUpdateQuery()
     {
         $qb = $this->getTestQueryBuilder()
-            ->findAndRemove()
-            ->field('username')->equals('jwage');
+            ->findAndUpdate()
+            ->field('username')->equals('jwage')
+            ->field('writes')->inc(1);
 
-        $this->assertEquals(Query::TYPE_FIND_AND_REMOVE, $qb->getType());
+        $this->assertEquals(Query::TYPE_FIND_AND_UPDATE, $qb->getType());
         $expected = array(
             'username' => 'jwage'
         );
         $this->assertEquals($expected, $qb->getQueryArray());
 
         $query = $qb->getQuery();
-        $this->assertEquals(Query::TYPE_FIND_AND_REMOVE, $query->getType());
+        $this->assertEquals(Query::TYPE_FIND_AND_UPDATE, $query->getType());
         $this->assertNull($query->execute());
     }
 
