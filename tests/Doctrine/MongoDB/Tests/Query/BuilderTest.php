@@ -261,6 +261,26 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $qb->getNewObj());
     }
 
+    public function testSetOnInsert()
+    {
+        $createDate = new \MongoDate();
+        $qb = $this->getTestQueryBuilder()
+            ->update()
+            ->upsert()
+            ->field('username')->equals('boo')
+            ->field('createDate')->setOnInsert($createDate);
+
+        $expected = array(
+            'username' => 'boo'
+        );
+        $this->assertEquals($expected, $qb->getQueryArray());
+
+        $expected = array('$setOnInsert' => array(
+            'createDate' => $createDate
+        ));
+        $this->assertEquals($expected, $qb->getNewObj());
+    }
+
     public function testDateRange()
     {
         $start = new \MongoDate(strtotime('1985-09-01 01:00:00'));
@@ -350,6 +370,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             'inc()' => array('inc', array(1)),
             'mul()' => array('mul', array(1)),
             'unsetField()' => array('unsetField'),
+            'setOnInsert()' => array('setOnInsert', array(1)),
             'push() with value' => array('push', array('value')),
             'push() with Expr' => array('push', array($this->getMockExpr())),
             'pushAll()' => array('pushAll', array(array('value1', 'value2'))),

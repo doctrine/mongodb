@@ -1046,6 +1046,28 @@ class Expr
     }
 
     /**
+     * Set the current field to the value if the document is inserted in an
+     * upsert operation.
+     *
+     * If an update operation with upsert: true results in an insert of a
+     * document, then $setOnInsert assigns the specified values to the fields in
+     * the document. If the update operation does not result in an insert,
+     * $setOnInsert does nothing.
+     *
+     * @see Builder::setOnInsert()
+     * @see https://docs.mongodb.org/manual/reference/operator/update/setOnInsert/
+     * @param mixed $value
+     * @return self
+     */
+    public function setOnInsert($value)
+    {
+        $this->requiresCurrentField();
+        $this->newObj['$setOnInsert'][$this->currentField] = $value;
+
+        return $this;
+    }
+
+    /**
      * Specify $size criteria for the current field.
      *
      * @see Builder::size()

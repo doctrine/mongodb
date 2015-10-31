@@ -1421,6 +1421,26 @@ class Builder
     }
 
     /**
+     * Set the current field to the value if the document is inserted in an
+     * upsert operation.
+     *
+     * If an update operation with upsert: true results in an insert of a
+     * document, then $setOnInsert assigns the specified values to the fields in
+     * the document. If the update operation does not result in an insert,
+     * $setOnInsert does nothing.
+     *
+     * @see Expr::setOnInsert()
+     * @see https://docs.mongodb.org/manual/reference/operator/update/setOnInsert/
+     * @param mixed $value
+     * @return self
+     */
+    public function setOnInsert($value)
+    {
+        $this->expr->setOnInsert($value);
+        return $this;
+    }
+
+    /**
      * Set the read preference for the query.
      *
      * This is only relevant for read-only queries and commands.

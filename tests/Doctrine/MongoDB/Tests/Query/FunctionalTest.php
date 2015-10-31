@@ -147,6 +147,44 @@ class FunctionalTest extends BaseTest
         $this->assertArrayHasKeyValue(array('ok' => 1), $qb->getQuery()->execute());
     }
 
+    public function testUpsertQuery()
+    {
+        $qb = $this->getTestQueryBuilder()
+            ->update()
+            ->upsert()
+            ->field('username')->equals('alcaeus')
+            ->field('writes')->inc(1)
+            ->field('insertValue')->setOnInsert(1);
+
+        $this->assertEquals(Query::TYPE_UPDATE, $qb->getType());
+        $this->assertTrue($qb->debug('upsert'));
+
+        $qb->getQuery()->execute();
+
+        $document = $this->getTestQueryBuilder()
+            ->field('username')->equals('alcaeus')
+            ->getQuery()->getSingleResult();
+
+        $this->assertArrayHasKeyValue(array('username' => 'alcaeus'), $document);
+        $this->assertArrayHasKeyValue(array('writes' => 1), $document);
+        $this->assertArrayHasKeyValue(array('insertValue' => 1), $document);
+
+        $qb = $this->getTestQueryBuilder()
+            ->update()
+            ->upsert()
+            ->field('_id')->equals($document['_id'])
+            ->field('writes')->inc(1)
+            ->field('insertValue')->setOnInsert(2);
+
+        $qb->getQuery()->execute();
+        $document = $this->getTestQueryBuilder()
+            ->field('username')->equals('alcaeus')
+            ->getQuery()->getSingleResult();
+
+        $this->assertArrayHasKeyValue(array('writes' => 2), $document);
+        $this->assertArrayHasKeyValue(array('insertValue' => 1), $document);
+    }
+
     private function getTestQueryBuilder()
     {
         return $this->conn->selectCollection('db', 'users')->createQueryBuilder();
