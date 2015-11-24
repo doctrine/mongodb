@@ -386,7 +386,7 @@ class EagerCursor implements CursorInterface
      */
     public function skip($num)
     {
-        $this->cursor->limit($num);
+        $this->cursor->skip($num);
 
         return $this;
     }

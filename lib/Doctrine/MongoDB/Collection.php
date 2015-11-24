@@ -951,7 +951,7 @@ class Collection
 
         $timeout = isset($clientOptions['socketTimeoutMS'])
             ? $clientOptions['socketTimeoutMS']
-            : (isset($clientOptions['timeout']) ? isset($clientOptions['timeout']) : null);
+            : (isset($clientOptions['timeout']) ? $clientOptions['timeout'] : null);
 
         $mongoCollection = $this->mongoCollection;
         $commandCursor = $this->retry(function() use ($mongoCollection, $pipeline, $commandOptions) {
