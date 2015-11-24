@@ -9,3 +9,4 @@ in 1.2.x patch versions.
 
  * [#229](https://github.com/doctrine/mongodb/pull/229): Fix EagerCursor::skip() method calling limit method of base cursor instead of skip method
  * [#231](https://github.com/doctrine/mongodb/pull/231): Remove count method declaration in CursorInterface to fix fatal error for PHP 5.3
+ * [#237](https://github.com/doctrine/mongodb/pull/237): Fix bug where timeout is set to 1 ms
