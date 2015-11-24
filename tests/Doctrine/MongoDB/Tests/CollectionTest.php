@@ -93,10 +93,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testAggregateWithCursorOption()
     {
-        if ( ! method_exists('MongoCollection', 'aggregateCursor')) {
-            $this->markTestSkipped('This test is not applicable to drivers without MongoCollection::aggregateCursor()');
-        }
-
         $pipeline = array(
             array('$match' => array('_id' => 'bar')),
             array('$project' => array('_id' => 1)),
@@ -119,10 +115,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testAggregateWithCursorOptionAndBatchSize()
     {
-        if ( ! method_exists('MongoCollection', 'aggregateCursor')) {
-            $this->markTestSkipped('This test is not applicable to drivers without MongoCollection::aggregateCursor()');
-        }
-
         $pipeline = array(
             array('$match' => array('_id' => 'bar')),
             array('$project' => array('_id' => 1)),
@@ -145,10 +137,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testAggregateWithCursorOptionAndTimeout()
     {
-        if ( ! method_exists('MongoCollection', 'aggregateCursor')) {
-            $this->markTestSkipped('This test is not applicable to drivers without MongoCollection::aggregateCursor()');
-        }
-
         if ( ! method_exists('MongoCommandCursor', 'timeout')) {
             $this->markTestSkipped('This test is not applicable to drivers without MongoCommandCursor::timeout()');
         }
@@ -175,19 +163,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Doctrine\MongoDB\CommandCursor', $result);
         $this->assertSame($mongoCommandCursor, $result->getMongoCommandCursor());
-    }
-
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testAggregateWithCursorOptionShouldThrowExceptionForOldDrivers()
-    {
-        if (method_exists('MongoCollection', 'aggregateCursor')) {
-            $this->markTestSkipped('This test is not applicable to drivers with MongoCollection::aggregateCursor()');
-        }
-
-        $coll = $this->getTestCollection();
-        $coll->aggregate(array(array('$limit' => 1)), array('cursor' => true));
     }
 
     /**
@@ -1021,10 +996,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testParallelCollectionScan()
     {
-        if ( ! method_exists('MongoCollection', 'parallelCollectionScan')) {
-            $this->markTestSkipped('This test is not applicable to drivers without MongoCollection::parallelCollectionScan()');
-        }
-
         $numCursors = 3;
         $mongoCommandCursors = array(
             $this->getMockMongoCommandCursor(),

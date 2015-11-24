@@ -722,10 +722,6 @@ class Collection
      */
     public function parallelCollectionScan($numCursors)
     {
-        if ( ! method_exists('MongoCollection', 'parallelCollectionScan')) {
-            throw new BadMethodCallException('MongoCollection::parallelCollectionScan() is not available');
-        }
-
         $mongoCollection = $this->mongoCollection;
         $commandCursors = $this->retry(function() use ($mongoCollection, $numCursors) {
             return $mongoCollection->parallelCollectionScan($numCursors);
@@ -929,10 +925,6 @@ class Collection
      */
     protected function doAggregateCursor(array $pipeline, array $options = array())
     {
-        if ( ! method_exists('MongoCollection', 'aggregateCursor')) {
-            throw new BadMethodCallException('MongoCollection::aggregateCursor() is not available');
-        }
-
         list($commandOptions, $clientOptions) = isset($options['socketTimeoutMS']) || isset($options['timeout'])
             ? $this->splitCommandAndClientOptions($options)
             : array($options, array());

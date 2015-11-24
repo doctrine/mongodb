@@ -547,13 +547,6 @@ class Cursor implements CursorInterface
      */
     public function setMongoCursorSlaveOkay($ok)
     {
-        /* MongoCursor::setReadPreference() may not exist until 1.4.0. Although
-         * we could throw an exception here, it's more user-friendly to NOP.
-         */
-        if (!method_exists($this->mongoCursor, 'setReadPreference')) {
-            return;
-        }
-
         if ($ok) {
             // Preserve existing tags for non-primary read preferences
             $readPref = $this->mongoCursor->getReadPreference();
