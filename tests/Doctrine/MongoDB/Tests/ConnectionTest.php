@@ -8,24 +8,10 @@ use Mongo;
 
 class ConnectionTest extends PHPUnit_Framework_TestCase
 {
-    public function testInitializeMongo()
-    {
-        if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {
-            $this->markTestSkipped('This test is not applicable to driver versions >= 1.3.0');
-        }
-
-        $conn = new Connection();
-        $this->assertInstanceOf('Mongo', $conn->getMongo());
-    }
-
     public function testInitializeMongoClient()
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
-        }
-
         $conn = new Connection();
-        $this->assertInstanceOf('MongoClient', $conn->getMongo());
+        $this->assertInstanceOf('MongoClient', $conn->getMongoClient());
     }
 
     public function testLog()
@@ -45,36 +31,6 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
         $conn->log(array('test'));
 
         $this->assertNull($conn->getConfiguration()->getLoggerCallable());
-    }
-
-    public function testSetMongo()
-    {
-        if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {
-            $this->markTestSkipped('This test is not applicable to driver versions >= 1.3.0');
-        }
-
-        $mongo = $this->getMockBuilder('Mongo')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $conn = new Connection();
-        $conn->setMongo($mongo);
-        $this->assertSame($mongo, $conn->getMongo());
-    }
-
-    public function testSetMongoClient()
-    {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
-        }
-
-        $mongoClient = $this->getMockBuilder('MongoClient')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $conn = new Connection();
-        $conn->setMongo($mongoClient);
-        $this->assertSame($mongoClient, $conn->getMongo());
     }
 
     /**
@@ -173,10 +129,6 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
 
     public function testSetReadPreference()
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
-        }
-
         $mongoClient = $this->getMockMongoClient();
 
         $mongoClient->expects($this->at(0))
@@ -208,10 +160,6 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
 
     public function testConnectTimeoutOptionIsConverted()
     {
-        if (version_compare(phpversion('mongo'), '1.4.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.4.0');
-        }
-
         /* Since initialize() creates MongoClient directly, we cannot examine
          * the options passed to its constructor.
          *

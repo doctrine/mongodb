@@ -547,11 +547,6 @@ class Cursor implements CursorInterface
      */
     public function setMongoCursorSlaveOkay($ok)
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            $this->mongoCursor->slaveOkay($ok);
-            return;
-        }
-
         /* MongoCursor::setReadPreference() may not exist until 1.4.0. Although
          * we could throw an exception here, it's more user-friendly to NOP.
          */

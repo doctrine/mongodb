@@ -518,35 +518,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(self::collectionName, $coll->getName());
     }
 
-    public function testGetSetSlaveOkay()
-    {
-        if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {
-            $this->markTestSkipped('This test is not applicable to driver versions >= 1.3.0');
-        }
-
-        $mongoCollection = $this->getMockMongoCollection();
-
-        $mongoCollection->expects($this->once())
-            ->method('getSlaveOkay')
-            ->will($this->returnValue(false));
-
-        $mongoCollection->expects($this->once())
-            ->method('setSlaveOkay')
-            ->with(true)
-            ->will($this->returnValue(false));
-
-        $collection = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
-
-        $this->assertEquals(false, $collection->getSlaveOkay());
-        $this->assertEquals(false, $collection->setSlaveOkay(true));
-    }
-
     public function testGetSetSlaveOkayReadPreferences()
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
-        }
-
         $mongoCollection = $this->getMockMongoCollection();
 
         $mongoCollection->expects($this->never())->method('getSlaveOkay');
@@ -570,10 +543,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testSetSlaveOkayPreservesReadPreferenceTags()
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
-        }
-
         $mongoCollection = $this->getMockMongoCollection();
 
         $mongoCollection->expects($this->exactly(2))
@@ -596,10 +565,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testSetReadPreference()
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
-        }
-
         $mongoCollection = $this->getMockMongoCollection();
 
         $mongoCollection->expects($this->at(0))
@@ -996,10 +961,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testWriteConcernOptionIsConverted()
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
-        }
-
         $mongoCollection = $this->getMockMongoCollection();
         $mongoCollection->expects($this->once())
             ->method('insert')
@@ -1011,29 +972,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $coll->insert($document, array('safe' => true));
     }
 
-    public function testWriteConcernOptionIsNotConvertedForOlderDrivers()
-    {
-        if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {
-            $this->markTestSkipped('This test is not applicable to driver versions >= 1.3.0');
-        }
-
-        $mongoCollection = $this->getMockMongoCollection();
-        $mongoCollection->expects($this->once())
-            ->method('insert')
-            ->with(array('x' => 1), array('safe' => true));
-
-        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
-
-        $document = array('x' => 1);
-        $coll->insert($document, array('safe' => true));
-    }
-
     public function testSocketTimeoutOptionIsConverted()
     {
-        if (version_compare(phpversion('mongo'), '1.5.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.5.0');
-        }
-
         $mongoCollection = $this->getMockMongoCollection();
         $mongoCollection->expects($this->once())
             ->method('insert')
@@ -1045,50 +985,12 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $coll->insert($document, array('timeout' => 1000));
     }
 
-    public function testSocketTimeoutOptionIsNotConvertedForOlderDrivers()
-    {
-        if (version_compare(phpversion('mongo'), '1.5.0', '>=')) {
-            $this->markTestSkipped('This test is not applicable to driver versions >= 1.5.0');
-        }
-
-        $mongoCollection = $this->getMockMongoCollection();
-        $mongoCollection->expects($this->once())
-            ->method('insert')
-            ->with(array('x' => 1), array('timeout' => 1000));
-
-        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
-
-        $document = array('x' => 1);
-        $coll->insert($document, array('timeout' => 1000));
-    }
-
     public function testWriteTimeoutOptionIsConverted()
     {
-        if (version_compare(phpversion('mongo'), '1.5.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.5.0');
-        }
-
         $mongoCollection = $this->getMockMongoCollection();
         $mongoCollection->expects($this->once())
             ->method('insert')
             ->with(array('x' => 1), array('wTimeoutMS' => 1000));
-
-        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
-
-        $document = array('x' => 1);
-        $coll->insert($document, array('wtimeout' => 1000));
-    }
-
-    public function testWriteTimeoutOptionIsNotConvertedForOlderDrivers()
-    {
-        if (version_compare(phpversion('mongo'), '1.5.0', '>=')) {
-            $this->markTestSkipped('This test is not applicable to driver versions >= 1.5.0');
-        }
-
-        $mongoCollection = $this->getMockMongoCollection();
-        $mongoCollection->expects($this->once())
-            ->method('insert')
-            ->with(array('x' => 1), array('wtimeout' => 1000));
 
         $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
 

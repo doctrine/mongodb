@@ -133,34 +133,8 @@ class CursorTest extends BaseTest
         $this->assertEquals(array($this->doc1, $this->doc2, $this->doc3), $this->cursor->toArray(false));
     }
 
-    public function testSlaveOkay()
-    {
-        if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {
-            $this->markTestSkipped('This test is not applicable to driver versions >= 1.3.0');
-        }
-
-        $mongoCursor = $this->getMockMongoCursor();
-
-        $mongoCursor->expects($this->at(0))
-            ->method('slaveOkay')
-            ->with(true);
-
-        $mongoCursor->expects($this->at(1))
-            ->method('slaveOkay')
-            ->with(false);
-
-        $cursor = $this->getTestCursor($this->getMockCollection(), $mongoCursor);
-
-        $cursor->slaveOkay(true);
-        $cursor->slaveOkay(false);
-    }
-
     public function testSlaveOkayNoopWithoutReadPreferences()
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
-        }
-
         if (method_exists('MongoCursor', 'setReadPreference')) {
             $this->markTestSkipped('This test is not applicable to drivers with MongoCursor::setReadPreference()');
         }
