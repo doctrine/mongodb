@@ -503,8 +503,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $mongoCollection->expects($this->exactly(2))
             ->method('getReadPreference')
             ->will($this->returnValue(array(
-                'type' => 0,
-                'type_string' => 'primary',
+                'type' => \MongoClient::RP_PRIMARY,
             )));
 
         $mongoCollection->expects($this->once())
@@ -523,9 +522,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $mongoCollection->expects($this->exactly(2))
             ->method('getReadPreference')
             ->will($this->returnValue(array(
-                'type' => 1,
-                'type_string' => 'primary preferred',
-                'tagsets' => array(array('dc:east')),
+                'type' => \MongoClient::RP_PRIMARY_PREFERRED,
+                'tagsets' => array(array('dc' => 'east')),
             )));
 
         $mongoCollection->expects($this->once())

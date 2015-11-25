@@ -30,7 +30,6 @@ use Doctrine\MongoDB\Event\MutableEventArgs;
 use Doctrine\MongoDB\Event\NearEventArgs;
 use Doctrine\MongoDB\Event\UpdateEventArgs;
 use Doctrine\MongoDB\Exception\ResultException;
-use Doctrine\MongoDB\Util\ReadPreference;
 use GeoJson\Geometry\Point;
 use BadMethodCallException;
 use MongoCommandCursor;
@@ -502,7 +501,7 @@ class Collection
      */
     public function getReadPreference()
     {
-        return ReadPreference::convertReadPreference($this->mongoCollection->getReadPreference());
+        return $this->mongoCollection->getReadPreference();
     }
 
     /**

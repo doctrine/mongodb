@@ -21,7 +21,6 @@ namespace Doctrine\MongoDB;
 
 use Doctrine\Common\EventManager;
 use Doctrine\MongoDB\Event\EventArgs;
-use Doctrine\MongoDB\Util\ReadPreference;
 
 /**
  * Wrapper for the MongoClient class.
@@ -211,7 +210,7 @@ class Connection
     public function getReadPreference()
     {
         $this->initialize();
-        return ReadPreference::convertReadPreference($this->mongoClient->getReadPreference());
+        return $this->mongoClient->getReadPreference();
     }
 
     /**

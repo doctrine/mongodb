@@ -92,8 +92,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $mongoDB->expects($this->exactly(2))
             ->method('getReadPreference')
             ->will($this->returnValue(array(
-                'type' => 0,
-                'type_string' => 'primary',
+                'type' => \MongoClient::RP_PRIMARY,
             )));
 
         $mongoDB->expects($this->once())
@@ -113,9 +112,8 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $mongoDB->expects($this->exactly(2))
             ->method('getReadPreference')
             ->will($this->returnValue(array(
-                'type' => 1,
-                'type_string' => 'primary preferred',
-                'tagsets' => array(array('dc:east')),
+                'type' => \MongoClient::RP_PRIMARY_PREFERRED,
+                'tagsets' => array(array('dc' => 'east')),
             )));
 
         $mongoDB->expects($this->once())

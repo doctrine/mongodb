@@ -23,7 +23,6 @@ use Doctrine\Common\EventManager;
 use Doctrine\MongoDB\Event\CreateCollectionEventArgs;
 use Doctrine\MongoDB\Event\EventArgs;
 use Doctrine\MongoDB\Event\MutableEventArgs;
-use Doctrine\MongoDB\Util\ReadPreference;
 
 /**
  * Wrapper for the MongoDB class.
@@ -338,7 +337,7 @@ class Database
      */
     public function getReadPreference()
     {
-        return ReadPreference::convertReadPreference($this->mongoDB->getReadPreference());
+        return $this->mongoDB->getReadPreference();
     }
 
     /**
