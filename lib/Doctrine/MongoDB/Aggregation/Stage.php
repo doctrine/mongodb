@@ -100,6 +100,18 @@ abstract class Stage
     }
 
     /**
+     * Returns statistics regarding the use of each index for the collection.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/indexStats/
+     *
+     * @return Stage\IndexStats
+     */
+    public function indexStats()
+    {
+        return $this->builder->indexStats();
+    }
+
+    /**
      * Limits the number of documents passed to the next stage in the pipeline.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/limit/
