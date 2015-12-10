@@ -26,6 +26,7 @@ use Doctrine\MongoDB\Aggregation\Stage;
  * Fluent interface for adding a $sort stage to an aggregation pipeline.
  *
  * @author alcaeus <alcaeus@alcaeus.org>
+ * @since 1.2
  */
 class Sort extends Stage
 {

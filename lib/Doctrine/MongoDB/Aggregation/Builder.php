@@ -28,6 +28,7 @@ use GeoJson\Geometry\Point;
  * Fluent interface for building aggregation pipelines.
  *
  * @author alcaeus <alcaeus@alcaeus.org>
+ * @since 1.2
  */
 class Builder
 {

@@ -27,6 +27,7 @@ use Doctrine\MongoDB\Aggregation\Stage;
  * Fluent interface for adding operators to aggregation stages.
  *
  * @author alcaeus <alcaeus@alcaeus.org>
+ * @since 1.2
  */
 abstract class Operator extends Stage
 {

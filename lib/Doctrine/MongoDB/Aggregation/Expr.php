@@ -25,6 +25,7 @@ use LogicException;
  * Fluent interface for adding operators to aggregation stages.
  *
  * @author alcaeus <alcaeus@alcaeus.org>
+ * @since 1.2
  */
 class Expr
 {

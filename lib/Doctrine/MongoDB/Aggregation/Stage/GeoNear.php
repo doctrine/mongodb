@@ -26,6 +26,7 @@ use GeoJson\Geometry\Point;
  * Fluent interface for adding a $geoNear stage to an aggregation pipeline.
  *
  * @author alcaeus <alcaeus@alcaeus.org>
+ * @since 1.2
  */
 class GeoNear extends Match
 {
