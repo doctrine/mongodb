@@ -213,6 +213,19 @@ class Builder
     }
 
     /**
+     * Randomly selects the specified number of documents from its input.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/sample/
+     *
+     * @param integer $size
+     * @return Stage\Sample
+     */
+    public function sample($size)
+    {
+        return $this->addStage(new Stage\Sample($this, $size));
+    }
+
+    /**
      * Skips over the specified number of documents that pass into the stage and
      * passes the remaining documents to the next stage in the pipeline.
      *

@@ -32,6 +32,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                     'group' => array('$in' => array('a', 'b'))
                 )
             ),
+            array('$sample' => 10),
             array('$unwind' => 'a'),
             array('$unwind' => 'b'),
             array('$redact' =>
@@ -94,6 +95,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                 ->in(array('a', 'b'))
                 ->addOr($builder->matchExpr()->field('username')->equals('admin'))
                 ->addOr($builder->matchExpr()->field('username')->equals('administrator'))
+            ->sample(10)
             ->unwind('a')
             ->unwind('b')
             ->redact()
