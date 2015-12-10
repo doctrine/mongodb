@@ -14,6 +14,16 @@ class UnwindTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array('$unwind' => 'fieldName'), $unwindStage->getExpression());
     }
 
+    public function testUnwindStageWithNewFields()
+    {
+        $unwindStage = new Unwind($this->getTestAggregationBuilder(), 'fieldName');
+        $unwindStage
+            ->preserveNullAndEmptyArrays()
+            ->includeArrayIndex('index');
+
+        $this->assertSame(array('$unwind' => array('path' => 'fieldName', 'includeArrayIndex' => 'index', 'preserveNullAndEmptyArrays' => true)), $unwindStage->getExpression());
+    }
+
     public function testUnwindFromBuilder()
     {
         $builder = $this->getTestAggregationBuilder();
