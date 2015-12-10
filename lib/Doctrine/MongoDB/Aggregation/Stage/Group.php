@@ -204,6 +204,44 @@ class Group extends Stage
     }
 
     /**
+     * Calculates the population standard deviation of the input values.
+     *
+     * The argument can be any expression as long as it resolves to an array.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/stdDevPop/
+     * @see Expr::stdDevPop
+     * @param mixed|Expr $expression
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function stdDevPop($expression)
+    {
+        $this->expr->stdDevPop($expression);
+
+        return $this;
+    }
+
+    /**
+     * Calculates the sample standard deviation of the input values.
+     *
+     * The argument can be any expression as long as it resolves to an array.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/stdDevSamp/
+     * @see Expr::stdDevSamp
+     * @param mixed|Expr $expression
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function stdDevSamp($expression)
+    {
+        $this->expr->stdDevSamp($expression);
+
+        return $this;
+    }
+
+    /**
      * Calculates and returns the sum of all the numeric values that result from
      * applying a specified expression to each document in a group of documents
      * that share the same group by key. Ignores nun-numeric values.
