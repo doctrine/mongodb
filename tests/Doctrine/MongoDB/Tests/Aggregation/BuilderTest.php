@@ -33,6 +33,14 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                 )
             ),
             array('$sample' => 10),
+            array('$lookup' =>
+                array(
+                    'from' => 'orders',
+                    'localField' => '_id',
+                    'foreignField' => 'user.$id',
+                    'as' => 'orders'
+                )
+            ),
             array('$unwind' => 'a'),
             array('$unwind' => 'b'),
             array('$redact' =>
@@ -96,6 +104,10 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                 ->addOr($builder->matchExpr()->field('username')->equals('admin'))
                 ->addOr($builder->matchExpr()->field('username')->equals('administrator'))
             ->sample(10)
+            ->lookup('orders')
+                ->localField('_id')
+                ->foreignField('user.$id')
+                ->alias('orders')
             ->unwind('a')
             ->unwind('b')
             ->redact()

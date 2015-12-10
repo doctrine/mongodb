@@ -161,6 +161,21 @@ class Builder
     }
 
     /**
+     * Performs a left outer join to an unsharded collection in the same
+     * database to filter in documents from the “joined” collection for
+     * processing.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/lookup/
+     *
+     * @param string $from
+     * @return Stage\Lookup
+     */
+    public function lookup($from)
+    {
+        return $this->addStage(new Stage\Lookup($this, $from));
+    }
+
+    /**
      * Filters the documents to pass only the documents that match the specified
      * condition(s) to the next pipeline stage.
      *
