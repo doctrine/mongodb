@@ -54,6 +54,7 @@ class GeoNearTest extends \PHPUnit_Framework_TestCase
             'distanceMultiplier' => array('distanceMultiplier', 15.0),
             'includeLocs' => array('includeLocs', 'dist.location'),
             'maxDistance' => array('maxDistance', 15.0),
+            'minDistance' => array('minDistance', 15.0),
             'num' => array('num', 15),
             'uniqueDocs' => array('uniqueDocs', true),
         );
