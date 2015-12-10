@@ -51,6 +51,11 @@ class GeoNear extends Match
     private $maxDistance;
 
     /**
+     * @var float
+     */
+    private $minDistance;
+
+    /**
      * @var array
      */
     private $near;
@@ -94,7 +99,7 @@ class GeoNear extends Match
             'query' => $this->query->getQuery()
         );
 
-        foreach (array('distanceMultiplier', 'includeLocs', 'maxDistance', 'num', 'uniqueDocs') as $option) {
+        foreach (array('distanceMultiplier', 'includeLocs', 'maxDistance', 'minDistance', 'num', 'uniqueDocs') as $option) {
             if ( ! $this->$option) {
                 continue;
             }
@@ -166,6 +171,21 @@ class GeoNear extends Match
     public function maxDistance($maxDistance)
     {
         $this->maxDistance = (float) $maxDistance;
+
+        return $this;
+    }
+
+    /**
+     * The minimum distance from the center point that the documents can be.
+     *
+     * @param float $minDistance
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function minDistance($minDistance)
+    {
+        $this->minDistance = (float) $minDistance;
 
         return $this;
     }
