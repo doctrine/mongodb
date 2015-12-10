@@ -28,6 +28,7 @@ use GeoJson\Geometry\Geometry;
  * Fluent interface for adding a $match stage to an aggregation pipeline.
  *
  * @author alcaeus <alcaeus@alcaeus.org>
+ * @since 1.2
  */
 class Match extends Stage
 {

@@ -26,6 +26,7 @@ use Doctrine\MongoDB\Aggregation\Stage;
  * Fluent interface for adding a $unwind stage to an aggregation pipeline.
  *
  * @author alcaeus <alcaeus@alcaeus.org>
+ * @since 1.2
  */
 class Unwind extends Stage
 {
