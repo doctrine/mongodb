@@ -47,6 +47,26 @@ abstract class Operator extends Stage
     }
 
     /**
+     * Returns the absolute value of a number.
+     *
+     * The <number> argument can be any valid expression as long as it resolves
+     * to a number.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/abs/
+     * @see Expr::abs
+     * @param mixed|Expr $number
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function abs($number)
+    {
+        $this->expr->abs($number);
+
+        return $this;
+    }
+
+    /**
      * Adds numbers together or adds numbers and a date. If one of the arguments
      * is a date, $add treats the other arguments as milliseconds to add to the
      * date.
@@ -134,6 +154,49 @@ abstract class Operator extends Stage
     }
 
     /**
+     * Returns the element at the specified array index.
+     *
+     * The <array> expression can be any valid expression as long as it resolves
+     * to an array.
+     * The <idx> expression can be any valid expression as long as it resolves
+     * to an integer.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/arrayElemAt/
+     * @see Expr::arrayElemAt
+     * @param mixed|Expr $array
+     * @param mixed|Expr $index
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function arrayElemAt($array, $index)
+    {
+        $this->expr->arrayElemAt($array, $index);
+
+        return $this;
+    }
+
+    /**
+     * Returns the smallest integer greater than or equal to the specified number.
+     *
+     * The <number> expression can be any valid expression as long as it
+     * resolves to a number.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/ceil/
+     * @see Expr::ceil
+     * @param mixed|Expr $number
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function ceil($number)
+    {
+        $this->expr->ceil($number);
+
+        return $this;
+    }
+
+    /**
      * Compares two values and returns:
      * -1 if the first value is less than the second.
      * 1 if the first value is greater than the second.
@@ -169,6 +232,28 @@ abstract class Operator extends Stage
     public function concat($expression1, $expression2 /* , $expression3, ... */)
     {
         call_user_func_array(array($this->expr, 'concat'), func_get_args());
+
+        return $this;
+    }
+
+    /**
+     * Concatenates arrays to return the concatenated array.
+     *
+     * The <array> expressions can be any valid expression as long as they
+     * resolve to an array.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/concatArrays/
+     * @see Expr::concatArrays
+     * @param mixed|Expr $array1
+     * @param mixed|Expr $array2
+     * @param mixed|Expr $array3, ... Additional expressions
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function concatArrays($array1, $array2 /* , $array3, ... */)
+    {
+        call_user_func_array(array($this->expr, 'concatArrays'), func_get_args());
 
         return $this;
     }
@@ -301,6 +386,26 @@ abstract class Operator extends Stage
     }
 
     /**
+     * Raises Euler’s number to the specified exponent and returns the result.
+     *
+     * The <exponent> expression can be any valid expression as long as it
+     * resolves to a number.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/exp/
+     * @see Expr::exp
+     * @param mixed|Expr $exponent
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function exp($exponent)
+    {
+        $this->expr->exp($exponent);
+
+        return $this;
+    }
+
+    /**
      * Used to use an expression as field value. Can be any expression
      *
      * @see http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#aggregation-expressions
@@ -325,6 +430,48 @@ abstract class Operator extends Stage
     public function field($fieldName)
     {
         $this->expr->field($fieldName);
+
+        return $this;
+    }
+
+    /**
+     * Selects a subset of the array to return based on the specified condition.
+     *
+     * Returns an array with only those elements that match the condition. The
+     * returned elements are in the original order.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/filter/
+     * @see Expr::filter
+     * @param mixed|Expr $input
+     * @param mixed|Expr $as
+     * @param mixed|Expr $cond
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function filter($input, $as, $cond)
+    {
+        $this->expr->filter($input, $as, $cond);
+
+        return $this;
+    }
+
+    /**
+     * Returns the largest integer less than or equal to the specified number.
+     *
+     * The <number> expression can be any valid expression as long as it
+     * resolves to a number.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/floor/
+     * @see Expr::floor
+     * @param mixed|Expr $number
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function floor($number)
+    {
+        $this->expr->floor($number);
 
         return $this;
     }
@@ -404,6 +551,25 @@ abstract class Operator extends Stage
     }
 
     /**
+     * Determines if the operand is an array. Returns a boolean.
+     *
+     * The <expression> can be any valid expression.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/isArray/
+     * @see Expr::isArray
+     * @param mixed|Expr $expression
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function isArray($expression)
+    {
+        $this->expr->isArray($expression);
+
+        return $this;
+    }
+
+    /**
      * Binds variables for use in the specified expression, and returns the
      * result of the expression.
      *
@@ -432,6 +598,73 @@ abstract class Operator extends Stage
     public function literal($value)
     {
         $this->expr->literal($value);
+
+        return $this;
+    }
+
+    /**
+     * Calculates the natural logarithm ln (i.e loge) of a number and returns
+     * the result as a double.
+     *
+     * The <number> expression can be any valid expression as long as it
+     * resolves to a non-negative number.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/log/
+     * @see Expr::ln
+     * @param mixed|Expr $number
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function ln($number)
+    {
+        $this->expr->ln($number);
+
+        return $this;
+    }
+
+    /**
+     * Calculates the log of a number in the specified base and returns the
+     * result as a double.
+     *
+     * The <number> expression can be any valid expression as long as it
+     * resolves to a non-negative number.
+     * The <base> expression can be any valid expression as long as it resolves
+     * to a positive number greater than 1.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/log/
+     * @see Expr::log
+     * @param mixed|Expr $number
+     * @param mixed|Expr $base
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function log($number, $base)
+    {
+        $this->expr->log($number, $base);
+
+        return $this;
+    }
+
+    /**
+     * Calculates the log base 10 of a number and returns the result as a double.
+     *
+     * The <number> expression can be any valid expression as long as it
+     * resolves to a non-negative number.
+     * The <base> expression can be any valid expression as long as it resolves
+     * to a positive number greater than 1.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/log/
+     * @see Expr::log10
+     * @param mixed|Expr $number
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function log10($number)
+    {
+        $this->expr->log10($number);
 
         return $this;
     }
@@ -628,6 +861,29 @@ abstract class Operator extends Stage
     }
 
     /**
+     * Raises a number to the specified exponent and returns the result.
+     *
+     * The <number> expression can be any valid expression as long as it
+     * resolves to a non-negative number.
+     * The <exponent> expression can be any valid expression as long as it
+     * resolves to a number.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/pow/
+     * @see Expr::pow
+     * @param mixed|Expr $number
+     * @param mixed|Expr $exponent
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function pow($number, $exponent)
+    {
+        $this->expr->pow($number, $exponent);
+
+        return $this;
+    }
+
+    /**
      * Returns the second portion of a date as a number between 0 and 59, but
      * can be 60 to account for leap seconds.
      *
@@ -762,6 +1018,44 @@ abstract class Operator extends Stage
     }
 
     /**
+     * Returns a subset of an array.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/slice/
+     * @see Expr::slice
+     * @param mixed|Expr $array
+     * @param mixed|Expr $n
+     * @param mixed|Expr|null $position
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function slice($array, $n, $position = null)
+    {
+        $this->expr->slice($array, $n, $position);
+
+        return $this;
+    }
+
+    /**
+     * Calculates the square root of a positive number and returns the result as
+     * a double.
+     *
+     * The argument can be any valid expression as long as it resolves to a
+     * non-negative number.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/sqrt/
+     * @see Expr::sqrt
+     * @param mixed|Expr $expression
+     * @return self
+     */
+    public function sqrt($expression)
+    {
+        $this->expr->sqrt($expression);
+
+        return $this;
+    }
+
+    /**
      * Performs case-insensitive comparison of two strings. Returns
      * 1 if first string is “greater than” the second string.
      * 0 if the two strings are equal.
@@ -851,6 +1145,26 @@ abstract class Operator extends Stage
     public function toUpper($expression)
     {
         $this->expr->toUpper($expression);
+
+        return $this;
+    }
+
+    /**
+     * Truncates a number to its integer.
+     *
+     * The <number> expression can be any valid expression as long as it
+     * resolves to a number.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/trunc/
+     * @see Expr::trunc
+     * @param mixed|Expr $number
+     * @return self
+     *
+     * @since 1.3
+     */
+    public function trunc($number)
+    {
+        $this->expr->trunc($number);
 
         return $this;
     }

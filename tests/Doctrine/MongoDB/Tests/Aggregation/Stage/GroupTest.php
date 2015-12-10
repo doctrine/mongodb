@@ -41,6 +41,8 @@ class GroupTest extends \PHPUnit_Framework_TestCase
             'max()' => array('max', array('$field')),
             'min()' => array('min', array('$field')),
             'push()' => array('push', array('$field')),
+            'stdDevPop()' => array('stdDevPop', array('$field')),
+            'stdDevSamp()' => array('stdDevSamp', array('$field')),
             'sum()' => array('sum', array('$field')),
         );
     }

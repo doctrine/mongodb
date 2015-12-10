@@ -6,6 +6,14 @@ use Doctrine\MongoDB\Aggregation\Expr;
 
 class ExprTest extends \PHPUnit_Framework_TestCase
 {
+    public function testAbs()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->abs('$field'));
+        $this->assertSame(array('$abs' => '$field'), $expr->getExpression());
+    }
+
     public function testAdd()
     {
         $expr = new Expr();
@@ -38,12 +46,28 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array('$anyElementTrue' => '$field'), $expr->getExpression());
     }
 
+    public function testArrayElemAt()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->arrayElemAt('$array', '$index'));
+        $this->assertSame(array('$arrayElemAt' => array('$array', '$index')), $expr->getExpression());
+    }
+
     public function testAvg()
     {
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->avg('$field'));
         $this->assertSame(array('$avg' => '$field'), $expr->getExpression());
+    }
+
+    public function testCeil()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->ceil('$field'));
+        $this->assertSame(array('$ceil' => '$field'), $expr->getExpression());
     }
 
     public function testCmp()
@@ -60,6 +84,14 @@ class ExprTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($expr, $expr->concat('foo', '$field', '$otherField'));
         $this->assertSame(array('$concat' => array('foo', '$field', '$otherField')), $expr->getExpression());
+    }
+
+    public function testConcatArrays()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->concatArrays('$array1', '$array2', '$array3'));
+        $this->assertSame(array('$concatArrays' => array('$array1', '$array2', '$array3')), $expr->getExpression());
     }
 
     public function testCond()
@@ -124,6 +156,14 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array('$eq' => array('$field', '$otherField')), $expr->getExpression());
     }
 
+    public function testExp()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->exp('$field'));
+        $this->assertSame(array('$exp' => '$field'), $expr->getExpression());
+    }
+
     public function testExpression()
     {
         $nestedExpr = new Expr();
@@ -172,6 +212,22 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array('$first' => '$field'), $expr->getExpression());
     }
 
+    public function testFilter()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->filter('$array', '$as', '$cond'));
+        $this->assertSame(array('$filter' => array('input' => '$array', 'as' => '$as', 'cond' => '$cond')), $expr->getExpression());
+    }
+
+    public function testFloor()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->floor('$field'));
+        $this->assertSame(array('$floor' => '$field'), $expr->getExpression());
+    }
+
     public function testGt()
     {
         $expr = new Expr();
@@ -202,6 +258,14 @@ class ExprTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($expr, $expr->ifNull('$field', '$otherField'));
         $this->assertSame(array('$ifNull' => array('$field', '$otherField')), $expr->getExpression());
+    }
+
+    public function testIsArray()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->isArray('$field'));
+        $this->assertSame(array('$isArray' => '$field'), $expr->getExpression());
     }
 
     public function testLast()
@@ -247,6 +311,30 @@ class ExprTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($expr, $expr->field('field')->literal('$field'));
         $this->assertSame(array('field' => array('$literal' => '$field')), $expr->getExpression());
+    }
+
+    public function testLn()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->ln('$field'));
+        $this->assertSame(array('$ln' => '$field'), $expr->getExpression());
+    }
+
+    public function testLog()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->log('$number', '$base'));
+        $this->assertSame(array('$log' => array('$number', '$base')), $expr->getExpression());
+    }
+
+    public function testLog10()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->log10('$number'));
+        $this->assertSame(array('$log10' => '$number'), $expr->getExpression());
     }
 
     public function testLt()
@@ -369,6 +457,14 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array('$not' => '$field'), $expr->getExpression());
     }
 
+    public function testPow()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->pow('$number', '$exponent'));
+        $this->assertSame(array('$pow' => array('$number', '$exponent')), $expr->getExpression());
+    }
+
     public function testPush()
     {
         $expr = new Expr();
@@ -442,6 +538,46 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array('$size' => '$field'), $expr->getExpression());
     }
 
+    public function testSliceWithoutPosition()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->slice('$array', '$n'));
+        $this->assertSame(array('$slice' => array('$array', '$n')), $expr->getExpression());
+    }
+
+    public function testSliceWithPosition()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->slice('$array', '$n', '$position'));
+        $this->assertSame(array('$slice' => array('$array', '$position', '$n')), $expr->getExpression());
+    }
+
+    public function testSqrt()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->sqrt('$field'));
+        $this->assertSame(array('$sqrt' => '$field'), $expr->getExpression());
+    }
+
+    public function testStdDevPop()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->stdDevPop('$array1', '$array2', '$array3'));
+        $this->assertSame(array('$stdDevPop' => array('$array1', '$array2', '$array3')), $expr->getExpression());
+    }
+
+    public function testStdDevSamp()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->stdDevSamp('$array1', '$array2', '$array3'));
+        $this->assertSame(array('$stdDevSamp' => array('$array1', '$array2', '$array3')), $expr->getExpression());
+    }
+
     public function testStrcasecmp()
     {
         $expr = new Expr();
@@ -488,6 +624,14 @@ class ExprTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($expr, $expr->toUpper('$field'));
         $this->assertSame(array('$toUpper' => '$field'), $expr->getExpression());
+    }
+
+    public function testTrunc()
+    {
+        $expr = new Expr();
+
+        $this->assertSame($expr, $expr->trunc('$field'));
+        $this->assertSame(array('$trunc' => '$field'), $expr->getExpression());
     }
 
     public function testWeek()
