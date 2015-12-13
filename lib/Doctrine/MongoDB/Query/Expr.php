@@ -216,6 +216,36 @@ class Expr
     }
 
     /**
+     * A boolean flag to enable or disable case sensitive search for $text
+     * criteria.
+     *
+     * This method must be called after text().
+     *
+     * @see Builder::caseSensitive()
+     * @see http://docs.mongodb.org/manual/reference/operator/text/
+     * @param bool $caseSensitive
+     * @return self
+     * @throws BadMethodCallException if the query does not already have $text criteria
+     *
+     * @since 1.3
+     */
+    public function caseSensitive($caseSensitive)
+    {
+        if ( ! isset($this->query['$text'])) {
+            throw new BadMethodCallException('This method requires a $text operator (call text() first)');
+        }
+
+        // Remove caseSensitive option to keep support for older database versions
+        if ($caseSensitive) {
+            $this->query['$text']['$caseSensitive'] = true;
+        } elseif (isset($this->query['$text']['$caseSensitive'])) {
+            unset($this->query['$text']['$caseSensitive']);
+        }
+
+        return $this;
+    }
+
+    /**
      * Associates a comment to any expression taking a query predicate.
      *
      * @see Builder::comment()
@@ -246,6 +276,36 @@ class Expr
 
         $this->requiresCurrentField();
         $this->newObj['$currentDate'][$this->currentField]['$type'] = $type;
+        return $this;
+    }
+
+    /**
+     * A boolean flag to enable or disable diacritic sensitive search for $text
+     * criteria.
+     *
+     * This method must be called after text().
+     *
+     * @see Builder::diacriticSensitive()
+     * @see http://docs.mongodb.org/manual/reference/operator/text/
+     * @param bool $diacriticSensitive
+     * @return self
+     * @throws BadMethodCallException if the query does not already have $text criteria
+     *
+     * @since 1.3
+     */
+    public function diacriticSensitive($diacriticSensitive)
+    {
+        if ( ! isset($this->query['$text'])) {
+            throw new BadMethodCallException('This method requires a $text operator (call text() first)');
+        }
+
+        // Remove diacriticSensitive option to keep support for older database versions
+        if ($diacriticSensitive) {
+            $this->query['$text']['$diacriticSensitive'] = true;
+        } elseif (isset($this->query['$text']['$diacriticSensitive'])) {
+            unset($this->query['$text']['$diacriticSensitive']);
+        }
+
         return $this;
     }
 

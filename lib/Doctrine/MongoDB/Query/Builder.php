@@ -217,6 +217,26 @@ class Builder
     }
 
     /**
+     * A boolean flag to enable or disable case sensitive search for $text
+     * criteria.
+     *
+     * This method must be called after text().
+     *
+     * @see Expr::caseSensitive()
+     * @see http://docs.mongodb.org/manual/reference/operator/text/
+     * @param bool $caseSensitive
+     * @return self
+     * @throws BadMethodCallException if the query does not already have $text criteria
+     *
+     * @since 1.3
+     */
+    public function caseSensitive($caseSensitive)
+    {
+        $this->expr->caseSensitive($caseSensitive);
+        return $this;
+    }
+
+    /**
      * Associates a comment to any expression taking a query predicate.
      *
      * @see Expr::comment()
@@ -268,6 +288,26 @@ class Builder
     public function debug($name = null)
     {
         return $name !== null ? $this->query[$name] : $this->query;
+    }
+
+    /**
+     * A boolean flag to enable or disable diacritic sensitive search for $text
+     * criteria.
+     *
+     * This method must be called after text().
+     *
+     * @see Builder::diacriticSensitive()
+     * @see http://docs.mongodb.org/manual/reference/operator/text/
+     * @param bool $diacriticSensitive
+     * @return self
+     * @throws BadMethodCallException if the query does not already have $text criteria
+     *
+     * @since 1.3
+     */
+    public function diacriticSensitive($diacriticSensitive)
+    {
+        $this->expr->diacriticSensitive($diacriticSensitive);
+        return $this;
     }
 
     /**
