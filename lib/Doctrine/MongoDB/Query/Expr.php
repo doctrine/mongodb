@@ -203,6 +203,66 @@ class Expr
     }
 
     /**
+     * Matches documents where all of the bit positions given by the query are
+     * clear.
+     *
+     * @see Builder::bitsAllClear()
+     * @see https://docs.mongodb.org/manual/reference/operator/query/bitsAllClear/
+     * @param int|array|\MongoBinData $value
+     * @return self
+     */
+    public function bitsAllClear($value)
+    {
+        $this->requiresCurrentField();
+        return $this->operator('$bitsAllClear', $value);
+    }
+
+    /**
+     * Matches documents where all of the bit positions given by the query are
+     * set.
+     *
+     * @see Builder::bitsAllSet()
+     * @see https://docs.mongodb.org/manual/reference/operator/query/bitsAllSet/
+     * @param int|array|\MongoBinData $value
+     * @return self
+     */
+    public function bitsAllSet($value)
+    {
+        $this->requiresCurrentField();
+        return $this->operator('$bitsAllSet', $value);
+    }
+
+    /**
+     * Matches documents where any of the bit positions given by the query are
+     * clear.
+     *
+     * @see Builder::bitsAnyClear()
+     * @see https://docs.mongodb.org/manual/reference/operator/query/bitsAnyClear/
+     * @param int|array|\MongoBinData $value
+     * @return self
+     */
+    public function bitsAnyClear($value)
+    {
+        $this->requiresCurrentField();
+        return $this->operator('$bitsAnyClear', $value);
+    }
+
+    /**
+     * Matches documents where any of the bit positions given by the query are
+     * set.
+     *
+     * @see Builder::bitsAnySet()
+     * @see https://docs.mongodb.org/manual/reference/operator/query/bitsAnySet/
+     * @param int|array|\MongoBinData $value
+     * @return self
+     */
+    public function bitsAnySet($value)
+    {
+        $this->requiresCurrentField();
+        return $this->operator('$bitsAnySet', $value);
+    }
+
+    /**
      * Apply a bitwise xor operation on the current field.
      *
      * @see Builder::bitXor()
