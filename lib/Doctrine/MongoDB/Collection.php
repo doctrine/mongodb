@@ -30,7 +30,6 @@ use Doctrine\MongoDB\Event\MutableEventArgs;
 use Doctrine\MongoDB\Event\NearEventArgs;
 use Doctrine\MongoDB\Event\UpdateEventArgs;
 use Doctrine\MongoDB\Exception\ResultException;
-use Doctrine\MongoDB\Util\ReadPreference;
 use GeoJson\Geometry\Point;
 use BadMethodCallException;
 use MongoCommandCursor;
@@ -502,7 +501,7 @@ class Collection
      */
     public function getReadPreference()
     {
-        return ReadPreference::convertReadPreference($this->mongoCollection->getReadPreference());
+        return $this->mongoCollection->getReadPreference();
     }
 
     /**
@@ -535,10 +534,6 @@ class Collection
      */
     public function getSlaveOkay()
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            return $this->mongoCollection->getSlaveOkay();
-        }
-
         $readPref = $this->getReadPreference();
 
         return \MongoClient::RP_PRIMARY !== $readPref['type'];
@@ -558,10 +553,6 @@ class Collection
      */
     public function setSlaveOkay($ok = true)
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            return $this->mongoCollection->setSlaveOkay($ok);
-        }
-
         $prevSlaveOkay = $this->getSlaveOkay();
 
         if ($ok) {
@@ -730,10 +721,6 @@ class Collection
      */
     public function parallelCollectionScan($numCursors)
     {
-        if ( ! method_exists('MongoCollection', 'parallelCollectionScan')) {
-            throw new BadMethodCallException('MongoCollection::parallelCollectionScan() is not available');
-        }
-
         $mongoCollection = $this->mongoCollection;
         $commandCursors = $this->retry(function() use ($mongoCollection, $numCursors) {
             return $mongoCollection->parallelCollectionScan($numCursors);
@@ -937,10 +924,6 @@ class Collection
      */
     protected function doAggregateCursor(array $pipeline, array $options = array())
     {
-        if ( ! method_exists('MongoCollection', 'aggregateCursor')) {
-            throw new BadMethodCallException('MongoCollection::aggregateCursor() is not available');
-        }
-
         list($commandOptions, $clientOptions) = isset($options['socketTimeoutMS']) || isset($options['timeout'])
             ? $this->splitCommandAndClientOptions($options)
             : array($options, array());
@@ -1468,10 +1451,6 @@ class Collection
      */
     protected function convertWriteConcern(array $options)
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            return $options;
-        }
-
         if (isset($options['safe']) && ! isset($options['w'])) {
             $options['w'] = is_bool($options['safe']) ? (integer) $options['safe'] : $options['safe'];
             unset($options['safe']);
@@ -1489,10 +1468,6 @@ class Collection
      */
     protected function convertWriteTimeout(array $options)
     {
-        if (version_compare(phpversion('mongo'), '1.5.0', '<')) {
-            return $options;
-        }
-
         if (isset($options['wtimeout']) && ! isset($options['wTimeoutMS'])) {
             $options['wTimeoutMS'] = $options['wtimeout'];
             unset($options['wtimeout']);
@@ -1510,10 +1485,6 @@ class Collection
      */
     protected function convertSocketTimeout(array $options)
     {
-        if (version_compare(phpversion('mongo'), '1.5.0', '<')) {
-            return $options;
-        }
-
         if (isset($options['timeout']) && ! isset($options['socketTimeoutMS'])) {
             $options['socketTimeoutMS'] = $options['timeout'];
             unset($options['timeout']);

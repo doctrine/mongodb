@@ -19,8 +19,6 @@
 
 namespace Doctrine\MongoDB;
 
-use Doctrine\MongoDB\Util\ReadPreference;
-
 /**
  * Wrapper for the PHP MongoCursor class.
  *
@@ -547,23 +545,10 @@ class Cursor implements CursorInterface
      */
     public function setMongoCursorSlaveOkay($ok)
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            $this->mongoCursor->slaveOkay($ok);
-            return;
-        }
-
-        /* MongoCursor::setReadPreference() may not exist until 1.4.0. Although
-         * we could throw an exception here, it's more user-friendly to NOP.
-         */
-        if (!method_exists($this->mongoCursor, 'setReadPreference')) {
-            return;
-        }
-
         if ($ok) {
             // Preserve existing tags for non-primary read preferences
             $readPref = $this->mongoCursor->getReadPreference();
-            $tags = !empty($readPref['tagsets']) ? ReadPreference::convertTagSets($readPref['tagsets']) : array();
-            $this->mongoCursor->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
+            $this->mongoCursor->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, isset($readPref['tagsets']) ? $readPref['tagsets'] : []);
         } else {
             $this->mongoCursor->setReadPreference(\MongoClient::RP_PRIMARY);
         }
