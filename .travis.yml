@@ -17,3 +17,6 @@ before_script:
   - php --ri mongo
   - composer self-update
   - composer update --dev --no-interaction --prefer-source $PREFER_LOWEST
+
+script:
+    - ./vendor/bin/phpunit
