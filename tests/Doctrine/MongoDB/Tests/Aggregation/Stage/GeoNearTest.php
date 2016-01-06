@@ -4,9 +4,12 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Stage\GeoNear;
+use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
 
 class GeoNearTest extends \PHPUnit_Framework_TestCase
 {
+    use AggregationTestCase;
+
     public function testGeoNearStage()
     {
         $geoNearStage = new GeoNear($this->getTestAggregationBuilder(), 0, 0);
@@ -54,6 +57,7 @@ class GeoNearTest extends \PHPUnit_Framework_TestCase
             'distanceMultiplier' => array('distanceMultiplier', 15.0),
             'includeLocs' => array('includeLocs', 'dist.location'),
             'maxDistance' => array('maxDistance', 15.0),
+            'minDistance' => array('minDistance', 15.0),
             'num' => array('num', 15),
             'uniqueDocs' => array('uniqueDocs', true),
         );
@@ -68,17 +72,5 @@ class GeoNearTest extends \PHPUnit_Framework_TestCase
 
         $stage = array('near' => array(0, 0), 'spherical' => false, 'distanceField' => null, 'query' => array(), 'num' => 1);
         $this->assertSame(array(array('$geoNear' => $stage)), $builder->getPipeline());
-    }
-
-    private function getTestAggregationBuilder()
-    {
-        return new Builder($this->getMockCollection());
-    }
-
-    private function getMockCollection()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->disableOriginalConstructor()
-            ->getMock();
     }
 }

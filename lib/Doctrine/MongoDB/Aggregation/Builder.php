@@ -28,6 +28,7 @@ use GeoJson\Geometry\Point;
  * Fluent interface for building aggregation pipelines.
  *
  * @author alcaeus <alcaeus@alcaeus.org>
+ * @since 1.2
  */
 class Builder
 {
@@ -135,6 +136,18 @@ class Builder
     }
 
     /**
+     * Returns statistics regarding the use of each index for the collection.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/indexStats/
+     *
+     * @return Stage\IndexStats
+     */
+    public function indexStats()
+    {
+        return $this->addStage(new Stage\IndexStats($this));
+    }
+
+    /**
      * Limits the number of documents passed to the next stage in the pipeline.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/limit/
@@ -145,6 +158,21 @@ class Builder
     public function limit($limit)
     {
         return $this->addStage(new Stage\Limit($this, $limit));
+    }
+
+    /**
+     * Performs a left outer join to an unsharded collection in the same
+     * database to filter in documents from the “joined” collection for
+     * processing.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/lookup/
+     *
+     * @param string $from
+     * @return Stage\Lookup
+     */
+    public function lookup($from)
+    {
+        return $this->addStage(new Stage\Lookup($this, $from));
     }
 
     /**
@@ -209,6 +237,19 @@ class Builder
     public function redact()
     {
         return $this->addStage(new Stage\Redact($this));
+    }
+
+    /**
+     * Randomly selects the specified number of documents from its input.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/sample/
+     *
+     * @param integer $size
+     * @return Stage\Sample
+     */
+    public function sample($size)
+    {
+        return $this->addStage(new Stage\Sample($this, $size));
     }
 
     /**

@@ -4,14 +4,27 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Stage\Unwind;
+use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
 
 class UnwindTest extends \PHPUnit_Framework_TestCase
 {
+    use AggregationTestCase;
+
     public function testUnwindStage()
     {
         $unwindStage = new Unwind($this->getTestAggregationBuilder(), 'fieldName');
 
         $this->assertSame(array('$unwind' => 'fieldName'), $unwindStage->getExpression());
+    }
+
+    public function testUnwindStageWithNewFields()
+    {
+        $unwindStage = new Unwind($this->getTestAggregationBuilder(), 'fieldName');
+        $unwindStage
+            ->preserveNullAndEmptyArrays()
+            ->includeArrayIndex('index');
+
+        $this->assertSame(array('$unwind' => array('path' => 'fieldName', 'includeArrayIndex' => 'index', 'preserveNullAndEmptyArrays' => true)), $unwindStage->getExpression());
     }
 
     public function testUnwindFromBuilder()
@@ -30,17 +43,5 @@ class UnwindTest extends \PHPUnit_Framework_TestCase
             ->unwind('otherField');
 
         $this->assertSame(array(array('$unwind' => 'fieldName'), array('$unwind' => 'otherField')), $builder->getPipeline());
-    }
-
-    private function getTestAggregationBuilder()
-    {
-        return new Builder($this->getMockCollection());
-    }
-
-    private function getMockCollection()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->disableOriginalConstructor()
-            ->getMock();
     }
 }
