@@ -853,6 +853,18 @@ class Builder
     }
 
     /**
+     * Specifies a cumulative time limit in milliseconds for processing operations on a cursor.
+     *
+     * @param int $ms
+     * @return $this
+     */
+    public function maxTimeMS($ms)
+    {
+        $this->query['maxTimeMS'] = $ms;
+        return $this;
+    }
+
+    /**
      * Set the immortal cursor flag.
      *
      * @param boolean $bool

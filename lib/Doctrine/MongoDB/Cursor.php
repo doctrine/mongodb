@@ -76,6 +76,7 @@ class Cursor implements CursorInterface
     protected $sort;
     protected $tailable;
     protected $timeout;
+    protected $maxTimeMS;
 
     /**
      * Constructor.
@@ -506,6 +507,9 @@ class Cursor implements CursorInterface
         if ($this->timeout !== null) {
             $this->mongoCursor->timeout($this->timeout);
         }
+        if ($this->maxTimeMS !== null) {
+            $this->mongoCursor->addOption('$maxTimeMS', $this->maxTimeMS);
+        }
     }
 
     /**
@@ -646,6 +650,20 @@ class Cursor implements CursorInterface
     {
         $this->timeout = (integer) $ms;
         $this->mongoCursor->timeout($ms);
+        return $this;
+    }
+
+    /**
+     * Wrapper method for MongoCursor::maxTimeMS().
+     *
+     * @see http://php.net/manual/en/mongocursor.maxtimems.php
+     * @param integer $ms
+     * @return self
+     */
+    public function maxTimeMS($ms)
+    {
+        $this->maxTimeMS = (integer)$ms;
+        $this->mongoCursor->addOption('$maxTimeMS', (integer)$ms);
         return $this;
     }
 

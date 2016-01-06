@@ -319,6 +319,43 @@ class CursorTest extends BaseTest
         $cursor->recreate();
     }
 
+    public function testSetMaxTimeMSWhenRecreateCursor()
+    {
+        $self = $this;
+
+        $setCursorExpectations = function($mongoCursor) use ($self) {
+            $mongoCursor->expects($self->once())
+                ->method('addOption')
+                ->with(
+                    $self->equalTo('$maxTimeMS'),
+                    $self->equalTo(30000)
+                );
+        };
+
+        $mongoCursor = $this->getMockMongoCursor();
+        $recreatedMongoCursor = $this->getMockMongoCursor();
+
+        $setCursorExpectations($mongoCursor);
+        $setCursorExpectations($recreatedMongoCursor);
+
+        $mongoCollection = $this->getMockCollection();
+        $mongoCollection->expects($this->once())
+            ->method('find')
+            ->with(array('x' => 9500), array())
+            ->will($this->returnValue($recreatedMongoCursor));
+
+        $collection = $this->getMockCollection();
+        $collection->expects($this->once())
+            ->method('getMongoCollection')
+            ->will($this->returnValue($mongoCollection));
+
+        $cursor = $this->getTestCursor($collection, $mongoCursor, array('x' => 9500));
+
+        $cursor->maxTimeMS(30000);
+
+        $cursor->recreate();
+    }
+
     private function getMockCollection()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Collection')
