@@ -103,6 +103,19 @@ class LoggableCursor extends Cursor implements Loggable
     }
 
     /**
+     * @see Cursor::maxTimeMS()
+     */
+    public function maxTimeMS($ms)
+    {
+        $this->log(array(
+            'maxTimeMS' => true,
+            'maxTimeMSNum' => $ms,
+        ));
+
+        return parent::maxTimeMS($ms);
+    }
+
+    /**
      * @see Cursor::skip()
      */
     public function skip($num)
