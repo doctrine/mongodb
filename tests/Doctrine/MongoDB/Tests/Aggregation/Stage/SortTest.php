@@ -4,9 +4,12 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Stage\Sort;
+use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
 
 class SortTest extends \PHPUnit_Framework_TestCase
 {
+    use AggregationTestCase;
+
     /**
      * @dataProvider provideSortOptions
      */
@@ -49,17 +52,5 @@ class SortTest extends \PHPUnit_Framework_TestCase
                 array('field' => 'textScore', 'invalidField' => 'nonExistingMetaField')
             )
         );
-    }
-
-    private function getTestAggregationBuilder()
-    {
-        return new Builder($this->getMockCollection());
-    }
-
-    private function getMockCollection()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->disableOriginalConstructor()
-            ->getMock();
     }
 }

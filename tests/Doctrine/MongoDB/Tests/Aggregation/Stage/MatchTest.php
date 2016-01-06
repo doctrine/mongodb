@@ -4,9 +4,12 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Stage\Match;
+use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
 
 class MatchTest extends \PHPUnit_Framework_TestCase
 {
+    use AggregationTestCase;
+
     public function testMatchStage()
     {
         $matchStage = new Match($this->getTestAggregationBuilder());
@@ -33,7 +36,7 @@ class MatchTest extends \PHPUnit_Framework_TestCase
      */
     public function testProxiedExprMethods($method, array $args = array())
     {
-        $expr = $this->getMockExpr();
+        $expr = $this->getMockQueryExpr();
         $invocationMocker = $expr->expects($this->once())->method($method);
         call_user_func_array(array($invocationMocker, 'with'), $args);
 
@@ -70,34 +73,15 @@ class MatchTest extends \PHPUnit_Framework_TestCase
             'geoWithinCenterSphere()' => array('geoWithinCenterSphere', array(1, 2, 3)),
             'geoWithinPolygon()' => array('geoWithinPolygon', array(array(0, 0), array(1, 1), array(1, 0))),
             'addAnd() array' => array('addAnd', array(array())),
-            'addAnd() Expr' => array('addAnd', array($this->getMockExpr())),
+            'addAnd() Expr' => array('addAnd', array($this->getMockQueryExpr())),
             'addOr() array' => array('addOr', array(array())),
-            'addOr() Expr' => array('addOr', array($this->getMockExpr())),
+            'addOr() Expr' => array('addOr', array($this->getMockQueryExpr())),
             'addNor() array' => array('addNor', array(array())),
-            'addNor() Expr' => array('addNor', array($this->getMockExpr())),
-            'not()' => array('not', array($this->getMockExpr())),
+            'addNor() Expr' => array('addNor', array($this->getMockQueryExpr())),
+            'not()' => array('not', array($this->getMockQueryExpr())),
             'language()' => array('language', array('en')),
             'text()' => array('text', array('foo')),
         );
-    }
-
-    private function getTestAggregationBuilder()
-    {
-        return new Builder($this->getMockCollection());
-    }
-
-    private function getMockCollection()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->disableOriginalConstructor()
-            ->getMock();
-    }
-
-    private function getMockExpr()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Query\Expr')
-            ->disableOriginalConstructor()
-            ->getMock();
     }
 
     private function getStubStage()

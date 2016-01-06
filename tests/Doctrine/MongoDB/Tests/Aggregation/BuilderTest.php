@@ -2,10 +2,10 @@
 
 namespace Doctrine\MongoDB\Tests\Aggregation;
 
-use Doctrine\MongoDB\Aggregation\Builder;
-
 class BuilderTest extends \PHPUnit_Framework_TestCase
 {
+    use AggregationTestCase;
+
     public function testGetPipeline()
     {
         $point = array('type' => 'Point', 'coordinates' => array(0, 0));
@@ -147,17 +147,5 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ->out('collectionName');
 
         $this->assertEquals($expectedPipeline, $builder->getPipeline());
-    }
-
-    private function getTestAggregationBuilder()
-    {
-        return new Builder($this->getMockCollection());
-    }
-
-    private function getMockCollection()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->disableOriginalConstructor()
-            ->getMock();
     }
 }

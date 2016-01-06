@@ -4,9 +4,12 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Stage\IndexStats;
+use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
 
 class IndexStatsTest extends \PHPUnit_Framework_TestCase
 {
+    use AggregationTestCase;
+
     public function testIndexStatsStage()
     {
         $indexStatsStage = new IndexStats($this->getTestAggregationBuilder());
@@ -20,17 +23,5 @@ class IndexStatsTest extends \PHPUnit_Framework_TestCase
         $builder->indexStats();
 
         $this->assertEquals(array(array('$indexStats' => new \stdClass())), $builder->getPipeline());
-    }
-
-    private function getTestAggregationBuilder()
-    {
-        return new Builder($this->getMockCollection());
-    }
-
-    private function getMockCollection()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->disableOriginalConstructor()
-            ->getMock();
     }
 }
