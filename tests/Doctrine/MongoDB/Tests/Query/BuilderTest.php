@@ -391,10 +391,16 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             'elemMatch() Expr' => array('elemMatch', array($this->getMockExpr())),
             'not()' => array('not', array($this->getMockExpr())),
             'language()' => array('language', array('en')),
+            'caseSensitive()' => array('caseSensitive', array(true)),
+            'diacriticSensitive()' => array('diacriticSensitive', array(true)),
             'text()' => array('text', array('foo')),
             'max()' => array('max', array(1)),
             'min()' => array('min', array(1)),
-            'comment()' => array('comment', array('A comment explaining what the query does'))
+            'comment()' => array('comment', array('A comment explaining what the query does')),
+            'bitsAllClear()' => array('bitsAllClear', array(5)),
+            'bitsAllSet()' => array('bitsAllSet', array(5)),
+            'bitsAnyClear()' => array('bitsAnyClear', array(5)),
+            'bitsAnySet()' => array('bitsAnySet', array(5)),
         );
     }
 

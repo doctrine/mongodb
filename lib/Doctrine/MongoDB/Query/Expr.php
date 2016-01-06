@@ -203,6 +203,66 @@ class Expr
     }
 
     /**
+     * Matches documents where all of the bit positions given by the query are
+     * clear.
+     *
+     * @see Builder::bitsAllClear()
+     * @see https://docs.mongodb.org/manual/reference/operator/query/bitsAllClear/
+     * @param int|array|\MongoBinData $value
+     * @return self
+     */
+    public function bitsAllClear($value)
+    {
+        $this->requiresCurrentField();
+        return $this->operator('$bitsAllClear', $value);
+    }
+
+    /**
+     * Matches documents where all of the bit positions given by the query are
+     * set.
+     *
+     * @see Builder::bitsAllSet()
+     * @see https://docs.mongodb.org/manual/reference/operator/query/bitsAllSet/
+     * @param int|array|\MongoBinData $value
+     * @return self
+     */
+    public function bitsAllSet($value)
+    {
+        $this->requiresCurrentField();
+        return $this->operator('$bitsAllSet', $value);
+    }
+
+    /**
+     * Matches documents where any of the bit positions given by the query are
+     * clear.
+     *
+     * @see Builder::bitsAnyClear()
+     * @see https://docs.mongodb.org/manual/reference/operator/query/bitsAnyClear/
+     * @param int|array|\MongoBinData $value
+     * @return self
+     */
+    public function bitsAnyClear($value)
+    {
+        $this->requiresCurrentField();
+        return $this->operator('$bitsAnyClear', $value);
+    }
+
+    /**
+     * Matches documents where any of the bit positions given by the query are
+     * set.
+     *
+     * @see Builder::bitsAnySet()
+     * @see https://docs.mongodb.org/manual/reference/operator/query/bitsAnySet/
+     * @param int|array|\MongoBinData $value
+     * @return self
+     */
+    public function bitsAnySet($value)
+    {
+        $this->requiresCurrentField();
+        return $this->operator('$bitsAnySet', $value);
+    }
+
+    /**
      * Apply a bitwise xor operation on the current field.
      *
      * @see Builder::bitXor()
@@ -213,6 +273,36 @@ class Expr
     public function bitXor($value)
     {
         return $this->bit('xor', $value);
+    }
+
+    /**
+     * A boolean flag to enable or disable case sensitive search for $text
+     * criteria.
+     *
+     * This method must be called after text().
+     *
+     * @see Builder::caseSensitive()
+     * @see http://docs.mongodb.org/manual/reference/operator/text/
+     * @param bool $caseSensitive
+     * @return self
+     * @throws BadMethodCallException if the query does not already have $text criteria
+     *
+     * @since 1.3
+     */
+    public function caseSensitive($caseSensitive)
+    {
+        if ( ! isset($this->query['$text'])) {
+            throw new BadMethodCallException('This method requires a $text operator (call text() first)');
+        }
+
+        // Remove caseSensitive option to keep support for older database versions
+        if ($caseSensitive) {
+            $this->query['$text']['$caseSensitive'] = true;
+        } elseif (isset($this->query['$text']['$caseSensitive'])) {
+            unset($this->query['$text']['$caseSensitive']);
+        }
+
+        return $this;
     }
 
     /**
@@ -246,6 +336,36 @@ class Expr
 
         $this->requiresCurrentField();
         $this->newObj['$currentDate'][$this->currentField]['$type'] = $type;
+        return $this;
+    }
+
+    /**
+     * A boolean flag to enable or disable diacritic sensitive search for $text
+     * criteria.
+     *
+     * This method must be called after text().
+     *
+     * @see Builder::diacriticSensitive()
+     * @see http://docs.mongodb.org/manual/reference/operator/text/
+     * @param bool $diacriticSensitive
+     * @return self
+     * @throws BadMethodCallException if the query does not already have $text criteria
+     *
+     * @since 1.3
+     */
+    public function diacriticSensitive($diacriticSensitive)
+    {
+        if ( ! isset($this->query['$text'])) {
+            throw new BadMethodCallException('This method requires a $text operator (call text() first)');
+        }
+
+        // Remove diacriticSensitive option to keep support for older database versions
+        if ($diacriticSensitive) {
+            $this->query['$text']['$diacriticSensitive'] = true;
+        } elseif (isset($this->query['$text']['$diacriticSensitive'])) {
+            unset($this->query['$text']['$diacriticSensitive']);
+        }
+
         return $this;
     }
 
