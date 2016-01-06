@@ -5,9 +5,12 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Expr;
 use Doctrine\MongoDB\Aggregation\Stage\Project;
+use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
 
 class ProjectTest extends \PHPUnit_Framework_TestCase
 {
+    use AggregationTestCase;
+
     public function testProjectStage()
     {
         $projectStage = new Project($this->getTestAggregationBuilder());
@@ -58,7 +61,7 @@ class ProjectTest extends \PHPUnit_Framework_TestCase
      */
     public function testProxiedExprMethods($method, array $args = array())
     {
-        $expr = $this->getMockExpr();
+        $expr = $this->getMockAggregationExpr();
         $invocationMocker = $expr->expects($this->once())->method($method);
         call_user_func_array(array($invocationMocker, 'with'), $args);
 
@@ -85,24 +88,5 @@ class ProjectTest extends \PHPUnit_Framework_TestCase
             'stdDevSamp()' => array('stdDevSamp', array('$field')),
             'sum()' => array('sum', array('$field')),
         );
-    }
-
-    private function getTestAggregationBuilder()
-    {
-        return new Builder($this->getMockCollection());
-    }
-
-    private function getMockCollection()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->disableOriginalConstructor()
-            ->getMock();
-    }
-
-    private function getMockExpr()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Aggregation\Expr')
-            ->disableOriginalConstructor()
-            ->getMock();
     }
 }

@@ -4,9 +4,12 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Stage\Out;
+use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
 
 class OutTest extends \PHPUnit_Framework_TestCase
 {
+    use AggregationTestCase;
+
     public function testOutStage()
     {
         $outStage = new Out($this->getTestAggregationBuilder(), 'someCollection');
@@ -30,17 +33,5 @@ class OutTest extends \PHPUnit_Framework_TestCase
             ->out('otherCollection');
 
         $this->assertSame(array(array('$out' => 'otherCollection')), $builder->getPipeline());
-    }
-
-    private function getTestAggregationBuilder()
-    {
-        return new Builder($this->getMockCollection());
-    }
-
-    private function getMockCollection()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->disableOriginalConstructor()
-            ->getMock();
     }
 }

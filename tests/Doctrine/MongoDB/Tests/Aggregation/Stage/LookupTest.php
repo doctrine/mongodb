@@ -4,9 +4,12 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Stage\Lookup;
+use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
 
 class LookupTest extends \PHPUnit_Framework_TestCase
 {
+    use AggregationTestCase;
+
     public function testLookupStage()
     {
         $lookupStage = new Lookup($this->getTestAggregationBuilder(), 'collection');
@@ -30,17 +33,5 @@ class LookupTest extends \PHPUnit_Framework_TestCase
             ->alias('lookedUp');
 
         $this->assertSame(array(array('$lookup' => array('from' => 'collection', 'localField' => 'local.field', 'foreignField' => 'foreign.field', 'as' => 'lookedUp'))), $builder->getPipeline());
-    }
-
-    private function getTestAggregationBuilder()
-    {
-        return new Builder($this->getMockCollection());
-    }
-
-    private function getMockCollection()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->disableOriginalConstructor()
-            ->getMock();
     }
 }

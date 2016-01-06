@@ -4,9 +4,12 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Stage\Sample;
+use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
 
 class SampleTest extends \PHPUnit_Framework_TestCase
 {
+    use AggregationTestCase;
+
     public function testSampleStage()
     {
         $sampleStage = new Sample($this->getTestAggregationBuilder(), 10);
@@ -20,17 +23,5 @@ class SampleTest extends \PHPUnit_Framework_TestCase
         $builder->sample(10);
 
         $this->assertSame(array(array('$sample' => 10)), $builder->getPipeline());
-    }
-
-    private function getTestAggregationBuilder()
-    {
-        return new Builder($this->getMockCollection());
-    }
-
-    private function getMockCollection()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->disableOriginalConstructor()
-            ->getMock();
     }
 }

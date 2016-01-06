@@ -5,15 +5,18 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Expr;
 use Doctrine\MongoDB\Aggregation\Stage\Group;
+use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
 
 class GroupTest extends \PHPUnit_Framework_TestCase
 {
+    use AggregationTestCase;
+
     /**
      * @dataProvider provideProxiedExprMethods
      */
     public function testProxiedExprMethods($method, array $args = array())
     {
-        $expr = $this->getMockExpr();
+        $expr = $this->getMockAggregationExpr();
         $invocationMocker = $expr->expects($this->once())->method($method);
         call_user_func_array(array($invocationMocker, 'with'), $args);
 
@@ -70,24 +73,5 @@ class GroupTest extends \PHPUnit_Framework_TestCase
             ->sum(1);
 
         $this->assertSame(array(array('$group' => array('_id' => '$field', 'count' => array('$sum' => 1)))), $builder->getPipeline());
-    }
-
-    private function getTestAggregationBuilder()
-    {
-        return new Builder($this->getMockCollection());
-    }
-
-    private function getMockCollection()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->disableOriginalConstructor()
-            ->getMock();
-    }
-
-    private function getMockExpr()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Aggregation\Expr')
-            ->disableOriginalConstructor()
-            ->getMock();
     }
 }

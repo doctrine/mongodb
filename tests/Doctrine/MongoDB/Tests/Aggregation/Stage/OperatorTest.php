@@ -5,15 +5,18 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Expr;
 use Doctrine\MongoDB\Aggregation\Stage\Match;
+use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
 
 class OperatorTest extends \PHPUnit_Framework_TestCase
 {
+    use AggregationTestCase;
+
     /**
      * @dataProvider provideProxiedExprMethods
      */
     public function testProxiedExprMethods($method, array $args = array())
     {
-        $expr = $this->getMockExpr();
+        $expr = $this->getMockAggregationExpr();
         $invocationMocker = $expr->expects($this->once())->method($method);
         call_user_func_array(array($invocationMocker, 'with'), $args);
 
@@ -93,25 +96,6 @@ class OperatorTest extends \PHPUnit_Framework_TestCase
             'week()' => array('week', array('$dateField')),
             'year()' => array('year', array('$dateField')),
         );
-    }
-
-    private function getTestAggregationBuilder()
-    {
-        return new Builder($this->getMockCollection());
-    }
-
-    private function getMockCollection()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->disableOriginalConstructor()
-            ->getMock();
-    }
-
-    private function getMockExpr()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Aggregation\Expr')
-            ->disableOriginalConstructor()
-            ->getMock();
     }
 
     private function getStubStage()
