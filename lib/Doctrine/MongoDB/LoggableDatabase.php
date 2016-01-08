@@ -64,7 +64,7 @@ class LoggableDatabase extends Database implements Loggable
     public function log(array $log)
     {
         $log['db'] = $this->getName();
-        call_user_func_array($this->loggerCallable, array($log));
+        call_user_func_array($this->loggerCallable, [$log]);
     }
 
     /**
@@ -72,11 +72,11 @@ class LoggableDatabase extends Database implements Loggable
      */
     public function authenticate($username, $password)
     {
-        $this->log(array(
+        $this->log([
             'authenticate' => true,
             'username' => $username,
             'password' => $password,
-        ));
+        ]);
 
         return parent::authenticate($username, $password);
     }
@@ -84,13 +84,13 @@ class LoggableDatabase extends Database implements Loggable
     /**
      * @see Database::command()
      */
-    public function command(array $data, array $options = array(), &$hash = null)
+    public function command(array $data, array $options = [], &$hash = null)
     {
-        $this->log(array(
+        $this->log([
             'command' => true,
             'data' => $data,
             'options' => $options,
-        ));
+        ]);
 
         if (func_num_args() > 2) {
             return parent::command($data, $options, $hash);
@@ -105,10 +105,10 @@ class LoggableDatabase extends Database implements Loggable
     public function createCollection($name, $cappedOrOptions = false, $size = 0, $max = 0)
     {
         $options = is_array($cappedOrOptions)
-            ? array_merge(array('capped' => false, 'size' => 0, 'max' => 0), $cappedOrOptions)
-            : array('capped' => $cappedOrOptions, 'size' => $size, 'max' => $max);
+            ? array_merge(['capped' => false, 'size' => 0, 'max' => 0], $cappedOrOptions)
+            : ['capped' => $cappedOrOptions, 'size' => $size, 'max' => $max];
 
-        $this->log(array(
+        $this->log([
             'createCollection' => true,
             'name' => $name,
             'options' => $options,
@@ -116,7 +116,7 @@ class LoggableDatabase extends Database implements Loggable
             'capped' => $options['capped'],
             'size' => $options['size'],
             'max' => $options['max'],
-        ));
+        ]);
 
         return parent::createCollection($name, $options);
     }
@@ -126,7 +126,7 @@ class LoggableDatabase extends Database implements Loggable
      */
     public function drop()
     {
-        $this->log(array('dropDatabase' => true));
+        $this->log(['dropDatabase' => true]);
 
         return parent::drop();
     }
@@ -134,13 +134,13 @@ class LoggableDatabase extends Database implements Loggable
     /**
      * @see Database::execute()
      */
-    public function execute($code, array $args = array())
+    public function execute($code, array $args = [])
     {
-        $this->log(array(
+        $this->log([
             'execute' => true,
             'code' => $code,
             'args' => $args,
-        ));
+        ]);
 
         return parent::execute($code, $args);
     }
@@ -150,10 +150,10 @@ class LoggableDatabase extends Database implements Loggable
      */
     public function getDBRef(array $ref)
     {
-        $this->log(array(
+        $this->log([
             'getDBRef' => true,
             'reference' => $ref,
-        ));
+        ]);
 
         return parent::getDBRef($ref);
     }

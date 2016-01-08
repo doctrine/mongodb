@@ -9,8 +9,8 @@ class MutableEventArgsTest extends \PHPUnit_Framework_TestCase
     public function testMutableEventArgs()
     {
         $invoker = new \stdClass();
-        $data = array('ok' => 1);
-        $options = array('w' => 1);
+        $data = ['ok' => 1];
+        $options = ['w' => 1];
 
         $mutableEventArgs = new MutableEventArgs($invoker, $data, $options);
 
@@ -55,11 +55,11 @@ class MutableEventArgsTest extends \PHPUnit_Framework_TestCase
 
     public function provideChangedData()
     {
-        return array(
-            array(new \stdClass(), new \stdClass()),
-            array(array('ok' => 1), array('ok' => 0)),
-            array('foo', 'bar'),
-            array(1, 1.0),
-        );
+        return [
+            [new \stdClass(), new \stdClass()],
+            [['ok' => 1], ['ok' => 0]],
+            ['foo', 'bar'],
+            [1, 1.0],
+        ];
     }
 }

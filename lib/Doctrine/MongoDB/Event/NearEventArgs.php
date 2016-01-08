@@ -43,7 +43,7 @@ class NearEventArgs extends BaseEventArgs
      * @param array|Point $near
      * @param array       $options
      */
-    public function __construct($invoker, array $query, $near, array $options = array())
+    public function __construct($invoker, array $query, $near, array $options = [])
     {
         $this->invoker = $invoker;
         $this->near = $near;

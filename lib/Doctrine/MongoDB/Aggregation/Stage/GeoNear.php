@@ -92,14 +92,14 @@ class GeoNear extends Match
      */
     public function getExpression()
     {
-        $geoNear = array(
+        $geoNear = [
             'near' => $this->near,
             'spherical' => $this->spherical,
             'distanceField' => $this->distanceField,
             'query' => $this->query->getQuery()
-        );
+        ];
 
-        foreach (array('distanceMultiplier', 'includeLocs', 'maxDistance', 'minDistance', 'num', 'uniqueDocs') as $option) {
+        foreach (['distanceMultiplier', 'includeLocs', 'maxDistance', 'minDistance', 'num', 'uniqueDocs'] as $option) {
             if ( ! $this->$option) {
                 continue;
             }
@@ -107,9 +107,9 @@ class GeoNear extends Match
             $geoNear[$option] = $this->$option;
         }
 
-        return array(
+        return [
             '$geoNear' => $geoNear
-        );
+        ];
     }
 
     /**
@@ -208,7 +208,7 @@ class GeoNear extends Match
             $x = $x->jsonSerialize();
         }
 
-        $this->near = is_array($x) ? $x : array($x, $y);
+        $this->near = is_array($x) ? $x : [$x, $y];
         $this->spherical = is_array($x) && isset($x['type']);
 
         return $this;

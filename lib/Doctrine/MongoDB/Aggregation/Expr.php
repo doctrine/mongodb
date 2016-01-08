@@ -32,7 +32,7 @@ class Expr
     /**
      * @var array
      */
-    private $expr = array();
+    private $expr = [];
 
     /**
      * The current field we are operating on.
@@ -223,7 +223,7 @@ class Expr
      */
     public function cmp($expression1, $expression2)
     {
-        return $this->operator('$cmp', array($expression1, $expression2));
+        return $this->operator('$cmp', [$expression1, $expression2]);
     }
 
     /**
@@ -277,7 +277,7 @@ class Expr
      */
     public function cond($if, $then, $else)
     {
-        return $this->operator('$cond', array('if' => $if, 'then' => $then, 'else' => $else));
+        return $this->operator('$cond', ['if' => $if, 'then' => $then, 'else' => $else]);
     }
 
     /**
@@ -289,7 +289,7 @@ class Expr
     private function ensureArray($expression)
     {
         if (is_array($expression)) {
-            $array = array();
+            $array = [];
             foreach ($expression as $index => $value) {
                 $array[$index] = $this->ensureArray($value);
             }
@@ -316,7 +316,7 @@ class Expr
      */
     public function dateToString($format, $expression)
     {
-        return $this->operator('$dateToString', array($format, $expression));
+        return $this->operator('$dateToString', [$format, $expression]);
     }
 
     /**
@@ -375,7 +375,7 @@ class Expr
      */
     public function divide($expression1, $expression2)
     {
-        return $this->operator('$divide', array($expression1, $expression2));
+        return $this->operator('$divide', [$expression1, $expression2]);
     }
 
     /**
@@ -388,7 +388,7 @@ class Expr
      */
     public function eq($expression1, $expression2)
     {
-        return $this->operator('$eq', array($expression1, $expression2));
+        return $this->operator('$eq', [$expression1, $expression2]);
     }
 
     /**
@@ -507,7 +507,7 @@ class Expr
      */
     public function gt($expression1, $expression2)
     {
-        return $this->operator('$gt', array($expression1, $expression2));
+        return $this->operator('$gt', [$expression1, $expression2]);
     }
 
     /**
@@ -523,7 +523,7 @@ class Expr
      */
     public function gte($expression1, $expression2)
     {
-        return $this->operator('$gte', array($expression1, $expression2));
+        return $this->operator('$gte', [$expression1, $expression2]);
     }
 
     /**
@@ -555,7 +555,7 @@ class Expr
      */
     public function ifNull($expression, $replacementExpression)
     {
-        return $this->operator('$ifNull', array($expression, $replacementExpression));
+        return $this->operator('$ifNull', [$expression, $replacementExpression]);
     }
 
     /**
@@ -599,7 +599,7 @@ class Expr
      */
     public function let($vars, $in)
     {
-        return $this->operator('$let', array('vars' => $vars, 'in' => $in));
+        return $this->operator('$let', ['vars' => $vars, 'in' => $in]);
     }
 
     /**
@@ -684,7 +684,7 @@ class Expr
      */
     public function lt($expression1, $expression2)
     {
-        return $this->operator('$lt', array($expression1, $expression2));
+        return $this->operator('$lt', [$expression1, $expression2]);
     }
 
     /**
@@ -699,7 +699,7 @@ class Expr
      */
     public function lte($expression1, $expression2)
     {
-        return $this->operator('$lte', array($expression1, $expression2));
+        return $this->operator('$lte', [$expression1, $expression2]);
     }
 
     /**
@@ -714,7 +714,7 @@ class Expr
      */
     public function map($input, $as, $in)
     {
-        return $this->operator('$map', array('input' => $input, 'as' => $as, 'in' => $in));
+        return $this->operator('$map', ['input' => $input, 'as' => $as, 'in' => $in]);
     }
 
     /**
@@ -796,7 +796,7 @@ class Expr
      */
     public function mod($expression1, $expression2)
     {
-        return $this->operator('$mod', array($expression1, $expression2));
+        return $this->operator('$mod', [$expression1, $expression2]);
     }
 
     /**
@@ -841,7 +841,7 @@ class Expr
      */
     public function ne($expression1, $expression2)
     {
-        return $this->operator('$ne', array($expression1, $expression2));
+        return $this->operator('$ne', [$expression1, $expression2]);
     }
 
     /**
@@ -952,7 +952,7 @@ class Expr
      */
     public function setDifference($expression1, $expression2)
     {
-        return $this->operator('$setDifference', array($expression1, $expression2));
+        return $this->operator('$setDifference', [$expression1, $expression2]);
     }
 
     /**
@@ -1002,7 +1002,7 @@ class Expr
      */
     public function setIsSubset($expression1, $expression2)
     {
-        return $this->operator('$setIsSubset', array($expression1, $expression2));
+        return $this->operator('$setIsSubset', [$expression1, $expression2]);
     }
 
     /**
@@ -1125,7 +1125,7 @@ class Expr
      */
     public function strcasecmp($expression1, $expression2)
     {
-        return $this->operator('$strcasecmp', array($expression1, $expression2));
+        return $this->operator('$strcasecmp', [$expression1, $expression2]);
     }
 
     /**
@@ -1142,7 +1142,7 @@ class Expr
      */
     public function substr($string, $start, $length)
     {
-        return $this->operator('$substr', array($string, $start, $length));
+        return $this->operator('$substr', [$string, $start, $length]);
     }
 
     /**
@@ -1158,7 +1158,7 @@ class Expr
      */
     public function subtract($expression1, $expression2)
     {
-        return $this->operator('$subtract', array($expression1, $expression2));
+        return $this->operator('$subtract', [$expression1, $expression2]);
     }
 
     /**

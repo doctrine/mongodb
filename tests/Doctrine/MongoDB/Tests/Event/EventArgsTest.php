@@ -9,8 +9,8 @@ class EventArgsTest extends \PHPUnit_Framework_TestCase
     public function testEventArgs()
     {
         $invoker = new \stdClass();
-        $data = array('ok' => 1);
-        $options = array('w' => 1);
+        $data = ['ok' => 1];
+        $options = ['w' => 1];
 
         $eventArgs = new EventArgs($invoker, $data, $options);
 

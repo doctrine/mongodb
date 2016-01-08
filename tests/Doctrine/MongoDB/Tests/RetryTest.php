@@ -15,17 +15,17 @@ class RetryTest extends BaseTest
         $config = new Configuration();
         $config->setRetryConnect(1);
         $config->setRetryQuery(1);
-        $this->conn = new Connection(null, array(), $config);
+        $this->conn = new Connection(null, [], $config);
     }
 
     public function testFunctional()
     {
         $test = $this->conn->selectDatabase('test')->selectCollection('test');
-        $doc = array('test' => 'test');
+        $doc = ['test' => 'test'];
         $test->insert($doc);
-        $check = $test->findOne(array('test' => 'test'));
+        $check = $test->findOne(['test' => 'test']);
         $this->assertEquals('test', $check['test']);
-        $check = $test->find(array('test' => 'test'));
+        $check = $test->find(['test' => 'test']);
         $this->assertInstanceOf('Doctrine\MongoDB\Cursor', $check);
         $array = $check->toArray();
         $this->assertTrue(is_array($array));
@@ -53,7 +53,7 @@ class RetryTest extends BaseTest
         $config = new Configuration();
         $config->setRetryConnect(1);
         $config->setRetryQuery(1);
-        $conn = new ConnectionStub(null, array(), $config);
+        $conn = new ConnectionStub(null, [], $config);
         $exception = new \MongoException('Test');
         try {
             $conn->testRetries($exception);
@@ -68,7 +68,7 @@ class RetryTest extends BaseTest
     {
         $collection = $this->conn->selectDatabase('test')->selectCollection('test');
         $mongoCursor = $collection->find()->getMongoCursor();
-        $cursor = new CursorStub($collection, $mongoCursor, array(), array(), 1);
+        $cursor = new CursorStub($collection, $mongoCursor, [], [], 1);
         $exception = new \MongoCursorException('Test');
         try {
             $cursor->testCursorExceptionRetries($exception);
@@ -83,7 +83,7 @@ class RetryTest extends BaseTest
     {
         $collection = $this->conn->selectDatabase('test')->selectCollection('test');
         $mongoCursor = $collection->find()->getMongoCursor();
-        $cursor = new CursorStub($collection, $mongoCursor, array(), array(), 1);
+        $cursor = new CursorStub($collection, $mongoCursor, [], [], 1);
         $exception = new \MongoConnectionException('Test');
         try {
             $cursor->testConnectionExceptionRetries($exception);

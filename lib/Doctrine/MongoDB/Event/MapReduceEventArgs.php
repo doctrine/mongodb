@@ -46,7 +46,7 @@ class MapReduceEventArgs extends BaseEventArgs
      * @param array             $query
      * @param array             $options
      */
-    public function __construct($invoker, $map, $reduce, array $out, array $query, array $options = array())
+    public function __construct($invoker, $map, $reduce, array $out, array $query, array $options = [])
     {
         $this->invoker = $invoker;
         $this->map = $map;

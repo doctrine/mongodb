@@ -51,8 +51,8 @@ class Skip extends Stage
      */
     public function getExpression()
     {
-        return array(
+        return [
             '$skip' => $this->skip
-        );
+        ];
     }
 }

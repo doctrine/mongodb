@@ -10,11 +10,11 @@ class CreateCollectionEventArgsTest extends \PHPUnit_Framework_TestCase
     {
         $invoker = new \stdClass();
         $name = 'foo';
-        $options = array(
+        $options = [
             'capped' => true,
             'size' => 10485760,
             'autoIndexId' => false,
-        );
+        ];
 
         $createCollectionEventArgs = new CreateCollectionEventArgs($invoker, $name, $options);
 

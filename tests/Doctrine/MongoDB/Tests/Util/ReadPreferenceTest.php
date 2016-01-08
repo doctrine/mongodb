@@ -16,16 +16,16 @@ class ReadPreferenceTest extends \PHPUnit_Framework_TestCase
 
     public function testConvertReadPreference()
     {
-        $readPref = array(
+        $readPref = [
             'type' => 0,
             'type_string' => \MongoClient::RP_PRIMARY,
-            'tagsets' => array(array('dc:east')),
-        );
+            'tagsets' => [['dc:east']],
+        ];
 
-        $expected = array(
+        $expected = [
             'type' => \MongoClient::RP_PRIMARY,
-            'tagsets' => array(array('dc' => 'east')),
-        );
+            'tagsets' => [['dc' => 'east']],
+        ];
 
         $this->assertEquals($expected, ReadPreference::convertReadPreference($readPref));
     }
@@ -40,39 +40,39 @@ class ReadPreferenceTest extends \PHPUnit_Framework_TestCase
 
     public function provideTagSets()
     {
-        return array(
-            array(
-                array(
-                    array('dc:east', 'use:reporting'),
-                    array('dc:west'),
-                    array(),
-                ),
-                array(
-                    array('dc' => 'east', 'use' => 'reporting'),
-                    array('dc' => 'west'),
-                    array(),
-                ),
-            ),
-            array(
-                array(array()),
-                array(array()),
-            ),
+        return [
+            [
+                [
+                    ['dc:east', 'use:reporting'],
+                    ['dc:west'],
+                    [],
+                ],
+                [
+                    ['dc' => 'east', 'use' => 'reporting'],
+                    ['dc' => 'west'],
+                    [],
+                ],
+            ],
+            [
+                [[]],
+                [[]],
+            ],
             /* This tag set is impractical, since an empty set matches anything,
              * but we want to test that elements beyond the first are converted.
              */
-            array(
-                array(
-                    array(),
-                    array('dc:west'),
-                    array('dc:east', 'use:reporting'),
-                ),
-                array(
-                    array(),
-                    array('dc' => 'west'),
-                    array('dc' => 'east', 'use' => 'reporting'),
-                ),
-            ),
-        );
+            [
+                [
+                    [],
+                    ['dc:west'],
+                    ['dc:east', 'use:reporting'],
+                ],
+                [
+                    [],
+                    ['dc' => 'west'],
+                    ['dc' => 'east', 'use' => 'reporting'],
+                ],
+            ],
+        ];
     }
 
     /**
@@ -85,23 +85,23 @@ class ReadPreferenceTest extends \PHPUnit_Framework_TestCase
 
     public function provideTagSetsAcceptedBySetReadPreference()
     {
-        return array(
-            array(
-                array(
-                    array('dc' => 'east', 'use' => 'reporting'),
-                    array('dc' => 'west'),
-                    array(),
-                ),
-            ),
+        return [
+            [
+                [
+                    ['dc' => 'east', 'use' => 'reporting'],
+                    ['dc' => 'west'],
+                    [],
+                ],
+            ],
             /* These numeric tag names are likely impractical, but they should
              * be accepted by setReadPreference() and thus not modified.
              */
-            array(
-                array(
-                    array('0' => 'zero', '1' => 'one'),
-                    array(),
-                ),
-            ),
-        );
+            [
+                [
+                    ['0' => 'zero', '1' => 'one'],
+                    [],
+                ],
+            ],
+        ];
     }
 }

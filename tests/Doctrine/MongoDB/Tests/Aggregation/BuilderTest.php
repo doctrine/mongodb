@@ -8,86 +8,86 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testGetPipeline()
     {
-        $point = array('type' => 'Point', 'coordinates' => array(0, 0));
+        $point = ['type' => 'Point', 'coordinates' => [0, 0]];
 
-        $expectedPipeline = array(
-            array(
-                '$geoNear' => array(
+        $expectedPipeline = [
+            [
+                '$geoNear' => [
                     'near' => $point,
                     'spherical' => true,
                     'distanceField' => 'distance',
-                    'query' => array(
-                        'hasCoordinates' => array('$exists' => true),
+                    'query' => [
+                        'hasCoordinates' => ['$exists' => true],
                         'username' => 'foo',
-                    ),
+                    ],
                     'num' => 10
-                )
-            ),
-            array('$match' =>
-                array(
-                    '$or' => array(
-                        array('username' => 'admin'),
-                        array('username' => 'administrator')
-                    ),
-                    'group' => array('$in' => array('a', 'b'))
-                )
-            ),
-            array('$sample' => 10),
-            array('$lookup' =>
-                array(
+                ]
+            ],
+            ['$match' =>
+                [
+                    '$or' => [
+                        ['username' => 'admin'],
+                        ['username' => 'administrator']
+                    ],
+                    'group' => ['$in' => ['a', 'b']]
+                ]
+            ],
+            ['$sample' => 10],
+            ['$lookup' =>
+                [
                     'from' => 'orders',
                     'localField' => '_id',
                     'foreignField' => 'user.$id',
                     'as' => 'orders'
-                )
-            ),
-            array('$unwind' => 'a'),
-            array('$unwind' => 'b'),
-            array('$redact' =>
-                array(
-                    '$cond' => array(
-                        'if' => array('$lte' => array('$accessLevel', 3)),
+                ]
+            ],
+            ['$unwind' => 'a'],
+            ['$unwind' => 'b'],
+            ['$redact' =>
+                [
+                    '$cond' => [
+                        'if' => ['$lte' => ['$accessLevel', 3]],
                         'then' => '$$KEEP',
                         'else' => '$$REDACT',
-                    )
-                )
-            ),
-            array('$project' =>
-                array(
+                    ]
+                ]
+            ],
+            ['$project' =>
+                [
                     '_id' => false,
                     'user' => true,
                     'amount' => true,
                     'invoiceAddress' => true,
-                    'deliveryAddress' => array(
-                        '$cond' => array(
-                            'if' => array(
-                                '$and' => array(
-                                    array('$eq' => array('$useAlternateDeliveryAddress', true)),
-                                    array('$ne' => array('$deliveryAddress', null))
-                                )
-                            ),
+                    'deliveryAddress' => [
+                        '$cond' => [
+                            'if' => [
+                                '$and' => [
+                                    ['$eq' => ['$useAlternateDeliveryAddress', true]],
+                                    ['$ne' => ['$deliveryAddress', null]]
+                                ]
+                            ],
                             'then' => '$deliveryAddress',
                             'else' => '$invoiceAddress'
-                        )
-                    )
-                )
-            ),
-            array('$group' =>
-                array(
+                        ]
+                    ]
+                ]
+            ],
+            ['$group' =>
+                [
                     '_id' => '$user',
-                    'numOrders' => array('$sum' => 1),
-                    'amount' => array(
-                        'total' => array('$sum' => '$amount'),
-                        'avg' => array('$avg' => '$amount')
-                    )
-                )
-            ),
-            array('$sort' => array('totalAmount' => 0)),
-            array('$sort' => array('numOrders' => -1, 'avgAmount' => 1)),
-            array('$limit' => 5),
-            array('$skip' => 2),
-            array('$out' => 'collectionName')
-        );
+                    'numOrders' => ['$sum' => 1],
+                    'amount' => [
+                        'total' => ['$sum' => '$amount'],
+                        'avg' => ['$avg' => '$amount']
+                    ]
+                ]
+            ],
+            ['$sort' => ['totalAmount' => 0]],
+            ['$sort' => ['numOrders' => -1, 'avgAmount' => 1]],
+            ['$limit' => 5],
+            ['$skip' => 2],
+            ['$out' => 'collectionName']
+        ];
 
         $builder = $this->getTestAggregationBuilder();
         $builder
@@ -100,7 +100,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                 ->equals('foo')
             ->match()
                 ->field('group')
-                ->in(array('a', 'b'))
+                ->in(['a', 'b'])
                 ->addOr($builder->matchExpr()->field('username')->equals('admin'))
                 ->addOr($builder->matchExpr()->field('username')->equals('administrator'))
             ->sample(10)
@@ -118,7 +118,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                 )
             ->project()
                 ->excludeIdField()
-                ->includeFields(array('user', 'amount', 'invoiceAddress'))
+                ->includeFields(['user', 'amount', 'invoiceAddress'])
                 ->field('deliveryAddress')
                 ->cond(
                     $builder->expr()
@@ -141,7 +141,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                         ->avg('$amount')
                 )
             ->sort('totalAmount')
-            ->sort(array('numOrders' => 'desc', 'avgAmount' => 'asc')) // Multiple subsequent sorts are combined into a single stage
+            ->sort(['numOrders' => 'desc', 'avgAmount' => 'asc']) // Multiple subsequent sorts are combined into a single stage
             ->limit(5)
             ->skip(2)
             ->out('collectionName');

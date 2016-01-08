@@ -9,8 +9,8 @@ class FindEventArgsTest extends \PHPUnit_Framework_TestCase
     public function testFindEventArgs()
     {
         $invoker = new \stdClass();
-        $query = array('x' => 1);
-        $fields = array('_id' => 0);
+        $query = ['x' => 1];
+        $fields = ['_id' => 0];
 
         $findEventArgs = new FindEventArgs($invoker, $query, $fields);
 
