@@ -14,7 +14,7 @@ class SkipTest extends \PHPUnit_Framework_TestCase
     {
         $skipStage = new Skip($this->getTestAggregationBuilder(), 10);
 
-        $this->assertSame(array('$skip' => 10), $skipStage->getExpression());
+        $this->assertSame(['$skip' => 10], $skipStage->getExpression());
     }
 
     public function testSkipFromBuilder()
@@ -22,6 +22,6 @@ class SkipTest extends \PHPUnit_Framework_TestCase
         $builder = $this->getTestAggregationBuilder();
         $builder->skip(10);
 
-        $this->assertSame(array(array('$skip' => 10)), $builder->getPipeline());
+        $this->assertSame([['$skip' => 10]], $builder->getPipeline());
     }
 }

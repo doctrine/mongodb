@@ -14,7 +14,7 @@ class LimitTest extends \PHPUnit_Framework_TestCase
     {
         $limitStage = new Limit($this->getTestAggregationBuilder(), 10);
 
-        $this->assertSame(array('$limit' => 10), $limitStage->getExpression());
+        $this->assertSame(['$limit' => 10], $limitStage->getExpression());
     }
 
     public function testLimitFromBuilder()
@@ -22,6 +22,6 @@ class LimitTest extends \PHPUnit_Framework_TestCase
         $builder = $this->getTestAggregationBuilder();
         $builder->limit(10);
 
-        $this->assertSame(array(array('$limit' => 10)), $builder->getPipeline());
+        $this->assertSame([['$limit' => 10]], $builder->getPipeline());
     }
 }

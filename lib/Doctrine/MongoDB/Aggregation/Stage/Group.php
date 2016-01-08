@@ -36,9 +36,9 @@ class Group extends Operator
      */
     public function getExpression()
     {
-        return array(
+        return [
             '$group' => $this->expr->getExpression()
-        );
+        ];
     }
 
     /**

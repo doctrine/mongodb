@@ -39,13 +39,13 @@ final class ReadPreference
      * returned by getReadPreference() methods, while the values correspond to
      * the string constants expected by setReadPreference() methods.
      */
-    private static $types = array(
+    private static $types = [
         \MongoClient::RP_PRIMARY,
         \MongoClient::RP_PRIMARY_PREFERRED,
         \MongoClient::RP_SECONDARY,
         \MongoClient::RP_SECONDARY_PREFERRED,
         \MongoClient::RP_NEAREST,
-    );
+    ];
 
     /**
      * Private constructor (prevents instantiation)
@@ -122,7 +122,7 @@ final class ReadPreference
                 return $tagSet;
             }
 
-            $result = array();
+            $result = [];
 
             foreach ($tagSet as $tagAndValue) {
                 list($tag, $value) = explode(':', $tagAndValue, 2);

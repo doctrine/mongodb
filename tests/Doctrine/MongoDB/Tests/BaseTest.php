@@ -16,7 +16,7 @@ abstract class BaseTest extends PHPUnit_Framework_TestCase
     {
         $config = new Configuration();
         $config->setLoggerCallable(function($msg) {});
-        $this->conn = new Connection(null, array(), $config);
+        $this->conn = new Connection(null, [], $config);
     }
 
     public function tearDown()
@@ -32,7 +32,7 @@ abstract class BaseTest extends PHPUnit_Framework_TestCase
 
     protected function getServerVersion()
     {
-        $result = $this->conn->selectDatabase(self::$dbName)->command(array('buildInfo' => 1));
+        $result = $this->conn->selectDatabase(self::$dbName)->command(['buildInfo' => 1]);
 
         return $result['version'];
     }

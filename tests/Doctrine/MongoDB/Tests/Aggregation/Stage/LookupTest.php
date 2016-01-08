@@ -19,7 +19,7 @@ class LookupTest extends \PHPUnit_Framework_TestCase
             ->alias('lookedUp');
 
         $this->assertSame(
-            array('$lookup' => array('from' => 'collection', 'localField' => 'local.field', 'foreignField' => 'foreign.field', 'as' => 'lookedUp')),
+            ['$lookup' => ['from' => 'collection', 'localField' => 'local.field', 'foreignField' => 'foreign.field', 'as' => 'lookedUp']],
             $lookupStage->getExpression()
         );
     }
@@ -32,6 +32,6 @@ class LookupTest extends \PHPUnit_Framework_TestCase
             ->foreignField('foreign.field')
             ->alias('lookedUp');
 
-        $this->assertSame(array(array('$lookup' => array('from' => 'collection', 'localField' => 'local.field', 'foreignField' => 'foreign.field', 'as' => 'lookedUp'))), $builder->getPipeline());
+        $this->assertSame([['$lookup' => ['from' => 'collection', 'localField' => 'local.field', 'foreignField' => 'foreign.field', 'as' => 'lookedUp']]], $builder->getPipeline());
     }
 }

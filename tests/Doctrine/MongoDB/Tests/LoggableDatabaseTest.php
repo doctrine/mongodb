@@ -17,9 +17,9 @@ class LoggableDatabaseTest extends \PHPUnit_Framework_TestCase
         };
 
         $db = $this->getTestLoggableDatabase($loggerCallable);
-        $db->log(array('test' => 'test'));
+        $db->log(['test' => 'test']);
 
-        $this->assertEquals(array('db' => self::databaseName, 'test' => 'test'), $called);
+        $this->assertEquals(['db' => self::databaseName, 'test' => 'test'], $called);
     }
 
     private function getTestLoggableDatabase($loggerCallable)

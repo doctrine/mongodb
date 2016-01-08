@@ -51,8 +51,8 @@ class Sample extends Stage
      */
     public function getExpression()
     {
-        return array(
+        return [
             '$sample' => $this->size
-        );
+        ];
     }
 }

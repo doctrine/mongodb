@@ -56,7 +56,7 @@ abstract class Stage
      * @param array $options
      * @return Iterator
      */
-    public function execute($options = array())
+    public function execute($options = [])
     {
         return $this->builder->execute($options);
     }

@@ -33,7 +33,7 @@ class Sort extends Stage
     /**
      * @var array
      */
-    private $sort = array();
+    private $sort = [];
 
     /**
      * @param Builder $builder
@@ -44,14 +44,14 @@ class Sort extends Stage
     {
         parent::__construct($builder);
 
-        $allowedMetaSort = array('textScore');
+        $allowedMetaSort = ['textScore'];
 
-        $fields = is_array($fieldName) ? $fieldName : array($fieldName => $order);
+        $fields = is_array($fieldName) ? $fieldName : [$fieldName => $order];
 
         foreach ($fields as $fieldName => $order) {
             if (is_string($order)) {
                 if (in_array($order, $allowedMetaSort)) {
-                    $order = array('$meta' => $order);
+                    $order = ['$meta' => $order];
                 } else {
                     $order = strtolower($order) === 'asc' ? 1 : -1;
                 }
@@ -66,8 +66,8 @@ class Sort extends Stage
      */
     public function getExpression()
     {
-        return array(
+        return [
             '$sort' => $this->sort
-        );
+        ];
     }
 }

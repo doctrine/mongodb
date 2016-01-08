@@ -10,9 +10,9 @@ class GroupEventArgsTest extends \PHPUnit_Framework_TestCase
     {
         $invoker = new \stdClass();
         $keys = 'x';
-        $initial = array('count' => 0);
+        $initial = ['count' => 0];
         $reduce = new \MongoCode('');
-        $options = array('finalize' => new \MongoCode(''));
+        $options = ['finalize' => new \MongoCode('')];
 
         $groupEventArgs = new GroupEventArgs($invoker, $keys, $initial, $reduce, $options);
 

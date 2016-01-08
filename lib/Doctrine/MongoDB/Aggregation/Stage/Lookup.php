@@ -116,13 +116,13 @@ class Lookup extends Stage
      */
     public function getExpression()
     {
-        return array(
-            '$lookup' => array(
+        return [
+            '$lookup' => [
                 'from' => $this->from,
                 'localField' => $this->localField,
                 'foreignField' => $this->foreignField,
                 'as' => $this->as,
-            )
-        );
+            ]
+        ];
     }
 }

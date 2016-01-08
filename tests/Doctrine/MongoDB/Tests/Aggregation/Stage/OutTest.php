@@ -14,7 +14,7 @@ class OutTest extends \PHPUnit_Framework_TestCase
     {
         $outStage = new Out($this->getTestAggregationBuilder(), 'someCollection');
 
-        $this->assertSame(array('$out' => 'someCollection'), $outStage->getExpression());
+        $this->assertSame(['$out' => 'someCollection'], $outStage->getExpression());
     }
 
     public function testOutFromBuilder()
@@ -22,7 +22,7 @@ class OutTest extends \PHPUnit_Framework_TestCase
         $builder = $this->getTestAggregationBuilder();
         $builder->out('someCollection');
 
-        $this->assertSame(array(array('$out' => 'someCollection')), $builder->getPipeline());
+        $this->assertSame([['$out' => 'someCollection']], $builder->getPipeline());
     }
 
     public function testSubsequentOutStagesAreOverwritten()
@@ -32,6 +32,6 @@ class OutTest extends \PHPUnit_Framework_TestCase
             ->out('someCollection')
             ->out('otherCollection');
 
-        $this->assertSame(array(array('$out' => 'otherCollection')), $builder->getPipeline());
+        $this->assertSame([['$out' => 'otherCollection']], $builder->getPipeline());
     }
 }

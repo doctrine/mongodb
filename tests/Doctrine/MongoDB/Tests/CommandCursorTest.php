@@ -50,10 +50,10 @@ class CommandCursorTest extends \PHPUnit_Framework_TestCase
 
         $mongoCommandCursor->expects($this->once())
             ->method('info')
-            ->will($this->returnValue(array('info')));
+            ->will($this->returnValue(['info']));
 
         $commandCursor = new CommandCursor($mongoCommandCursor);
-        $this->assertEquals(array('info'), $commandCursor->info());
+        $this->assertEquals(['info'], $commandCursor->info());
     }
 
     public function testTimeout()

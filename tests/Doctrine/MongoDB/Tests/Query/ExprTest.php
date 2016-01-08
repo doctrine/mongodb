@@ -10,8 +10,8 @@ class ExprTest extends \PHPUnit_Framework_TestCase
     {
         $expr = new Expr();
 
-        $this->assertSame($expr, $expr->field('a')->addManyToSet(array(1, 2)));
-        $this->assertEquals(array('$addToSet' => array('a' => array('$each' => array(1, 2)))), $expr->getNewObj());
+        $this->assertSame($expr, $expr->field('a')->addManyToSet([1, 2]));
+        $this->assertEquals(['$addToSet' => ['a' => ['$each' => [1, 2]]]], $expr->getNewObj());
     }
 
     public function testAddToSetWithValue()
@@ -19,17 +19,17 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->field('a')->addToSet(1));
-        $this->assertEquals(array('$addToSet' => array('a' => 1)), $expr->getNewObj());
+        $this->assertEquals(['$addToSet' => ['a' => 1]], $expr->getNewObj());
     }
 
     public function testAddToSetWithExpression()
     {
         $expr = new Expr();
         $eachExpr = new Expr();
-        $eachExpr->each(array(1, 2));
+        $eachExpr->each([1, 2]);
 
         $this->assertSame($expr, $expr->field('a')->addToSet($eachExpr));
-        $this->assertEquals(array('$addToSet' => array('a' => array('$each' => array(1, 2)))), $expr->getNewObj());
+        $this->assertEquals(['$addToSet' => ['a' => ['$each' => [1, 2]]]], $expr->getNewObj());
     }
 
     public function testLanguageWithText()
@@ -38,7 +38,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr->text('foo');
 
         $this->assertSame($expr, $expr->language('en'));
-        $this->assertEquals(array('$text' => array('$search' => 'foo', '$language' => 'en')), $expr->getQuery());
+        $this->assertEquals(['$text' => ['$search' => 'foo', '$language' => 'en']], $expr->getQuery());
     }
 
     /**
@@ -56,7 +56,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr->text('foo');
 
         $this->assertSame($expr, $expr->caseSensitive(true));
-        $this->assertEquals(array('$text' => array('$search' => 'foo', '$caseSensitive' => true)), $expr->getQuery());
+        $this->assertEquals(['$text' => ['$search' => 'foo', '$caseSensitive' => true]], $expr->getQuery());
     }
 
     public function testCaseSensitiveFalseRemovesOption()
@@ -66,7 +66,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
 
         $expr->caseSensitive(true);
         $expr->caseSensitive(false);
-        $this->assertEquals(array('$text' => array('$search' => 'foo')), $expr->getQuery());
+        $this->assertEquals(['$text' => ['$search' => 'foo']], $expr->getQuery());
     }
 
     /**
@@ -84,7 +84,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr->text('foo');
 
         $this->assertSame($expr, $expr->diacriticSensitive(true));
-        $this->assertEquals(array('$text' => array('$search' => 'foo', '$diacriticSensitive' => true)), $expr->getQuery());
+        $this->assertEquals(['$text' => ['$search' => 'foo', '$diacriticSensitive' => true]], $expr->getQuery());
     }
 
     public function testDiacriticSensitiveFalseRemovesOption()
@@ -94,7 +94,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
 
         $expr->diacriticSensitive(true);
         $expr->diacriticSensitive(false);
-        $this->assertEquals(array('$text' => array('$search' => 'foo')), $expr->getQuery());
+        $this->assertEquals(['$text' => ['$search' => 'foo']], $expr->getQuery());
     }
 
     /**
@@ -112,7 +112,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr->field('field');
 
         $this->assertSame($expr, $expr->operator('$op', 'value'));
-        $this->assertEquals(array('field' => array('$op' => 'value')), $expr->getQuery());
+        $this->assertEquals(['field' => ['$op' => 'value']], $expr->getQuery());
     }
 
     public function testOperatorWithCurrentFieldWrapsEqualityCriteria()
@@ -123,18 +123,18 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expr, $expr->field('a')->lt(2));
         $this->assertSame($expr, $expr->field('b')->equals(null));
         $this->assertSame($expr, $expr->field('b')->lt(2));
-        $this->assertSame($expr, $expr->field('c')->equals(array()));
+        $this->assertSame($expr, $expr->field('c')->equals([]));
         $this->assertSame($expr, $expr->field('c')->lt(2));
-        $this->assertSame($expr, $expr->field('d')->equals(array('x' => 1)));
+        $this->assertSame($expr, $expr->field('d')->equals(['x' => 1]));
         $this->assertSame($expr, $expr->field('d')->lt(2));
 
-        $expectedQuery = array(
-            'a' => array('$in' => array(1), '$lt' => 2),
-            'b' => array('$in' => array(null), '$lt' => 2),
+        $expectedQuery = [
+            'a' => ['$in' => [1], '$lt' => 2],
+            'b' => ['$in' => [null], '$lt' => 2],
             // Equality match on empty array cannot be distinguished from no criteria and will be overridden
-            'c' => array('$lt' => 2),
-            'd' => array('$in' => array(array('x' => 1)), '$lt' => 2),
-        );
+            'c' => ['$lt' => 2],
+            'd' => ['$in' => [['x' => 1]], '$lt' => 2],
+        ];
 
         $this->assertEquals($expectedQuery, $expr->getQuery());
     }
@@ -144,7 +144,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->operator('$op', 'value'));
-        $this->assertEquals(array('$op' => 'value'), $expr->getQuery());
+        $this->assertEquals(['$op' => 'value'], $expr->getQuery());
     }
 
     public function testOperatorWithoutCurrentFieldWrapsEqualityCriteria()
@@ -152,23 +152,23 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
         $this->assertSame($expr, $expr->equals(1));
         $this->assertSame($expr, $expr->lt(2));
-        $this->assertEquals(array('$in' => array(1), '$lt' => 2), $expr->getQuery());
+        $this->assertEquals(['$in' => [1], '$lt' => 2], $expr->getQuery());
 
         $expr = new Expr();
         $this->assertSame($expr, $expr->equals(null));
         $this->assertSame($expr, $expr->lt(2));
-        $this->assertEquals(array('$in' => array(null), '$lt' => 2), $expr->getQuery());
+        $this->assertEquals(['$in' => [null], '$lt' => 2], $expr->getQuery());
 
         $expr = new Expr();
-        $this->assertSame($expr, $expr->equals(array()));
+        $this->assertSame($expr, $expr->equals([]));
         $this->assertSame($expr, $expr->lt(2));
         // Equality match on empty array cannot be distinguished from no criteria and will be overridden
-        $this->assertEquals(array('$lt' => 2), $expr->getQuery());
+        $this->assertEquals(['$lt' => 2], $expr->getQuery());
 
         $expr = new Expr();
-        $this->assertSame($expr, $expr->equals(array('x' => 1)));
+        $this->assertSame($expr, $expr->equals(['x' => 1]));
         $this->assertSame($expr, $expr->lt(2));
-        $this->assertEquals(array('$in' => array(array('x' => 1)), '$lt' => 2), $expr->getQuery());
+        $this->assertEquals(['$in' => [['x' => 1]], '$lt' => 2], $expr->getQuery());
     }
 
     /**
@@ -180,18 +180,18 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr->near($point);
 
         $this->assertSame($expr, $expr->maxDistance(1));
-        $this->assertEquals(array('$near' => $expected + array('$maxDistance' => 1)), $expr->getQuery());
+        $this->assertEquals(['$near' => $expected + ['$maxDistance' => 1]], $expr->getQuery());
     }
 
     public function provideGeoJsonPoint()
     {
-        $json = array('type' => 'Point', 'coordinates' => array(1, 2));
-        $expected = array('$geometry' => $json);
+        $json = ['type' => 'Point', 'coordinates' => [1, 2]];
+        $expected = ['$geometry' => $json];
 
-        return array(
-            'array' => array($json, $expected),
-            'object' => array($this->getMockPoint($json), $expected),
-        );
+        return [
+            'array' => [$json, $expected],
+            'object' => [$this->getMockPoint($json), $expected],
+        ];
     }
 
     public function testMaxDistanceWithNearAndLegacyCoordinates()
@@ -200,18 +200,18 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr->near(1, 2);
 
         $this->assertSame($expr, $expr->maxDistance(1));
-        $this->assertEquals(array('$near' => array(1, 2), '$maxDistance' => 1), $expr->getQuery());
+        $this->assertEquals(['$near' => [1, 2], '$maxDistance' => 1], $expr->getQuery());
     }
 
     public function testMaxDistanceWithNearSphereAndGeoJsonPoint()
     {
-        $json = array('type' => 'Point', 'coordinates' => array(1, 2));
+        $json = ['type' => 'Point', 'coordinates' => [1, 2]];
 
         $expr = new Expr();
         $expr->nearSphere($this->getMockPoint($json));
 
         $this->assertSame($expr, $expr->maxDistance(1));
-        $this->assertEquals(array('$nearSphere' => array('$geometry' => $json, '$maxDistance' => 1)), $expr->getQuery());
+        $this->assertEquals(['$nearSphere' => ['$geometry' => $json, '$maxDistance' => 1]], $expr->getQuery());
     }
 
     public function testMaxDistanceWithNearSphereAndLegacyCoordinates()
@@ -220,7 +220,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr->nearSphere(1, 2);
 
         $this->assertSame($expr, $expr->maxDistance(1));
-        $this->assertEquals(array('$nearSphere' => array(1, 2), '$maxDistance' => 1), $expr->getQuery());
+        $this->assertEquals(['$nearSphere' => [1, 2], '$maxDistance' => 1], $expr->getQuery());
     }
 
     /**
@@ -241,7 +241,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr->near($point);
 
         $this->assertSame($expr, $expr->minDistance(1));
-        $this->assertEquals(array('$near' => $expected + array('$minDistance' => 1)), $expr->getQuery());
+        $this->assertEquals(['$near' => $expected + ['$minDistance' => 1]], $expr->getQuery());
     }
 
     public function testMinDistanceWithNearAndLegacyCoordinates()
@@ -250,18 +250,18 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr->near(1, 2);
 
         $this->assertSame($expr, $expr->minDistance(1));
-        $this->assertEquals(array('$near' => array(1, 2), '$minDistance' => 1), $expr->getQuery());
+        $this->assertEquals(['$near' => [1, 2], '$minDistance' => 1], $expr->getQuery());
     }
 
     public function testMinDistanceWithNearSphereAndGeoJsonPoint()
     {
-        $json = array('type' => 'Point', 'coordinates' => array(1, 2));
+        $json = ['type' => 'Point', 'coordinates' => [1, 2]];
 
         $expr = new Expr();
         $expr->nearSphere($this->getMockPoint($json));
 
         $this->assertSame($expr, $expr->minDistance(1));
-        $this->assertEquals(array('$nearSphere' => array('$geometry' => $json, '$minDistance' => 1)), $expr->getQuery());
+        $this->assertEquals(['$nearSphere' => ['$geometry' => $json, '$minDistance' => 1]], $expr->getQuery());
     }
 
     public function testMinDistanceWithNearSphereAndLegacyCoordinates()
@@ -270,7 +270,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr->nearSphere(1, 2);
 
         $this->assertSame($expr, $expr->minDistance(1));
-        $this->assertEquals(array('$nearSphere' => array(1, 2), '$minDistance' => 1), $expr->getQuery());
+        $this->assertEquals(['$nearSphere' => [1, 2], '$minDistance' => 1], $expr->getQuery());
     }
 
     /**
@@ -290,7 +290,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->near($point));
-        $this->assertEquals(array('$near' => $expected), $expr->getQuery());
+        $this->assertEquals(['$near' => $expected], $expr->getQuery());
     }
 
     public function testNearWithLegacyCoordinates()
@@ -298,7 +298,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->near(1, 2));
-        $this->assertEquals(array('$near' => array(1, 2)), $expr->getQuery());
+        $this->assertEquals(['$near' => [1, 2]], $expr->getQuery());
     }
 
     /**
@@ -309,7 +309,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->nearSphere($point));
-        $this->assertEquals(array('$nearSphere' => $expected), $expr->getQuery());
+        $this->assertEquals(['$nearSphere' => $expected], $expr->getQuery());
     }
 
     public function testNearSphereWithLegacyCoordinates()
@@ -317,7 +317,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->nearSphere(1, 2));
-        $this->assertEquals(array('$nearSphere' => array(1, 2)), $expr->getQuery());
+        $this->assertEquals(['$nearSphere' => [1, 2]], $expr->getQuery());
     }
 
     public function testPullWithValue()
@@ -325,7 +325,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->field('a')->pull(1));
-        $this->assertEquals(array('$pull' => array('a' => 1)), $expr->getNewObj());
+        $this->assertEquals(['$pull' => ['a' => 1]], $expr->getNewObj());
     }
 
     public function testPullWithExpression()
@@ -335,7 +335,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $nestedExpr->gt(3);
 
         $this->assertSame($expr, $expr->field('a')->pull($nestedExpr));
-        $this->assertEquals(array('$pull' => array('a' => array('$gt' => 3))), $expr->getNewObj());
+        $this->assertEquals(['$pull' => ['a' => ['$gt' => 3]]], $expr->getNewObj());
     }
 
     public function testPushWithValue()
@@ -343,7 +343,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->field('a')->push(1));
-        $this->assertEquals(array('$push' => array('a' => 1)), $expr->getNewObj());
+        $this->assertEquals(['$push' => ['a' => 1]], $expr->getNewObj());
     }
 
     public function testPushWithExpression()
@@ -351,17 +351,17 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
         $innerExpr = new Expr();
         $innerExpr
-            ->each(array(array('x' => 1), array('x' => 2)))
+            ->each([['x' => 1], ['x' => 2]])
             ->slice(-2)
             ->sort('x', 1);
 
-        $expectedNewObj = array(
-            '$push' => array('a' => array(
-                '$each' => array(array('x' => 1), array('x' => 2)),
+        $expectedNewObj = [
+            '$push' => ['a' => [
+                '$each' => [['x' => 1], ['x' => 2]],
                 '$slice' => -2,
-                '$sort' => array('x' => 1),
-            )),
-        );
+                '$sort' => ['x' => 1],
+            ]],
+        ];
 
         $this->assertSame($expr, $expr->field('a')->push($innerExpr));
         $this->assertEquals($expectedNewObj, $expr->getNewObj());
@@ -374,15 +374,15 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $innerExpr
             ->sort('x', 1)
             ->slice(-2)
-            ->each(array(array('x' => 1), array('x' => 2)));
+            ->each([['x' => 1], ['x' => 2]]);
 
-        $expectedNewObj = array(
-            '$push' => array('a' => array(
-                '$each' => array(array('x' => 1), array('x' => 2)),
-                '$sort' => array('x' => 1),
+        $expectedNewObj = [
+            '$push' => ['a' => [
+                '$each' => [['x' => 1], ['x' => 2]],
+                '$sort' => ['x' => 1],
                 '$slice' => -2,
-            )),
-        );
+            ]],
+        ];
 
         $this->assertSame($expr, $expr->field('a')->push($innerExpr));
         $this->assertSame($expectedNewObj, $expr->getNewObj());
@@ -393,15 +393,15 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
         $innerExpr = new Expr();
         $innerExpr
-            ->each(array(20, 30))
+            ->each([20, 30])
             ->position(0);
 
-        $expectedNewObj = array(
-            '$push' => array('a' => array(
-                '$each' => array(20, 30),
+        $expectedNewObj = [
+            '$push' => ['a' => [
+                '$each' => [20, 30],
                 '$position' => 0,
-            )),
-        );
+            ]],
+        ];
 
         $this->assertSame($expr, $expr->field('a')->push($innerExpr));
         $this->assertEquals($expectedNewObj, $expr->getNewObj());
@@ -415,22 +415,22 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->geoIntersects($geometry));
-        $this->assertEquals(array('$geoIntersects' => $expected), $expr->getQuery());
+        $this->assertEquals(['$geoIntersects' => $expected], $expr->getQuery());
     }
 
     public function provideGeoJsonPolygon()
     {
-        $json = array(
+        $json = [
             'type' => 'Polygon',
-            'coordinates' => array(array(array(0, 0), array(1, 1), array(1, 0), array(0, 0))),
-        );
+            'coordinates' => [[[0, 0], [1, 1], [1, 0], [0, 0]]],
+        ];
 
-        $expected = array('$geometry' => $json);
+        $expected = ['$geometry' => $json];
 
-        return array(
-            'array' => array($json, $expected),
-            'object' => array($this->getMockPolygon($json), $expected),
-        );
+        return [
+            'array' => [$json, $expected],
+            'object' => [$this->getMockPolygon($json), $expected],
+        ];
     }
 
     /**
@@ -441,7 +441,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->geoWithin($geometry));
-        $this->assertEquals(array('$geoWithin' => $expected), $expr->getQuery());
+        $this->assertEquals(['$geoWithin' => $expected], $expr->getQuery());
     }
 
     public function testGeoWithinBox()
@@ -449,7 +449,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->geoWithinBox(1, 2, 3, 4));
-        $this->assertEquals(array('$geoWithin' => array('$box' => array(array(1, 2), array(3, 4)))), $expr->getQuery());
+        $this->assertEquals(['$geoWithin' => ['$box' => [[1, 2], [3, 4]]]], $expr->getQuery());
     }
 
     public function testGeoWithinCenter()
@@ -457,7 +457,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->geoWithinCenter(1, 2, 3));
-        $this->assertEquals(array('$geoWithin' => array('$center' => array(array(1, 2), 3))), $expr->getQuery());
+        $this->assertEquals(['$geoWithin' => ['$center' => [[1, 2], 3]]], $expr->getQuery());
     }
 
     public function testGeoWithinCenterSphere()
@@ -465,15 +465,15 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->geoWithinCenterSphere(1, 2, 3));
-        $this->assertEquals(array('$geoWithin' => array('$centerSphere' => array(array(1, 2), 3))), $expr->getQuery());
+        $this->assertEquals(['$geoWithin' => ['$centerSphere' => [[1, 2], 3]]], $expr->getQuery());
     }
 
     public function testGeoWithinPolygon()
     {
         $expr = new Expr();
-        $expectedQuery = array('$geoWithin' => array('$polygon' => array(array(0, 0), array(1, 1), array(1, 0))));
+        $expectedQuery = ['$geoWithin' => ['$polygon' => [[0, 0], [1, 1], [1, 0]]]];
 
-        $this->assertSame($expr, $expr->geoWithinPolygon(array(0, 0), array(1, 1), array(1, 0)));
+        $this->assertSame($expr, $expr->geoWithinPolygon([0, 0], [1, 1], [1, 0]));
         $this->assertEquals($expectedQuery, $expr->getQuery());
     }
 
@@ -483,7 +483,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
     public function testGeoWithinPolygonRequiresAtLeastThreePoints()
     {
         $expr = new Expr();
-        $expr->geoWithinPolygon(array(0, 0), array(1, 1));
+        $expr->geoWithinPolygon([0, 0], [1, 1]);
     }
 
     public function testSetWithAtomic()
@@ -491,7 +491,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->field('a')->set(1, true));
-        $this->assertEquals(array('$set' => array('a' => 1)), $expr->getNewObj());
+        $this->assertEquals(['$set' => ['a' => 1]], $expr->getNewObj());
     }
 
     public function testSetWithoutAtomicWithTopLevelField()
@@ -499,7 +499,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->field('a')->set(1, false));
-        $this->assertEquals(array('a' => 1), $expr->getNewObj());
+        $this->assertEquals(['a' => 1], $expr->getNewObj());
     }
 
     public function testSetWithoutAtomicWithNestedField()
@@ -507,7 +507,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->field('a.b.c')->set(1, false));
-        $this->assertEquals(array('a' => array('b' => array('c' => 1))), $expr->getNewObj());
+        $this->assertEquals(['a' => ['b' => ['c' => 1]]], $expr->getNewObj());
     }
 
     public function testText()
@@ -515,7 +515,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->text('foo'));
-        $this->assertEquals(array('$text' => array('$search' => 'foo')), $expr->getQuery());
+        $this->assertEquals(['$text' => ['$search' => 'foo']], $expr->getQuery());
         $this->assertNull($expr->getCurrentField());
     }
 
@@ -524,7 +524,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->where('javascript'));
-        $this->assertEquals(array('$where' => 'javascript'), $expr->getQuery());
+        $this->assertEquals(['$where' => 'javascript'], $expr->getQuery());
         $this->assertNull($expr->getCurrentField());
     }
 
@@ -533,7 +533,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->withinBox(1, 2, 3, 4));
-        $this->assertEquals(array('$within' => array('$box' => array(array(1, 2), array(3, 4)))), $expr->getQuery());
+        $this->assertEquals(['$within' => ['$box' => [[1, 2], [3, 4]]]], $expr->getQuery());
     }
 
     public function testWithinCenter()
@@ -541,7 +541,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->withinCenter(1, 2, 3));
-        $this->assertEquals(array('$within' => array('$center' => array(array(1, 2), 3))), $expr->getQuery());
+        $this->assertEquals(['$within' => ['$center' => [[1, 2], 3]]], $expr->getQuery());
     }
 
     public function testWithinCenterSphere()
@@ -549,15 +549,15 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->withinCenterSphere(1, 2, 3));
-        $this->assertEquals(array('$within' => array('$centerSphere' => array(array(1, 2), 3))), $expr->getQuery());
+        $this->assertEquals(['$within' => ['$centerSphere' => [[1, 2], 3]]], $expr->getQuery());
     }
 
     public function testWithinPolygon()
     {
         $expr = new Expr();
-        $expectedQuery = array('$within' => array('$polygon' => array(array(0, 0), array(1, 1), array(1, 0))));
+        $expectedQuery = ['$within' => ['$polygon' => [[0, 0], [1, 1], [1, 0]]]];
 
-        $this->assertSame($expr, $expr->withinPolygon(array(0, 0), array(1, 1), array(1, 0)));
+        $this->assertSame($expr, $expr->withinPolygon([0, 0], [1, 1], [1, 0]));
         $this->assertEquals($expectedQuery, $expr->getQuery());
     }
 
@@ -567,7 +567,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
     public function testWithinPolygonRequiresAtLeastThreePoints()
     {
         $expr = new Expr();
-        $expr->withinPolygon(array(0, 0), array(1, 1));
+        $expr->withinPolygon([0, 0], [1, 1]);
     }
 
     private function getMockPoint($json)
@@ -600,31 +600,31 @@ class ExprTest extends \PHPUnit_Framework_TestCase
     {
         $expr = new Expr();
 
-        $this->assertSame($expr, $expr->in(array('value1', 'value2')));
-        $this->assertEquals(array('$in' => array('value1', 'value2')), $expr->getQuery());
+        $this->assertSame($expr, $expr->in(['value1', 'value2']));
+        $this->assertEquals(['$in' => ['value1', 'value2']], $expr->getQuery());
     }
 
     public function testInWillStripKeysToYieldBsonArray()
     {
         $expr = new Expr();
 
-        $this->assertSame($expr, $expr->in(array(1 => 'value1', 'some' => 'value2')));
-        $this->assertEquals(array('$in' => array('value1', 'value2')), $expr->getQuery());
+        $this->assertSame($expr, $expr->in([1 => 'value1', 'some' => 'value2']));
+        $this->assertEquals(['$in' => ['value1', 'value2']], $expr->getQuery());
     }
 
     public function testNotIn()
     {
         $expr = new Expr();
 
-        $this->assertSame($expr, $expr->notIn(array('value1', 'value2')));
-        $this->assertEquals(array('$nin' => array('value1', 'value2')), $expr->getQuery());
+        $this->assertSame($expr, $expr->notIn(['value1', 'value2']));
+        $this->assertEquals(['$nin' => ['value1', 'value2']], $expr->getQuery());
     }
 
     public function testNotInWillStripKeysToYieldBsonArray()
     {
         $expr = new Expr();
 
-        $this->assertSame($expr, $expr->notIn(array(1 => 'value1', 'some' => 'value2')));
-        $this->assertEquals(array('$nin' => array('value1', 'value2')), $expr->getQuery());
+        $this->assertSame($expr, $expr->notIn([1 => 'value1', 'some' => 'value2']));
+        $this->assertEquals(['$nin' => ['value1', 'value2']], $expr->getQuery());
     }
 }

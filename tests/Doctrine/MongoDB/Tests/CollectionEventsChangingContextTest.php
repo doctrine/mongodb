@@ -25,21 +25,21 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
 
     public function testAggregate()
     {
-        $pipeline = array(array('$match' => array('_id' => '1')));
+        $pipeline = [['$match' => ['_id' => '1']]];
 
-        $modifiedPipeline = array(array('$match' => array('_id' => '2')));
-        $modifiedOptions = array('foo');
+        $modifiedPipeline = [['$match' => ['_id' => '2']]];
+        $modifiedOptions = ['foo'];
 
         // This listener will modify the pipeline and the options.
         $preAggregateListener = new PreAggregateListener($modifiedPipeline, $modifiedOptions);
 
         $eventManager = new EventManager();
-        $eventManager->addEventListener(array(Events::preAggregate), $preAggregateListener);
+        $eventManager->addEventListener([Events::preAggregate], $preAggregateListener);
 
         // Ensure that the modified pipeline and options are sent to the doAggregate call.
         $collection = $this->getMockCollection(
             $eventManager,
-            array('doAggregate' => [$modifiedPipeline, $modifiedOptions])
+            ['doAggregate' => [$modifiedPipeline, $modifiedOptions]]
         );
 
         $collection->aggregate($pipeline);
@@ -47,22 +47,22 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
 
     public function testFind()
     {
-        $query = array('a');
-        $fields = array('b');
+        $query = ['a'];
+        $fields = ['b'];
 
-        $modifiedQuery = array('c');
-        $modifiedFields = array('d');
+        $modifiedQuery = ['c'];
+        $modifiedFields = ['d'];
 
         // This listener will modify the data and options.
         $preFindEventListener = new PreFindListener($modifiedQuery, $modifiedFields);
 
         $eventManager = new EventManager();
-        $eventManager->addEventListener(array(Events::preFind), $preFindEventListener);
+        $eventManager->addEventListener([Events::preFind], $preFindEventListener);
 
         // Ensure that the modified pipeline and options are sent to the doAggregate call.
         $collection = $this->getMockCollection(
             $eventManager,
-            array('doFind' => [$modifiedQuery, $modifiedFields])
+            ['doFind' => [$modifiedQuery, $modifiedFields]]
         );
 
         $collection->find($query, $fields);
@@ -70,22 +70,22 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
 
     public function testFindAndRemove()
     {
-        $query = array('a');
-        $options = array('b');
+        $query = ['a'];
+        $options = ['b'];
 
-        $modifiedQuery = array('c');
-        $modifiedOptions = array('d');
+        $modifiedQuery = ['c'];
+        $modifiedOptions = ['d'];
 
         // This listener will modify the data and options.
         $preFindAndRemoveEventListener = new PreFindAndRemoveListener($modifiedQuery, $modifiedOptions);
 
         $eventManager = new EventManager();
-        $eventManager->addEventListener(array(Events::preFindAndRemove), $preFindAndRemoveEventListener);
+        $eventManager->addEventListener([Events::preFindAndRemove], $preFindAndRemoveEventListener);
 
         // Ensure that the modified pipeline and options are sent to the doAggregate call.
         $collection = $this->getMockCollection(
             $eventManager,
-            array('doFindAndRemove' => [$modifiedQuery, $modifiedOptions])
+            ['doFindAndRemove' => [$modifiedQuery, $modifiedOptions]]
         );
 
         $collection->findAndRemove($query, $options);
@@ -93,24 +93,24 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
 
     public function testFindAndUpdate()
     {
-        $query = array('a');
-        $newObj = array('b');
-        $options = array('c');
+        $query = ['a'];
+        $newObj = ['b'];
+        $options = ['c'];
 
-        $modifiedQuery = array('d');
-        $modifiedNewObj = array('e');
-        $modifiedOptions = array('f');
+        $modifiedQuery = ['d'];
+        $modifiedNewObj = ['e'];
+        $modifiedOptions = ['f'];
 
         // This listener will modify the data and options.
         $preFindAndUpdateEventListener = new PreFindAndUpdateListener($modifiedQuery, $modifiedNewObj, $modifiedOptions);
 
         $eventManager = new EventManager();
-        $eventManager->addEventListener(array(Events::preFindAndUpdate), $preFindAndUpdateEventListener);
+        $eventManager->addEventListener([Events::preFindAndUpdate], $preFindAndUpdateEventListener);
 
         // Ensure that the modified pipeline and options are sent to the doAggregate call.
         $collection = $this->getMockCollection(
             $eventManager,
-            array('doFindAndUpdate' => [$modifiedQuery, $modifiedNewObj, $modifiedOptions])
+            ['doFindAndUpdate' => [$modifiedQuery, $modifiedNewObj, $modifiedOptions]]
         );
 
         $collection->findAndUpdate($query, $newObj, $options);
@@ -118,22 +118,22 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
 
     public function testFindOne()
     {
-        $query = array('a');
-        $fields = array('b');
+        $query = ['a'];
+        $fields = ['b'];
 
-        $modifiedQuery = array('c');
-        $modifiedFields = array('d');
+        $modifiedQuery = ['c'];
+        $modifiedFields = ['d'];
 
         // This listener will modify the pipeline and the options.
         $preFindOneListener = new PreFindOneListener($modifiedQuery, $modifiedFields);
 
         $eventManager = new EventManager();
-        $eventManager->addEventListener(array(Events::preFindOne), $preFindOneListener);
+        $eventManager->addEventListener([Events::preFindOne], $preFindOneListener);
 
         // Ensure that the modified pipeline and options are sent to the doAggregate call.
         $collection = $this->getMockCollection(
             $eventManager,
-            array('doFindOne' => [$modifiedQuery, $modifiedFields])
+            ['doFindOne' => [$modifiedQuery, $modifiedFields]]
         );
 
         $collection->findOne($query, $fields);
@@ -141,26 +141,26 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
 
     public function testGroup()
     {
-        $keys = array('a');
-        $initial = array('b');
-        $reduce = array('c');
-        $options = array('d');
+        $keys = ['a'];
+        $initial = ['b'];
+        $reduce = ['c'];
+        $options = ['d'];
 
-        $modifiedKeys = array('e');
-        $modifiedInitial = array('f');
-        $modifiedReduce = array('g');
-        $modifiedOptions = array('h');
+        $modifiedKeys = ['e'];
+        $modifiedInitial = ['f'];
+        $modifiedReduce = ['g'];
+        $modifiedOptions = ['h'];
 
         // This listener will modify the pipeline and the options.
         $preGroupListener = new PreGroupListener($modifiedKeys, $modifiedInitial, $modifiedReduce, $modifiedOptions);
 
         $eventManager = new EventManager();
-        $eventManager->addEventListener(array(Events::preGroup), $preGroupListener);
+        $eventManager->addEventListener([Events::preGroup], $preGroupListener);
 
         // Ensure that the modified pipeline and options are sent to the doAggregate call.
         $collection = $this->getMockCollection(
             $eventManager,
-            array('doGroup' => [$modifiedKeys, $modifiedInitial, $modifiedReduce, $modifiedOptions])
+            ['doGroup' => [$modifiedKeys, $modifiedInitial, $modifiedReduce, $modifiedOptions]]
         );
 
         $collection->group($keys, $initial, $reduce, $options);
@@ -168,28 +168,28 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
 
     public function testMapReduce()
     {
-        $map = array('a');
-        $reduce = array('b');
-        $out = array('c');
-        $query = array('d');
-        $options = array('e');
+        $map = ['a'];
+        $reduce = ['b'];
+        $out = ['c'];
+        $query = ['d'];
+        $options = ['e'];
 
-        $modifiedMap = array('f');
-        $modifiedReduce = array('g');
-        $modifiedOut = array('h');
-        $modifiedQuery = array('i');
-        $modifiedOptions = array('j');
+        $modifiedMap = ['f'];
+        $modifiedReduce = ['g'];
+        $modifiedOut = ['h'];
+        $modifiedQuery = ['i'];
+        $modifiedOptions = ['j'];
 
         // This listener will modify the data and options.
         $mapReduceListener = new PreMapReduceListener($modifiedMap, $modifiedReduce, $modifiedOut, $modifiedQuery, $modifiedOptions);
 
         $eventManager = new EventManager();
-        $eventManager->addEventListener(array(Events::preMapReduce), $mapReduceListener);
+        $eventManager->addEventListener([Events::preMapReduce], $mapReduceListener);
 
         // Ensure that the modified pipeline and options are sent to the doAggregate call.
         $collection = $this->getMockCollection(
             $eventManager,
-            array('doMapReduce' => [$modifiedMap, $modifiedReduce, $modifiedOut, $modifiedQuery, $modifiedOptions])
+            ['doMapReduce' => [$modifiedMap, $modifiedReduce, $modifiedOut, $modifiedQuery, $modifiedOptions]]
         );
 
         $collection->mapReduce($map, $reduce, $out, $query, $options);
@@ -198,23 +198,23 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
     public function testNear()
     {
         $near = 'a';
-        $query = array('b');
-        $options = array('c');
+        $query = ['b'];
+        $options = ['c'];
 
         $modifiedNear = 'd';
-        $modifiedQuery = array('e');
-        $modifiedOptions = array('f');
+        $modifiedQuery = ['e'];
+        $modifiedOptions = ['f'];
 
         // This listener will modify the data and options.
         $preNearListener = new PreNearListener($modifiedNear, $modifiedQuery, $modifiedOptions);
 
         $eventManager = new EventManager();
-        $eventManager->addEventListener(array(Events::preNear), $preNearListener);
+        $eventManager->addEventListener([Events::preNear], $preNearListener);
 
         // Ensure that the modified pipeline and options are sent to the doAggregate call.
         $collection = $this->getMockCollection(
             $eventManager,
-            array('doNear' => [$modifiedNear, $modifiedQuery, $modifiedOptions])
+            ['doNear' => [$modifiedNear, $modifiedQuery, $modifiedOptions]]
         );
 
         $collection->near($near, $query, $options);
@@ -222,22 +222,22 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
 
     public function testRemove()
     {
-        $query = array('b');
-        $options = array('c');
+        $query = ['b'];
+        $options = ['c'];
 
-        $modifiedQuery = array('e');
-        $modifiedOptions = array('f');
+        $modifiedQuery = ['e'];
+        $modifiedOptions = ['f'];
 
         // This listener will modify the data and options.
         $preRemoveListener = new PreRemoveListener($modifiedQuery, $modifiedOptions);
 
         $eventManager = new EventManager();
-        $eventManager->addEventListener(array(Events::preRemove), $preRemoveListener);
+        $eventManager->addEventListener([Events::preRemove], $preRemoveListener);
 
         // Ensure that the modified pipeline and options are sent to the doAggregate call.
         $collection = $this->getMockCollection(
             $eventManager,
-            array('doRemove' => [$modifiedQuery, $modifiedOptions])
+            ['doRemove' => [$modifiedQuery, $modifiedOptions]]
         );
 
         $collection->remove($query, $options);
@@ -245,24 +245,24 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
 
     public function testUpdate()
     {
-        $query = array('a');
-        $newObj = array('b');
-        $options = array('c');
+        $query = ['a'];
+        $newObj = ['b'];
+        $options = ['c'];
 
-        $modifiedQuery = array('d');
-        $modifiedNewObj = array('e');
-        $modifiedOptions = array('f');
+        $modifiedQuery = ['d'];
+        $modifiedNewObj = ['e'];
+        $modifiedOptions = ['f'];
 
         // This listener will modify the data and options.
         $preUpdateListener = new PreUpdateListener($modifiedQuery, $modifiedNewObj, $modifiedOptions);
 
         $eventManager = new EventManager();
-        $eventManager->addEventListener(array(Events::preUpdate), $preUpdateListener);
+        $eventManager->addEventListener([Events::preUpdate], $preUpdateListener);
 
         // Ensure that the modified pipeline and options are sent to the doAggregate call.
         $collection = $this->getMockCollection(
             $eventManager,
-            array('doUpdate' => [$modifiedQuery, $modifiedNewObj, $modifiedOptions])
+            ['doUpdate' => [$modifiedQuery, $modifiedNewObj, $modifiedOptions]]
         );
 
         $collection->update($query, $newObj, $options);
@@ -271,14 +271,14 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
     private function getMockCollection(EventManager $eventManager, array $methods)
     {
         $collection = $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->setConstructorArgs(array($this->database, $this->mongoCollection, $eventManager))
+            ->setConstructorArgs([$this->database, $this->mongoCollection, $eventManager])
             ->setMethods(array_keys($methods))
             ->getMock();
 
         foreach ($methods as $method => $withValues) {
             $expectation = $collection->expects($this->once());
             $expectation->method($method);
-            call_user_func_array(array($expectation, 'with'), $withValues);
+            call_user_func_array([$expectation, 'with'], $withValues);
         }
 
         return $collection;

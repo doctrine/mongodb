@@ -65,14 +65,14 @@ class Unwind extends Stage
     {
         // Fallback behavior for MongoDB < 3.2
         if ($this->includeArrayIndex === null && ! $this->preserveNullAndEmptyArrays) {
-            return array(
+            return [
                 '$unwind' => $this->fieldName
-            );
+            ];
         }
 
-        $unwind = array('path' => $this->fieldName);
+        $unwind = ['path' => $this->fieldName];
 
-        foreach (array('includeArrayIndex', 'preserveNullAndEmptyArrays') as $option) {
+        foreach (['includeArrayIndex', 'preserveNullAndEmptyArrays'] as $option) {
             if ( ! $this->$option) {
                 continue;
             }
@@ -80,9 +80,9 @@ class Unwind extends Stage
             $unwind[$option] = $this->$option;
         }
 
-        return array(
+        return [
             '$unwind' => $unwind
-        );
+        ];
     }
 
     /**

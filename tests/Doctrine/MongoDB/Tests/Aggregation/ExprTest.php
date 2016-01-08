@@ -11,7 +11,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->abs('$field'));
-        $this->assertSame(array('$abs' => '$field'), $expr->getExpression());
+        $this->assertSame(['$abs' => '$field'], $expr->getExpression());
     }
 
     public function testAdd()
@@ -19,7 +19,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->add(5, '$field', '$otherField'));
-        $this->assertSame(array('$add' => array(5, '$field', '$otherField')), $expr->getExpression());
+        $this->assertSame(['$add' => [5, '$field', '$otherField']], $expr->getExpression());
     }
 
     public function testAddToSet()
@@ -27,7 +27,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->addToSet('$field'));
-        $this->assertSame(array('$addToSet' => '$field'), $expr->getExpression());
+        $this->assertSame(['$addToSet' => '$field'], $expr->getExpression());
     }
 
     public function testAllElementsTrue()
@@ -35,7 +35,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->allElementsTrue('$field'));
-        $this->assertSame(array('$allElementsTrue' => '$field'), $expr->getExpression());
+        $this->assertSame(['$allElementsTrue' => '$field'], $expr->getExpression());
     }
 
     public function testAnyElementTrue()
@@ -43,7 +43,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->anyElementTrue('$field'));
-        $this->assertSame(array('$anyElementTrue' => '$field'), $expr->getExpression());
+        $this->assertSame(['$anyElementTrue' => '$field'], $expr->getExpression());
     }
 
     public function testArrayElemAt()
@@ -51,7 +51,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->arrayElemAt('$array', '$index'));
-        $this->assertSame(array('$arrayElemAt' => array('$array', '$index')), $expr->getExpression());
+        $this->assertSame(['$arrayElemAt' => ['$array', '$index']], $expr->getExpression());
     }
 
     public function testAvg()
@@ -59,7 +59,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->avg('$field'));
-        $this->assertSame(array('$avg' => '$field'), $expr->getExpression());
+        $this->assertSame(['$avg' => '$field'], $expr->getExpression());
     }
 
     public function testCeil()
@@ -67,7 +67,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->ceil('$field'));
-        $this->assertSame(array('$ceil' => '$field'), $expr->getExpression());
+        $this->assertSame(['$ceil' => '$field'], $expr->getExpression());
     }
 
     public function testCmp()
@@ -75,7 +75,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->cmp('$field', '$otherField'));
-        $this->assertSame(array('$cmp' => array('$field', '$otherField')), $expr->getExpression());
+        $this->assertSame(['$cmp' => ['$field', '$otherField']], $expr->getExpression());
     }
 
     public function testConcat()
@@ -83,7 +83,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->concat('foo', '$field', '$otherField'));
-        $this->assertSame(array('$concat' => array('foo', '$field', '$otherField')), $expr->getExpression());
+        $this->assertSame(['$concat' => ['foo', '$field', '$otherField']], $expr->getExpression());
     }
 
     public function testConcatArrays()
@@ -91,7 +91,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->concatArrays('$array1', '$array2', '$array3'));
-        $this->assertSame(array('$concatArrays' => array('$array1', '$array2', '$array3')), $expr->getExpression());
+        $this->assertSame(['$concatArrays' => ['$array1', '$array2', '$array3']], $expr->getExpression());
     }
 
     public function testCond()
@@ -103,7 +103,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($expr, $expr->cond($if, '$field', '$otherField'));
         $this->assertSame(
-            array('$cond' => array('if' => array('$gte' => array('$field', 5)), 'then' => '$field', 'else' => '$otherField')),
+            ['$cond' => ['if' => ['$gte' => ['$field', 5]], 'then' => '$field', 'else' => '$otherField']],
             $expr->getExpression()
         );
     }
@@ -113,7 +113,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->dateToString('%Y-%m-%d', '$dateField'));
-        $this->assertSame(array('$dateToString' => array('format' => '%Y-%m-%d', 'date' => '$dateField')), $expr->getExpression());
+        $this->assertSame(['$dateToString' => ['format' => '%Y-%m-%d', 'date' => '$dateField']], $expr->getExpression());
     }
 
     public function testDayOfMonth()
@@ -121,7 +121,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->dayOfMonth('$dateField'));
-        $this->assertSame(array('$dayOfMonth' => '$dateField'), $expr->getExpression());
+        $this->assertSame(['$dayOfMonth' => '$dateField'], $expr->getExpression());
     }
 
     public function testDayOfWeek()
@@ -129,7 +129,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->dayOfWeek('$dateField'));
-        $this->assertSame(array('$dayOfWeek' => '$dateField'), $expr->getExpression());
+        $this->assertSame(['$dayOfWeek' => '$dateField'], $expr->getExpression());
     }
 
     public function testDayOfYear()
@@ -137,7 +137,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->dayOfYear('$dateField'));
-        $this->assertSame(array('$dayOfYear' => '$dateField'), $expr->getExpression());
+        $this->assertSame(['$dayOfYear' => '$dateField'], $expr->getExpression());
     }
 
     public function testDivide()
@@ -145,7 +145,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->divide('$field', 5));
-        $this->assertSame(array('$divide' => array('$field', 5)), $expr->getExpression());
+        $this->assertSame(['$divide' => ['$field', 5]], $expr->getExpression());
     }
 
     public function testEq()
@@ -153,7 +153,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->eq('$field', '$otherField'));
-        $this->assertSame(array('$eq' => array('$field', '$otherField')), $expr->getExpression());
+        $this->assertSame(['$eq' => ['$field', '$otherField']], $expr->getExpression());
     }
 
     public function testExp()
@@ -161,7 +161,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->exp('$field'));
-        $this->assertSame(array('$exp' => '$field'), $expr->getExpression());
+        $this->assertSame(['$exp' => '$field'], $expr->getExpression());
     }
 
     public function testExpr()
@@ -186,12 +186,12 @@ class ExprTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($expr, $expr->field('nested')->expression($nestedExpr));
         $this->assertSame(
-            array(
-                'nested' => array(
-                    'dayOfMonth' => array('$dayOfMonth' => '$dateField'),
-                    'dayOfWeek' => array('$dayOfWeek' => '$dateField')
-                )
-            ),
+            [
+                'nested' => [
+                    'dayOfMonth' => ['$dayOfMonth' => '$dateField'],
+                    'dayOfWeek' => ['$dayOfWeek' => '$dateField']
+                ]
+            ],
             $expr->getExpression()
         );
     }
@@ -218,7 +218,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->first('$field'));
-        $this->assertSame(array('$first' => '$field'), $expr->getExpression());
+        $this->assertSame(['$first' => '$field'], $expr->getExpression());
     }
 
     public function testFilter()
@@ -226,7 +226,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->filter('$array', '$as', '$cond'));
-        $this->assertSame(array('$filter' => array('input' => '$array', 'as' => '$as', 'cond' => '$cond')), $expr->getExpression());
+        $this->assertSame(['$filter' => ['input' => '$array', 'as' => '$as', 'cond' => '$cond']], $expr->getExpression());
     }
 
     public function testFloor()
@@ -234,7 +234,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->floor('$field'));
-        $this->assertSame(array('$floor' => '$field'), $expr->getExpression());
+        $this->assertSame(['$floor' => '$field'], $expr->getExpression());
     }
 
     public function testGt()
@@ -242,7 +242,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->gt('$field', '$otherField'));
-        $this->assertSame(array('$gt' => array('$field', '$otherField')), $expr->getExpression());
+        $this->assertSame(['$gt' => ['$field', '$otherField']], $expr->getExpression());
     }
 
     public function testGte()
@@ -250,7 +250,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->gte('$field', '$otherField'));
-        $this->assertSame(array('$gte' => array('$field', '$otherField')), $expr->getExpression());
+        $this->assertSame(['$gte' => ['$field', '$otherField']], $expr->getExpression());
     }
 
     public function testHour()
@@ -258,7 +258,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->hour('$dateField'));
-        $this->assertSame(array('$hour' => '$dateField'), $expr->getExpression());
+        $this->assertSame(['$hour' => '$dateField'], $expr->getExpression());
     }
 
     public function testIfNull()
@@ -266,7 +266,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->ifNull('$field', '$otherField'));
-        $this->assertSame(array('$ifNull' => array('$field', '$otherField')), $expr->getExpression());
+        $this->assertSame(['$ifNull' => ['$field', '$otherField']], $expr->getExpression());
     }
 
     public function testIsArray()
@@ -274,7 +274,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->isArray('$field'));
-        $this->assertSame(array('$isArray' => '$field'), $expr->getExpression());
+        $this->assertSame(['$isArray' => '$field'], $expr->getExpression());
     }
 
     public function testLast()
@@ -282,7 +282,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->last('$field'));
-        $this->assertSame(array('$last' => '$field'), $expr->getExpression());
+        $this->assertSame(['$last' => '$field'], $expr->getExpression());
     }
 
     public function testLet()
@@ -301,15 +301,15 @@ class ExprTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($expr, $expr->field('finalTotal')->let($vars, $in));
         $this->assertSame(
-            array('finalTotal' => array(
-                '$let' => array(
-                    'vars' => array(
-                        'total' => array('$add' => array('$price', '$tax')),
-                        'discounted' => array('$cond' => array('if' => '$applyDiscount', 'then' => 0.9, 'else' => 1))
-                    ),
-                    'in' => array('$multiply' => array('$$total', '$$discounted'))
-                )
-            )),
+            ['finalTotal' => [
+                '$let' => [
+                    'vars' => [
+                        'total' => ['$add' => ['$price', '$tax']],
+                        'discounted' => ['$cond' => ['if' => '$applyDiscount', 'then' => 0.9, 'else' => 1]]
+                    ],
+                    'in' => ['$multiply' => ['$$total', '$$discounted']]
+                ]
+            ]],
             $expr->getExpression()
         );
     }
@@ -319,7 +319,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->field('field')->literal('$field'));
-        $this->assertSame(array('field' => array('$literal' => '$field')), $expr->getExpression());
+        $this->assertSame(['field' => ['$literal' => '$field']], $expr->getExpression());
     }
 
     public function testLn()
@@ -327,7 +327,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->ln('$field'));
-        $this->assertSame(array('$ln' => '$field'), $expr->getExpression());
+        $this->assertSame(['$ln' => '$field'], $expr->getExpression());
     }
 
     public function testLog()
@@ -335,7 +335,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->log('$number', '$base'));
-        $this->assertSame(array('$log' => array('$number', '$base')), $expr->getExpression());
+        $this->assertSame(['$log' => ['$number', '$base']], $expr->getExpression());
     }
 
     public function testLog10()
@@ -343,7 +343,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->log10('$number'));
-        $this->assertSame(array('$log10' => '$number'), $expr->getExpression());
+        $this->assertSame(['$log10' => '$number'], $expr->getExpression());
     }
 
     public function testLt()
@@ -351,7 +351,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->lt('$field', '$otherField'));
-        $this->assertSame(array('$lt' => array('$field', '$otherField')), $expr->getExpression());
+        $this->assertSame(['$lt' => ['$field', '$otherField']], $expr->getExpression());
     }
 
     public function testLte()
@@ -359,7 +359,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->lte('$field', '$otherField'));
-        $this->assertSame(array('$lte' => array('$field', '$otherField')), $expr->getExpression());
+        $this->assertSame(['$lte' => ['$field', '$otherField']], $expr->getExpression());
     }
 
     public function testMap()
@@ -371,17 +371,17 @@ class ExprTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($expr, $expr->field('adjustedGrades')->map('$quizzes', 'grade', $in));
         $this->assertSame(
-            array(
-                'adjustedGrades' => array(
-                    '$map' => array(
+            [
+                'adjustedGrades' => [
+                    '$map' => [
                         'input' => '$quizzes',
                         'as' => 'grade',
-                        'in' => array(
-                            '$add' => array('$$grade', 2)
-                        )
-                    )
-                )
-            ),
+                        'in' => [
+                            '$add' => ['$$grade', 2]
+                        ]
+                    ]
+                ]
+            ],
             $expr->getExpression()
         );
     }
@@ -391,7 +391,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->max('$field'));
-        $this->assertSame(array('$max' => '$field'), $expr->getExpression());
+        $this->assertSame(['$max' => '$field'], $expr->getExpression());
     }
 
     public function testMeta()
@@ -399,7 +399,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->meta('textScore'));
-        $this->assertSame(array('$meta' => 'textScore'), $expr->getExpression());
+        $this->assertSame(['$meta' => 'textScore'], $expr->getExpression());
     }
 
     public function testMillisecond()
@@ -407,7 +407,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->millisecond('$dateField'));
-        $this->assertSame(array('$millisecond' => '$dateField'), $expr->getExpression());
+        $this->assertSame(['$millisecond' => '$dateField'], $expr->getExpression());
     }
 
     public function testMin()
@@ -415,7 +415,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->min('$field'));
-        $this->assertSame(array('$min' => '$field'), $expr->getExpression());
+        $this->assertSame(['$min' => '$field'], $expr->getExpression());
     }
 
     public function testMinute()
@@ -423,7 +423,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->minute('$dateField'));
-        $this->assertSame(array('$minute' => '$dateField'), $expr->getExpression());
+        $this->assertSame(['$minute' => '$dateField'], $expr->getExpression());
     }
 
     public function testMod()
@@ -431,7 +431,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->mod('$field', 5));
-        $this->assertSame(array('$mod' => array('$field', 5)), $expr->getExpression());
+        $this->assertSame(['$mod' => ['$field', 5]], $expr->getExpression());
     }
 
     public function testMonth()
@@ -439,7 +439,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->month('$dateField'));
-        $this->assertSame(array('$month' => '$dateField'), $expr->getExpression());
+        $this->assertSame(['$month' => '$dateField'], $expr->getExpression());
     }
 
     public function testMultiply()
@@ -447,7 +447,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->multiply('$field', 5));
-        $this->assertSame(array('$multiply' => array('$field', 5)), $expr->getExpression());
+        $this->assertSame(['$multiply' => ['$field', 5]], $expr->getExpression());
     }
 
     public function testNe()
@@ -455,7 +455,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->ne('$field', '$otherField'));
-        $this->assertSame(array('$ne' => array('$field', '$otherField')), $expr->getExpression());
+        $this->assertSame(['$ne' => ['$field', '$otherField']], $expr->getExpression());
     }
 
     public function testNot()
@@ -463,7 +463,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->not('$field'));
-        $this->assertSame(array('$not' => '$field'), $expr->getExpression());
+        $this->assertSame(['$not' => '$field'], $expr->getExpression());
     }
 
     public function testPow()
@@ -471,7 +471,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->pow('$number', '$exponent'));
-        $this->assertSame(array('$pow' => array('$number', '$exponent')), $expr->getExpression());
+        $this->assertSame(['$pow' => ['$number', '$exponent']], $expr->getExpression());
     }
 
     public function testPush()
@@ -479,7 +479,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->push('$field'));
-        $this->assertSame(array('$push' => '$field'), $expr->getExpression());
+        $this->assertSame(['$push' => '$field'], $expr->getExpression());
     }
 
     public function testSecond()
@@ -487,7 +487,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->second('$dateField'));
-        $this->assertSame(array('$second' => '$dateField'), $expr->getExpression());
+        $this->assertSame(['$second' => '$dateField'], $expr->getExpression());
     }
 
     public function testSetDifference()
@@ -495,7 +495,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->setDifference('$field', '$otherField'));
-        $this->assertSame(array('$setDifference' => array('$field', '$otherField')), $expr->getExpression());
+        $this->assertSame(['$setDifference' => ['$field', '$otherField']], $expr->getExpression());
     }
 
     public function testSetEquals()
@@ -504,7 +504,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($expr, $expr->setEquals('$field', '$otherField', '$anotherField'));
         $this->assertSame(
-            array('$setEquals' => array('$field', '$otherField', '$anotherField')),
+            ['$setEquals' => ['$field', '$otherField', '$anotherField']],
             $expr->getExpression()
         );
     }
@@ -515,7 +515,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($expr, $expr->setIntersection('$field', '$otherField', '$anotherField'));
         $this->assertSame(
-            array('$setIntersection' => array('$field', '$otherField', '$anotherField')),
+            ['$setIntersection' => ['$field', '$otherField', '$anotherField']],
             $expr->getExpression()
         );
     }
@@ -525,7 +525,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->setIsSubset('$field', '$otherField'));
-        $this->assertSame(array('$setIsSubset' => array('$field', '$otherField')), $expr->getExpression());
+        $this->assertSame(['$setIsSubset' => ['$field', '$otherField']], $expr->getExpression());
     }
 
     public function testSetUnion()
@@ -534,7 +534,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($expr, $expr->setUnion('$field', '$otherField', '$anotherField'));
         $this->assertSame(
-            array('$setUnion' => array('$field', '$otherField', '$anotherField')),
+            ['$setUnion' => ['$field', '$otherField', '$anotherField']],
             $expr->getExpression()
         );
     }
@@ -544,7 +544,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->size('$field'));
-        $this->assertSame(array('$size' => '$field'), $expr->getExpression());
+        $this->assertSame(['$size' => '$field'], $expr->getExpression());
     }
 
     public function testSliceWithoutPosition()
@@ -552,7 +552,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->slice('$array', '$n'));
-        $this->assertSame(array('$slice' => array('$array', '$n')), $expr->getExpression());
+        $this->assertSame(['$slice' => ['$array', '$n']], $expr->getExpression());
     }
 
     public function testSliceWithPosition()
@@ -560,7 +560,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->slice('$array', '$n', '$position'));
-        $this->assertSame(array('$slice' => array('$array', '$position', '$n')), $expr->getExpression());
+        $this->assertSame(['$slice' => ['$array', '$position', '$n']], $expr->getExpression());
     }
 
     public function testSqrt()
@@ -568,7 +568,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->sqrt('$field'));
-        $this->assertSame(array('$sqrt' => '$field'), $expr->getExpression());
+        $this->assertSame(['$sqrt' => '$field'], $expr->getExpression());
     }
 
     public function testStdDevPop()
@@ -576,7 +576,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->stdDevPop('$array1', '$array2', '$array3'));
-        $this->assertSame(array('$stdDevPop' => array('$array1', '$array2', '$array3')), $expr->getExpression());
+        $this->assertSame(['$stdDevPop' => ['$array1', '$array2', '$array3']], $expr->getExpression());
     }
 
     public function testStdDevSamp()
@@ -584,7 +584,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->stdDevSamp('$array1', '$array2', '$array3'));
-        $this->assertSame(array('$stdDevSamp' => array('$array1', '$array2', '$array3')), $expr->getExpression());
+        $this->assertSame(['$stdDevSamp' => ['$array1', '$array2', '$array3']], $expr->getExpression());
     }
 
     public function testStrcasecmp()
@@ -592,7 +592,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->strcasecmp('$field', '$otherField'));
-        $this->assertSame(array('$strcasecmp' => array('$field', '$otherField')), $expr->getExpression());
+        $this->assertSame(['$strcasecmp' => ['$field', '$otherField']], $expr->getExpression());
     }
 
     public function testSubstr()
@@ -600,7 +600,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->substr('$field', 0, '$length'));
-        $this->assertSame(array('$substr' => array('$field', 0, '$length')), $expr->getExpression());
+        $this->assertSame(['$substr' => ['$field', 0, '$length']], $expr->getExpression());
     }
 
     public function testSubtract()
@@ -608,7 +608,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->subtract('$field', '$otherField'));
-        $this->assertSame(array('$subtract' => array('$field', '$otherField')), $expr->getExpression());
+        $this->assertSame(['$subtract' => ['$field', '$otherField']], $expr->getExpression());
     }
 
     public function testSum()
@@ -616,7 +616,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->sum('$field'));
-        $this->assertSame(array('$sum' => '$field'), $expr->getExpression());
+        $this->assertSame(['$sum' => '$field'], $expr->getExpression());
     }
 
     public function testToLower()
@@ -624,7 +624,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->toLower('$field'));
-        $this->assertSame(array('$toLower' => '$field'), $expr->getExpression());
+        $this->assertSame(['$toLower' => '$field'], $expr->getExpression());
     }
 
     public function testToUpper()
@@ -632,7 +632,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->toUpper('$field'));
-        $this->assertSame(array('$toUpper' => '$field'), $expr->getExpression());
+        $this->assertSame(['$toUpper' => '$field'], $expr->getExpression());
     }
 
     public function testTrunc()
@@ -640,7 +640,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->trunc('$field'));
-        $this->assertSame(array('$trunc' => '$field'), $expr->getExpression());
+        $this->assertSame(['$trunc' => '$field'], $expr->getExpression());
     }
 
     public function testWeek()
@@ -648,7 +648,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->week('$dateField'));
-        $this->assertSame(array('$week' => '$dateField'), $expr->getExpression());
+        $this->assertSame(['$week' => '$dateField'], $expr->getExpression());
     }
 
     public function testYear()
@@ -656,6 +656,6 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->year('$dateField'));
-        $this->assertSame(array('$year' => '$dateField'), $expr->getExpression());
+        $this->assertSame(['$year' => '$dateField'], $expr->getExpression());
     }
 }
