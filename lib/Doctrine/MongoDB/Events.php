@@ -52,6 +52,9 @@ final class Events
     const preDropDatabase = 'preDropDatabase';
     const postDropDatabase = 'postDropDatabase';
 
+    const preFetchSingleResultFromCursor = 'preFetchSingleResultFromCursor';
+    const postFetchSingleResultFromCursor = 'postFetchSingleResultFromCursor';
+
     const preFind = 'collectionPreFind';
     const postFind = 'collectionPostFind';
 

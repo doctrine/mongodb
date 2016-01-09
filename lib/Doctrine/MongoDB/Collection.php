@@ -1511,4 +1511,13 @@ class Collection
             array_intersect_key($options, $keys),
         );
     }
+
+    /**
+     * Return the EventManager attached to this collection.
+     *
+     * @return EventManager
+     */
+    public function getEventManager() {
+        return $this->eventManager;
+    }
 }
