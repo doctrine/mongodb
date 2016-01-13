@@ -44,7 +44,7 @@ class Match extends Stage
     {
         parent::__construct($builder);
 
-        $this->query = new Expr();
+        $this->query = $this->expr();
     }
 
     /**

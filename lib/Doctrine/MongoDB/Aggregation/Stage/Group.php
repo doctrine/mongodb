@@ -31,6 +31,21 @@ use Doctrine\MongoDB\Aggregation\Stage;
 class Group extends Operator
 {
     /**
+     * @var Expr
+     */
+    protected $expr;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct(Builder $builder)
+    {
+        parent::__construct($builder);
+
+        $this->expr = $builder->expr();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getExpression()
