@@ -18,6 +18,6 @@ To run the tests:
 ## More resources:
 
 * [Website](http://www.doctrine-project.org)
-* [Documentation](http://docs.doctrine-project.org/projects/doctrine-mongodb-odm/en/latest/index.html)
+* [Documentation](http://www.doctrine-project.org/projects/mongodb.html)
 * [Issue Tracker](https://github.com/doctrine/mongodb/issues)
 * [Releases](https://github.com/doctrine/mongodb/releases)
