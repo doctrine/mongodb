@@ -17,5 +17,15 @@ class EventArgsTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($invoker, $eventArgs->getInvoker());
         $this->assertSame($data, $eventArgs->getData());
         $this->assertSame($options, $eventArgs->getOptions());
+
+        // Check the setters
+        $data2 = array('ok' => 2);
+        $options2 = array('w' => 2);
+
+        $eventArgs->setData($data2);
+        $eventArgs->setOptions($options2);
+
+        $this->assertSame($data2, $eventArgs->getData());
+        $this->assertSame($options2, $eventArgs->getOptions());
     }
 }
