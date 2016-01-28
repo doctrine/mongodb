@@ -70,4 +70,19 @@ class NearEventArgs extends BaseEventArgs
     {
         return $this->options;
     }
+
+    public function setQuery(array $query)
+    {
+        $this->query = $query;
+    }
+
+    public function setNear($near)
+    {
+        $this->near = $near;
+    }
+
+    public function setOptions(array $options)
+    {
+        $this->options = $options;
+    }
 }

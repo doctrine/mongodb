@@ -61,4 +61,14 @@ class FindEventArgs extends BaseEventArgs
     {
         return $this->fields;
     }
+
+    public function setQuery(array $query)
+    {
+        return $this->query = $query;
+    }
+
+    public function setFields(array $fields)
+    {
+        return $this->fields = $fields;
+    }
 }
