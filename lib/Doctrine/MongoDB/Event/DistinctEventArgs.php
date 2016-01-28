@@ -61,4 +61,14 @@ class DistinctEventArgs extends BaseEventArgs
     {
         return $this->query;
     }
+
+    public function setQuery($query)
+    {
+        $this->query = $query;
+    }
+
+    public function setField($field)
+    {
+        $this->field = $field;
+    }
 }

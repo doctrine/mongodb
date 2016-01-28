@@ -85,4 +85,29 @@ class MapReduceEventArgs extends BaseEventArgs
     {
         return $this->options;
     }
+
+    public function setQuery(array $query)
+    {
+        return $this->query = $query;
+    }
+
+    public function setMap($map)
+    {
+        return $this->map = $map;
+    }
+
+    public function setReduce($reduce)
+    {
+        return $this->reduce = $reduce;
+    }
+
+    public function setOut(array $out)
+    {
+        return $this->out = $out;
+    }
+
+    public function setOptions(array $options)
+    {
+        return $this->options = $options;
+    }
 }
