@@ -203,6 +203,66 @@ class Builder
     }
 
     /**
+     * Matches documents where all of the bit positions given by the query are
+     * clear.
+     *
+     * @see Expr::bitsAllClear()
+     * @see https://docs.mongodb.org/manual/reference/operator/query/bitsAllClear/
+     * @param int|array|\MongoBinData $value
+     * @return self
+     */
+    public function bitsAllClear($value)
+    {
+        $this->expr->bitsAllClear($value);
+        return $this;
+    }
+
+    /**
+     * Matches documents where all of the bit positions given by the query are
+     * set.
+     *
+     * @see Expr::bitsAllSet()
+     * @see https://docs.mongodb.org/manual/reference/operator/query/bitsAllSet/
+     * @param int|array|\MongoBinData $value
+     * @return self
+     */
+    public function bitsAllSet($value)
+    {
+        $this->expr->bitsAllSet($value);
+        return $this;
+    }
+
+    /**
+     * Matches documents where any of the bit positions given by the query are
+     * clear.
+     *
+     * @see Expr::bitsAnyClear()
+     * @see https://docs.mongodb.org/manual/reference/operator/query/bitsAnyClear/
+     * @param int|array|\MongoBinData $value
+     * @return self
+     */
+    public function bitsAnyClear($value)
+    {
+        $this->expr->bitsAnyClear($value);
+        return $this;
+    }
+
+    /**
+     * Matches documents where any of the bit positions given by the query are
+     * set.
+     *
+     * @see Expr::bitsAnySet()
+     * @see https://docs.mongodb.org/manual/reference/operator/query/bitsAnySet/
+     * @param int|array|\MongoBinData $value
+     * @return self
+     */
+    public function bitsAnySet($value)
+    {
+        $this->expr->bitsAnySet($value);
+        return $this;
+    }
+
+    /**
      * Apply a bitwise xor operation on the current field.
      *
      * @see Expr::bitXor()
@@ -213,6 +273,40 @@ class Builder
     public function bitXor($value)
     {
         $this->expr->bitXor($value);
+        return $this;
+    }
+
+    /**
+     * A boolean flag to enable or disable case sensitive search for $text
+     * criteria.
+     *
+     * This method must be called after text().
+     *
+     * @see Expr::caseSensitive()
+     * @see http://docs.mongodb.org/manual/reference/operator/text/
+     * @param bool $caseSensitive
+     * @return self
+     * @throws BadMethodCallException if the query does not already have $text criteria
+     *
+     * @since 1.3
+     */
+    public function caseSensitive($caseSensitive)
+    {
+        $this->expr->caseSensitive($caseSensitive);
+        return $this;
+    }
+
+    /**
+     * Associates a comment to any expression taking a query predicate.
+     *
+     * @see Expr::comment()
+     * @see http://docs.mongodb.org/manual/reference/operator/query/comment/
+     * @param string $comment
+     * @return self
+     */
+    public function comment($comment)
+    {
+        $this->expr->comment($comment);
         return $this;
     }
 
@@ -254,6 +348,26 @@ class Builder
     public function debug($name = null)
     {
         return $name !== null ? $this->query[$name] : $this->query;
+    }
+
+    /**
+     * A boolean flag to enable or disable diacritic sensitive search for $text
+     * criteria.
+     *
+     * This method must be called after text().
+     *
+     * @see Builder::diacriticSensitive()
+     * @see http://docs.mongodb.org/manual/reference/operator/text/
+     * @param bool $diacriticSensitive
+     * @return self
+     * @throws BadMethodCallException if the query does not already have $text criteria
+     *
+     * @since 1.3
+     */
+    public function diacriticSensitive($diacriticSensitive)
+    {
+        $this->expr->diacriticSensitive($diacriticSensitive);
+        return $this;
     }
 
     /**
@@ -959,6 +1073,18 @@ class Builder
     }
 
     /**
+     * Specifies a cumulative time limit in milliseconds for processing operations on a cursor.
+     *
+     * @param int $ms
+     * @return $this
+     */
+    public function maxTimeMS($ms)
+    {
+        $this->query['maxTimeMS'] = $ms;
+        return $this;
+    }
+
+    /**
      * Updates the value of the field to a specified value if the specified value is less than the current value of the field.
      *
      * @see Expr::min()
@@ -1417,6 +1543,26 @@ class Builder
     public function set($value, $atomic = true)
     {
         $this->expr->set($value, $atomic && $this->query['type'] !== Query::TYPE_INSERT);
+        return $this;
+    }
+
+    /**
+     * Set the current field to the value if the document is inserted in an
+     * upsert operation.
+     *
+     * If an update operation with upsert: true results in an insert of a
+     * document, then $setOnInsert assigns the specified values to the fields in
+     * the document. If the update operation does not result in an insert,
+     * $setOnInsert does nothing.
+     *
+     * @see Expr::setOnInsert()
+     * @see https://docs.mongodb.org/manual/reference/operator/update/setOnInsert/
+     * @param mixed $value
+     * @return self
+     */
+    public function setOnInsert($value)
+    {
+        $this->expr->setOnInsert($value);
         return $this;
     }
 

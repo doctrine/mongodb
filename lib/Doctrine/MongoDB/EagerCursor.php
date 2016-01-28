@@ -363,6 +363,20 @@ class EagerCursor implements CursorInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function maxTimeMS($ms)
+    {
+        // Need to use method_exists - adding to CursorInterface is not allowed
+        // due to SemVer restrictions
+        if (method_exists($this->cursor, 'maxTimeMS')) {
+            $this->cursor->maxTimeMS($ms);
+        }
+
+        return $this;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function recreate()
@@ -386,7 +400,7 @@ class EagerCursor implements CursorInterface
      */
     public function skip($num)
     {
-        $this->cursor->limit($num);
+        $this->cursor->skip($num);
 
         return $this;
     }

@@ -2,10 +2,10 @@
 
 namespace Doctrine\MongoDB\Tests\Aggregation;
 
-use Doctrine\MongoDB\Aggregation\Builder;
-
 class BuilderTest extends \PHPUnit_Framework_TestCase
 {
+    use AggregationTestCase;
+
     public function testGetPipeline()
     {
         $point = array('type' => 'Point', 'coordinates' => array(0, 0));
@@ -30,6 +30,15 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                         array('username' => 'administrator')
                     ),
                     'group' => array('$in' => array('a', 'b'))
+                )
+            ),
+            array('$sample' => 10),
+            array('$lookup' =>
+                array(
+                    'from' => 'orders',
+                    'localField' => '_id',
+                    'foreignField' => 'user.$id',
+                    'as' => 'orders'
                 )
             ),
             array('$unwind' => 'a'),
@@ -94,6 +103,11 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                 ->in(array('a', 'b'))
                 ->addOr($builder->matchExpr()->field('username')->equals('admin'))
                 ->addOr($builder->matchExpr()->field('username')->equals('administrator'))
+            ->sample(10)
+            ->lookup('orders')
+                ->localField('_id')
+                ->foreignField('user.$id')
+                ->alias('orders')
             ->unwind('a')
             ->unwind('b')
             ->redact()
@@ -133,17 +147,5 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ->out('collectionName');
 
         $this->assertEquals($expectedPipeline, $builder->getPipeline());
-    }
-
-    private function getTestAggregationBuilder()
-    {
-        return new Builder($this->getMockCollection());
-    }
-
-    private function getMockCollection()
-    {
-        return $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->disableOriginalConstructor()
-            ->getMock();
     }
 }

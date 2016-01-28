@@ -19,5 +19,18 @@ class UpdateEventArgsTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($query, $updateEventArgs->getQuery());
         $this->assertSame($newObj, $updateEventArgs->getNewObj());
         $this->assertSame($options, $updateEventArgs->getOptions());
+
+        // Ensure the setters work.
+        $query2 = array('x' => 2);
+        $newObj2 = array('$set' => array('x' => 2));
+        $options2 = array('upsert' => false);
+
+        $updateEventArgs->setQuery($query2);
+        $updateEventArgs->setNewObj($newObj2);
+        $updateEventArgs->setOptions($options2);
+
+        $this->assertSame($query2, $updateEventArgs->getQuery());
+        $this->assertSame($newObj2, $updateEventArgs->getNewObj());
+        $this->assertSame($options2, $updateEventArgs->getOptions());
     }
 }

@@ -21,7 +21,6 @@ namespace Doctrine\MongoDB;
 
 use Doctrine\Common\EventManager;
 use Doctrine\MongoDB\Event\EventArgs;
-use Doctrine\MongoDB\Util\ReadPreference;
 
 /**
  * Wrapper for the MongoClient class.
@@ -211,7 +210,7 @@ class Connection
     public function getReadPreference()
     {
         $this->initialize();
-        return ReadPreference::convertReadPreference($this->mongoClient->getReadPreference());
+        return $this->mongoClient->getReadPreference();
     }
 
     /**
@@ -280,9 +279,7 @@ class Connection
         $options = isset($options['wTimeout']) ? $this->convertWriteTimeout($options) : $options;
 
         $this->mongoClient = $this->retry(function() use ($server, $options) {
-            return version_compare(phpversion('mongo'), '1.3.0', '<')
-                ? new \Mongo($server, $options)
-                : new \MongoClient($server, $options);
+            return new \MongoClient($server, $options);
         });
 
         if ($this->eventManager->hasListeners(Events::postConnect)) {
@@ -301,12 +298,7 @@ class Connection
             return false;
         }
 
-        /* MongoClient::$connected is deprecated in 1.5.0+, so count the list of
-         * connected hosts instead.
-         */
-        return version_compare(phpversion('mongo'), '1.5.0', '<')
-            ? $this->mongoClient->connected
-            : count($this->mongoClient->getHosts()) > 0;
+        return count($this->mongoClient->getHosts()) > 0;
     }
 
     /**
@@ -463,10 +455,6 @@ class Connection
      */
     protected function convertConnectTimeout(array $options)
     {
-        if (version_compare(phpversion('mongo'), '1.4.0', '<')) {
-            return $options;
-        }
-
         if (isset($options['timeout']) && ! isset($options['connectTimeoutMS'])) {
             $options['connectTimeoutMS'] = $options['timeout'];
             unset($options['timeout']);
@@ -487,10 +475,6 @@ class Connection
      */
     protected function convertWriteTimeout(array $options)
     {
-        if (version_compare(phpversion('mongo'), '1.4.0', '<')) {
-            return $options;
-        }
-
         if (isset($options['wTimeout']) && ! isset($options['wTimeoutMS'])) {
             $options['wTimeoutMS'] = $options['wTimeout'];
             unset($options['wTimeout']);

@@ -50,6 +50,62 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr->language('en');
     }
 
+    public function testCaseSensitiveWithText()
+    {
+        $expr = new Expr();
+        $expr->text('foo');
+
+        $this->assertSame($expr, $expr->caseSensitive(true));
+        $this->assertEquals(array('$text' => array('$search' => 'foo', '$caseSensitive' => true)), $expr->getQuery());
+    }
+
+    public function testCaseSensitiveFalseRemovesOption()
+    {
+        $expr = new Expr();
+        $expr->text('foo');
+
+        $expr->caseSensitive(true);
+        $expr->caseSensitive(false);
+        $this->assertEquals(array('$text' => array('$search' => 'foo')), $expr->getQuery());
+    }
+
+    /**
+     * @expectedException BadMethodCallException
+     */
+    public function testCaseSensitiveRequiresTextOperator()
+    {
+        $expr = new Expr();
+        $expr->caseSensitive('en');
+    }
+
+    public function testDiacriticSensitiveWithText()
+    {
+        $expr = new Expr();
+        $expr->text('foo');
+
+        $this->assertSame($expr, $expr->diacriticSensitive(true));
+        $this->assertEquals(array('$text' => array('$search' => 'foo', '$diacriticSensitive' => true)), $expr->getQuery());
+    }
+
+    public function testDiacriticSensitiveFalseRemovesOption()
+    {
+        $expr = new Expr();
+        $expr->text('foo');
+
+        $expr->diacriticSensitive(true);
+        $expr->diacriticSensitive(false);
+        $this->assertEquals(array('$text' => array('$search' => 'foo')), $expr->getQuery());
+    }
+
+    /**
+     * @expectedException BadMethodCallException
+     */
+    public function testDiacriticSensitiveRequiresTextOperator()
+    {
+        $expr = new Expr();
+        $expr->diacriticSensitive('en');
+    }
+
     public function testOperatorWithCurrentField()
     {
         $expr = new Expr();

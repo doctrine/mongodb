@@ -11,10 +11,6 @@ class CommandCursorFunctionalTest extends BaseTest
     {
         parent::setUp();
 
-        if ( ! method_exists('MongoCollection', 'aggregateCursor')) {
-            $this->markTestSkipped('This test is not applicable to drivers without MongoCollection::aggregateCursor()');
-        }
-
         if (version_compare($this->getServerVersion(), '2.6.0', '<')) {
             $this->markTestSkipped('This test is not applicable to server versions < 2.6.0');
         }

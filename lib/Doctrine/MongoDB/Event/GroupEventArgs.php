@@ -77,4 +77,24 @@ class GroupEventArgs extends BaseEventArgs
     {
         return $this->options;
     }
+
+    public function setKeys($keys)
+    {
+        $this->keys = $keys;
+    }
+
+    public function setInitial(array $initial)
+    {
+        $this->initial = $initial;
+    }
+
+    public function setReduce($reduce)
+    {
+        $this->reduce = $reduce;
+    }
+
+    public function setOptions(array $options)
+    {
+        $this->options = $options;
+    }
 }

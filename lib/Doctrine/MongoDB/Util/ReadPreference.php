@@ -28,6 +28,7 @@ namespace Doctrine\MongoDB\Util;
  *
  * @since  1.0
  * @author Jeremy Mikola <jmikola@gmail.com>
+ * @deprecated 1.3 No longer required; will be removed for 2.0
  */
 final class ReadPreference
 {

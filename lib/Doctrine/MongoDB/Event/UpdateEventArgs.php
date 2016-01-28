@@ -69,4 +69,19 @@ class UpdateEventArgs extends BaseEventArgs
     {
         return $this->options;
     }
+
+    public function setQuery(array $query)
+    {
+        $this->query = $query;
+    }
+
+    public function setNewObj(array $newObj)
+    {
+        $this->newObj = $newObj;
+    }
+
+    public function setOptions(array $options)
+    {
+        $this->options = $options;
+    }
 }

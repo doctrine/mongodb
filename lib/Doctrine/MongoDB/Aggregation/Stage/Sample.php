@@ -15,60 +15,44 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
-*/
+ */
 
-namespace Doctrine\MongoDB\Event;
+namespace Doctrine\MongoDB\Aggregation\Stage;
 
-use Doctrine\Common\EventArgs as BaseEventArgs;
+use Doctrine\MongoDB\Aggregation\Builder;
+use Doctrine\MongoDB\Aggregation\Stage;
 
 /**
- * Event args for the distinct command.
+ * Fluent interface for adding a $sample stage to an aggregation pipeline.
  *
- * @since  1.0
- * @author Jonathan H. Wage <jonwage@gmail.com>
+ * @author alcaeus <alcaeus@alcaeus.org>
+ * @since 1.3
  */
-class DistinctEventArgs extends BaseEventArgs
+class Sample extends Stage
 {
-    private $invoker;
-    private $field;
-    private $query;
+    /**
+     * @var integer
+     */
+    private $size;
 
     /**
-     * Constructor.
-     *
-     * @param object $invoker
-     * @param string $field
-     * @param array  $query
+     * @param Builder $builder
+     * @param integer $size
      */
-    public function __construct($invoker, $field, array $query)
+    public function __construct(Builder $builder, $size)
     {
-        $this->invoker = $invoker;
-        $this->field = $field;
-        $this->query = $query;
+        parent::__construct($builder);
+
+        $this->size = (integer) $size;
     }
 
-    public function getInvoker()
+    /**
+     * {@inheritdoc}
+     */
+    public function getExpression()
     {
-        return $this->invoker;
-    }
-
-    public function getField()
-    {
-        return $this->field;
-    }
-
-    public function getQuery()
-    {
-        return $this->query;
-    }
-
-    public function setQuery($query)
-    {
-        $this->query = $query;
-    }
-
-    public function setField($field)
-    {
-        $this->field = $field;
+        return array(
+            '$sample' => $this->size
+        );
     }
 }

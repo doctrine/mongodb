@@ -47,15 +47,6 @@ interface CursorInterface extends Iterator
     public function batchSize($num);
 
     /**
-     * Wrapper method for MongoCursor::count().
-     *
-     * @see http://php.net/manual/en/countable.count.php
-     * @see http://php.net/manual/en/mongocursor.count.php
-     * @return integer
-     */
-    public function count();
-
-    /**
      * Wrapper method for MongoCursor::dead().
      *
      * @see http://php.net/manual/en/mongocursor.dead.php

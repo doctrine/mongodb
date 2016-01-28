@@ -133,58 +133,8 @@ class CursorTest extends BaseTest
         $this->assertEquals(array($this->doc1, $this->doc2, $this->doc3), $this->cursor->toArray(false));
     }
 
-    public function testSlaveOkay()
-    {
-        if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {
-            $this->markTestSkipped('This test is not applicable to driver versions >= 1.3.0');
-        }
-
-        $mongoCursor = $this->getMockMongoCursor();
-
-        $mongoCursor->expects($this->at(0))
-            ->method('slaveOkay')
-            ->with(true);
-
-        $mongoCursor->expects($this->at(1))
-            ->method('slaveOkay')
-            ->with(false);
-
-        $cursor = $this->getTestCursor($this->getMockCollection(), $mongoCursor);
-
-        $cursor->slaveOkay(true);
-        $cursor->slaveOkay(false);
-    }
-
-    public function testSlaveOkayNoopWithoutReadPreferences()
-    {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
-        }
-
-        if (method_exists('MongoCursor', 'setReadPreference')) {
-            $this->markTestSkipped('This test is not applicable to drivers with MongoCursor::setReadPreference()');
-        }
-
-        $mongoCursor = $this->getMockMongoCursor();
-
-        $mongoCursor->expects($this->never())
-            ->method('slaveOkay');
-
-        $mongoCursor->expects($this->never())
-            ->method('setReadPreference');
-
-        $cursor = $this->getTestCursor($this->getMockCollection(), $mongoCursor);
-
-        $cursor->slaveOkay(true);
-        $cursor->slaveOkay(false);
-    }
-
     public function testSlaveOkayReadPreferences()
     {
-        if (!method_exists('MongoCursor', 'setReadPreference')) {
-            $this->markTestSkipped('This test is not applicable to drivers without MongoCursor::setReadPreference()');
-        }
-
         $mongoCursor = $this->getMockMongoCursor();
 
         $mongoCursor->expects($this->never())->method('slaveOkay');
@@ -211,10 +161,6 @@ class CursorTest extends BaseTest
 
     public function testSlaveOkayPreservesReadPreferenceTags()
     {
-        if (!method_exists('MongoCursor', 'setReadPreference')) {
-            $this->markTestSkipped('This test is not applicable to drivers without MongoCursor::setReadPreference()');
-        }
-
         $mongoCursor = $this->getMockMongoCursor();
 
         $mongoCursor->expects($this->once())
@@ -236,10 +182,6 @@ class CursorTest extends BaseTest
 
     public function testSetReadPreference()
     {
-        if (!method_exists('MongoCursor', 'setReadPreference')) {
-            $this->markTestSkipped('This test is not applicable to drivers without MongoCursor::setReadPreference()');
-        }
-
         $mongoCursor = $this->getMockMongoCursor();
 
         $mongoCursor->expects($this->at(0))
@@ -295,10 +237,6 @@ class CursorTest extends BaseTest
 
     public function testRecreate()
     {
-        if (!method_exists('MongoCursor', 'setReadPreference')) {
-            $this->markTestSkipped('This test requires MongoCursor::setReadPreference()');
-        }
-
         $self = $this;
 
         $setCursorExpectations = function($mongoCursor) use ($self) {
@@ -377,6 +315,40 @@ class CursorTest extends BaseTest
             ->sort(array('x' => -1))
             ->tailable(false)
             ->timeout(1000);
+
+        $cursor->recreate();
+    }
+
+    public function testSetMaxTimeMSWhenRecreateCursor()
+    {
+        $self = $this;
+
+        $setCursorExpectations = function($mongoCursor) use ($self) {
+            $mongoCursor->expects($self->once())
+                ->method('maxTimeMS')
+                ->with(30000);
+        };
+
+        $mongoCursor = $this->getMockMongoCursor();
+        $recreatedMongoCursor = $this->getMockMongoCursor();
+
+        $setCursorExpectations($mongoCursor);
+        $setCursorExpectations($recreatedMongoCursor);
+
+        $mongoCollection = $this->getMockCollection();
+        $mongoCollection->expects($this->once())
+            ->method('find')
+            ->with(array('x' => 9500), array())
+            ->will($this->returnValue($recreatedMongoCursor));
+
+        $collection = $this->getMockCollection();
+        $collection->expects($this->once())
+            ->method('getMongoCollection')
+            ->will($this->returnValue($mongoCollection));
+
+        $cursor = $this->getTestCursor($collection, $mongoCursor, array('x' => 9500));
+
+        $cursor->maxTimeMS(30000);
 
         $cursor->recreate();
     }

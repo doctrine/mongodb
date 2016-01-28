@@ -23,7 +23,6 @@ use Doctrine\Common\EventManager;
 use Doctrine\MongoDB\Event\CreateCollectionEventArgs;
 use Doctrine\MongoDB\Event\EventArgs;
 use Doctrine\MongoDB\Event\MutableEventArgs;
-use Doctrine\MongoDB\Util\ReadPreference;
 
 /**
  * Wrapper for the MongoDB class.
@@ -338,7 +337,7 @@ class Database
      */
     public function getReadPreference()
     {
-        return ReadPreference::convertReadPreference($this->mongoDB->getReadPreference());
+        return $this->mongoDB->getReadPreference();
     }
 
     /**
@@ -371,10 +370,6 @@ class Database
      */
     public function getSlaveOkay()
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            return $this->mongoDB->getSlaveOkay();
-        }
-
         $readPref = $this->getReadPreference();
 
         return \MongoClient::RP_PRIMARY !== $readPref['type'];
@@ -394,10 +389,6 @@ class Database
      */
     public function setSlaveOkay($ok = true)
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            return $this->mongoDB->setSlaveOkay($ok);
-        }
-
         $prevSlaveOkay = $this->getSlaveOkay();
 
         if ($ok) {
@@ -544,11 +535,7 @@ class Database
      */
     protected function doCreateCollection($name, array $options)
     {
-        if (version_compare(phpversion('mongo'), '1.4.0', '>=')) {
-            $this->mongoDB->createCollection($name, $options);
-        } else {
-            $this->mongoDB->createCollection($name, $options['capped'], $options['size'], $options['max']);
-        }
+        $this->mongoDB->createCollection($name, $options);
 
         return $this->doSelectCollection($name);
     }
@@ -623,10 +610,6 @@ class Database
      */
     protected function convertSocketTimeout(array $options)
     {
-        if (version_compare(phpversion('mongo'), '1.5.0', '<')) {
-            return $options;
-        }
-
         if (isset($options['timeout']) && ! isset($options['socketTimeoutMS'])) {
             $options['socketTimeoutMS'] = $options['timeout'];
             unset($options['timeout']);

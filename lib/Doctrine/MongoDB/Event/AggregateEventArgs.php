@@ -63,4 +63,14 @@ class AggregateEventArgs extends BaseEventArgs
     {
         return $this->options;
     }
+
+    public function setPipeline(array $pipeline)
+    {
+        $this->pipeline = $pipeline;
+    }
+
+    public function setOptions(array $options)
+    {
+        $this->options = $options;
+    }
 }
