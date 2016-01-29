@@ -30,17 +30,26 @@ class MutableEventArgs extends EventArgs
     private $changedData;
     private $isDataChanged = false;
 
+    /**
+     * @return mixed|null
+     */
     public function getData()
     {
         return $this->isDataChanged ? $this->changedData : parent::getData();
     }
 
+    /**
+     * @param mixed $data
+     */
     public function setData($data)
     {
         $this->isDataChanged = parent::getData() !== $data;
         $this->changedData = $this->isDataChanged ? $data : null;
     }
 
+    /**
+     * @return bool
+     */
     public function isDataChanged()
     {
         return $this->isDataChanged;

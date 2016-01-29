@@ -53,46 +53,73 @@ class GroupEventArgs extends BaseEventArgs
         $this->options = $options;
     }
 
+    /**
+     * @return object
+     */
     public function getInvoker()
     {
         return $this->invoker;
     }
 
+    /**
+     * @return array|\MongoCode|string
+     */
     public function getKeys()
     {
         return $this->keys;
     }
 
+    /**
+     * @return array
+     */
     public function getInitial()
     {
         return $this->initial;
     }
 
+    /**
+     * @return \MongoCode|string
+     */
     public function getReduce()
     {
         return $this->reduce;
     }
 
+    /**
+     * @return array
+     */
     public function getOptions()
     {
         return $this->options;
     }
 
+    /**
+     * @param $keys
+     */
     public function setKeys($keys)
     {
         $this->keys = $keys;
     }
 
+    /**
+     * @param array $initial
+     */
     public function setInitial(array $initial)
     {
         $this->initial = $initial;
     }
 
+    /**
+     * @param $reduce
+     */
     public function setReduce($reduce)
     {
         $this->reduce = $reduce;
     }
 
+    /**
+     * @param array $options
+     */
     public function setOptions(array $options)
     {
         $this->options = $options;

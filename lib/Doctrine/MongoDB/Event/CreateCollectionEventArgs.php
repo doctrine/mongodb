@@ -55,16 +55,25 @@ class CreateCollectionEventArgs extends BaseEventArgs
         $this->options = $options;
     }
 
+    /**
+     * @return object
+     */
     public function getInvoker()
     {
         return $this->invoker;
     }
 
+    /**
+     * @return string
+     */
     public function getName()
     {
         return $this->name;
     }
 
+    /**
+     * @return array|bool
+     */
     public function getOptions()
     {
         return $this->options;
@@ -72,6 +81,7 @@ class CreateCollectionEventArgs extends BaseEventArgs
 
     /**
      * @deprecated 1.1 Replaced by options; will be removed for 2.0
+     * @return mixed
      */
     public function getCapped()
     {
@@ -80,6 +90,7 @@ class CreateCollectionEventArgs extends BaseEventArgs
 
     /**
      * @deprecated 1.1 Replaced by options; will be removed for 2.0
+     * @return mixed
      */
     public function getSize()
     {
@@ -88,6 +99,7 @@ class CreateCollectionEventArgs extends BaseEventArgs
 
     /**
      * @deprecated 1.1 Replaced by options; will be removed for 2.0
+     * @return mixed
      */
     public function getMax()
     {

@@ -51,36 +51,57 @@ class NearEventArgs extends BaseEventArgs
         $this->options = $options;
     }
 
+    /**
+     * @return object
+     */
     public function getInvoker()
     {
         return $this->invoker;
     }
 
+    /**
+     * @return array
+     */
     public function getQuery()
     {
         return $this->query;
     }
 
+    /**
+     * @return array|Point
+     */
     public function getNear()
     {
         return $this->near;
     }
 
+    /**
+     * @return array
+     */
     public function getOptions()
     {
         return $this->options;
     }
 
+    /**
+     * @param array $query
+     */
     public function setQuery(array $query)
     {
         $this->query = $query;
     }
 
+    /**
+     * @param $near
+     */
     public function setNear($near)
     {
         $this->near = $near;
     }
 
+    /**
+     * @param array $options
+     */
     public function setOptions(array $options)
     {
         $this->options = $options;
