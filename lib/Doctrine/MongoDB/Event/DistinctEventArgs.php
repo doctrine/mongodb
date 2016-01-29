@@ -73,6 +73,7 @@ class DistinctEventArgs extends BaseEventArgs
 
     /**
      * @param $query
+     * @since 1.2.2
      */
     public function setQuery($query)
     {
@@ -81,6 +82,7 @@ class DistinctEventArgs extends BaseEventArgs
 
     /**
      * @param string $field
+     * @since 1.2.2
      */
     public function setField($field)
     {

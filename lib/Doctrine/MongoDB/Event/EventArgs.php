@@ -73,6 +73,7 @@ class EventArgs extends BaseEventArgs
 
     /**
      * @param $data
+     * @since 1.2.2
      */
     public function setData($data) {
         $this->data = $data;
@@ -80,6 +81,7 @@ class EventArgs extends BaseEventArgs
 
     /**
      * @param array $options
+     * @since 1.2.2
      */
     public function setOptions(array $options) {
         $this->options = $options;
