@@ -73,6 +73,7 @@ class AggregateEventArgs extends BaseEventArgs
 
     /**
      * @param array $pipeline
+     * @since 1.2.2
      */
     public function setPipeline(array $pipeline)
     {
@@ -81,6 +82,7 @@ class AggregateEventArgs extends BaseEventArgs
 
     /**
      * @param array $options
+     * @since 1.2.2
      */
     public function setOptions(array $options)
     {
