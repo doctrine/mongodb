@@ -56,58 +56,91 @@ class MapReduceEventArgs extends BaseEventArgs
         $this->options = $options;
     }
 
+    /**
+     * @return object
+     */
     public function getInvoker()
     {
         return $this->invoker;
     }
 
+    /**
+     * @return \MongoCode|string
+     */
     public function getMap()
     {
         return $this->map;
     }
 
+    /**
+     * @return \MongoCode|string
+     */
     public function getReduce()
     {
         return $this->reduce;
     }
 
+    /**
+     * @return array
+     */
     public function getOut()
     {
         return $this->out;
     }
 
+    /**
+     * @return array
+     */
     public function getQuery()
     {
         return $this->query;
     }
 
+    /**
+     * @return array
+     */
     public function getOptions()
     {
         return $this->options;
     }
 
+    /**
+     * @param array $query
+     */
     public function setQuery(array $query)
     {
-        return $this->query = $query;
+        $this->query = $query;
     }
 
+    /**
+     * @param $map
+     */
     public function setMap($map)
     {
-        return $this->map = $map;
+        $this->map = $map;
     }
 
+    /**
+     * @param $reduce
+     */
     public function setReduce($reduce)
     {
-        return $this->reduce = $reduce;
+        $this->reduce = $reduce;
     }
 
+    /**
+     * @param array $out
+     */
     public function setOut(array $out)
     {
-        return $this->out = $out;
+        $this->out = $out;
     }
 
+    /**
+     * @param array $options
+     */
     public function setOptions(array $options)
     {
-        return $this->options = $options;
+        $this->options = $options;
     }
 }
