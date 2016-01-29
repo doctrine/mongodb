@@ -84,7 +84,7 @@ class UpdateEventArgs extends BaseEventArgs
 
     /**
      * @param array $query
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setQuery(array $query)
     {
@@ -93,7 +93,7 @@ class UpdateEventArgs extends BaseEventArgs
 
     /**
      * @param array $newObj
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setNewObj(array $newObj)
     {
@@ -102,7 +102,7 @@ class UpdateEventArgs extends BaseEventArgs
 
     /**
      * @param array $options
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setOptions(array $options)
     {

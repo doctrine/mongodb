@@ -73,7 +73,7 @@ class FindEventArgs extends BaseEventArgs
 
     /**
      * @param array $query
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setQuery(array $query)
     {
@@ -82,7 +82,7 @@ class FindEventArgs extends BaseEventArgs
 
     /**
      * @param array $fields
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setFields(array $fields)
     {

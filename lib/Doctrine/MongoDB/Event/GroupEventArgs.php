@@ -95,7 +95,7 @@ class GroupEventArgs extends BaseEventArgs
 
     /**
      * @param $keys
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setKeys($keys)
     {
@@ -104,7 +104,7 @@ class GroupEventArgs extends BaseEventArgs
 
     /**
      * @param array $initial
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setInitial(array $initial)
     {
@@ -113,7 +113,7 @@ class GroupEventArgs extends BaseEventArgs
 
     /**
      * @param $reduce
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setReduce($reduce)
     {
@@ -122,7 +122,7 @@ class GroupEventArgs extends BaseEventArgs
 
     /**
      * @param array $options
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setOptions(array $options)
     {

@@ -106,7 +106,7 @@ class MapReduceEventArgs extends BaseEventArgs
 
     /**
      * @param array $query
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setQuery(array $query)
     {
@@ -115,7 +115,7 @@ class MapReduceEventArgs extends BaseEventArgs
 
     /**
      * @param $map
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setMap($map)
     {
@@ -124,7 +124,7 @@ class MapReduceEventArgs extends BaseEventArgs
 
     /**
      * @param $reduce
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setReduce($reduce)
     {
@@ -133,7 +133,7 @@ class MapReduceEventArgs extends BaseEventArgs
 
     /**
      * @param array $out
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setOut(array $out)
     {
@@ -142,7 +142,7 @@ class MapReduceEventArgs extends BaseEventArgs
 
     /**
      * @param array $options
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setOptions(array $options)
     {

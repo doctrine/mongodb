@@ -85,7 +85,7 @@ class NearEventArgs extends BaseEventArgs
 
     /**
      * @param array $query
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setQuery(array $query)
     {
@@ -94,7 +94,7 @@ class NearEventArgs extends BaseEventArgs
 
     /**
      * @param $near
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setNear($near)
     {
@@ -103,7 +103,7 @@ class NearEventArgs extends BaseEventArgs
 
     /**
      * @param array $options
-     * @since 1.2.2
+     * @since 1.3
      */
     public function setOptions(array $options)
     {
