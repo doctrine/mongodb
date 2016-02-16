@@ -242,7 +242,7 @@ class Expr
      */
     public function dateToString($format, $expression)
     {
-        return $this->operator('$dateToString', array($format, $expression));
+        return $this->operator('$dateToString', array('format' => $format, 'date' => $expression));
     }
 
     /**

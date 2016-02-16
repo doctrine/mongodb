@@ -81,7 +81,7 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $expr = new Expr();
 
         $this->assertSame($expr, $expr->dateToString('%Y-%m-%d', '$dateField'));
-        $this->assertSame(array('$dateToString' => array('%Y-%m-%d', '$dateField')), $expr->getExpression());
+        $this->assertSame(array('$dateToString' => array('format' => '%Y-%m-%d', 'date' => '$dateField')), $expr->getExpression());
     }
 
     public function testDayOfMonth()
