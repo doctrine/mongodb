@@ -5,12 +5,10 @@ namespace Doctrine\MongoDB\Tests;
 use Doctrine\Common\EventManager;
 use Doctrine\MongoDB\Events;
 use Doctrine\MongoDB\Event\AggregateEventArgs;
-use Doctrine\MongoDB\Event\DistinctEventArgs;
 use Doctrine\MongoDB\Event\EventArgs;
 use Doctrine\MongoDB\Event\FindEventArgs;
 use Doctrine\MongoDB\Event\GroupEventArgs;
 use Doctrine\MongoDB\Event\MapReduceEventArgs;
-use Doctrine\MongoDB\Event\MutableEventArgs;
 use Doctrine\MongoDB\Event\NearEventArgs;
 use Doctrine\MongoDB\Event\UpdateEventArgs;
 
@@ -370,7 +368,7 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
         foreach ($methods as $method => $withValues) {
             $expectation = $collection->expects($this->once());
             $expectation->method($method);
-            call_user_func_array(array($expectation, "with"), $withValues);
+            call_user_func_array(array($expectation, 'with'), $withValues);
         }
 
         return $collection;
@@ -391,8 +389,8 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
     }
 }
 
-class PreAggregateListener {
-
+class PreAggregateListener
+{
     public function __construct(array $pipeline, array $options)
     {
         $this->pipeline = $pipeline;
@@ -406,8 +404,8 @@ class PreAggregateListener {
     }
 }
 
-class PreBatchInsertListener {
-
+class PreBatchInsertListener
+{
     public function __construct(array $data, array $options)
     {
         $this->data = $data;
@@ -421,8 +419,8 @@ class PreBatchInsertListener {
     }
 }
 
-class PreFindListener {
-
+class PreFindListener
+{
     public function __construct(array $query, array $fields)
     {
         $this->query = $query;
@@ -436,8 +434,8 @@ class PreFindListener {
     }
 }
 
-class PreFindAndRemoveListener {
-
+class PreFindAndRemoveListener
+{
     public function __construct(array $query, array $options)
     {
         $this->query = $query;
@@ -451,8 +449,8 @@ class PreFindAndRemoveListener {
     }
 }
 
-class PreFindAndUpdateListener {
-
+class PreFindAndUpdateListener
+{
     public function __construct(array $query, array $newObj, array $options)
     {
         $this->query = $query;
@@ -468,7 +466,8 @@ class PreFindAndUpdateListener {
     }
 }
 
-class PreUpdateListener {
+class PreUpdateListener
+{
     public function __construct(array $query, array $newObj, array $options)
     {
         $this->query = $query;
@@ -484,8 +483,8 @@ class PreUpdateListener {
     }
 }
 
-class PreFindOneListener {
-
+class PreFindOneListener
+{
     public function __construct(array $query, array $fields)
     {
         $this->query = $query;
@@ -499,8 +498,8 @@ class PreFindOneListener {
     }
 }
 
-class DbRefListener {
-
+class DbRefListener
+{
     public function __construct(array $reference)
     {
         $this->reference = $reference;
@@ -512,8 +511,8 @@ class DbRefListener {
     }
 }
 
-class PreGroupListener {
-
+class PreGroupListener
+{
     public function __construct(array $keys, array $initial, array $reduce, array $options)
     {
         $this->keys = $keys;
@@ -531,8 +530,8 @@ class PreGroupListener {
     }
 }
 
-class PreInsertListener {
-
+class PreInsertListener
+{
     public function __construct(array $data, array $options)
     {
         $this->data = $data;
@@ -546,8 +545,8 @@ class PreInsertListener {
     }
 }
 
-class PreMapReduceListener {
-
+class PreMapReduceListener
+{
     public function __construct($map, $reduce, array $out, array $query, array $options)
     {
         $this->map = $map;
@@ -567,8 +566,8 @@ class PreMapReduceListener {
     }
 }
 
-class PreNearListener {
-
+class PreNearListener
+{
     public function __construct($near, array $query, array $options)
     {
         $this->query = $query;
@@ -584,8 +583,8 @@ class PreNearListener {
     }
 }
 
-class PreRemoveListener {
-
+class PreRemoveListener
+{
     public function __construct(array $query, array $options)
     {
         $this->query = $query;
@@ -599,8 +598,8 @@ class PreRemoveListener {
     }
 }
 
-class PreSaveListener {
-
+class PreSaveListener
+{
     public function __construct(array $query, array $options)
     {
         $this->query = $query;
