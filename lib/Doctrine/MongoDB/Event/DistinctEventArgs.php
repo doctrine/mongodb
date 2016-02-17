@@ -43,7 +43,7 @@ class DistinctEventArgs extends BaseEventArgs
     public function __construct($invoker, $field, array $query)
     {
         $this->invoker = $invoker;
-        $this->field = $field;
+        $this->field = (string) $field;
         $this->query = $query;
     }
 
@@ -86,6 +86,6 @@ class DistinctEventArgs extends BaseEventArgs
      */
     public function setField($field)
     {
-        $this->field = $field;
+        $this->field = (string) $field;
     }
 }
