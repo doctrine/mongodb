@@ -793,7 +793,9 @@ class Collection
         $result = $this->doRemove($query, $options);
 
         if ($this->eventManager->hasListeners(Events::postRemove)) {
-            $this->eventManager->dispatchEvent(Events::postRemove, new EventArgs($this, $result));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postRemove, $eventArgs);
+            $result = $eventArgs->getData();
         }
 
         return $result;
@@ -858,7 +860,9 @@ class Collection
         $result = $this->doUpdate($query, $newObj, $options);
 
         if ($this->eventManager->hasListeners(Events::postUpdate)) {
-            $this->eventManager->dispatchEvent(Events::postUpdate, new EventArgs($this, $result));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postUpdate, $eventArgs);
+            $result = $eventArgs->getData();
         }
 
         return $result;
