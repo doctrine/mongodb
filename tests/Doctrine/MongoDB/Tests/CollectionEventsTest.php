@@ -248,7 +248,7 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
 
         $this->expectEvents(array(
             array(Events::preRemove, new MutableEventArgs($collection, $query, $options)),
-            array(Events::postRemove, new EventArgs($collection, $result)),
+            array(Events::postRemove, new MutableEventArgs($collection, $result)),
         ));
 
         $this->assertSame($result, $collection->remove($query, $options));
@@ -281,7 +281,7 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
 
         $this->expectEvents(array(
             array(Events::preUpdate, new UpdateEventArgs($collection, $query, $newObj, $options)),
-            array(Events::postUpdate, new EventArgs($collection, $result)),
+            array(Events::postUpdate, new MutableEventArgs($collection, $result)),
         ));
 
         $this->assertSame($result, $collection->update($query, $newObj, $options));
