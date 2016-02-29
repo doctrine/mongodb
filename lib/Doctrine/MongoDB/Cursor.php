@@ -104,7 +104,7 @@ class Cursor implements CursorInterface
      * @see http://php.net/manual/en/mongocursor.addoption.php
      * @param string $key
      * @param mixed $value
-     * @return self
+     * @return $this
      */
     public function addOption($key, $value)
     {
@@ -118,7 +118,7 @@ class Cursor implements CursorInterface
      *
      * @see http://php.net/manual/en/mongocursor.batchsize.php
      * @param integer $num
-     * @return self
+     * @return $this
      */
     public function batchSize($num)
     {
@@ -193,7 +193,7 @@ class Cursor implements CursorInterface
      * @param array $f Fields to return (or not return).
      *
      * @see http://php.net/manual/en/mongocursor.fields.php
-     * @return self
+     * @return $this
      */
     public function fields(array $f)
     {
@@ -290,7 +290,7 @@ class Cursor implements CursorInterface
      * @see http://php.net/manual/en/mongocursor.setreadpreference.php
      * @param string $readPreference
      * @param array  $tags
-     * @return self
+     * @return $this
      */
     public function setReadPreference($readPreference, array $tags = null)
     {
@@ -349,7 +349,7 @@ class Cursor implements CursorInterface
      *
      * @since 1.2
      * @param boolean $useIdentifierKeys
-     * @return self
+     * @return $this
      */
     public function setUseIdentifierKeys($useIdentifierKeys)
     {
@@ -377,7 +377,7 @@ class Cursor implements CursorInterface
      *
      * @see http://php.net/manual/en/mongocursor.hint.php
      * @param array|string $keyPattern
-     * @return self
+     * @return $this
      */
     public function hint($keyPattern)
     {
@@ -391,7 +391,7 @@ class Cursor implements CursorInterface
      *
      * @see http://php.net/manual/en/mongocursor.immortal.php
      * @param boolean $liveForever
-     * @return self
+     * @return $this
      */
     public function immortal($liveForever = true)
     {
@@ -436,7 +436,7 @@ class Cursor implements CursorInterface
      *
      * @see http://php.net/manual/en/mongocursor.limit.php
      * @param integer $num
-     * @return self
+     * @return $this
      */
     public function limit($num)
     {
@@ -451,7 +451,7 @@ class Cursor implements CursorInterface
      *
      * @see http://php.net/manual/en/mongocursor.maxtimems.php
      * @param integer $ms
-     * @return self
+     * @return $this
      */
     public function maxTimeMS($ms)
     {
@@ -577,7 +577,7 @@ class Cursor implements CursorInterface
      *
      * @see http://php.net/manual/en/mongocursor.skip.php
      * @param integer $num
-     * @return self
+     * @return $this
      */
     public function skip($num)
     {
@@ -592,7 +592,7 @@ class Cursor implements CursorInterface
      *
      * @see http://php.net/manual/en/mongocursor.slaveokay.php
      * @param boolean $ok
-     * @return self
+     * @return $this
      */
     public function slaveOkay($ok = true)
     {
@@ -606,7 +606,7 @@ class Cursor implements CursorInterface
      * Wrapper method for MongoCursor::snapshot().
      *
      * @see http://php.net/manual/en/mongocursor.snapshot.php
-     * @return self
+     * @return $this
      */
     public function snapshot()
     {
@@ -620,7 +620,7 @@ class Cursor implements CursorInterface
      *
      * @see http://php.net/manual/en/mongocursor.sort.php
      * @param array $fields
-     * @return self
+     * @return $this
      */
     public function sort($fields)
     {
@@ -643,7 +643,7 @@ class Cursor implements CursorInterface
      *
      * @see http://php.net/manual/en/mongocursor.tailable.php
      * @param boolean $tail
-     * @return self
+     * @return $this
      */
     public function tailable($tail = true)
     {
@@ -658,7 +658,7 @@ class Cursor implements CursorInterface
      *
      * @see http://php.net/manual/en/mongocursor.timeout.php
      * @param integer $ms
-     * @return self
+     * @return $this
      */
     public function timeout($ms)
     {

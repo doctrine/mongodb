@@ -64,7 +64,7 @@ class CommandCursor implements Iterator
      *
      * @see http://php.net/manual/en/mongocommandcursor.batchsize.php
      * @param integer $num
-     * @return self
+     * @return $this
      */
     public function batchSize($num)
     {
@@ -200,7 +200,7 @@ class CommandCursor implements Iterator
      *
      * @see http://php.net/manual/en/mongocommandcursor.timeout.php
      * @param integer $ms
-     * @return self
+     * @return $this
      * @throws BadMethodCallException if MongoCommandCursor::timeout() is not available
      */
     public function timeout($ms)

@@ -49,7 +49,7 @@ class Expr
      *
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/abs/
      * @param mixed|self $number
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -70,7 +70,7 @@ class Expr
      * @param mixed|self $expression1
      * @param mixed|self $expression2
      * @param mixed|self $expression3,... Additional expressions
-     * @return self
+     * @return $this
      */
     public function add($expression1, $expression2 /* , $expression3, ... */)
     {
@@ -82,7 +82,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/and/
      * @param array|self $expression
-     * @return self
+     * @return $this
      */
     public function addAnd($expression)
     {
@@ -100,7 +100,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/or/
      * @param array|self $expression
-     * @return self
+     * @return $this
      */
     public function addOr($expression)
     {
@@ -122,7 +122,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/addToSet/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function addToSet($expression)
     {
@@ -137,7 +137,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/allElementsTrue/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function allElementsTrue($expression)
     {
@@ -152,7 +152,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/anyElementTrue/
      * @param array|self $expression
-     * @return self
+     * @return $this
      */
     public function anyElementTrue($expression)
     {
@@ -170,7 +170,7 @@ class Expr
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/arrayElemAt/
      * @param mixed|self $array
      * @param mixed|self $index
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -186,7 +186,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/avg/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function avg($expression)
     {
@@ -201,7 +201,7 @@ class Expr
      *
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/ceil/
      * @param mixed|self $number
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -219,7 +219,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/cmp/
      * @param mixed|self $expression1
      * @param mixed|self $expression2
-     * @return self
+     * @return $this
      */
     public function cmp($expression1, $expression2)
     {
@@ -237,7 +237,7 @@ class Expr
      * @param mixed|self $expression1
      * @param mixed|self $expression2
      * @param mixed|self $expression3,... Additional expressions
-     * @return self
+     * @return $this
      */
     public function concat($expression1, $expression2 /* , $expression3, ... */)
     {
@@ -254,7 +254,7 @@ class Expr
      * @param mixed|self $array1
      * @param mixed|self $array2
      * @param mixed|self $array3, ... Additional expressions
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -273,7 +273,7 @@ class Expr
      * @param mixed|self $if
      * @param mixed|self $then
      * @param mixed|self $else
-     * @return self
+     * @return $this
      */
     public function cond($if, $then, $else)
     {
@@ -312,7 +312,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/dateToString/
      * @param string $format
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function dateToString($format, $expression)
     {
@@ -326,7 +326,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/dayOfMonth/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function dayOfMonth($expression)
     {
@@ -341,7 +341,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/dayOfWeek/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function dayOfWeek($expression)
     {
@@ -355,7 +355,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/dayOfYear/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function dayOfYear($expression)
     {
@@ -371,7 +371,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/divide/
      * @param mixed|self $expression1
      * @param mixed|self $expression2
-     * @return self
+     * @return $this
      */
     public function divide($expression1, $expression2)
     {
@@ -384,7 +384,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/eq/
      * @param mixed|self $expression1
      * @param mixed|self $expression2
-     * @return self
+     * @return $this
      */
     public function eq($expression1, $expression2)
     {
@@ -399,7 +399,7 @@ class Expr
      *
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/exp/
      * @param mixed|self $exponent
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -413,7 +413,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#aggregation-expressions
      * @param mixed|self $value
-     * @return self
+     * @return $this
      */
     public function expression($value)
     {
@@ -427,7 +427,7 @@ class Expr
      * Set the current field for building the expression.
      *
      * @param string $fieldName
-     * @return self
+     * @return $this
      */
     public function field($fieldName)
     {
@@ -446,7 +446,7 @@ class Expr
      * @param mixed|self $input
      * @param mixed|self $as
      * @param mixed|self $cond
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -462,7 +462,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/first/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function first($expression)
     {
@@ -477,7 +477,7 @@ class Expr
      *
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/floor/
      * @param mixed|self $number
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -503,7 +503,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/gt/
      * @param mixed|self $expression1
      * @param mixed|self $expression2
-     * @return self
+     * @return $this
      */
     public function gt($expression1, $expression2)
     {
@@ -519,7 +519,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/gte/
      * @param mixed|self $expression1
      * @param mixed|self $expression2
-     * @return self
+     * @return $this
      */
     public function gte($expression1, $expression2)
     {
@@ -533,7 +533,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/hour/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function hour($expression)
     {
@@ -551,7 +551,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/ifNull/
      * @param mixed|self $expression
      * @param mixed|self $replacementExpression
-     * @return self
+     * @return $this
      */
     public function ifNull($expression, $replacementExpression)
     {
@@ -565,7 +565,7 @@ class Expr
      *
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/isArray/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -581,7 +581,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/last/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function last($expression)
     {
@@ -595,7 +595,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/let/
      * @param mixed|self $vars Assignment block for the variables accessible in the in expression. To assign a variable, specify a string for the variable name and assign a valid expression for the value.
      * @param mixed|self $in   The expression to evaluate.
-     * @return self
+     * @return $this
      */
     public function let($vars, $in)
     {
@@ -608,7 +608,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/literal/
      * @param mixed|self $value
-     * @return self
+     * @return $this
      */
     public function literal($value)
     {
@@ -624,7 +624,7 @@ class Expr
      *
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/log/
      * @param mixed|self $number
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -645,7 +645,7 @@ class Expr
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/log/
      * @param mixed|self $number
      * @param mixed|self $base
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -662,7 +662,7 @@ class Expr
      *
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/log10/
      * @param mixed|self $number
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -680,7 +680,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/lt/
      * @param mixed|self $expression1
      * @param mixed|self $expression2
-     * @return self
+     * @return $this
      */
     public function lt($expression1, $expression2)
     {
@@ -695,7 +695,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/lte/
      * @param mixed|self $expression1
      * @param mixed|self $expression2
-     * @return self
+     * @return $this
      */
     public function lte($expression1, $expression2)
     {
@@ -710,7 +710,7 @@ class Expr
      * @param mixed|self $input An expression that resolves to an array.
      * @param string $as        The variable name for the items in the input array. The in expression accesses each item in the input array by this variable.
      * @param mixed|self $in    The expression to apply to each item in the input array. The expression accesses the item by its variable name.
-     * @return self
+     * @return $this
      */
     public function map($input, $as, $in)
     {
@@ -723,7 +723,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/max/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function max($expression)
     {
@@ -735,7 +735,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/meta/
      * @param $metaDataKeyword
-     * @return self
+     * @return $this
      */
     public function meta($metaDataKeyword)
     {
@@ -749,7 +749,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/millisecond/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function millisecond($expression)
     {
@@ -762,7 +762,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/min/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function min($expression)
     {
@@ -776,7 +776,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/minute/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function minute($expression)
     {
@@ -792,7 +792,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/mod/
      * @param mixed|self $expression1
      * @param mixed|self $expression2
-     * @return self
+     * @return $this
      */
     public function mod($expression1, $expression2)
     {
@@ -806,7 +806,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/month/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function month($expression)
     {
@@ -822,7 +822,7 @@ class Expr
      * @param mixed|self $expression1
      * @param mixed|self $expression2
      * @param mixed|self $expression3,... Additional expressions
-     * @return self
+     * @return $this
      */
     public function multiply($expression1, $expression2 /* , $expression3, ... */)
     {
@@ -837,7 +837,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/ne/
      * @param mixed|self $expression1
      * @param mixed|self $expression2
-     * @return self
+     * @return $this
      */
     public function ne($expression1, $expression2)
     {
@@ -849,7 +849,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/not/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function not($expression)
     {
@@ -864,7 +864,7 @@ class Expr
      *
      * @param string $operator
      * @param array|self[]|self $expression
-     * @return self
+     * @return $this
      */
     private function operator($operator, $expression)
     {
@@ -888,7 +888,7 @@ class Expr
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/pow/
      * @param mixed|self $number
      * @param mixed|self $exponent
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -903,7 +903,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/push/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function push($expression)
     {
@@ -932,7 +932,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/second/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function second($expression)
     {
@@ -948,7 +948,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/setDifference/
      * @param mixed|self $expression1
      * @param mixed|self $expression2
-     * @return self
+     * @return $this
      */
     public function setDifference($expression1, $expression2)
     {
@@ -965,7 +965,7 @@ class Expr
      * @param mixed|self $expression1
      * @param mixed|self $expression2
      * @param mixed|self $expression3,...   Additional sets
-     * @return self
+     * @return $this
      */
     public function setEquals($expression1, $expression2 /* , $expression3, ... */)
     {
@@ -982,7 +982,7 @@ class Expr
      * @param mixed|self $expression1
      * @param mixed|self $expression2
      * @param mixed|self $expression3,...   Additional sets
-     * @return self
+     * @return $this
      */
     public function setIntersection($expression1, $expression2 /* , $expression3, ... */)
     {
@@ -998,7 +998,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/setIsSubset/
      * @param mixed|self $expression1
      * @param mixed|self $expression2
-     * @return self
+     * @return $this
      */
     public function setIsSubset($expression1, $expression2)
     {
@@ -1015,7 +1015,7 @@ class Expr
      * @param mixed|self $expression1
      * @param mixed|self $expression2
      * @param mixed|self $expression3,...   Additional sets
-     * @return self
+     * @return $this
      */
     public function setUnion($expression1, $expression2 /* , $expression3, ... */)
     {
@@ -1029,7 +1029,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/size/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function size($expression)
     {
@@ -1043,7 +1043,7 @@ class Expr
      * @param mixed|self $array
      * @param mixed|self $n
      * @param mixed|self|null $position
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -1065,7 +1065,7 @@ class Expr
      *
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/sqrt/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function sqrt($expression)
     {
@@ -1080,7 +1080,7 @@ class Expr
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/stdDevPop/
      * @param mixed|self $expression1
      * @param mixed|self $expression2,... Additional samples
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -1099,7 +1099,7 @@ class Expr
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/stdDevSamp/
      * @param mixed|self $expression1
      * @param mixed|self $expression2,... Additional samples
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -1121,7 +1121,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/strcasecmp/
      * @param mixed|self $expression1
      * @param mixed|self $expression2
-     * @return self
+     * @return $this
      */
     public function strcasecmp($expression1, $expression2)
     {
@@ -1138,7 +1138,7 @@ class Expr
      * @param mixed|self $string
      * @param mixed|self $start
      * @param mixed|self $length
-     * @return self
+     * @return $this
      */
     public function substr($string, $start, $length)
     {
@@ -1154,7 +1154,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/subtract/
      * @param mixed|self $expression1
      * @param mixed|self $expression2
-     * @return self
+     * @return $this
      */
     public function subtract($expression1, $expression2)
     {
@@ -1168,7 +1168,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/sum/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function sum($expression)
     {
@@ -1182,7 +1182,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/toLower/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function toLower($expression)
     {
@@ -1196,7 +1196,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/toUpper/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function toUpper($expression)
     {
@@ -1211,7 +1211,7 @@ class Expr
      *
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/trunc/
      * @param mixed|self $number
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -1227,7 +1227,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/week/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function week($expression)
     {
@@ -1241,7 +1241,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/year/
      * @param mixed|self $expression
-     * @return self
+     * @return $this
      */
     public function year($expression)
     {

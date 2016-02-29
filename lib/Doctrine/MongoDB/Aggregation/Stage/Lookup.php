@@ -66,7 +66,7 @@ class Lookup extends Stage
     /**
      * @param string $from
      *
-     * @return self
+     * @return $this
      */
     public function from($from)
     {
@@ -78,7 +78,7 @@ class Lookup extends Stage
     /**
      * @param string $localField
      *
-     * @return self
+     * @return $this
      */
     public function localField($localField)
     {
@@ -90,7 +90,7 @@ class Lookup extends Stage
     /**
      * @param string $foreignField
      *
-     * @return self
+     * @return $this
      */
     public function foreignField($foreignField)
     {
@@ -102,7 +102,7 @@ class Lookup extends Stage
     /**
      * @param string $alias
      *
-     * @return self
+     * @return $this
      */
     public function alias($alias)
     {

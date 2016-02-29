@@ -90,7 +90,7 @@ class Unwind extends Stage
      * cannot start with a dollar sign $.
      *
      * @param string $includeArrayIndex
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -106,7 +106,7 @@ class Unwind extends Stage
      * the document.
      *
      * @param bool $preserveNullAndEmptyArrays
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
