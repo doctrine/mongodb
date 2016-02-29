@@ -98,7 +98,7 @@ class Group extends Stage
      * @see http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#aggregation-expressions
      * @see Expr::expression
      * @param mixed|Expr $value
-     * @return self
+     * @return $this
      */
     public function expression($value)
     {
@@ -112,7 +112,7 @@ class Group extends Stage
      *
      * @see Expr::field
      * @param string $fieldName
-     * @return self
+     * @return $this
      */
     public function field($fieldName)
     {
@@ -211,7 +211,7 @@ class Group extends Stage
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/stdDevPop/
      * @see Expr::stdDevPop
      * @param mixed|Expr $expression
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
@@ -230,7 +230,7 @@ class Group extends Stage
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/stdDevSamp/
      * @see Expr::stdDevSamp
      * @param mixed|Expr $expression
-     * @return self
+     * @return $this
      *
      * @since 1.3
      */
