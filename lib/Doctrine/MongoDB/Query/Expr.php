@@ -62,7 +62,7 @@ class Expr
      * @see Builder::addAnd()
      * @see http://docs.mongodb.org/manual/reference/operator/and/
      * @param array|Expr $expression
-     * @return self
+     * @return $this
      */
     public function addAnd($expression)
     {
@@ -83,7 +83,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/addToSet/
      * @see http://docs.mongodb.org/manual/reference/operator/each/
      * @param array $values
-     * @return self
+     * @return $this
      */
     public function addManyToSet(array $values)
     {
@@ -98,7 +98,7 @@ class Expr
      * @see Builder::addNor()
      * @see http://docs.mongodb.org/manual/reference/operator/nor/
      * @param array|Expr $expression
-     * @return self
+     * @return $this
      */
     public function addNor($expression)
     {
@@ -112,7 +112,7 @@ class Expr
      * @see Builder::addOr()
      * @see http://docs.mongodb.org/manual/reference/operator/or/
      * @param array|Expr $expression
-     * @return self
+     * @return $this
      */
     public function addOr($expression)
     {
@@ -135,7 +135,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/addToSet/
      * @see http://docs.mongodb.org/manual/reference/operator/each/
      * @param mixed|Expr $valueOrExpression
-     * @return self
+     * @return $this
      */
     public function addToSet($valueOrExpression)
     {
@@ -154,7 +154,7 @@ class Expr
      * @see Builder::all()
      * @see http://docs.mongodb.org/manual/reference/operator/all/
      * @param array $values
-     * @return self
+     * @return $this
      */
     public function all(array $values)
     {
@@ -167,7 +167,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
      * @param string $operator
      * @param int $value
-     * @return self
+     * @return $this
      */
     protected function bit($operator, $value)
     {
@@ -182,7 +182,7 @@ class Expr
      * @see Builder::bitAnd()
      * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
      * @param int $value
-     * @return self
+     * @return $this
      */
     public function bitAnd($value)
     {
@@ -195,7 +195,7 @@ class Expr
      * @see Builder::bitOr()
      * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
      * @param int $value
-     * @return self
+     * @return $this
      */
     public function bitOr($value)
     {
@@ -209,7 +209,7 @@ class Expr
      * @see Builder::bitsAllClear()
      * @see https://docs.mongodb.org/manual/reference/operator/query/bitsAllClear/
      * @param int|array|\MongoBinData $value
-     * @return self
+     * @return $this
      */
     public function bitsAllClear($value)
     {
@@ -224,7 +224,7 @@ class Expr
      * @see Builder::bitsAllSet()
      * @see https://docs.mongodb.org/manual/reference/operator/query/bitsAllSet/
      * @param int|array|\MongoBinData $value
-     * @return self
+     * @return $this
      */
     public function bitsAllSet($value)
     {
@@ -239,7 +239,7 @@ class Expr
      * @see Builder::bitsAnyClear()
      * @see https://docs.mongodb.org/manual/reference/operator/query/bitsAnyClear/
      * @param int|array|\MongoBinData $value
-     * @return self
+     * @return $this
      */
     public function bitsAnyClear($value)
     {
@@ -254,7 +254,7 @@ class Expr
      * @see Builder::bitsAnySet()
      * @see https://docs.mongodb.org/manual/reference/operator/query/bitsAnySet/
      * @param int|array|\MongoBinData $value
-     * @return self
+     * @return $this
      */
     public function bitsAnySet($value)
     {
@@ -268,7 +268,7 @@ class Expr
      * @see Builder::bitXor()
      * @see http://docs.mongodb.org/manual/reference/operator/update/bit/
      * @param int $value
-     * @return self
+     * @return $this
      */
     public function bitXor($value)
     {
@@ -284,7 +284,7 @@ class Expr
      * @see Builder::caseSensitive()
      * @see http://docs.mongodb.org/manual/reference/operator/text/
      * @param bool $caseSensitive
-     * @return self
+     * @return $this
      * @throws BadMethodCallException if the query does not already have $text criteria
      *
      * @since 1.3
@@ -311,7 +311,7 @@ class Expr
      * @see Builder::comment()
      * @see http://docs.mongodb.org/manual/reference/operator/query/comment/
      * @param string $comment
-     * @return self
+     * @return $this
      */
     public function comment($comment)
     {
@@ -325,7 +325,7 @@ class Expr
      * @see Builder::currentDate()
      * @see http://docs.mongodb.org/manual/reference/operator/update/currentDate/
      * @param string $type
-     * @return self
+     * @return $this
      * @throws InvalidArgumentException if an invalid type is given
      */
     public function currentDate($type = 'date')
@@ -348,7 +348,7 @@ class Expr
      * @see Builder::diacriticSensitive()
      * @see http://docs.mongodb.org/manual/reference/operator/text/
      * @param bool $diacriticSensitive
-     * @return self
+     * @return $this
      * @throws BadMethodCallException if the query does not already have $text criteria
      *
      * @since 1.3
@@ -375,7 +375,7 @@ class Expr
      * @see Expr::push()
      * @see http://docs.mongodb.org/manual/reference/operator/each/
      * @param array $values
-     * @return self
+     * @return $this
      */
     public function each(array $values)
     {
@@ -388,7 +388,7 @@ class Expr
      * @see Builder::elemMatch()
      * @see http://docs.mongodb.org/manual/reference/operator/elemMatch/
      * @param array|Expr $expression
-     * @return self
+     * @return $this
      */
     public function elemMatch($expression)
     {
@@ -400,7 +400,7 @@ class Expr
      *
      * @see Builder::equals()
      * @param mixed $value
-     * @return self
+     * @return $this
      */
     public function equals($value)
     {
@@ -418,7 +418,7 @@ class Expr
      * @see Builder::exists()
      * @see http://docs.mongodb.org/manual/reference/operator/exists/
      * @param boolean $bool
-     * @return self
+     * @return $this
      */
     public function exists($bool)
     {
@@ -430,7 +430,7 @@ class Expr
      *
      * @see Builder::field()
      * @param string $field
-     * @return self
+     * @return $this
      */
     public function field($field)
     {
@@ -447,7 +447,7 @@ class Expr
      * @see Builder::geoIntersects()
      * @see http://docs.mongodb.org/manual/reference/operator/geoIntersects/
      * @param array|Geometry $geometry
-     * @return self
+     * @return $this
      */
     public function geoIntersects($geometry)
     {
@@ -467,7 +467,7 @@ class Expr
      * @see Builder::geoWithin()
      * @see http://docs.mongodb.org/manual/reference/operator/geoIntersects/
      * @param array|Geometry $geometry
-     * @return self
+     * @return $this
      */
     public function geoWithin($geometry)
     {
@@ -493,7 +493,7 @@ class Expr
      * @param float $y1
      * @param float $x2
      * @param float $y2
-     * @return self
+     * @return $this
      */
     public function geoWithinBox($x1, $y1, $x2, $y2)
     {
@@ -513,7 +513,7 @@ class Expr
      * @param float $x
      * @param float $y
      * @param float $radius
-     * @return self
+     * @return $this
      */
     public function geoWithinCenter($x, $y, $radius)
     {
@@ -532,7 +532,7 @@ class Expr
      * @param float $x
      * @param float $y
      * @param float $radius
-     * @return self
+     * @return $this
      */
     public function geoWithinCenterSphere($x, $y, $radius)
     {
@@ -555,7 +555,7 @@ class Expr
      * @see Builder::geoWithinPolygon()
      * @see http://docs.mongodb.org/manual/reference/operator/polygon/
      * @param array $point,... Three or more point coordinate tuples
-     * @return self
+     * @return $this
      * @throws InvalidArgumentException if less than three points are given
      */
     public function geoWithinPolygon(/* array($x1, $y1), ... */)
@@ -595,7 +595,7 @@ class Expr
      *
      * @see Builder::setNewObj()
      * @param array $newObj
-     * @return self
+     * @return $this
      */
     public function setNewObj(array $newObj)
     {
@@ -618,7 +618,7 @@ class Expr
      *
      * @see Builder::setQueryArray()
      * @param array $query
-     * @return self
+     * @return $this
      */
     public function setQuery(array $query)
     {
@@ -631,7 +631,7 @@ class Expr
      * @see Builder::gt()
      * @see http://docs.mongodb.org/manual/reference/operator/gt/
      * @param mixed $value
-     * @return self
+     * @return $this
      */
     public function gt($value)
     {
@@ -644,7 +644,7 @@ class Expr
      * @see Builder::gte()
      * @see http://docs.mongodb.org/manual/reference/operator/gte/
      * @param mixed $value
-     * @return self
+     * @return $this
      */
     public function gte($value)
     {
@@ -657,7 +657,7 @@ class Expr
      * @see Builder::in()
      * @see http://docs.mongodb.org/manual/reference/operator/in/
      * @param array $values
-     * @return self
+     * @return $this
      */
     public function in(array $values)
     {
@@ -672,7 +672,7 @@ class Expr
      * @see Builder::inc()
      * @see http://docs.mongodb.org/manual/reference/operator/inc/
      * @param float|integer $value
-     * @return self
+     * @return $this
      */
     public function inc($value)
     {
@@ -689,7 +689,7 @@ class Expr
      * @see Builder::language()
      * @see http://docs.mongodb.org/manual/reference/operator/text/
      * @param string $language
-     * @return self
+     * @return $this
      * @throws BadMethodCallException if the query does not already have $text criteria
      */
     public function language($language)
@@ -709,7 +709,7 @@ class Expr
      * @see Builder::lte()
      * @see http://docs.mongodb.org/manual/reference/operator/lte/
      * @param mixed $value
-     * @return self
+     * @return $this
      */
     public function lt($value)
     {
@@ -722,7 +722,7 @@ class Expr
      * @see Builder::lte()
      * @see http://docs.mongodb.org/manual/reference/operator/lte/
      * @param mixed $value
-     * @return self
+     * @return $this
      */
     public function lte($value)
     {
@@ -735,7 +735,7 @@ class Expr
      * @see Builder::max()
      * @see http://docs.mongodb.org/manual/reference/operator/update/max/
      * @param mixed $value
-     * @return self
+     * @return $this
      */
     public function max($value)
     {
@@ -753,7 +753,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/maxDistance/
      * @param float $maxDistance
-     * @return self
+     * @return $this
      * @throws BadMethodCallException if the query does not already have $near or $nearSphere criteria
      */
     public function maxDistance($maxDistance)
@@ -787,7 +787,7 @@ class Expr
      * @see Builder::min()
      * @see http://docs.mongodb.org/manual/reference/operator/update/min/
      * @param mixed $value
-     * @return self
+     * @return $this
      */
     public function min($value)
     {
@@ -805,7 +805,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/minDistance/
      * @param float $minDistance
-     * @return self
+     * @return $this
      * @throws BadMethodCallException if the query does not already have $near or $nearSphere criteria
      */
     public function minDistance($minDistance)
@@ -840,7 +840,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/mod/
      * @param float|integer $divisor
      * @param float|integer $remainder
-     * @return self
+     * @return $this
      */
     public function mod($divisor, $remainder = 0)
     {
@@ -855,7 +855,7 @@ class Expr
      * @see Builder::mul()
      * @see http://docs.mongodb.org/manual/reference/operator/mul/
      * @param float|integer $value
-     * @return self
+     * @return $this
      */
     public function mul($value)
     {
@@ -875,7 +875,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/near/
      * @param float|array|Point $x
      * @param float $y
-     * @return self
+     * @return $this
      */
     public function near($x, $y = null)
     {
@@ -901,7 +901,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/nearSphere/
      * @param float|array|Point $x
      * @param float $y
-     * @return self
+     * @return $this
      */
     public function nearSphere($x, $y = null)
     {
@@ -922,7 +922,7 @@ class Expr
      * @see Builder::not()
      * @see http://docs.mongodb.org/manual/reference/operator/not/
      * @param array|Expr $expression
-     * @return self
+     * @return $this
      */
     public function not($expression)
     {
@@ -935,7 +935,7 @@ class Expr
      * @see Builder::notEqual()
      * @see http://docs.mongodb.org/manual/reference/operator/ne/
      * @param mixed $value
-     * @return self
+     * @return $this
      */
     public function notEqual($value)
     {
@@ -948,7 +948,7 @@ class Expr
      * @see Builder::notIn()
      * @see http://docs.mongodb.org/manual/reference/operator/nin/
      * @param array $values
-     * @return self
+     * @return $this
      */
     public function notIn(array $values)
     {
@@ -963,7 +963,7 @@ class Expr
      *
      * @param string $operator
      * @param mixed $value
-     * @return self
+     * @return $this
      */
     public function operator($operator, $value)
     {
@@ -982,7 +982,7 @@ class Expr
      *
      * @see Builder::popFirst()
      * @see http://docs.mongodb.org/manual/reference/operator/pop/
-     * @return self
+     * @return $this
      */
     public function popFirst()
     {
@@ -996,7 +996,7 @@ class Expr
      *
      * @see Builder::popLast()
      * @see http://docs.mongodb.org/manual/reference/operator/pop/
-     * @return self
+     * @return $this
      */
     public function popLast()
     {
@@ -1013,7 +1013,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/update/position/
      * @param integer $position
-     * @return self
+     * @return $this
      */
     public function position($position)
     {
@@ -1027,7 +1027,7 @@ class Expr
      * @see Builder::pull()
      * @see http://docs.mongodb.org/manual/reference/operator/pull/
      * @param mixed|Expr $valueOrExpression
-     * @return self
+     * @return $this
      */
     public function pull($valueOrExpression)
     {
@@ -1047,7 +1047,7 @@ class Expr
      * @see Builder::pullAll()
      * @see http://docs.mongodb.org/manual/reference/operator/pullAll/
      * @param array $values
-     * @return self
+     * @return $this
      */
     public function pullAll(array $values)
     {
@@ -1073,7 +1073,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/slice/
      * @see http://docs.mongodb.org/manual/reference/operator/sort/
      * @param mixed|Expr $valueOrExpression
-     * @return self
+     * @return $this
      */
     public function push($valueOrExpression)
     {
@@ -1102,7 +1102,7 @@ class Expr
      * @see Builder::pushAll()
      * @see http://docs.mongodb.org/manual/reference/operator/pushAll/
      * @param array $values
-     * @return self
+     * @return $this
      */
     public function pushAll(array $values)
     {
@@ -1120,7 +1120,7 @@ class Expr
      * @see Builder::range()
      * @param mixed $start
      * @param mixed $end
-     * @return self
+     * @return $this
      */
     public function range($start, $end)
     {
@@ -1133,7 +1133,7 @@ class Expr
      * @see Builder::rename()
      * @see http://docs.mongodb.org/manual/reference/operator/rename/
      * @param string $name
-     * @return self
+     * @return $this
      */
     public function rename($name)
     {
@@ -1153,7 +1153,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/set/
      * @param mixed $value
      * @param boolean $atomic
-     * @return self
+     * @return $this
      */
     public function set($value, $atomic = true)
     {
@@ -1191,7 +1191,7 @@ class Expr
      * @see Builder::setOnInsert()
      * @see https://docs.mongodb.org/manual/reference/operator/update/setOnInsert/
      * @param mixed $value
-     * @return self
+     * @return $this
      */
     public function setOnInsert($value)
     {
@@ -1207,7 +1207,7 @@ class Expr
      * @see Builder::size()
      * @see http://docs.mongodb.org/manual/reference/operator/size/
      * @param integer $size
-     * @return self
+     * @return $this
      */
     public function size($size)
     {
@@ -1223,7 +1223,7 @@ class Expr
      *
      * @see http://docs.mongodb.org/manual/reference/operator/slice/
      * @param integer $slice
-     * @return self
+     * @return $this
      */
     public function slice($slice)
     {
@@ -1243,7 +1243,7 @@ class Expr
      * @see http://docs.mongodb.org/manual/reference/operator/sort/
      * @param array|string $fieldName Field name or array of field/order pairs
      * @param int|string $order       Field order (if one field is specified)
-     * @return self
+     * @return $this
      */
     public function sort($fieldName, $order = null)
     {
@@ -1267,7 +1267,7 @@ class Expr
      * @see Builder::text()
      * @see http://docs.mongodb.org/master/reference/operator/query/text/
      * @param string $search
-     * @return self
+     * @return $this
      */
     public function text($search)
     {
@@ -1282,7 +1282,7 @@ class Expr
      * @see Builder::type()
      * @see http://docs.mongodb.org/manual/reference/operator/type/
      * @param integer $type
-     * @return self
+     * @return $this
      */
     public function type($type)
     {
@@ -1322,7 +1322,7 @@ class Expr
      *
      * @see Builder::unsetField()
      * @see http://docs.mongodb.org/manual/reference/operator/unset/
-     * @return self
+     * @return $this
      */
     public function unsetField()
     {
@@ -1337,7 +1337,7 @@ class Expr
      * @see Builder::where()
      * @see http://docs.mongodb.org/manual/reference/operator/where/
      * @param string|\MongoCode $javascript
-     * @return self
+     * @return $this
      */
     public function where($javascript)
     {
@@ -1355,7 +1355,7 @@ class Expr
      * @param float $y1
      * @param float $x2
      * @param float $y2
-     * @return self
+     * @return $this
      */
     public function withinBox($x1, $y1, $x2, $y2)
     {
@@ -1373,7 +1373,7 @@ class Expr
      * @param float $x
      * @param float $y
      * @param float $radius
-     * @return self
+     * @return $this
      */
     public function withinCenter($x, $y, $radius)
     {
@@ -1391,7 +1391,7 @@ class Expr
      * @param float $x
      * @param float $y
      * @param float $radius
-     * @return self
+     * @return $this
      */
     public function withinCenterSphere($x, $y, $radius)
     {
@@ -1412,7 +1412,7 @@ class Expr
      * @see Expr::geoWithinPolygon()
      * @see http://docs.mongodb.org/manual/reference/operator/polygon/
      * @param array $point,... Three or more point coordinate tuples
-     * @return self
+     * @return $this
      * @throws InvalidArgumentException if less than three points are given
      */
     public function withinPolygon(/* array($x1, $y1), array($x2, $y2), ... */)
