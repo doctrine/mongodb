@@ -70,20 +70,4 @@ class EventArgs extends BaseEventArgs
     {
         return $this->options;
     }
-
-    /**
-     * @param $data
-     * @since 1.3
-     */
-    public function setData($data) {
-        $this->data = $data;
-    }
-
-    /**
-     * @param array $options
-     * @since 1.3
-     */
-    public function setOptions(array $options) {
-        $this->options = $options;
-    }
 }

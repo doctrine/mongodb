@@ -364,7 +364,7 @@ class Collection
     public function findAndRemove(array $query, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preFindAndRemove)) {
-            $eventArgs = new EventArgs($this, $query, $options);
+            $eventArgs = new MutableEventArgs($this, $query, $options);
             $this->eventManager->dispatchEvent(Events::preFindAndRemove, $eventArgs);
             $query = $eventArgs->getData();
             $options = $eventArgs->getOptions();
@@ -784,7 +784,7 @@ class Collection
     public function remove(array $query, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preRemove)) {
-            $eventArgs = new EventArgs($this, $query, $options);
+            $eventArgs = new MutableEventArgs($this, $query, $options);
             $this->eventManager->dispatchEvent(Events::preRemove, $eventArgs);
             $query = $eventArgs->getData();
             $options = $eventArgs->getOptions();
