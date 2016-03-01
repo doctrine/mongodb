@@ -102,7 +102,7 @@ class Database
      *                        hash for command cursors (for driver 1.5+ only)
      * @return array
      */
-    public function command(array $command, array $options = array(), &$hash = null)
+    public function command(array $command, array $options = [], &$hash = null)
     {
         $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
 
@@ -132,8 +132,8 @@ class Database
     public function createCollection($name, $cappedOrOptions = false, $size = 0, $max = 0)
     {
         $options = is_array($cappedOrOptions)
-            ? array_merge(array('capped' => false, 'size' => 0, 'max' => 0), $cappedOrOptions)
-            : array('capped' => $cappedOrOptions, 'size' => $size, 'max' => $max);
+            ? array_merge(['capped' => false, 'size' => 0, 'max' => 0], $cappedOrOptions)
+            : ['capped' => $cappedOrOptions, 'size' => $size, 'max' => $max];
 
         $options['capped'] = (boolean) $options['capped'];
         $options['size'] = (integer) $options['size'];
@@ -206,7 +206,7 @@ class Database
      * @see http://php.net/manual/en/mongodb.execute.php
      * @return array
      */
-    public function execute($code, array $args = array())
+    public function execute($code, array $args = [])
     {
         return $this->mongoDB->execute($code, $args);
     }
@@ -394,7 +394,7 @@ class Database
         if ($ok) {
             // Preserve existing tags for non-primary read preferences
             $readPref = $this->getReadPreference();
-            $tags = ! empty($readPref['tagsets']) ? $readPref['tagsets'] : array();
+            $tags = ! empty($readPref['tagsets']) ? $readPref['tagsets'] : [];
             $this->mongoDB->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, $tags);
         } else {
             $this->mongoDB->setReadPreference(\MongoClient::RP_PRIMARY);

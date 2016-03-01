@@ -11,9 +11,9 @@ class MapReduceEventArgsTest extends \PHPUnit_Framework_TestCase
         $invoker = new \stdClass();
         $map = new \MongoCode('');
         $reduce = new \MongoCode('');
-        $out = array('inline' => true);
-        $query = array('x' => 1);
-        $options = array('finalize' => new \MongoCode(''));
+        $out = ['inline' => true];
+        $query = ['x' => 1];
+        $options = ['finalize' => new \MongoCode('')];
 
         $mapReduceEventArgs = new MapReduceEventArgs($invoker, $map, $reduce, $out, $query, $options);
 

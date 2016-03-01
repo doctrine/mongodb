@@ -17,13 +17,13 @@ class LoggableCursorTest extends BaseTest
 
     public function provideLoggedMethods()
     {
-        return array(
-            array('sort', array()),
-            array('skip'),
-            array('limit'),
-            array('hint', array()),
-            array('snapshot'),
-            array('maxTimeMS', array())
-        );
+        return [
+            ['sort', []],
+            ['skip'],
+            ['limit'],
+            ['hint', []],
+            ['snapshot'],
+            ['maxTimeMS', []]
+        ];
     }
 }

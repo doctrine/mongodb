@@ -10,7 +10,7 @@ class DistinctEventArgsTest extends \PHPUnit_Framework_TestCase
     {
         $invoker = new \stdClass();
         $field = 'x';
-        $query = array('y' => 1);
+        $query = ['y' => 1];
 
         $distinctEventArgs = new DistinctEventArgs($invoker, $field, $query);
 

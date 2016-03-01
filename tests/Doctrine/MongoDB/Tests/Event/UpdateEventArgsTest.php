@@ -9,9 +9,9 @@ class UpdateEventArgsTest extends \PHPUnit_Framework_TestCase
     public function testUpdateEventArgs()
     {
         $invoker = new \stdClass();
-        $query = array('x' => 1);
-        $newObj = array('$set' => array('x' => 2));
-        $options = array('upsert' => true);
+        $query = ['x' => 1];
+        $newObj = ['$set' => ['x' => 2]];
+        $options = ['upsert' => true];
 
         $updateEventArgs = new UpdateEventArgs($invoker, $query, $newObj, $options);
 

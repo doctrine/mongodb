@@ -32,11 +32,11 @@ class Configuration
      *
      * @var array
      */
-    protected $attributes = array(
+    protected $attributes = [
         'mongoCmd' => '$',
         'retryConnect' => 0,
         'retryQuery' => 0,
-    );
+    ];
 
     /**
      * Gets the logger callable.

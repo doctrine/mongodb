@@ -21,14 +21,14 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
         $conn->getConfiguration()->setLoggerCallable(function($msg) use (&$called) {
             $called = $msg;
         });
-        $conn->log(array('test'));
-        $this->assertEquals(array('test'), $called);
+        $conn->log(['test']);
+        $this->assertEquals(['test'], $called);
     }
 
     public function testLogShouldDoNothingWithoutLoggerCallable()
     {
         $conn = new Connection();
-        $conn->log(array('test'));
+        $conn->log(['test']);
 
         $this->assertNull($conn->getConfiguration()->getLoggerCallable());
     }
@@ -138,13 +138,13 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
 
         $mongoClient->expects($this->at(1))
             ->method('setReadPreference')
-            ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
+            ->with(\MongoClient::RP_SECONDARY_PREFERRED, [['dc' => 'east']])
             ->will($this->returnValue(true));
 
         $conn = $this->getTestConnection($mongoClient);
 
         $this->assertTrue($conn->setReadPreference(\MongoClient::RP_PRIMARY));
-        $this->assertTrue($conn->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
+        $this->assertTrue($conn->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, [['dc' => 'east']]));
     }
 
     public function testToString()
@@ -166,7 +166,7 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
          * Note: we do not test "wTimeout" conversion, since the driver does not
          * raise a deprecation notice for its usage (see: PHP-1079).
          */
-        $conn = new Connection(null, array('timeout' => 10000));
+        $conn = new Connection(null, ['timeout' => 10000]);
         $conn->initialize();
     }
 
@@ -177,7 +177,7 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
 
     private function getMockMongo()
     {
-        return $this->getMock('Mongo', array(), array(), '', false, false);
+        return $this->getMock('Mongo', [], [], '', false, false);
     }
 
     private function getMockMongoClient()
@@ -189,11 +189,11 @@ class ConnectionTest extends PHPUnit_Framework_TestCase
 
     private function getMockMongoDB()
     {
-        return $this->getMock('MongoDB', array(), array(), '', false, false);
+        return $this->getMock('MongoDB', [], [], '', false, false);
     }
 
     private function getMockMongoCollection()
     {
-        return $this->getMock('MongoCollection', array(), array(), '', false, false);
+        return $this->getMock('MongoCollection', [], [], '', false, false);
     }
 }

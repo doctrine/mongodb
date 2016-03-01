@@ -61,11 +61,11 @@ class Cursor implements CursorInterface
      */
     protected $useIdentifierKeys = true;
 
-    protected $query = array();
-    protected $fields = array();
+    protected $query = [];
+    protected $fields = [];
     protected $hint;
     protected $immortal;
-    protected $options = array();
+    protected $options = [];
     protected $batchSize;
     protected $limit;
     protected $maxTimeMS;
@@ -89,7 +89,7 @@ class Cursor implements CursorInterface
      * @param array        $fields      Selected fields (projection)
      * @param integer      $numRetries  Number of times to retry queries
      */
-    public function __construct(Collection $collection, \MongoCursor $mongoCursor, array $query = array(), array $fields = array(), $numRetries = 0)
+    public function __construct(Collection $collection, \MongoCursor $mongoCursor, array $query = [], array $fields = [], $numRetries = 0)
     {
         $this->collection = $collection;
         $this->mongoCursor = $mongoCursor;

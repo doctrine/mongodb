@@ -11,7 +11,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
      */
     public function testConstructorShouldThrowExceptionForInvalidType()
     {
-        new Query($this->getMockCollection(), array('type' => -1), array());
+        new Query($this->getMockCollection(), ['type' => -1], []);
     }
 
     /**
@@ -23,21 +23,21 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $collection = $this->getMockCollection();
         $collection->expects($this->never())->method($method);
 
-        $query = new Query($collection, array('type' => $type), array());
+        $query = new Query($collection, ['type' => $type], []);
 
         $query->getIterator();
     }
 
     public function provideQueryTypesThatDoNotReturnAnIterator()
     {
-        return array(
-            array(Query::TYPE_FIND_AND_UPDATE, 'findAndUpdate'),
-            array(Query::TYPE_FIND_AND_REMOVE, 'findAndRemove'),
-            array(Query::TYPE_INSERT, 'insert'),
-            array(Query::TYPE_UPDATE, 'update'),
-            array(Query::TYPE_REMOVE, 'remove'),
-            array(Query::TYPE_COUNT, 'count'),
-        );
+        return [
+            [Query::TYPE_FIND_AND_UPDATE, 'findAndUpdate'],
+            [Query::TYPE_FIND_AND_REMOVE, 'findAndRemove'],
+            [Query::TYPE_INSERT, 'insert'],
+            [Query::TYPE_UPDATE, 'update'],
+            [Query::TYPE_REMOVE, 'remove'],
+            [Query::TYPE_COUNT, 'count'],
+        ];
     }
 
     /**
@@ -52,72 +52,72 @@ class QueryTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(null));
 
         // Create a query array with any fields that may be expected to exist
-        $queryArray = array(
+        $queryArray = [
             'type' => $type,
-            'query' => array(),
-            'group' => array('keys' => array(), 'initial' => array(), 'reduce' => '', 'options' => array()),
-            'mapReduce' => array('map' => '', 'reduce' => '', 'out' => '', 'options' => array()),
-            'geoNear' => array('near' => array(), 'options' => array()),
+            'query' => [],
+            'group' => ['keys' => [], 'initial' => [], 'reduce' => '', 'options' => []],
+            'mapReduce' => ['map' => '', 'reduce' => '', 'out' => '', 'options' => []],
+            'geoNear' => ['near' => [], 'options' => []],
             'distinct' => 0,
-        );
+        ];
 
-        $query = new Query($collection, $queryArray, array());
+        $query = new Query($collection, $queryArray, []);
 
         $query->getIterator();
     }
 
     public function provideQueryTypesThatDoReturnAnIterator()
     {
-        return array(
+        return [
             // Skip Query::TYPE_FIND, since prepareCursor() would error first
-            array(Query::TYPE_GROUP, 'group'),
-            array(Query::TYPE_MAP_REDUCE, 'mapReduce'),
-            array(Query::TYPE_DISTINCT, 'distinct'),
-            array(Query::TYPE_GEO_NEAR, 'near'),
-        );
+            [Query::TYPE_GROUP, 'group'],
+            [Query::TYPE_MAP_REDUCE, 'mapReduce'],
+            [Query::TYPE_DISTINCT, 'distinct'],
+            [Query::TYPE_GEO_NEAR, 'near'],
+        ];
     }
 
     public function testFindAndModifyOptionsAreRenamed()
     {
-        $queryArray = array(
+        $queryArray = [
             'type' => Query::TYPE_FIND_AND_REMOVE,
-            'query' => array('type' => 1),
-            'select' => array('_id' => 1),
-        );
+            'query' => ['type' => 1],
+            'select' => ['_id' => 1],
+        ];
 
         $collection = $this->getMockCollection();
         $collection->expects($this->once())
             ->method('findAndRemove')
-            ->with(array('type' => 1), array('fields' => array('_id' => 1)));
+            ->with(['type' => 1], ['fields' => ['_id' => 1]]);
 
-        $query = new Query($collection, $queryArray, array());
+        $query = new Query($collection, $queryArray, []);
         $query->execute();
     }
 
     public function testGroup()
     {
-        $keys = array('a' => 1);
-        $initial = array('count' => 0, 'sum' => 0);
+        $keys = ['a' => 1];
+        $initial = ['count' => 0, 'sum' => 0];
         $reduce = 'function(obj, prev) { prev.count++; prev.sum += obj.a; }';
         $finalize = 'function(obj) { if (obj.count) { obj.avg = obj.sum / obj.count; } else { obj.avg = 0; } }';
 
-        $queryArray = array(
+        $queryArray = [
             'type' => Query::TYPE_GROUP,
-            'group' => array(
+            'group' => [
                 'keys' => $keys,
                 'initial' => $initial,
                 'reduce' => $reduce,
-                'options' => array('finalize' => $finalize),
-            ),
-            'query' => array('type' => 1),
-        );
+                'options' => ['finalize' => $finalize],
+            ],
+            'query' => ['type' => 1],
+        ];
 
         $collection = $this->getMockCollection();
         $collection->expects($this->once())
             ->method('group')
-            ->with($keys, $initial, $reduce, array('finalize' => $finalize, 'cond' => array('type' => 1)));
+            ->with($keys, $initial, $reduce, ['finalize' => $finalize, 'cond' => ['type' => 1]]);
 
-        $query = new Query($collection, $queryArray, array());
+        $query = new Query($collection, $queryArray, []);
         $query->execute();
     }
 
@@ -126,45 +126,45 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $map = 'function() { emit(this.a, 1); }';
         $reduce = 'function(key, values) { return Array.sum(values); }';
 
-        $queryArray = array(
+        $queryArray = [
             'type' => Query::TYPE_MAP_REDUCE,
-            'mapReduce' => array(
+            'mapReduce' => [
                 'map' => $map,
                 'reduce' => $reduce,
                 'out' => 'collection',
-                'options' => array('jsMode' => true),
-            ),
+                'options' => ['jsMode' => true],
+            ],
             'limit' => 10,
-            'query' => array('type' => 1),
-        );
+            'query' => ['type' => 1],
+        ];
 
         $collection = $this->getMockCollection();
         $collection->expects($this->once())
             ->method('mapReduce')
-            ->with($map, $reduce, 'collection', array('type' => 1), array('limit' => 10, 'jsMode' => true));
+            ->with($map, $reduce, 'collection', ['type' => 1], ['limit' => 10, 'jsMode' => true]);
 
-        $query = new Query($collection, $queryArray, array());
+        $query = new Query($collection, $queryArray, []);
         $query->execute();
     }
 
     public function testGeoNearOptionsArePassed()
     {
-        $queryArray = array(
+        $queryArray = [
             'type' => Query::TYPE_GEO_NEAR,
-            'geoNear' => array(
-                'near' => array(1, 1),
-                'options' => array('spherical' => true),
-            ),
+            'geoNear' => [
+                'near' => [1, 1],
+                'options' => ['spherical' => true],
+            ],
             'limit' => 10,
-            'query' => array('type' => 1),
-        );
+            'query' => ['type' => 1],
+        ];
 
         $collection = $this->getMockCollection();
         $collection->expects($this->once())
             ->method('near')
-            ->with(array(1, 1), array('type' => 1), array('num' => 10, 'spherical' => true));
+            ->with([1, 1], ['type' => 1], ['num' => 10, 'spherical' => true]);
 
-        $query = new Query($collection, $queryArray, array());
+        $query = new Query($collection, $queryArray, []);
         $query->execute();
     }
 
@@ -174,29 +174,29 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 
         $collection->expects($this->at(0))
             ->method('getReadPreference')
-            ->will($this->returnValue(array('type' => 'primary')));
+            ->will($this->returnValue(['type' => 'primary']));
 
         $collection->expects($this->at(1))
             ->method('setReadPreference')
-            ->with('secondary', array(array('dc' => 'east')));
+            ->with('secondary', [['dc' => 'east']]);
 
         $collection->expects($this->at(2))
             ->method('count')
-            ->with(array('foo' => 'bar'))
+            ->with(['foo' => 'bar'])
             ->will($this->returnValue(100));
 
         $collection->expects($this->at(3))
             ->method('setReadPreference')
             ->with('primary');
 
-        $queryArray = array(
+        $queryArray = [
             'type' => Query::TYPE_COUNT,
-            'query' => array('foo' => 'bar'),
+            'query' => ['foo' => 'bar'],
             'readPreference' => 'secondary',
-            'readPreferenceTags' => array(array('dc' => 'east')),
-        );
+            'readPreferenceTags' => [['dc' => 'east']],
+        ];
 
-        $query = new Query($collection, $queryArray, array());
+        $query = new Query($collection, $queryArray, []);
 
         $this->assertEquals(100, $query->execute());
     }
@@ -209,29 +209,29 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 
         $collection->expects($this->at(0))
             ->method('getReadPreference')
-            ->will($this->returnValue(array('type' => 'primary')));
+            ->will($this->returnValue(['type' => 'primary']));
 
         $collection->expects($this->at(1))
             ->method('setReadPreference')
-            ->with('secondary', array(array('dc' => 'east')));
+            ->with('secondary', [['dc' => 'east']]);
 
         $collection->expects($this->at(2))
             ->method('count')
-            ->with(array('foo' => 'bar'))
+            ->with(['foo' => 'bar'])
             ->will($this->throwException(new \RuntimeException('count')));
 
         $collection->expects($this->at(3))
             ->method('setReadPreference')
             ->with('primary');
 
-        $queryArray = array(
+        $queryArray = [
             'type' => Query::TYPE_COUNT,
-            'query' => array('foo' => 'bar'),
+            'query' => ['foo' => 'bar'],
             'readPreference' => 'secondary',
-            'readPreferenceTags' => array(array('dc' => 'east')),
-        );
+            'readPreferenceTags' => [['dc' => 'east']],
+        ];
 
-        $query = new Query($collection, $queryArray, array());
+        $query = new Query($collection, $queryArray, []);
 
         $query->execute();
     }
@@ -243,16 +243,16 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 
         $collection->expects($this->once())
             ->method('find')
-            ->with(array('foo' => 'bar'))
+            ->with(['foo' => 'bar'])
             ->will($this->returnValue($cursor));
 
-        $queryArray = array(
+        $queryArray = [
             'type' => Query::TYPE_FIND,
-            'query' => array('foo' => 'bar'),
+            'query' => ['foo' => 'bar'],
             'eagerCursor' => true,
-        );
+        ];
 
-        $query = new Query($collection, $queryArray, array());
+        $query = new Query($collection, $queryArray, []);
 
         $eagerCursor = $query->execute();
 
@@ -267,7 +267,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 
         $collection->expects($this->once())
             ->method('find')
-            ->with(array('foo' => 'bar'))
+            ->with(['foo' => 'bar'])
             ->will($this->returnValue($cursor));
 
         $cursor->expects($this->once())
@@ -275,13 +275,13 @@ class QueryTest extends \PHPUnit_Framework_TestCase
             ->with(false)
             ->will($this->returnValue($cursor));
 
-        $queryArray = array(
+        $queryArray = [
             'type' => Query::TYPE_FIND,
-            'query' => array('foo' => 'bar'),
+            'query' => ['foo' => 'bar'],
             'useIdentifierKeys' => false,
-        );
+        ];
 
-        $query = new Query($collection, $queryArray, array());
+        $query = new Query($collection, $queryArray, []);
 
         $this->assertSame($cursor, $query->execute());
     }
@@ -293,7 +293,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 
         $collection->expects($this->once())
             ->method('find')
-            ->with($this->equalTo(array('foo' => 'bar')))
+            ->with($this->equalTo(['foo' => 'bar']))
             ->will($this->returnValue($cursor));
 
         $cursor->expects($this->once())
@@ -301,13 +301,13 @@ class QueryTest extends \PHPUnit_Framework_TestCase
             ->with($this->equalTo(30000))
             ->will($this->returnValue($cursor));
 
-        $queryArray = array(
+        $queryArray = [
             'type' => Query::TYPE_FIND,
-            'query' => array('foo' => 'bar'),
+            'query' => ['foo' => 'bar'],
             'maxTimeMS' => 30000
-        );
+        ];
 
-        $query = new Query($collection, $queryArray, array());
+        $query = new Query($collection, $queryArray, []);
 
         $this->assertSame($cursor, $query->execute());
     }

@@ -21,8 +21,8 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $database = new Database($this->getMockConnection(), $mongoDB, $this->getMockEventManager());
 
         $hash = true;
-        $this->assertTrue($database->command(array('count' => 'foo'), array(), $hash));
-        $this->assertNull($database->command(array('count' => 'foo'), array()));
+        $this->assertTrue($database->command(['count' => 'foo'], [], $hash));
+        $this->assertNull($database->command(['count' => 'foo'], []));
     }
 
     public function testCreateCollectionWithMultipleArguments()
@@ -31,7 +31,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
         $mongoDB->expects($this->once())
             ->method('createCollection')
-            ->with('foo', array('capped' => true, 'size' => 10485760, 'max' => 0));
+            ->with('foo', ['capped' => true, 'size' => 10485760, 'max' => 0]);
 
         $mongoDB->expects($this->once())
             ->method('selectCollection')
@@ -50,7 +50,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
         $mongoDB->expects($this->once())
             ->method('createCollection')
-            ->with('foo', array('capped' => true, 'size' => 10485760, 'max' => 0, 'autoIndexId' => false,));
+            ->with('foo', ['capped' => true, 'size' => 10485760, 'max' => 0, 'autoIndexId' => false,]);
 
         $mongoDB->expects($this->once())
             ->method('selectCollection')
@@ -58,7 +58,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($this->getMockMongoCollection()));
 
         $database = new Database($this->getMockConnection(), $mongoDB, $this->getMockEventManager());
-        $collection = $database->createCollection('foo', array('capped' => true, 'size' => 10485760, 'autoIndexId' => false));
+        $collection = $database->createCollection('foo', ['capped' => true, 'size' => 10485760, 'autoIndexId' => false]);
 
         $this->assertInstanceOf('Doctrine\MongoDB\Collection', $collection);
     }
@@ -69,7 +69,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
         $mongoDB->expects($this->once())
             ->method('createCollection')
-            ->with('foo', array('capped' => false, 'size' => 0, 'max' => 0));
+            ->with('foo', ['capped' => false, 'size' => 0, 'max' => 0]);
 
         $mongoDB->expects($this->once())
             ->method('selectCollection')
@@ -77,7 +77,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($this->getMockMongoCollection()));
 
         $database = new Database($this->getMockConnection(), $mongoDB, $this->getMockEventManager());
-        $collection = $database->createCollection('foo', array('capped' => 0, 'size' => null, 'max' => null));
+        $collection = $database->createCollection('foo', ['capped' => 0, 'size' => null, 'max' => null]);
 
         $this->assertInstanceOf('Doctrine\MongoDB\Collection', $collection);
     }
@@ -91,9 +91,9 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
         $mongoDB->expects($this->exactly(2))
             ->method('getReadPreference')
-            ->will($this->returnValue(array(
+            ->will($this->returnValue([
                 'type' => \MongoClient::RP_PRIMARY,
-            )));
+            ]));
 
         $mongoDB->expects($this->once())
             ->method('setReadPreference')
@@ -111,14 +111,14 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
         $mongoDB->expects($this->exactly(2))
             ->method('getReadPreference')
-            ->will($this->returnValue(array(
+            ->will($this->returnValue([
                 'type' => \MongoClient::RP_PRIMARY_PREFERRED,
-                'tagsets' => array(array('dc' => 'east')),
-            )));
+                'tagsets' => [['dc' => 'east']],
+            ]));
 
         $mongoDB->expects($this->once())
             ->method('setReadPreference')
-            ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
+            ->with(\MongoClient::RP_SECONDARY_PREFERRED, [['dc' => 'east']])
             ->will($this->returnValue(false));
 
         $database = new Database($this->getMockConnection(), $mongoDB, $this->getMockEventManager());
@@ -137,13 +137,13 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
         $mongoDB->expects($this->at(1))
             ->method('setReadPreference')
-            ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
+            ->with(\MongoClient::RP_SECONDARY_PREFERRED, [['dc' => 'east']])
             ->will($this->returnValue(true));
 
         $database = new Database($this->getMockConnection(), $mongoDB, $this->getMockEventManager());
 
         $this->assertTrue($database->setReadPreference(\MongoClient::RP_PRIMARY));
-        $this->assertTrue($database->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
+        $this->assertTrue($database->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, [['dc' => 'east']]));
     }
 
     public function testSocketTimeoutOptionIsConverted()
@@ -151,11 +151,11 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $mongoDB = $this->getMockMongoDB();
         $mongoDB->expects($this->any())
             ->method('command')
-            ->with(array('count' => 'foo'), array('socketTimeoutMS' => 1000));
+            ->with(['count' => 'foo'], ['socketTimeoutMS' => 1000]);
 
         $database = new Database($this->getMockConnection(), $mongoDB, $this->getMockEventManager());
 
-        $database->command(array('count' => 'foo'), array('timeout' => 1000));
+        $database->command(['count' => 'foo'], ['timeout' => 1000]);
     }
 
     private function getMockConnection()

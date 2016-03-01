@@ -33,9 +33,9 @@ class Project extends Operator
      */
     public function getExpression()
     {
-        return array(
+        return [
             '$project' => $this->expr->getExpression()
-        );
+        ];
     }
 
     /**

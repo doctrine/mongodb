@@ -17,9 +17,9 @@ class CursorTest extends BaseTest
     {
         parent::setUp();
 
-        $this->doc1 = array('name' => 'A');
-        $this->doc2 = array('name' => 'B');
-        $this->doc3 = array('name' => 'C');
+        $this->doc1 = ['name' => 'A'];
+        $this->doc2 = ['name' => 'B'];
+        $this->doc3 = ['name' => 'C'];
 
         $collection = $this->conn->selectCollection(self::$dbName, 'CursorTest');
         $collection->drop();
@@ -28,7 +28,7 @@ class CursorTest extends BaseTest
         $collection->insert($this->doc3);
 
         $this->cursor = $collection->createQueryBuilder()->getQuery()->execute();
-        $this->cursor->sort(array('name' => 1));
+        $this->cursor->sort(['name' => 1]);
     }
 
     /**
@@ -47,8 +47,8 @@ class CursorTest extends BaseTest
         $this->assertEquals($this->doc1, $this->cursor->getSingleResult());
 
         // Make sure limit is restored and cursor is rewound
-        $expected = array($this->doc1, $this->doc2, $this->doc3);
-        $actual = array();
+        $expected = [$this->doc1, $this->doc2, $this->doc3];
+        $actual = [];
         foreach ($this->cursor as $entry) {
             $actual[] = $entry;
         }
@@ -70,14 +70,14 @@ class CursorTest extends BaseTest
     public function testGetSingleResultReturnsNull()
     {
         $collection = $this->conn->selectCollection(self::$dbName, 'tmp');
-        $collection->remove(array());
+        $collection->remove([]);
         $cursor = $collection->createQueryBuilder()->getQuery()->execute();
         $this->assertNull($cursor->getSingleResult());
     }
 
     public function testGetSingleResultWhenIdIsObject()
     {
-        $doc = array('_id' => array('key' => 'value'), 'test' => 'value');
+        $doc = ['_id' => ['key' => 'value'], 'test' => 'value'];
 
         $collection = $this->conn->selectCollection(self::$dbName, 'tmp');
         $collection->insert($doc);
@@ -103,11 +103,11 @@ class CursorTest extends BaseTest
     public function testToArray()
     {
         $this->assertEquals(
-            array(
+            [
                 (string) $this->doc1['_id'] => $this->doc1,
                 (string) $this->doc2['_id'] => $this->doc2,
                 (string) $this->doc3['_id'] => $this->doc3,
-            ),
+            ],
             $this->cursor->toArray()
         );
     }
@@ -117,11 +117,11 @@ class CursorTest extends BaseTest
         $this->cursor->setUseIdentifierKeys(false);
 
         $this->assertEquals(
-            array(
+            [
                 (string) $this->doc1['_id'] => $this->doc1,
                 (string) $this->doc2['_id'] => $this->doc2,
                 (string) $this->doc3['_id'] => $this->doc3,
-            ),
+            ],
             $this->cursor->toArray(true)
         );
     }
@@ -130,7 +130,7 @@ class CursorTest extends BaseTest
     {
         $this->cursor->setUseIdentifierKeys(false);
 
-        $this->assertEquals(array($this->doc1, $this->doc2, $this->doc3), $this->cursor->toArray(false));
+        $this->assertEquals([$this->doc1, $this->doc2, $this->doc3], $this->cursor->toArray(false));
     }
 
     public function testSlaveOkayReadPreferences()
@@ -141,13 +141,13 @@ class CursorTest extends BaseTest
 
         $mongoCursor->expects($this->once())
             ->method('getReadPreference')
-            ->will($this->returnValue(array(
+            ->will($this->returnValue([
                 'type' => \MongoClient::RP_PRIMARY,
-            )));
+            ]));
 
         $mongoCursor->expects($this->at(1))
             ->method('setReadPreference')
-            ->with(\MongoClient::RP_SECONDARY_PREFERRED, array());
+            ->with(\MongoClient::RP_SECONDARY_PREFERRED, []);
 
         $mongoCursor->expects($this->at(2))
             ->method('setReadPreference')
@@ -165,14 +165,14 @@ class CursorTest extends BaseTest
 
         $mongoCursor->expects($this->once())
             ->method('getReadPreference')
-            ->will($this->returnValue(array(
+            ->will($this->returnValue([
                 'type' => \MongoClient::RP_PRIMARY_PREFERRED,
-                'tagsets' => array(array('dc' => 'east')),
-            )));
+                'tagsets' => [['dc' => 'east']],
+            ]));
 
         $mongoCursor->expects($this->once())
             ->method('setReadPreference')
-            ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
+            ->with(\MongoClient::RP_SECONDARY_PREFERRED, [['dc' => 'east']])
             ->will($this->returnValue(false));
 
         $cursor = $this->getTestCursor($this->getMockCollection(), $mongoCursor);
@@ -191,13 +191,13 @@ class CursorTest extends BaseTest
 
         $mongoCursor->expects($this->at(1))
             ->method('setReadPreference')
-            ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
+            ->with(\MongoClient::RP_SECONDARY_PREFERRED, [['dc' => 'east']])
             ->will($this->returnValue(true));
 
         $cursor = $this->getTestCursor($this->getMockCollection(), $mongoCursor);
 
         $this->assertSame($cursor, $cursor->setReadPreference(\MongoClient::RP_PRIMARY));
-        $this->assertSame($cursor, $cursor->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
+        $this->assertSame($cursor, $cursor->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, [['dc' => 'east']]));
     }
 
     /**
@@ -209,30 +209,30 @@ class CursorTest extends BaseTest
 
         $mongoCursor->expects($this->once())
             ->method('sort')
-            ->with(array('x' => $expected));
+            ->with(['x' => $expected]);
 
         $cursor = $this->getTestCursor($this->getMockCollection(), $mongoCursor);
 
-        $cursor->sort(array('x' => $actual));
+        $cursor->sort(['x' => $actual]);
     }
 
     public function provideSortOrderValues()
     {
-        return array(
+        return [
             // Strings should be compared to "asc"
-            array('asc', 1),
-            array('ASC', 1),
-            array('desc', -1),
-            array('DESC', -1),
-            array('not-asc', -1),
+            ['asc', 1],
+            ['ASC', 1],
+            ['desc', -1],
+            ['DESC', -1],
+            ['not-asc', -1],
             // Scalar values should be cast to integers (even though boolean false doesn't make sense)
-            array(1.0, 1),
-            array(-1.0, -1),
-            array(true, 1),
-            array(false, 0),
+            [1.0, 1],
+            [-1.0, -1],
+            [true, 1],
+            [false, 0],
             // Non-scalar values should be left as-is
-            array(array('$meta' => 'textScore'), array('$meta' => 'textScore')),
-        );
+            [['$meta' => 'textScore'], ['$meta' => 'textScore']],
+        ];
     }
 
     public function testRecreate()
@@ -242,16 +242,16 @@ class CursorTest extends BaseTest
         $setCursorExpectations = function($mongoCursor) use ($self) {
             $mongoCursor->expects($self->once())
                 ->method('hint')
-                ->with(array('x' => 1));
+                ->with(['x' => 1]);
             $mongoCursor->expects($self->once())
                 ->method('immortal')
                 ->with(false);
             $mongoCursor->expects($self->at(2))
                 ->method('addOption')
-                ->with('$min', array('x' => 9000));
+                ->with('$min', ['x' => 9000]);
             $mongoCursor->expects($self->at(3))
                 ->method('addOption')
-                ->with('$max', array('x' => 9999));
+                ->with('$max', ['x' => 9999]);
             $mongoCursor->expects($self->once())
                 ->method('batchSize')
                 ->with(10);
@@ -267,13 +267,13 @@ class CursorTest extends BaseTest
                 ->will($self->returnValue(true));
             $mongoCursor->expects($self->at(8))
                 ->method('setReadPreference')
-                ->with(\MongoClient::RP_NEAREST, array(array('dc' => 'east')))
+                ->with(\MongoClient::RP_NEAREST, [['dc' => 'east']])
                 ->will($self->returnValue(true));
             $mongoCursor->expects($self->once())
                 ->method('snapshot');
             $mongoCursor->expects($self->once())
                 ->method('sort')
-                ->with(array('x' => -1));
+                ->with(['x' => -1]);
             $mongoCursor->expects($self->once())
                 ->method('tailable')
                 ->with(false);
@@ -291,7 +291,7 @@ class CursorTest extends BaseTest
         $mongoCollection = $this->getMockCollection();
         $mongoCollection->expects($this->once())
             ->method('find')
-            ->with(array('x' => 9500), array())
+            ->with(['x' => 9500], [])
             ->will($this->returnValue($recreatedMongoCursor));
 
         $collection = $this->getMockCollection();
@@ -299,20 +299,20 @@ class CursorTest extends BaseTest
             ->method('getMongoCollection')
             ->will($this->returnValue($mongoCollection));
 
-        $cursor = $this->getTestCursor($collection, $mongoCursor, array('x' => 9500));
+        $cursor = $this->getTestCursor($collection, $mongoCursor, ['x' => 9500]);
 
         $cursor
-            ->hint(array('x' => 1))
+            ->hint(['x' => 1])
             ->immortal(false)
-            ->addOption('$min', array('x' => 9000))
-            ->addOption('$max', array('x' => 9999))
+            ->addOption('$min', ['x' => 9000])
+            ->addOption('$max', ['x' => 9999])
             ->batchSize(10)
             ->limit(20)
             ->skip(0)
             ->slaveOkay(false)
-            ->setReadPreference(\MongoClient::RP_NEAREST, array(array('dc' => 'east')))
+            ->setReadPreference(\MongoClient::RP_NEAREST, [['dc' => 'east']])
             ->snapshot()
-            ->sort(array('x' => -1))
+            ->sort(['x' => -1])
             ->tailable(false)
             ->timeout(1000);
 
@@ -338,7 +338,7 @@ class CursorTest extends BaseTest
         $mongoCollection = $this->getMockCollection();
         $mongoCollection->expects($this->once())
             ->method('find')
-            ->with(array('x' => 9500), array())
+            ->with(['x' => 9500], [])
             ->will($this->returnValue($recreatedMongoCursor));
 
         $collection = $this->getMockCollection();
@@ -346,7 +346,7 @@ class CursorTest extends BaseTest
             ->method('getMongoCollection')
             ->will($this->returnValue($mongoCollection));
 
-        $cursor = $this->getTestCursor($collection, $mongoCursor, array('x' => 9500));
+        $cursor = $this->getTestCursor($collection, $mongoCursor, ['x' => 9500]);
 
         $cursor->maxTimeMS(30000);
 
@@ -367,7 +367,7 @@ class CursorTest extends BaseTest
             ->getMock();
     }
 
-    private function getTestCursor(Collection $collection, \MongoCursor $mongoCursor, $query = array())
+    private function getTestCursor(Collection $collection, \MongoCursor $mongoCursor, $query = [])
     {
         return new Cursor($collection, $mongoCursor, $query);
     }

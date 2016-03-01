@@ -18,9 +18,9 @@ class LoggableCollectionTest extends \PHPUnit_Framework_TestCase
         };
 
         $collection = $this->getTestLoggableCollection($loggerCallable);
-        $collection->log(array('test' => 'test'));
+        $collection->log(['test' => 'test']);
 
-        $this->assertEquals(array('collection' => self::collectionName, 'db' => self::databaseName, 'test' => 'test'), $called);
+        $this->assertEquals(['collection' => self::collectionName, 'db' => self::databaseName, 'test' => 'test'], $called);
     }
 
     private function getTestLoggableCollection($loggerCallable)

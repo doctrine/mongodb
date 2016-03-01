@@ -76,7 +76,7 @@ class GridFS extends Collection
      * @param array             $options
      * @return GridFSFile
      */
-    public function storeFile($file, array &$document, array $options = array())
+    public function storeFile($file, array &$document, array $options = [])
     {
         if ( ! $file instanceof GridFSFile) {
             $file = new GridFSFile($file);
@@ -90,7 +90,7 @@ class GridFS extends Collection
             $id = $this->mongoCollection->storeBytes($file->getBytes(), $document, $options);
         }
 
-        $document = array_merge(array('_id' => $id), $document);
+        $document = array_merge(['_id' => $id], $document);
         $gridFsFile = $this->mongoCollection->get($id);
 
         // TODO: Consider throwing exception if file cannot be fetched
@@ -106,7 +106,7 @@ class GridFS extends Collection
      * @param array $a
      * @param array $options
      */
-    protected function doBatchInsert(array &$a, array $options = array())
+    protected function doBatchInsert(array &$a, array $options = [])
     {
         foreach ($a as $key => &$array) {
             $this->doInsert($array, $options);
@@ -122,13 +122,13 @@ class GridFS extends Collection
      * @param array $options
      * @return array|null
      */
-    protected function doFindAndRemove(array $query, array $options = array())
+    protected function doFindAndRemove(array $query, array $options = [])
     {
         $document = parent::doFindAndRemove($query, $options);
 
         if (isset($document)) {
             // Remove the file data from the chunks collection
-            $this->mongoCollection->chunks->remove(array('files_id' => $document['_id']), $options);
+            $this->mongoCollection->chunks->remove(['files_id' => $document['_id']], $options);
         }
 
         return $document;
@@ -146,7 +146,7 @@ class GridFS extends Collection
      * @param array $fields
      * @return array|null
      */
-    protected function doFindOne(array $query = array(), array $fields = array())
+    protected function doFindOne(array $query = [], array $fields = [])
     {
         $mongoCollection = $this->mongoCollection;
         $file = $this->retry(function() use ($mongoCollection, $query, $fields) {
@@ -168,7 +168,7 @@ class GridFS extends Collection
      * @param array $options
      * @return mixed
      */
-    protected function doInsert(array &$a, array $options = array())
+    protected function doInsert(array &$a, array $options = [])
     {
         // If there is no file, perform a basic insertion
         if ( ! isset($a['file'])) {
@@ -200,10 +200,10 @@ class GridFS extends Collection
      * @param array $options
      * @return mixed
      */
-    protected function doSave(array &$a, array $options = array())
+    protected function doSave(array &$a, array $options = [])
     {
         if (isset($a['_id'])) {
-            return $this->doUpdate(array('_id' => $a['_id']), $a, $options);
+            return $this->doUpdate(['_id' => $a['_id']], $a, $options);
         } else {
             return $this->doInsert($a, $options);
         }
@@ -218,7 +218,7 @@ class GridFS extends Collection
      * @param array $options
      * @return array|null
      */
-    protected function doUpdate(array $query, array $newObj, array $options = array())
+    protected function doUpdate(array $query, array $newObj, array $options = [])
     {
         $file = isset($newObj['$set']['file']) ? $newObj['$set']['file'] : null;
         unset($newObj['$set']['file']);
@@ -256,14 +256,14 @@ class GridFS extends Collection
              * prior to storing the file again below. Exclude metadata fields
              * from the result, since those will be reset later.
              */
-            $document = $this->findAndRemove($query, array('fields' => array(
+            $document = $this->findAndRemove($query, ['fields' => [
                 'filename' => 0,
                 'length' => 0,
                 'chunkSize' => 0,
                 'uploadDate' => 0,
                 'md5' => 0,
                 'file' => 0,
-            )));
+            ]]);
 
             /* If findAndRemove() returned nothing (no match or removal), create
              * a new document with the query's "_id" if available.
@@ -273,7 +273,7 @@ class GridFS extends Collection
                  * so default to an empty array for now. Otherwise, we can do
                  * without that update and store $newObj now.
                  */
-                $document = $newObjHasModifiers ? array() : $newObj;
+                $document = $newObjHasModifiers ? [] : $newObj;
 
                 /* If the document has no "_id" but there was one in the query
                  * or $newObj, we can use that instead of having storeFile()

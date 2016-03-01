@@ -14,7 +14,7 @@ class SampleTest extends \PHPUnit_Framework_TestCase
     {
         $sampleStage = new Sample($this->getTestAggregationBuilder(), 10);
 
-        $this->assertSame(array('$sample' => 10), $sampleStage->getExpression());
+        $this->assertSame(['$sample' => 10], $sampleStage->getExpression());
     }
 
     public function testSampleFromBuilder()
@@ -22,6 +22,6 @@ class SampleTest extends \PHPUnit_Framework_TestCase
         $builder = $this->getTestAggregationBuilder();
         $builder->sample(10);
 
-        $this->assertSame(array(array('$sample' => 10)), $builder->getPipeline());
+        $this->assertSame([['$sample' => 10]], $builder->getPipeline());
     }
 }

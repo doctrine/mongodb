@@ -81,10 +81,10 @@ class LoggableCursor extends Cursor implements Loggable
      */
     public function hint($keyPattern)
     {
-        $this->log(array(
+        $this->log([
             'hint' => true,
             'keyPattern' => $keyPattern,
-        ));
+        ]);
 
         return parent::hint($keyPattern);
     }
@@ -94,10 +94,10 @@ class LoggableCursor extends Cursor implements Loggable
      */
     public function limit($num)
     {
-        $this->log(array(
+        $this->log([
             'limit' => true,
             'limitNum' => $num,
-        ));
+        ]);
 
         return parent::limit($num);
     }
@@ -107,10 +107,10 @@ class LoggableCursor extends Cursor implements Loggable
      */
     public function maxTimeMS($ms)
     {
-        $this->log(array(
+        $this->log([
             'maxTimeMS' => true,
             'maxTimeMSNum' => $ms,
-        ));
+        ]);
 
         return parent::maxTimeMS($ms);
     }
@@ -120,10 +120,10 @@ class LoggableCursor extends Cursor implements Loggable
      */
     public function skip($num)
     {
-        $this->log(array(
+        $this->log([
             'skip' => true,
             'skipNum' => $num,
-        ));
+        ]);
 
         return parent::skip($num);
     }
@@ -133,9 +133,9 @@ class LoggableCursor extends Cursor implements Loggable
      */
     public function snapshot()
     {
-        $this->log(array(
+        $this->log([
             'snapshot' => true,
-        ));
+        ]);
 
         return parent::snapshot();
     }
@@ -145,10 +145,10 @@ class LoggableCursor extends Cursor implements Loggable
      */
     public function sort($fields)
     {
-        $this->log(array(
+        $this->log([
             'sort' => true,
             'sortFields' => $fields,
-        ));
+        ]);
 
         return parent::sort($fields);
     }

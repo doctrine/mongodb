@@ -9,9 +9,9 @@ class NearEventArgsTest extends \PHPUnit_Framework_TestCase
     public function testNearEventArgs()
     {
         $invoker = new \stdClass();
-        $query = array('x' => 1);
-        $near = array(10, 20);
-        $options = array('limit' => 5);
+        $query = ['x' => 1];
+        $near = [10, 20];
+        $options = ['limit' => 5];
 
         $nearEventArgs = new NearEventArgs($invoker, $query, $near, $options);
 

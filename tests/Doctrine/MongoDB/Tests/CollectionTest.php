@@ -16,17 +16,17 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testAggregateWithPipelineArgument()
     {
-        $pipeline = array(
-            array('$match' => array('_id' => 'bar')),
-            array('$project' => array('_id' => 1)),
-        );
-        $aggregated = array(array('_id' => 'bar'));
-        $commandResult = array('ok' => 1, 'result' => $aggregated);
+        $pipeline = [
+            ['$match' => ['_id' => 'bar']],
+            ['$project' => ['_id' => 1]],
+        ];
+        $aggregated = [['_id' => 'bar']];
+        $commandResult = ['ok' => 1, 'result' => $aggregated];
 
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
-            ->with(array('aggregate' => self::collectionName, 'pipeline' => $pipeline))
+            ->with(['aggregate' => self::collectionName, 'pipeline' => $pipeline])
             ->will($this->returnValue($commandResult));
 
         $coll = $this->getTestCollection($database);
@@ -40,15 +40,15 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testAggregateWithOperatorArguments()
     {
-        $firstOp = array('$match' => array('_id' => 'bar'));
-        $secondOp = array('$project' => array('_id' => 1));
-        $aggregated = array(array('_id' => 'bar'));
-        $commandResult = array('ok' => 1, 'result' => $aggregated);
+        $firstOp = ['$match' => ['_id' => 'bar']];
+        $secondOp = ['$project' => ['_id' => 1]];
+        $aggregated = [['_id' => 'bar']];
+        $commandResult = ['ok' => 1, 'result' => $aggregated];
 
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
-            ->with(array('aggregate' => self::collectionName, 'pipeline' => array($firstOp, $secondOp)))
+            ->with(['aggregate' => self::collectionName, 'pipeline' => [$firstOp, $secondOp]])
             ->will($this->returnValue($commandResult));
 
         $coll = $this->getTestCollection($database);
@@ -62,16 +62,16 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testAggregateShouldReturnCursorForPipelineEndingWithOut()
     {
-        $pipeline = array(
-            array('$match' => array('x' => '1')),
-            array('$out' => 'foo'),
-        );
-        $commandResult = array('ok' => 1);
+        $pipeline = [
+            ['$match' => ['x' => '1']],
+            ['$out' => 'foo'],
+        ];
+        $commandResult = ['ok' => 1];
 
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
-            ->with(array('aggregate' => self::collectionName, 'pipeline' => $pipeline))
+            ->with(['aggregate' => self::collectionName, 'pipeline' => $pipeline])
             ->will($this->returnValue($commandResult));
 
         $collection = $this->getMockCollection();
@@ -93,17 +93,17 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testAggregateWithCursorOption()
     {
-        $pipeline = array(
-            array('$match' => array('_id' => 'bar')),
-            array('$project' => array('_id' => 1)),
-        );
-        $options = array('cursor' => true);
+        $pipeline = [
+            ['$match' => ['_id' => 'bar']],
+            ['$project' => ['_id' => 1]],
+        ];
+        $options = ['cursor' => true];
         $mongoCommandCursor = $this->getMockMongoCommandCursor();
 
         $mongoCollection = $this->getMockMongoCollection();
         $mongoCollection->expects($this->once())
             ->method('aggregateCursor')
-            ->with($pipeline, array())
+            ->with($pipeline, [])
             ->will($this->returnValue($mongoCommandCursor));
 
         $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
@@ -115,11 +115,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testAggregateWithCursorOptionAndBatchSize()
     {
-        $pipeline = array(
-            array('$match' => array('_id' => 'bar')),
-            array('$project' => array('_id' => 1)),
-        );
-        $options = array('cursor' => array('batchSize' => 10));
+        $pipeline = [
+            ['$match' => ['_id' => 'bar']],
+            ['$project' => ['_id' => 1]],
+        ];
+        $options = ['cursor' => ['batchSize' => 10]];
         $mongoCommandCursor = $this->getMockMongoCommandCursor();
 
         $mongoCollection = $this->getMockMongoCollection();
@@ -141,17 +141,17 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('This test is not applicable to drivers without MongoCommandCursor::timeout()');
         }
 
-        $pipeline = array(
-            array('$match' => array('_id' => 'bar')),
-            array('$project' => array('_id' => 1)),
-        );
-        $options = array('cursor' => true, 'socketTimeoutMS' => 1000);
+        $pipeline = [
+            ['$match' => ['_id' => 'bar']],
+            ['$project' => ['_id' => 1]],
+        ];
+        $options = ['cursor' => true, 'socketTimeoutMS' => 1000];
         $mongoCommandCursor = $this->getMockMongoCommandCursor();
 
         $mongoCollection = $this->getMockMongoCollection();
         $mongoCollection->expects($this->once())
             ->method('aggregateCursor')
-            ->with($pipeline, array())
+            ->with($pipeline, [])
             ->will($this->returnValue($mongoCommandCursor));
 
         $mongoCommandCursor->expects($this->once())
@@ -173,16 +173,16 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
-            ->will($this->returnValue(array('ok' => 0)));
+            ->will($this->returnValue(['ok' => 0]));
 
         $coll = $this->getTestCollection($database);
-        $coll->aggregate(array());
+        $coll->aggregate([]);
     }
 
     public function testBatchInsert()
     {
-        $docs = array(array('x' => 1, 'y' => 2));
-        $options = array('w'=> 0);
+        $docs = [['x' => 1, 'y' => 2]];
+        $options = ['w' => 0];
 
         $mongoCollection = $this->getMockMongoCollection();
 
@@ -198,75 +198,75 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testCountWithOptionsArray()
     {
-        $expectedCommand = array(
+        $expectedCommand = [
             'count' => self::collectionName,
-            'query' => (object) array('x' => 1),
+            'query' => (object) ['x' => 1],
             'limit' => 0,
             'skip' => 0,
             'maxTimeMS' => 5000,
-        );
+        ];
 
-        $expectedClientOptions = array('socketTimeoutMS' => 15000);
+        $expectedClientOptions = ['socketTimeoutMS' => 15000];
 
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
             ->with($expectedCommand, $expectedClientOptions)
-            ->will($this->returnValue(array('ok' => 1, 'n' => 3)));
+            ->will($this->returnValue(['ok' => 1, 'n' => 3]));
 
         $coll = $this->getTestCollection($database, $this->getMockMongoCollection());
 
-        $this->assertEquals(3, $coll->count(array('x' => 1), array('maxTimeMS' => 5000, 'socketTimeoutMS' => 15000)));
+        $this->assertEquals(3, $coll->count(['x' => 1], ['maxTimeMS' => 5000, 'socketTimeoutMS' => 15000]));
     }
 
     public function testCountWithParameters()
     {
-        $expectedCommand = array(
+        $expectedCommand = [
             'count' => self::collectionName,
-            'query' => (object) array('x' => 1),
+            'query' => (object) ['x' => 1],
             'limit' => 1,
             'skip' => 1,
-        );
+        ];
 
-        $expectedClientOptions = array();
+        $expectedClientOptions = [];
 
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
             ->with($expectedCommand, $expectedClientOptions)
-            ->will($this->returnValue(array('ok' => 1, 'n' => 1)));
+            ->will($this->returnValue(['ok' => 1, 'n' => 1]));
 
         $coll = $this->getTestCollection($database, $this->getMockMongoCollection());
 
-        $this->assertEquals(1, $coll->count(array('x' => 1), 1, 1));
+        $this->assertEquals(1, $coll->count(['x' => 1], 1, 1));
     }
 
     public function testCountWithoutParameters()
     {
-        $expectedCommand = array(
+        $expectedCommand = [
             'count' => self::collectionName,
-            'query' => (object) array('x' => 1),
+            'query' => (object) ['x' => 1],
             'limit' => 0,
             'skip' => 0,
-        );
+        ];
 
-        $expectedClientOptions = array();
+        $expectedClientOptions = [];
 
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
             ->with($expectedCommand, $expectedClientOptions)
-            ->will($this->returnValue(array('ok' => 1, 'n' => 3)));
+            ->will($this->returnValue(['ok' => 1, 'n' => 3]));
 
         $coll = $this->getTestCollection($database, $this->getMockMongoCollection());
 
-        $this->assertEquals(3, $coll->count(array('x' => 1)));
+        $this->assertEquals(3, $coll->count(['x' => 1]));
     }
 
     public function testCreateDBRef()
     {
-        $document = array('_id' => 1);
-        $dbRef = array('$ref' => 'test', '$id' => 1);
+        $document = ['_id' => 1];
+        $dbRef = ['$ref' => 'test', '$id' => 1];
 
         $mongoCollection = $this->getMockMongoCollection();
 
@@ -286,11 +286,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $mongoCollection->expects($this->once())
             ->method('deleteIndex')
             ->with('foo')
-            ->will($this->returnValue(array()));
+            ->will($this->returnValue([]));
 
         $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
 
-        $this->assertEquals(array(), $coll->deleteIndex('foo'));
+        $this->assertEquals([], $coll->deleteIndex('foo'));
     }
 
     public function testDeleteIndexes()
@@ -298,11 +298,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $mongoCollection = $this->getMockMongoCollection();
         $mongoCollection->expects($this->once())
             ->method('deleteIndexes')
-            ->will($this->returnValue(array()));
+            ->will($this->returnValue([]));
 
         $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
 
-        $this->assertEquals(array(), $coll->deleteIndexes());
+        $this->assertEquals([], $coll->deleteIndexes());
     }
 
     /**
@@ -313,7 +313,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
-            ->will($this->returnValue(array('ok' => 0)));
+            ->will($this->returnValue(['ok' => 0]));
 
         $coll = $this->getTestCollection($database);
         $coll->distinct('foo');
@@ -333,8 +333,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testEnsureIndex()
     {
-        $keys = array('x' => 1);
-        $options = array('w' => 0);
+        $keys = ['x' => 1];
+        $options = ['w' => 0];
 
         $mongoCollection = $this->getMockMongoCollection();
 
@@ -350,8 +350,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testFind()
     {
-        $query = array('x' => 1);
-        $fields = array('x' => 1, 'y' => 1, '_id' => 0);
+        $query = ['x' => 1];
+        $fields = ['x' => 1, 'y' => 1, '_id' => 0];
 
         $mongoCursor = $this->getMockMongoCursor();
 
@@ -370,21 +370,21 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testFindAndRemove()
     {
-        $query = array('completed' => true);
+        $query = ['completed' => true];
 
-        $command = array(
+        $command = [
             'findandmodify' => self::collectionName,
             'query' => (object) $query,
             'remove' => true,
-        );
+        ];
 
-        $document = array('_id' => 1, 'completed' => true);
+        $document = ['_id' => 1, 'completed' => true];
 
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
             ->with($command)
-            ->will($this->returnValue(array('ok' => 1, 'value' => $document)));
+            ->will($this->returnValue(['ok' => 1, 'value' => $document]));
 
         $coll = $this->getTestCollection($database, $this->getMockMongoCollection());
 
@@ -399,32 +399,32 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
-            ->will($this->returnValue(array('ok' => 0)));
+            ->will($this->returnValue(['ok' => 0]));
 
         $coll = $this->getTestCollection($database, $this->getMockMongoCollection());
-        $coll->findAndRemove(array());
+        $coll->findAndRemove([]);
     }
 
     public function testFindAndUpdate()
     {
-        $query = array('inprogress' => false);
-        $newObj = array('$set' => array('inprogress' => true));
-        $options = array('new' => true);
+        $query = ['inprogress' => false];
+        $newObj = ['$set' => ['inprogress' => true]];
+        $options = ['new' => true];
 
-        $command = array(
+        $command = [
             'findandmodify' => self::collectionName,
             'query' => (object) $query,
             'update' => (object) $newObj,
             'new' => true,
-        );
+        ];
 
-        $document = array('_id' => 1, 'inprogress' => true);
+        $document = ['_id' => 1, 'inprogress' => true];
 
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
             ->with($command)
-            ->will($this->returnValue(array('ok' => 1, 'value' => $document)));
+            ->will($this->returnValue(['ok' => 1, 'value' => $document]));
 
         $coll = $this->getTestCollection($database, $this->getMockMongoCollection());
 
@@ -439,17 +439,17 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
-            ->will($this->returnValue(array('ok' => 0)));
+            ->will($this->returnValue(['ok' => 0]));
 
         $coll = $this->getTestCollection($database, $this->getMockMongoCollection());
-        $coll->findAndUpdate(array(), array());
+        $coll->findAndUpdate([], []);
     }
 
     public function testFindOne()
     {
-        $query = array('x' => 1);
-        $fields = array('x' => 1, 'y' => 1, '_id' => 0);
-        $document = array('x' => 1, 'y' => 'foo');
+        $query = ['x' => 1];
+        $fields = ['x' => 1, 'y' => 1, '_id' => 0];
+        $document = ['x' => 1, 'y' => 'foo'];
 
         $mongoCollection = $this->getMockMongoCollection();
 
@@ -465,8 +465,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testGetDBRef()
     {
-        $document = array('_id' => 1);
-        $dbRef = array('$ref' => 'test', '$id' => 1);
+        $document = ['_id' => 1];
+        $dbRef = ['$ref' => 'test', '$id' => 1];
 
         $mongoCollection = $this->getMockMongoCollection();
 
@@ -502,9 +502,9 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $mongoCollection->expects($this->exactly(2))
             ->method('getReadPreference')
-            ->will($this->returnValue(array(
+            ->will($this->returnValue([
                 'type' => \MongoClient::RP_PRIMARY,
-            )));
+            ]));
 
         $mongoCollection->expects($this->once())
             ->method('setReadPreference')
@@ -521,14 +521,14 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $mongoCollection->expects($this->exactly(2))
             ->method('getReadPreference')
-            ->will($this->returnValue(array(
+            ->will($this->returnValue([
                 'type' => \MongoClient::RP_PRIMARY_PREFERRED,
-                'tagsets' => array(array('dc' => 'east')),
-            )));
+                'tagsets' => [['dc' => 'east']],
+            ]));
 
         $mongoCollection->expects($this->once())
             ->method('setReadPreference')
-            ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
+            ->with(\MongoClient::RP_SECONDARY_PREFERRED, [['dc' => 'east']])
             ->will($this->returnValue(false));
 
         $collection = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
@@ -547,37 +547,37 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $mongoCollection->expects($this->at(1))
             ->method('setReadPreference')
-            ->with(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east')))
+            ->with(\MongoClient::RP_SECONDARY_PREFERRED, [['dc' => 'east']])
             ->will($this->returnValue(true));
 
         $collection = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
 
         $this->assertTrue($collection->setReadPreference(\MongoClient::RP_PRIMARY));
-        $this->assertTrue($collection->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, array(array('dc' => 'east'))));
+        $this->assertTrue($collection->setReadPreference(\MongoClient::RP_SECONDARY_PREFERRED, [['dc' => 'east']]));
     }
 
     public function testGroup()
     {
-        $keys = array('category' => 1);
-        $initial = array('items' => array());
+        $keys = ['category' => 1];
+        $initial = ['items' => []];
         $reduce = 'reduce';
-        $options = array('cond' => array('deleted' => false), 'finalize' => 'finalize');
+        $options = ['cond' => ['deleted' => false], 'finalize' => 'finalize'];
 
-        $grouped = array(
-            array('category' => 'fruit', 'items' => array('apple', 'peach', 'banana')),
-            array('category' => 'veggie', 'items' => array('corn', 'broccoli')),
-        );
+        $grouped = [
+            ['category' => 'fruit', 'items' => ['apple', 'peach', 'banana']],
+            ['category' => 'veggie', 'items' => ['corn', 'broccoli']],
+        ];
 
-        $command = array('group' => array(
+        $command = ['group' => [
             'ns' => self::collectionName,
             'initial' => (object) $initial,
             '$reduce' => new \MongoCode('reduce'),
             'cond' => (object) $options['cond'],
             'key' => $keys,
             'finalize' => new \MongoCode('finalize'),
-        ));
+        ]];
 
-        $commandResult = array('ok' => 1, 'retval' => $grouped, 'count' => 5, 'keys' => 2);
+        $commandResult = ['ok' => 1, 'retval' => $grouped, 'count' => 5, 'keys' => 2];
 
         $database = $this->getMockDatabase();
         $database->expects($this->once())
@@ -602,16 +602,16 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
-            ->will($this->returnValue(array('ok' => 0)));
+            ->will($this->returnValue(['ok' => 0]));
 
         $coll = $this->getTestCollection($database);
-        $coll->group(array(), array(), '');
+        $coll->group([], [], '');
     }
 
     public function testInsert()
     {
-        $document = array('x' => 1);
-        $options = array('w' => 0);
+        $document = ['x' => 1];
+        $options = ['w' => 0];
 
         $mongoCollection = $this->getMockMongoCollection();
 
@@ -644,41 +644,41 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function provideIsFieldIndex()
     {
-        $indexInfo = array(
-            array(
+        $indexInfo = [
+            [
                 'name' => '_id_',
                 'ns' => 'test.foo',
-                'key' => array('_id' => 1),
-            ),
-            array(
+                'key' => ['_id' => 1],
+            ],
+            [
                 'name' => 'bar_1_bat_-1',
                 'ns' => 'test.foo',
-                'key' => array('bar' => 1, 'bat' => -1)
-            ),
-        );
+                'key' => ['bar' => 1, 'bat' => -1]
+            ],
+        ];
 
-        return array(
-            array($indexInfo, '_id', true),
-            array($indexInfo, 'bar', true),
-            array($indexInfo, 'bat', true),
-            array($indexInfo, 'baz', false),
-        );
+        return [
+            [$indexInfo, '_id', true],
+            [$indexInfo, 'bar', true],
+            [$indexInfo, 'bat', true],
+            [$indexInfo, 'baz', false],
+        ];
     }
 
     public function testMapReduceWithResultsInline()
     {
         $map = 'map';
         $reduce = 'reduce';
-        $out = array('inline' => true);
-        $query = array('deleted' => false);
-        $options = array('finalize' => 'finalize');
+        $out = ['inline' => true];
+        $query = ['deleted' => false];
+        $options = ['finalize' => 'finalize'];
 
-        $reduced = array(
-            array('category' => 'fruit', 'items' => array('apple', 'peach', 'banana')),
-            array('category' => 'veggie', 'items' => array('corn', 'broccoli')),
-        );
+        $reduced = [
+            ['category' => 'fruit', 'items' => ['apple', 'peach', 'banana']],
+            ['category' => 'veggie', 'items' => ['corn', 'broccoli']],
+        ];
 
-        $commandResult = array('ok' => 1, 'results' => $reduced);
+        $commandResult = ['ok' => 1, 'results' => $reduced];
 
         $database = $this->getMockDatabase();
         $database->expects($this->once())
@@ -688,7 +688,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
                 new ArrayHasKeyAndValue('map', new \MongoCode('map')),
                 new ArrayHasKeyAndValue('reduce', new \MongoCode('reduce')),
                 new ArrayHasKeyAndValue('out', $out),
-                new ArrayHasKeyAndValue('query', (object) array('deleted' => false)),
+                new ArrayHasKeyAndValue('query', (object) ['deleted' => false]),
                 new ArrayHasKeyAndValue('finalize', new \MongoCode('finalize'))
             ))
             ->will($this->returnValue($commandResult));
@@ -715,7 +715,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $database->expects($this->once())
             ->method('command')
             ->with(new ArrayHasKeyAndValue('out', 'outputCollection'))
-            ->will($this->returnValue(array('ok' => 1, 'result' => 'outputCollection')));
+            ->will($this->returnValue(['ok' => 1, 'result' => 'outputCollection']));
 
         $database->expects($this->once())
             ->method('selectCollection')
@@ -738,8 +738,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
-            ->with(new ArrayHasKeyAndValue('out', array('replace' => 'outputCollection', 'db' => 'outputDatabase')))
-            ->will($this->returnValue(array('ok' => 1, 'result' => array('db' => 'outputDatabase', 'collection' => 'outputCollection'))));
+            ->with(new ArrayHasKeyAndValue('out', ['replace' => 'outputCollection', 'db' => 'outputDatabase']))
+            ->will($this->returnValue(['ok' => 1, 'result' => ['db' => 'outputDatabase', 'collection' => 'outputCollection']]));
 
         $connection = $this->getMockConnection();
         $connection->expects($this->once())
@@ -752,7 +752,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($connection));
 
         $coll = $this->getTestCollection($database);
-        $this->assertSame($cursor, $coll->mapReduce('', '', array('replace' => 'outputCollection', 'db' => 'outputDatabase')));
+        $this->assertSame($cursor, $coll->mapReduce('', '', ['replace' => 'outputCollection', 'db' => 'outputDatabase']));
     }
 
     /**
@@ -763,7 +763,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
-            ->will($this->returnValue(array('ok' => 0)));
+            ->will($this->returnValue(['ok' => 0]));
 
         $coll = $this->getTestCollection($database);
         $coll->mapReduce('', '');
@@ -777,10 +777,10 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
-            ->will($this->returnValue(array('ok' => 0)));
+            ->will($this->returnValue(['ok' => 0]));
 
         $coll = $this->getTestCollection($database);
-        $coll->near(array());
+        $coll->near([]);
     }
 
     /**
@@ -788,19 +788,19 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      */
     public function testNear($point, array $near, $spherical)
     {
-        $results = array(
-            array('dis' => 1, 'obj' => array('_id' => 1, 'loc' => array(1, 0))),
-            array('dis' => 2, 'obj' => array('_id' => 2, 'loc' => array(2, 0))),
-        );
+        $results = [
+            ['dis' => 1, 'obj' => ['_id' => 1, 'loc' => [1, 0]]],
+            ['dis' => 2, 'obj' => ['_id' => 2, 'loc' => [2, 0]]],
+        ];
 
-        $command = array(
+        $command = [
             'geoNear' => self::collectionName,
             'near' => $near,
             'spherical' => $spherical,
             'query' => new \stdClass(),
-        );
+        ];
 
-        $commandResult = array('ok' => 1, 'results' => $results);
+        $commandResult = ['ok' => 1, 'results' => $results];
 
         $database = $this->getMockDatabase();
         $database->expects($this->once())
@@ -819,20 +819,20 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function providePoint()
     {
-        $coordinates = array(0, 0);
-        $json = array('type' => 'Point', 'coordinates' => $coordinates);
+        $coordinates = [0, 0];
+        $json = ['type' => 'Point', 'coordinates' => $coordinates];
 
-        return array(
-            'legacy array' => array($coordinates, $coordinates, false),
-            'GeoJSON array' => array($json, $json, true),
-            'GeoJSON object' => array($this->getMockPoint($json), $json, true),
-        );
+        return [
+            'legacy array' => [$coordinates, $coordinates, false],
+            'GeoJSON array' => [$json, $json, true],
+            'GeoJSON object' => [$this->getMockPoint($json), $json, true],
+        ];
     }
 
     public function testRemove()
     {
-        $criteria = array('x' => 1);
-        $options = array('w' => 0);
+        $criteria = ['x' => 1];
+        $options = ['w' => 0];
 
         $mongoCollection = $this->getMockMongoCollection();
 
@@ -848,8 +848,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testSave()
     {
-        $document = array('x' => 1);
-        $options = array('w' => 0);
+        $document = ['x' => 1];
+        $options = ['w' => 0];
 
         $mongoCollection = $this->getMockMongoCollection();
 
@@ -865,9 +865,9 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testUpdate()
     {
-        $criteria = array('x' => 1);
-        $newObj = array('$set' => array('x' => 2));
-        $options = array('w'=> 0);
+        $criteria = ['x' => 1];
+        $newObj = ['$set' => ['x' => 2]];
+        $options = ['w' => 0];
 
         $mongoCollection = $this->getMockMongoCollection();
 
@@ -887,23 +887,23 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     public function testUpdateShouldTriggerErrorForDeprecatedScalarQueryArgument()
     {
         $coll = $this->getTestCollection();
-        $coll->update('id', array());
+        $coll->update('id', []);
     }
 
     public function testUpdateShouldRenameMultiToMultiple()
     {
-        $criteria = array('x' => 1);
-        $newObj = array('$set' => array('x' => 2));
+        $criteria = ['x' => 1];
+        $newObj = ['$set' => ['x' => 2]];
 
         $mongoCollection = $this->getMockMongoCollection();
 
         $mongoCollection->expects($this->once())
             ->method('update')
-            ->with($criteria, $newObj, array('multiple' => true));
+            ->with($criteria, $newObj, ['multiple' => true]);
 
         $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
 
-        $coll->update($criteria, $newObj, array('multi'=> true));
+        $coll->update($criteria, $newObj, ['multi' => true]);
     }
 
     public function testValidate()
@@ -937,12 +937,12 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $mongoCollection = $this->getMockMongoCollection();
         $mongoCollection->expects($this->once())
             ->method('insert')
-            ->with(array('x' => 1), array('w' => 1));
+            ->with(['x' => 1], ['w' => 1]);
 
         $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
 
-        $document = array('x' => 1);
-        $coll->insert($document, array('safe' => true));
+        $document = ['x' => 1];
+        $coll->insert($document, ['safe' => true]);
     }
 
     public function testSocketTimeoutOptionIsConverted()
@@ -950,12 +950,12 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $mongoCollection = $this->getMockMongoCollection();
         $mongoCollection->expects($this->once())
             ->method('insert')
-            ->with(array('x' => 1), array('socketTimeoutMS' => 1000));
+            ->with(['x' => 1], ['socketTimeoutMS' => 1000]);
 
         $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
 
-        $document = array('x' => 1);
-        $coll->insert($document, array('timeout' => 1000));
+        $document = ['x' => 1];
+        $coll->insert($document, ['timeout' => 1000]);
     }
 
     public function testWriteTimeoutOptionIsConverted()
@@ -963,43 +963,43 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $mongoCollection = $this->getMockMongoCollection();
         $mongoCollection->expects($this->once())
             ->method('insert')
-            ->with(array('x' => 1), array('wTimeoutMS' => 1000));
+            ->with(['x' => 1], ['wTimeoutMS' => 1000]);
 
         $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
 
-        $document = array('x' => 1);
-        $coll->insert($document, array('wtimeout' => 1000));
+        $document = ['x' => 1];
+        $coll->insert($document, ['wtimeout' => 1000]);
     }
 
     public function testSplittingOfCommandAndClientOptions()
     {
-        $expectedCommand = array(
+        $expectedCommand = [
             'distinct' => self::collectionName,
             'key' => 'foo',
             'query' => new \stdClass(),
             'maxTimeMS' => 1000,
-        );
+        ];
 
-        $expectedClientOptions = array('socketTimeoutMS' => 2000);
+        $expectedClientOptions = ['socketTimeoutMS' => 2000];
 
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
             ->with($expectedCommand, $expectedClientOptions)
-            ->will($this->returnValue(array('ok' => 1)));
+            ->will($this->returnValue(['ok' => 1]));
 
         $coll = $this->getTestCollection($database);
-        $coll->distinct('foo', array(), array('maxTimeMS' => 1000, 'socketTimeoutMS' => 2000));
+        $coll->distinct('foo', [], ['maxTimeMS' => 1000, 'socketTimeoutMS' => 2000]);
     }
 
     public function testParallelCollectionScan()
     {
         $numCursors = 3;
-        $mongoCommandCursors = array(
+        $mongoCommandCursors = [
             $this->getMockMongoCommandCursor(),
             $this->getMockMongoCommandCursor(),
             $this->getMockMongoCommandCursor(),
-        );
+        ];
 
         $mongoCollection = $this->getMockMongoCollection();
         $mongoCollection->expects($this->once())

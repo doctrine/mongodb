@@ -10,15 +10,15 @@ class FunctionalTest extends BaseTest
     {
         $db = $this->conn->selectDatabase(self::$dbName);
         $coll = $db->createCollection('test');
-        $criteria = array();
-        $newObj = array('$set' => array('test' => 'test'));
+        $criteria = [];
+        $newObj = ['$set' => ['test' => 'test']];
         $coll->upsert($criteria, $newObj);
 
         $check = $coll->findOne();
 
         $this->assertNotNull($coll->findOne());
 
-        $coll->upsert(array('_id' => $check['_id']), array('$set' => array('boo' => 'test')));
+        $coll->upsert(['_id' => $check['_id']], ['$set' => ['boo' => 'test']]);
         $this->assertEquals(1, $coll->find()->count());
         $check = $coll->findOne();
         $this->assertTrue(isset($check['boo']));
@@ -26,23 +26,23 @@ class FunctionalTest extends BaseTest
 
     public function testMapReduce()
     {
-        $data = array(
-            array(
+        $data = [
+            [
                 'username' => 'jones',
                 'likes' => 20,
                 'text' => 'Hello world!'
-            ),
-            array(
+            ],
+            [
                 'username' => 'bob',
                 'likes' => 100,
                 'text' => 'Hello world!'
-            ),
-            array(
+            ],
+            [
                 'username' => 'bob',
                 'likes' => 100,
                 'text' => 'Hello world!'
-            ),
-        );
+            ],
+        ];
 
         $db = $this->conn->selectDatabase(self::$dbName);
         $coll = $db->createCollection('test');
@@ -73,7 +73,7 @@ class FunctionalTest extends BaseTest
         $results = $query->execute();
         $this->assertEquals(2, $results->count());
         $result = $results->getSingleResult();
-        $this->assertEquals(array('count' => 2.0, 'likes' => 200.0, 'test' => 'test'), $result['value']);
+        $this->assertEquals(['count' => 2.0, 'likes' => 200.0, 'test' => 'test'], $result['value']);
     }
 
     public function testIsFieldIndexed()
@@ -82,7 +82,7 @@ class FunctionalTest extends BaseTest
 
         $coll = $db->selectCollection('users');
         $this->assertFalse($coll->isFieldIndexed('test'));
-        $coll->ensureIndex(array('test' => 1));
+        $coll->ensureIndex(['test' => 1]);
         $this->assertTrue($coll->isFieldIndexed('test'));
     }
 
@@ -92,10 +92,10 @@ class FunctionalTest extends BaseTest
 
         $coll = $db->selectCollection('users');
 
-        $document = array('test' => 'jwage');
+        $document = ['test' => 'jwage'];
         $coll->insert($document);
 
-        $coll->update(array('_id' => $document['_id']), array('$set' => array('test' => 'jon')));
+        $coll->update(['_id' => $document['_id']], ['$set' => ['test' => 'jon']]);
 
         $cursor = $coll->find();
         $this->assertInstanceOf('Doctrine\MongoDB\Cursor', $cursor);
@@ -105,17 +105,17 @@ class FunctionalTest extends BaseTest
     {
         $db = $this->conn->selectDatabase(self::$dbName);
         $files = $db->getGridFS('files');
-        $file = array(
+        $file = [
             'title' => 'test file',
             'testing' => 'ok',
             'file' => new GridFSFile(__DIR__.'/FunctionalTest.php')
-        );
+        ];
         $files->insert($file);
 
         $this->assertTrue(isset($file['_id']));
 
         $path = __DIR__.'/BaseTest.php';
-        $files->update(array('_id' => $file['_id']), array('$set' => array('title' => 'test', 'file' => new GridFSFile($path))));
+        $files->update(['_id' => $file['_id']], ['$set' => ['title' => 'test', 'file' => new GridFSFile($path)]]);
 
         $file = $files->find()->getSingleResult();
         $this->assertInstanceOf('Doctrine\MongoDB\GridFSFile', $file['file']);

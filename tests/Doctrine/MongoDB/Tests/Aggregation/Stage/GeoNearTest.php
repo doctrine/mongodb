@@ -18,8 +18,8 @@ class GeoNearTest extends \PHPUnit_Framework_TestCase
             ->field('someField')
             ->equals('someValue');
 
-        $stage = array('near' => array(0, 0), 'spherical' => false, 'distanceField' => 'distance', 'query' => array('someField' => 'someValue'));
-        $this->assertSame(array('$geoNear' => $stage), $geoNearStage->getExpression());
+        $stage = ['near' => [0, 0], 'spherical' => false, 'distanceField' => 'distance', 'query' => ['someField' => 'someValue']];
+        $this->assertSame(['$geoNear' => $stage], $geoNearStage->getExpression());
     }
 
     public function testGeoNearFromBuilder()
@@ -31,8 +31,8 @@ class GeoNearTest extends \PHPUnit_Framework_TestCase
             ->field('someField')
             ->equals('someValue');
 
-        $stage = array('near' => array(0, 0), 'spherical' => false, 'distanceField' => 'distance', 'query' => array('someField' => 'someValue'));
-        $this->assertSame(array(array('$geoNear' => $stage)), $builder->getPipeline());
+        $stage = ['near' => [0, 0], 'spherical' => false, 'distanceField' => 'distance', 'query' => ['someField' => 'someValue']];
+        $this->assertSame([['$geoNear' => $stage]], $builder->getPipeline());
     }
 
     /**
@@ -53,14 +53,14 @@ class GeoNearTest extends \PHPUnit_Framework_TestCase
 
     public static function provideOptionalSettings()
     {
-        return array(
-            'distanceMultiplier' => array('distanceMultiplier', 15.0),
-            'includeLocs' => array('includeLocs', 'dist.location'),
-            'maxDistance' => array('maxDistance', 15.0),
-            'minDistance' => array('minDistance', 15.0),
-            'num' => array('num', 15),
-            'uniqueDocs' => array('uniqueDocs', true),
-        );
+        return [
+            'distanceMultiplier' => ['distanceMultiplier', 15.0],
+            'includeLocs' => ['includeLocs', 'dist.location'],
+            'maxDistance' => ['maxDistance', 15.0],
+            'minDistance' => ['minDistance', 15.0],
+            'num' => ['num', 15],
+            'uniqueDocs' => ['uniqueDocs', true],
+        ];
     }
 
     public function testLimitDoesNotCreateExtraStage()
@@ -70,7 +70,7 @@ class GeoNearTest extends \PHPUnit_Framework_TestCase
             ->geoNear(0, 0)
             ->limit(1);
 
-        $stage = array('near' => array(0, 0), 'spherical' => false, 'distanceField' => null, 'query' => array(), 'num' => 1);
-        $this->assertSame(array(array('$geoNear' => $stage)), $builder->getPipeline());
+        $stage = ['near' => [0, 0], 'spherical' => false, 'distanceField' => null, 'query' => [], 'num' => 1];
+        $this->assertSame([['$geoNear' => $stage]], $builder->getPipeline());
     }
 }

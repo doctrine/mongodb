@@ -51,9 +51,9 @@ class Group extends Stage
      */
     public function getExpression()
     {
-        return array(
+        return [
             '$group' => $this->expr->getExpression()
-        );
+        ];
     }
 
     /**

@@ -68,7 +68,7 @@ class Builder
      * @param array $options
      * @return Iterator
      */
-    public function execute($options = array())
+    public function execute($options = [])
     {
         return $this->collection->aggregate($this->getPipeline(), $options);
     }

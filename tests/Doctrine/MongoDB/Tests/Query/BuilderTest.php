@@ -29,17 +29,17 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 
         $finalize = 'function (key, value) { return value; }';
 
-        $out = array('inline' => true);
+        $out = ['inline' => true];
 
         $qb = $this->getTestQueryBuilder()
-            ->mapReduce($map, $reduce, $out, array('finalize' => $finalize));
+            ->mapReduce($map, $reduce, $out, ['finalize' => $finalize]);
 
-        $expectedMapReduce = array(
+        $expectedMapReduce = [
             'map' => $map,
             'reduce' => $reduce,
-            'out' => array('inline' => true),
-            'options' => array('finalize' => $finalize),
-        );
+            'out' => ['inline' => true],
+            'options' => ['finalize' => $finalize],
+        ];
 
         $this->assertEquals(Query::TYPE_MAP_REDUCE, $qb->getType());
         $this->assertEquals($expectedMapReduce, $qb->debug('mapReduce'));
@@ -73,13 +73,13 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ->finalize($finalize)
             ->field('username')->equals('jwage');
 
-        $expectedQueryArray = array('username' => 'jwage');
-        $expectedMapReduce = array(
+        $expectedQueryArray = ['username' => 'jwage'];
+        $expectedMapReduce = [
             'map' => $map,
             'reduce' => $reduce,
-            'options' => array('finalize' => $finalize),
-            'out' => array('inline' => true),
-        );
+            'options' => ['finalize' => $finalize],
+            'out' => ['inline' => true],
+        ];
 
         $this->assertEquals(Query::TYPE_MAP_REDUCE, $qb->getType());
         $this->assertEquals($expectedQueryArray, $qb->getQueryArray());
@@ -108,10 +108,10 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $qb->addOr($qb->expr()->field('firstName')->equals('Kris'));
         $qb->addOr($qb->expr()->field('firstName')->equals('Chris'));
 
-        $this->assertEquals(array('$or' => array(
-            array('firstName' => 'Kris'),
-            array('firstName' => 'Chris')
-        )), $qb->getQueryArray());
+        $this->assertEquals(['$or' => [
+            ['firstName' => 'Kris'],
+            ['firstName' => 'Chris']
+        ]], $qb->getQueryArray());
     }
 
     public function testThatAndAcceptsAnotherQuery()
@@ -120,12 +120,12 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $qb->addAnd($qb->expr()->field('hits')->gte(1));
         $qb->addAnd($qb->expr()->field('hits')->lt(5));
 
-        $this->assertEquals(array(
-            '$and' => array(
-                array('hits' => array('$gte' => 1)),
-                array('hits' => array('$lt' => 5)),
-            ),
-        ), $qb->getQueryArray());
+        $this->assertEquals([
+            '$and' => [
+                ['hits' => ['$gte' => 1]],
+                ['hits' => ['$lt' => 5]],
+            ],
+        ], $qb->getQueryArray());
     }
 
     public function testThatNorAcceptsAnotherQuery()
@@ -134,33 +134,33 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $qb->addNor($qb->expr()->field('firstName')->equals('Kris'));
         $qb->addNor($qb->expr()->field('firstName')->equals('Chris'));
 
-        $this->assertEquals(array('$nor' => array(
-            array('firstName' => 'Kris'),
-            array('firstName' => 'Chris')
-        )), $qb->getQueryArray());
+        $this->assertEquals(['$nor' => [
+            ['firstName' => 'Kris'],
+            ['firstName' => 'Chris']
+        ]], $qb->getQueryArray());
     }
 
     public function testAddElemMatch()
     {
         $qb = $this->getTestQueryBuilder();
         $qb->field('phonenumbers')->elemMatch($qb->expr()->field('phonenumber')->equals('6155139185'));
-        $expected = array('phonenumbers' => array(
-            '$elemMatch' => array('phonenumber' => '6155139185')
-        ));
+        $expected = ['phonenumbers' => [
+            '$elemMatch' => ['phonenumber' => '6155139185']
+        ]];
         $this->assertEquals($expected, $qb->getQueryArray());
     }
 
     public function testAddNot()
     {
         $qb = $this->getTestQueryBuilder();
-        $qb->field('username')->not($qb->expr()->in(array('boo')));
-        $expected = array(
-            'username' => array(
-                '$not' => array(
-                    '$in' => array('boo')
-                )
-            )
-        );
+        $qb->field('username')->not($qb->expr()->in(['boo']));
+        $expected = [
+            'username' => [
+                '$not' => [
+                    '$in' => ['boo']
+                ]
+            ]
+        ];
         $this->assertEquals($expected, $qb->getQueryArray());
     }
 
@@ -168,9 +168,9 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     {
         $qb = $this->getTestQueryBuilder()
             ->where("function() { return this.username == 'boo' }");
-        $expected = array(
+        $expected = [
             '$where' => "function() { return this.username == 'boo' }"
-        );
+        ];
         $this->assertEquals($expected, $qb->getQueryArray());
     }
 
@@ -181,11 +181,11 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ->upsert(true)
             ->field('username')->set('jwage');
 
-        $expected = array(
-            '$set' => array(
+        $expected = [
+            '$set' => [
                 'username' => 'jwage'
-            )
-        );
+            ]
+        ];
         $this->assertEquals($expected, $qb->getNewObj());
         $this->assertTrue($qb->debug('upsert'));
     }
@@ -197,11 +197,11 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ->multiple(true)
             ->field('username')->set('jwage');
 
-        $expected = array(
-            '$set' => array(
+        $expected = [
+            '$set' => [
                 'username' => 'jwage'
-            )
-        );
+            ]
+        ];
         $this->assertEquals($expected, $qb->getNewObj());
         $this->assertTrue($qb->debug('multiple'));
     }
@@ -214,14 +214,14 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ->set('jwage')
             ->equals('boo');
 
-        $expected = array(
+        $expected = [
             'username' => 'boo'
-        );
+        ];
         $this->assertEquals($expected, $qb->getQueryArray());
 
-        $expected = array('$set' => array(
+        $expected = ['$set' => [
             'username' => 'jwage'
-        ));
+        ]];
         $this->assertEquals($expected, $qb->getNewObj());
     }
 
@@ -232,14 +232,14 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ->field('hits')->inc(5)
             ->field('username')->equals('boo');
 
-        $expected = array(
+        $expected = [
             'username' => 'boo'
-        );
+        ];
         $this->assertEquals($expected, $qb->getQueryArray());
 
-        $expected = array('$inc' => array(
+        $expected = ['$inc' => [
             'hits' => 5
-        ));
+        ]];
         $this->assertEquals($expected, $qb->getNewObj());
     }
 
@@ -250,14 +250,14 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ->field('hits')->unsetField()
             ->field('username')->equals('boo');
 
-        $expected = array(
+        $expected = [
             'username' => 'boo'
-        );
+        ];
         $this->assertEquals($expected, $qb->getQueryArray());
 
-        $expected = array('$unset' => array(
+        $expected = ['$unset' => [
             'hits' => 1
-        ));
+        ]];
         $this->assertEquals($expected, $qb->getNewObj());
     }
 
@@ -270,14 +270,14 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ->field('username')->equals('boo')
             ->field('createDate')->setOnInsert($createDate);
 
-        $expected = array(
+        $expected = [
             'username' => 'boo'
-        );
+        ];
         $this->assertEquals($expected, $qb->getQueryArray());
 
-        $expected = array('$setOnInsert' => array(
+        $expected = ['$setOnInsert' => [
             'createDate' => $createDate
-        ));
+        ]];
         $this->assertEquals($expected, $qb->getNewObj());
     }
 
@@ -288,12 +288,12 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $qb = $this->getTestQueryBuilder();
         $qb->field('createdAt')->range($start, $end);
 
-        $expected = array(
-            'createdAt' => array(
+        $expected = [
+            'createdAt' => [
                 '$gte' => $start,
                 '$lt' => $end
-            )
-        );
+            ]
+        ];
         $this->assertEquals($expected, $qb->getQueryArray());
     }
 
@@ -322,86 +322,86 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideProxiedExprMethods
      */
-    public function testProxiedExprMethods($method, array $args = array())
+    public function testProxiedExprMethods($method, array $args = [])
     {
         $expr = $this->getMockExpr();
         $invocationMocker = $expr->expects($this->once())->method($method);
-        call_user_func_array(array($invocationMocker, 'with'), $args);
+        call_user_func_array([$invocationMocker, 'with'], $args);
 
         $qb = $this->getStubQueryBuilder();
         $qb->setExpr($expr);
 
-        $this->assertSame($qb, call_user_func_array(array($qb, $method), $args));
+        $this->assertSame($qb, call_user_func_array([$qb, $method], $args));
     }
 
     public function provideProxiedExprMethods()
     {
-        return array(
-            'field()' => array('field', array('fieldName')),
-            'equals()' => array('equals', array('value')),
-            'where()' => array('where', array('this.fieldName == 1')),
-            'in()' => array('in', array(array('value1', 'value2'))),
-            'notIn()' => array('notIn', array(array('value1', 'value2'))),
-            'notEqual()' => array('notEqual', array('value')),
-            'gt()' => array('gt', array(1)),
-            'gte()' => array('gte', array(1)),
-            'lt()' => array('gt', array(1)),
-            'lte()' => array('gte', array(1)),
-            'range()' => array('range', array(0, 1)),
-            'size()' => array('size', array(1)),
-            'exists()' => array('exists', array(true)),
-            'type()' => array('type', array(7)),
-            'all()' => array('all', array(array('value1', 'value2'))),
-            'maxDistance' => array('maxDistance', array(5)),
-            'minDistance' => array('minDistance', array(5)),
-            'mod()' => array('mod', array(2, 0)),
-            'near()' => array('near', array(1, 2)),
-            'nearSphere()' => array('nearSphere', array(1, 2)),
-            'withinBox()' => array('withinBox', array(1, 2, 3, 4)),
-            'withinCenter()' => array('withinCenter', array(1, 2, 3)),
-            'withinCenterSphere()' => array('withinCenterSphere', array(1, 2, 3)),
-            'withinPolygon()' => array('withinPolygon', array(array(0, 0), array(1, 1), array(1, 0))),
-            'geoIntersects()' => array('geoIntersects', array($this->getMockGeometry())),
-            'geoWithin()' => array('geoWithin', array($this->getMockGeometry())),
-            'geoWithinBox()' => array('geoWithinBox', array(1, 2, 3, 4)),
-            'geoWithinCenter()' => array('geoWithinCenter', array(1, 2, 3)),
-            'geoWithinCenterSphere()' => array('geoWithinCenterSphere', array(1, 2, 3)),
-            'geoWithinPolygon()' => array('geoWithinPolygon', array(array(0, 0), array(1, 1), array(1, 0))),
-            'inc()' => array('inc', array(1)),
-            'mul()' => array('mul', array(1)),
-            'unsetField()' => array('unsetField'),
-            'setOnInsert()' => array('setOnInsert', array(1)),
-            'push() with value' => array('push', array('value')),
-            'push() with Expr' => array('push', array($this->getMockExpr())),
-            'pushAll()' => array('pushAll', array(array('value1', 'value2'))),
-            'addToSet() with value' => array('addToSet', array('value')),
-            'addToSet() with Expr' => array('addToSet', array($this->getMockExpr())),
-            'addManyToSet()' => array('addManyToSet', array(array('value1', 'value2'))),
-            'popFirst()' => array('popFirst'),
-            'popLast()' => array('popLast'),
-            'pull()' => array('pull', array('value')),
-            'pullAll()' => array('pullAll', array(array('value1', 'value2'))),
-            'addAnd() array' => array('addAnd', array(array())),
-            'addAnd() Expr' => array('addAnd', array($this->getMockExpr())),
-            'addOr() array' => array('addOr', array(array())),
-            'addOr() Expr' => array('addOr', array($this->getMockExpr())),
-            'addNor() array' => array('addNor', array(array())),
-            'addNor() Expr' => array('addNor', array($this->getMockExpr())),
-            'elemMatch() array' => array('elemMatch', array(array())),
-            'elemMatch() Expr' => array('elemMatch', array($this->getMockExpr())),
-            'not()' => array('not', array($this->getMockExpr())),
-            'language()' => array('language', array('en')),
-            'caseSensitive()' => array('caseSensitive', array(true)),
-            'diacriticSensitive()' => array('diacriticSensitive', array(true)),
-            'text()' => array('text', array('foo')),
-            'max()' => array('max', array(1)),
-            'min()' => array('min', array(1)),
-            'comment()' => array('comment', array('A comment explaining what the query does')),
-            'bitsAllClear()' => array('bitsAllClear', array(5)),
-            'bitsAllSet()' => array('bitsAllSet', array(5)),
-            'bitsAnyClear()' => array('bitsAnyClear', array(5)),
-            'bitsAnySet()' => array('bitsAnySet', array(5)),
-        );
+        return [
+            'field()' => ['field', ['fieldName']],
+            'equals()' => ['equals', ['value']],
+            'where()' => ['where', ['this.fieldName == 1']],
+            'in()' => ['in', [['value1', 'value2']]],
+            'notIn()' => ['notIn', [['value1', 'value2']]],
+            'notEqual()' => ['notEqual', ['value']],
+            'gt()' => ['gt', [1]],
+            'gte()' => ['gte', [1]],
+            'lt()' => ['gt', [1]],
+            'lte()' => ['gte', [1]],
+            'range()' => ['range', [0, 1]],
+            'size()' => ['size', [1]],
+            'exists()' => ['exists', [true]],
+            'type()' => ['type', [7]],
+            'all()' => ['all', [['value1', 'value2']]],
+            'maxDistance' => ['maxDistance', [5]],
+            'minDistance' => ['minDistance', [5]],
+            'mod()' => ['mod', [2, 0]],
+            'near()' => ['near', [1, 2]],
+            'nearSphere()' => ['nearSphere', [1, 2]],
+            'withinBox()' => ['withinBox', [1, 2, 3, 4]],
+            'withinCenter()' => ['withinCenter', [1, 2, 3]],
+            'withinCenterSphere()' => ['withinCenterSphere', [1, 2, 3]],
+            'withinPolygon()' => ['withinPolygon', [[0, 0], [1, 1], [1, 0]]],
+            'geoIntersects()' => ['geoIntersects', [$this->getMockGeometry()]],
+            'geoWithin()' => ['geoWithin', [$this->getMockGeometry()]],
+            'geoWithinBox()' => ['geoWithinBox', [1, 2, 3, 4]],
+            'geoWithinCenter()' => ['geoWithinCenter', [1, 2, 3]],
+            'geoWithinCenterSphere()' => ['geoWithinCenterSphere', [1, 2, 3]],
+            'geoWithinPolygon()' => ['geoWithinPolygon', [[0, 0], [1, 1], [1, 0]]],
+            'inc()' => ['inc', [1]],
+            'mul()' => ['mul', [1]],
+            'unsetField()' => ['unsetField'],
+            'setOnInsert()' => ['setOnInsert', [1]],
+            'push() with value' => ['push', ['value']],
+            'push() with Expr' => ['push', [$this->getMockExpr()]],
+            'pushAll()' => ['pushAll', [['value1', 'value2']]],
+            'addToSet() with value' => ['addToSet', ['value']],
+            'addToSet() with Expr' => ['addToSet', [$this->getMockExpr()]],
+            'addManyToSet()' => ['addManyToSet', [['value1', 'value2']]],
+            'popFirst()' => ['popFirst'],
+            'popLast()' => ['popLast'],
+            'pull()' => ['pull', ['value']],
+            'pullAll()' => ['pullAll', [['value1', 'value2']]],
+            'addAnd() array' => ['addAnd', [[]]],
+            'addAnd() Expr' => ['addAnd', [$this->getMockExpr()]],
+            'addOr() array' => ['addOr', [[]]],
+            'addOr() Expr' => ['addOr', [$this->getMockExpr()]],
+            'addNor() array' => ['addNor', [[]]],
+            'addNor() Expr' => ['addNor', [$this->getMockExpr()]],
+            'elemMatch() array' => ['elemMatch', [[]]],
+            'elemMatch() Expr' => ['elemMatch', [$this->getMockExpr()]],
+            'not()' => ['not', [$this->getMockExpr()]],
+            'language()' => ['language', ['en']],
+            'caseSensitive()' => ['caseSensitive', [true]],
+            'diacriticSensitive()' => ['diacriticSensitive', [true]],
+            'text()' => ['text', ['foo']],
+            'max()' => ['max', [1]],
+            'min()' => ['min', [1]],
+            'comment()' => ['comment', ['A comment explaining what the query does']],
+            'bitsAllClear()' => ['bitsAllClear', [5]],
+            'bitsAllSet()' => ['bitsAllSet', [5]],
+            'bitsAnyClear()' => ['bitsAnyClear', [5]],
+            'bitsAnySet()' => ['bitsAnySet', [5]],
+        ];
     }
 
     /**
@@ -409,10 +409,10 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
      */
     public function testGeoNearWithSingleArgument($point, array $near, $spherical)
     {
-        $expected = array(
+        $expected = [
             'near' => $near,
-            'options' => array('spherical' => $spherical),
-        );
+            'options' => ['spherical' => $spherical],
+        ];
 
         $qb = $this->getTestQueryBuilder();
 
@@ -423,36 +423,36 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 
     public function providePoint()
     {
-        $coordinates = array(0, 0);
-        $json = array('type' => 'Point', 'coordinates' => $coordinates);
+        $coordinates = [0, 0];
+        $json = ['type' => 'Point', 'coordinates' => $coordinates];
 
-        return array(
-            'legacy array' => array($coordinates, $coordinates, false),
-            'GeoJSON array' => array($json, $json, true),
-            'GeoJSON object' => array($this->getMockPoint($json), $json, true),
-        );
+        return [
+            'legacy array' => [$coordinates, $coordinates, false],
+            'GeoJSON array' => [$json, $json, true],
+            'GeoJSON object' => [$this->getMockPoint($json), $json, true],
+        ];
     }
 
     public function testGeoNearWithBothArguments()
     {
-        $expected = array(
-            'near' => array(0, 0),
-            'options' => array('spherical' => false),
-        );
+        $expected = [
+            'near' => [0, 0],
+            'options' => ['spherical' => false],
+        ];
 
         $qb = $this->getTestQueryBuilder();
 
-        $this->assertSame($qb, $qb->geoNear(array(0, 0)));
+        $this->assertSame($qb, $qb->geoNear([0, 0]));
         $this->assertEquals(Query::TYPE_GEO_NEAR, $qb->getType());
         $this->assertEquals($expected, $qb->debug('geoNear'));
     }
 
     public function testDistanceMultipler()
     {
-        $expected = array(
-            'near' => array(0, 0),
-            'options' => array('spherical' => false, 'distanceMultiplier' => 1),
-        );
+        $expected = [
+            'near' => [0, 0],
+            'options' => ['spherical' => false, 'distanceMultiplier' => 1],
+        ];
 
         $qb = $this->getTestQueryBuilder();
 
@@ -475,15 +475,15 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     public function testMapReduceOptionsRequiresMapReduceCommand()
     {
         $qb = $this->getTestQueryBuilder();
-        $qb->mapReduceOptions(array());
+        $qb->mapReduceOptions([]);
     }
 
     public function testMaxDistanceWithGeoNearCommand()
     {
-        $expected = array(
-            'near' => array(0, 0),
-            'options' => array('spherical' => false, 'maxDistance' => 5),
-        );
+        $expected = [
+            'near' => [0, 0],
+            'options' => ['spherical' => false, 'maxDistance' => 5],
+        ];
 
         $qb = $this->getTestQueryBuilder();
 
@@ -493,10 +493,10 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testMinDistanceWithGeoNearCommand()
     {
-        $expected = array(
-            'near' => array(0, 0),
-            'options' => array('spherical' => false, 'minDistance' => 5),
-        );
+        $expected = [
+            'near' => [0, 0],
+            'options' => ['spherical' => false, 'minDistance' => 5],
+        ];
 
         $qb = $this->getTestQueryBuilder();
 
@@ -515,10 +515,10 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testSpherical()
     {
-        $expected = array(
-            'near' => array(0, 0),
-            'options' => array('spherical' => true),
-        );
+        $expected = [
+            'near' => [0, 0],
+            'options' => ['spherical' => true],
+        ];
 
         $qb = $this->getTestQueryBuilder();
 
@@ -541,7 +541,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     public function testSelect(array $args, array $expected)
     {
         $qb = $this->getTestQueryBuilder();
-        call_user_func_array(array($qb, 'select'), $args);
+        call_user_func_array([$qb, 'select'], $args);
 
         $this->assertEquals($expected, $qb->debug('select'));
     }
@@ -557,7 +557,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     public function testExclude(array $args, array $expected)
     {
         $qb = $this->getTestQueryBuilder();
-        call_user_func_array(array($qb, 'exclude'), $args);
+        call_user_func_array([$qb, 'exclude'], $args);
 
         $this->assertEquals($expected, $qb->debug('select'));
     }
@@ -577,24 +577,24 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     {
         $project = $include ? 1 : 0;
 
-        return array(
-            'multiple arguments' => array(
-                array('foo', 'bar'),
-                array('foo' => $project, 'bar' => $project),
-            ),
-            'no arguments' => array(
-                array(),
-                array(),
-            ),
-            'array argument' => array(
-                array(array('foo', 'bar')),
-                array('foo' => $project, 'bar' => $project),
-            ),
-            'empty array' => array(
-                array(array()),
-                array(),
-            ),
-        );
+        return [
+            'multiple arguments' => [
+                ['foo', 'bar'],
+                ['foo' => $project, 'bar' => $project],
+            ],
+            'no arguments' => [
+                [],
+                [],
+            ],
+            'array argument' => [
+                [['foo', 'bar']],
+                ['foo' => $project, 'bar' => $project],
+            ],
+            'empty array' => [
+                [[]],
+                [],
+            ],
+        ];
     }
 
     public function testSelectSliceWithCount()
@@ -602,7 +602,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $qb = $this->getTestQueryBuilder()
             ->selectSlice('tags', 10);
 
-        $expected = array('tags' => array('$slice' => 10));
+        $expected = ['tags' => ['$slice' => 10]];
 
         $this->assertEquals($expected, $qb->debug('select'));
     }
@@ -612,7 +612,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $qb = $this->getTestQueryBuilder()
             ->selectSlice('tags', -5, 5);
 
-        $expected = array('tags' => array('$slice' => array(-5, 5)));
+        $expected = ['tags' => ['$slice' => [-5, 5]]];
 
         $this->assertEquals($expected, $qb->debug('select'));
     }
@@ -620,9 +620,9 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     public function testSelectElemMatchWithArray()
     {
         $qb = $this->getTestQueryBuilder()
-            ->selectElemMatch('addresses', array('state' => 'ny'));
+            ->selectElemMatch('addresses', ['state' => 'ny']);
 
-        $expected = array('addresses' => array('$elemMatch' => array('state' => 'ny')));
+        $expected = ['addresses' => ['$elemMatch' => ['state' => 'ny']]];
 
         $this->assertEquals($expected, $qb->debug('select'));
     }
@@ -632,7 +632,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $qb = $this->getTestQueryBuilder();
         $qb->selectElemMatch('addresses', $qb->expr()->field('state')->equals('ny'));
 
-        $expected = array('addresses' => array('$elemMatch' => array('state' => 'ny')));
+        $expected = ['addresses' => ['$elemMatch' => ['state' => 'ny']]];
 
         $this->assertEquals($expected, $qb->debug('select'));
     }
@@ -642,7 +642,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $qb = $this->getTestQueryBuilder()
             ->selectMeta('score', 'textScore');
 
-        $expected = array('score' => array('$meta' => 'textScore'));
+        $expected = ['score' => ['$meta' => 'textScore']];
 
         $this->assertEquals($expected, $qb->debug('select'));
     }
@@ -650,10 +650,10 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     public function testSetReadPreference()
     {
         $qb = $this->getTestQueryBuilder();
-        $qb->setReadPreference('secondary', array(array('dc' => 'east')));
+        $qb->setReadPreference('secondary', [['dc' => 'east']]);
 
         $this->assertEquals('secondary', $qb->debug('readPreference'));
-        $this->assertEquals(array(array('dc' => 'east')), $qb->debug('readPreferenceTags'));
+        $this->assertEquals([['dc' => 'east']], $qb->debug('readPreferenceTags'));
     }
 
     public function testSortWithFieldNameAndDefaultOrder()
@@ -661,7 +661,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $qb = $this->getTestQueryBuilder()
             ->sort('foo');
 
-        $this->assertEquals(array('foo' => 1), $qb->debug('sort'));
+        $this->assertEquals(['foo' => 1], $qb->debug('sort'));
     }
 
     /**
@@ -672,27 +672,27 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $qb = $this->getTestQueryBuilder()
             ->sort('foo', $order);
 
-        $this->assertEquals(array('foo' => $expectedOrder), $qb->debug('sort'));
+        $this->assertEquals(['foo' => $expectedOrder], $qb->debug('sort'));
     }
 
     public function provideSortOrders()
     {
-        return array(
-            array(1, 1),
-            array(-1, -1),
-            array('asc', 1),
-            array('desc', -1),
-            array('ASC', 1),
-            array('DESC', -1),
-        );
+        return [
+            [1, 1],
+            [-1, -1],
+            ['asc', 1],
+            ['desc', -1],
+            ['ASC', 1],
+            ['DESC', -1],
+        ];
     }
 
     public function testSortWithArrayOfFieldNameAndOrderPairs()
     {
         $qb = $this->getTestQueryBuilder()
-            ->sort(array('foo' => 1, 'bar' => -1));
+            ->sort(['foo' => 1, 'bar' => -1]);
 
-        $this->assertEquals(array('foo' => 1, 'bar' => -1), $qb->debug('sort'));
+        $this->assertEquals(['foo' => 1, 'bar' => -1], $qb->debug('sort'));
     }
 
     public function testSortMetaDoesProjectMissingField()
@@ -704,8 +704,8 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         /* This will likely yield a server error, but sortMeta() should only set
          * the projection if it doesn't already exist.
          */
-        $this->assertEquals(array('score' => 1), $qb->debug('select'));
-        $this->assertEquals(array('score' => array('$meta' => 'textScore')), $qb->debug('sort'));
+        $this->assertEquals(['score' => 1], $qb->debug('select'));
+        $this->assertEquals(['score' => ['$meta' => 'textScore']], $qb->debug('sort'));
     }
 
     public function testSortMetaDoesNotProjectExistingField()
@@ -713,8 +713,8 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         $qb = $this->getTestQueryBuilder()
             ->sortMeta('score', 'textScore');
 
-        $this->assertEquals(array('score' => array('$meta' => 'textScore')), $qb->debug('select'));
-        $this->assertEquals(array('score' => array('$meta' => 'textScore')), $qb->debug('sort'));
+        $this->assertEquals(['score' => ['$meta' => 'textScore']], $qb->debug('select'));
+        $this->assertEquals(['score' => ['$meta' => 'textScore']], $qb->debug('sort'));
     }
 
     /**
@@ -727,23 +727,23 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ->field('lastUpdated')->currentDate($type)
             ->field('username')->equals('boo');
 
-        $expected = array(
+        $expected = [
             'username' => 'boo'
-        );
+        ];
         $this->assertEquals($expected, $qb->getQueryArray());
 
-        $expected = array('$currentDate' => array(
-            'lastUpdated' => array('$type' => $type)
-        ));
+        $expected = ['$currentDate' => [
+            'lastUpdated' => ['$type' => $type]
+        ]];
         $this->assertEquals($expected, $qb->getNewObj());
     }
 
     public static function provideCurrentDateOptions()
     {
-        return array(
-            array('date'),
-            array('timestamp')
-        );
+        return [
+            ['date'],
+            ['timestamp']
+        ];
     }
 
     /**
@@ -763,14 +763,14 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ->field('flags')->bitAnd(15)
             ->field('username')->equals('boo');
 
-        $expected = array(
+        $expected = [
             'username' => 'boo'
-        );
+        ];
         $this->assertEquals($expected, $qb->getQueryArray());
 
-        $expected = array('$bit' => array(
-            'flags' => array('and' => 15)
-        ));
+        $expected = ['$bit' => [
+            'flags' => ['and' => 15]
+        ]];
         $this->assertEquals($expected, $qb->getNewObj());
     }
 
@@ -781,14 +781,14 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ->field('flags')->bitOr(15)
             ->field('username')->equals('boo');
 
-        $expected = array(
+        $expected = [
             'username' => 'boo'
-        );
+        ];
         $this->assertEquals($expected, $qb->getQueryArray());
 
-        $expected = array('$bit' => array(
-            'flags' => array('or' => 15)
-        ));
+        $expected = ['$bit' => [
+            'flags' => ['or' => 15]
+        ]];
         $this->assertEquals($expected, $qb->getNewObj());
     }
 
@@ -799,14 +799,14 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
             ->field('flags')->bitXor(15)
             ->field('username')->equals('boo');
 
-        $expected = array(
+        $expected = [
             'username' => 'boo'
-        );
+        ];
         $this->assertEquals($expected, $qb->getQueryArray());
 
-        $expected = array('$bit' => array(
-            'flags' => array('xor' => 15)
-        ));
+        $expected = ['$bit' => [
+            'flags' => ['xor' => 15]
+        ]];
         $this->assertEquals($expected, $qb->getNewObj());
     }
 
