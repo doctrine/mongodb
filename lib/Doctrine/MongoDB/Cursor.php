@@ -151,16 +151,14 @@ class Cursor implements CursorInterface
      * @see http://php.net/manual/en/mongocursor.current.php
      * @return array|null
      */
-    public function current()
-    {
-        $current = $this->mongoCursor->current();
-        if ($current instanceof \MongoGridFSFile) {
-            $document = $current->file;
-            $document['file'] = new GridFSFile($current);
-            $current = $document;
-        }
-        return $current;
-    }
+     public function current()
+     {
+         $current = $this->mongoCursor->current();
+         if ($current instanceof \MongoGridFSFile) {
+             $current = $current->file;
+         }
+         return $current;
+     }
 
     /**
      * Wrapper method for MongoCursor::dead().
