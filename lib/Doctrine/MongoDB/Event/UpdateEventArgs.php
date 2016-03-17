@@ -50,23 +50,62 @@ class UpdateEventArgs extends BaseEventArgs
         $this->options = $options;
     }
 
+    /**
+     * @return object
+     */
     public function getInvoker()
     {
         return $this->invoker;
     }
 
+    /**
+     * @return array
+     */
     public function getQuery()
     {
         return $this->query;
     }
 
+    /**
+     * @return array
+     */
     public function getNewObj()
     {
         return $this->newObj;
     }
 
+    /**
+     * @return array
+     */
     public function getOptions()
     {
         return $this->options;
+    }
+
+    /**
+     * @param array $query
+     * @since 1.3
+     */
+    public function setQuery(array $query)
+    {
+        $this->query = $query;
+    }
+
+    /**
+     * @param array $newObj
+     * @since 1.3
+     */
+    public function setNewObj(array $newObj)
+    {
+        $this->newObj = $newObj;
+    }
+
+    /**
+     * @param array $options
+     * @since 1.3
+     */
+    public function setOptions(array $options)
+    {
+        $this->options = $options;
     }
 }

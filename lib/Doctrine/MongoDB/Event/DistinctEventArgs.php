@@ -43,22 +43,49 @@ class DistinctEventArgs extends BaseEventArgs
     public function __construct($invoker, $field, array $query)
     {
         $this->invoker = $invoker;
-        $this->field = $field;
+        $this->field = (string) $field;
         $this->query = $query;
     }
 
+    /**
+     * @return object
+     */
     public function getInvoker()
     {
         return $this->invoker;
     }
 
+    /**
+     * @return string
+     */
     public function getField()
     {
         return $this->field;
     }
 
+    /**
+     * @return array
+     */
     public function getQuery()
     {
         return $this->query;
+    }
+
+    /**
+     * @param $query
+     * @since 1.3
+     */
+    public function setQuery($query)
+    {
+        $this->query = $query;
+    }
+
+    /**
+     * @param string $field
+     * @since 1.3
+     */
+    public function setField($field)
+    {
+        $this->field = (string) $field;
     }
 }

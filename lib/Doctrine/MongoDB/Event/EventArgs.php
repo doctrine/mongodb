@@ -47,16 +47,25 @@ class EventArgs extends BaseEventArgs
         $this->options = $options;
     }
 
+    /**
+     * @return object
+     */
     public function getInvoker()
     {
         return $this->invoker;
     }
 
+    /**
+     * @return mixed|null
+     */
     public function getData()
     {
         return $this->data;
     }
 
+    /**
+     * @return array
+     */
     public function getOptions()
     {
         return $this->options;

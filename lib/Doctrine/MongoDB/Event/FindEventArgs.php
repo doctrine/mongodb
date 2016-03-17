@@ -47,18 +47,45 @@ class FindEventArgs extends BaseEventArgs
         $this->fields = $fields;
     }
 
+    /**
+     * @return object
+     */
     public function getInvoker()
     {
         return $this->invoker;
     }
 
+    /**
+     * @return array
+     */
     public function getQuery()
     {
         return $this->query;
     }
 
+    /**
+     * @return array
+     */
     public function getFields()
     {
         return $this->fields;
+    }
+
+    /**
+     * @param array $query
+     * @since 1.3
+     */
+    public function setQuery(array $query)
+    {
+        $this->query = $query;
+    }
+
+    /**
+     * @param array $fields
+     * @since 1.3
+     */
+    public function setFields(array $fields)
+    {
+        $this->fields = $fields;
     }
 }

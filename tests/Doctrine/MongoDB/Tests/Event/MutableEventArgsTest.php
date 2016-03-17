@@ -18,6 +18,7 @@ class MutableEventArgsTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($data, $mutableEventArgs->getData());
         $this->assertSame($options, $mutableEventArgs->getOptions());
         $this->assertFalse($mutableEventArgs->isDataChanged());
+        $this->assertFalse($mutableEventArgs->isOptionsChanged());
     }
 
     /**
@@ -61,5 +62,47 @@ class MutableEventArgsTest extends \PHPUnit_Framework_TestCase
             array('foo', 'bar'),
             array(1, 1.0),
         );
+    }
+
+    /**
+     * @dataProvider provideChangedOptions
+     */
+    public function testIsOptionsChanged($oldOptions, $newOptions)
+    {
+        $invoker = new \stdClass();
+
+        $mutableEventArgs = new MutableEventArgs($invoker, [], $oldOptions);
+
+        $this->assertFalse($mutableEventArgs->isOptionsChanged());
+        $this->assertSame($oldOptions, $mutableEventArgs->getOptions());
+
+        $mutableEventArgs->setOptions($oldOptions);
+
+        $this->assertSame($oldOptions, $mutableEventArgs->getOptions());
+        $this->assertFalse($mutableEventArgs->isOptionsChanged());
+
+        $mutableEventArgs->setOptions($newOptions);
+
+        $this->assertSame($newOptions, $mutableEventArgs->getOptions());
+        $this->assertTrue($mutableEventArgs->isOptionsChanged());
+
+        $mutableEventArgs->setOptions($newOptions);
+
+        $this->assertSame($newOptions, $mutableEventArgs->getOptions());
+        $this->assertTrue($mutableEventArgs->isOptionsChanged());
+
+        $mutableEventArgs->setOptions($oldOptions);
+
+        $this->assertSame($oldOptions, $mutableEventArgs->getOptions());
+        $this->assertFalse($mutableEventArgs->isOptionsChanged());
+    }
+
+    public function provideChangedOptions()
+    {
+        return [
+            [['foo' => 'bar'], ['foo' => 'baz']],
+            [[], ['foo' => 'bar']],
+            [['foo' => 'bar'], []],
+        ];
     }
 }

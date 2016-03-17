@@ -46,11 +46,17 @@ class AggregateEventArgs extends BaseEventArgs
         $this->options = $options;
     }
 
+    /**
+     * @return object
+     */
     public function getInvoker()
     {
         return $this->invoker;
     }
 
+    /**
+     * @return array
+     */
     public function getPipeline()
     {
         return $this->pipeline;
@@ -58,9 +64,28 @@ class AggregateEventArgs extends BaseEventArgs
 
     /**
      * @since 1.2
+     * @return array
      */
     public function getOptions()
     {
         return $this->options;
+    }
+
+    /**
+     * @param array $pipeline
+     * @since 1.3
+     */
+    public function setPipeline(array $pipeline)
+    {
+        $this->pipeline = $pipeline;
+    }
+
+    /**
+     * @param array $options
+     * @since 1.3
+     */
+    public function setOptions(array $options)
+    {
+        $this->options = $options;
     }
 }
