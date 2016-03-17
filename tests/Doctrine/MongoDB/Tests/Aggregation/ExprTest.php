@@ -164,6 +164,15 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array('$exp' => '$field'), $expr->getExpression());
     }
 
+    public function testExpr()
+    {
+        $expr = new Expr();
+
+        $newExpr = $expr->expr();
+        $this->assertInstanceOf(Expr::class, $newExpr);
+        $this->assertNotSame($newExpr, $expr);
+    }
+
     public function testExpression()
     {
         $nestedExpr = new Expr();

@@ -409,6 +409,18 @@ class Expr
     }
 
     /**
+     * Returns a new expression object
+     *
+     * @return static
+     *
+     * @since 1.3
+     */
+    public function expr()
+    {
+        return new static();
+    }
+
+    /**
      * Allows any expression to be used as a field value.
      *
      * @see http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#aggregation-expressions
