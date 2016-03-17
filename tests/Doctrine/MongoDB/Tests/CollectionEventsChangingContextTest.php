@@ -5,10 +5,10 @@ namespace Doctrine\MongoDB\Tests;
 use Doctrine\Common\EventManager;
 use Doctrine\MongoDB\Events;
 use Doctrine\MongoDB\Event\AggregateEventArgs;
-use Doctrine\MongoDB\Event\EventArgs;
 use Doctrine\MongoDB\Event\FindEventArgs;
 use Doctrine\MongoDB\Event\GroupEventArgs;
 use Doctrine\MongoDB\Event\MapReduceEventArgs;
+use Doctrine\MongoDB\Event\MutableEventArgs;
 use Doctrine\MongoDB\Event\NearEventArgs;
 use Doctrine\MongoDB\Event\UpdateEventArgs;
 
@@ -43,29 +43,6 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
         );
 
         $collection->aggregate($pipeline);
-    }
-
-    public function testBatchInsert()
-    {
-        $data = array('a');
-        $options = array('b');
-
-        $modifiedData = array('c');
-        $modifiedOptions = array('d');
-
-        // This listener will modify the data and options.
-        $preBatchInsertListener = new PreBatchInsertListener($modifiedData, $modifiedOptions);
-
-        $eventManager = new EventManager();
-        $eventManager->addEventListener(array(Events::preBatchInsert), $preBatchInsertListener);
-
-        // Ensure that the modified pipeline and options are sent to the doAggregate call.
-        $collection = $this->getMockCollection(
-            $eventManager,
-            array('doBatchInsert' => [$modifiedData, $modifiedOptions])
-        );
-
-        $collection->batchInsert($data, $options);
     }
 
     public function testFind()
@@ -162,27 +139,6 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
         $collection->findOne($query, $fields);
     }
 
-    public function testDbRef()
-    {
-        $reference = array('a');
-
-        $modifiedReference = array('b');
-
-        // This listener will modify the pipeline and the options.
-        $dbRefListener = new DbRefListener($modifiedReference);
-
-        $eventManager = new EventManager();
-        $eventManager->addEventListener(array(Events::preGetDBRef), $dbRefListener);
-
-        // Ensure that the modified pipeline and options are sent to the doAggregate call.
-        $collection = $this->getMockCollection(
-            $eventManager,
-            array('doGetDBRef' => [$modifiedReference])
-        );
-
-        $collection->getDBRef($reference);
-    }
-
     public function testGroup()
     {
         $keys = array('a');
@@ -208,29 +164,6 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
         );
 
         $collection->group($keys, $initial, $reduce, $options);
-    }
-
-    public function testInsert()
-    {
-        $data = array('a');
-        $options = array('b');
-
-        $modifiedData = array('c');
-        $modifiedOptions = array('d');
-
-        // This listener will modify the data and options.
-        $preInsertListener = new PreInsertListener($modifiedData, $modifiedOptions);
-
-        $eventManager = new EventManager();
-        $eventManager->addEventListener(array(Events::preInsert), $preInsertListener);
-
-        // Ensure that the modified pipeline and options are sent to the doAggregate call.
-        $collection = $this->getMockCollection(
-            $eventManager,
-            array('doInsert' => [$modifiedData, $modifiedOptions])
-        );
-
-        $collection->insert($data, $options);
     }
 
     public function testMapReduce()
@@ -310,29 +243,6 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
         $collection->remove($query, $options);
     }
 
-    public function testSave()
-    {
-        $data = array('a');
-        $options = array('b');
-
-        $modifiedData = array('c');
-        $modifiedOptions = array('d');
-
-        // This listener will modify the data and options.
-        $preSaveListener = new PreSaveListener($modifiedData, $modifiedOptions);
-
-        $eventManager = new EventManager();
-        $eventManager->addEventListener(array(Events::preSave), $preSaveListener);
-
-        // Ensure that the modified pipeline and options are sent to the doAggregate call.
-        $collection = $this->getMockCollection(
-            $eventManager,
-            array('doSave' => [$modifiedData, $modifiedOptions])
-        );
-
-        $collection->save($data, $options);
-    }
-
     public function testUpdate()
     {
         $query = array('a');
@@ -404,21 +314,6 @@ class PreAggregateListener
     }
 }
 
-class PreBatchInsertListener
-{
-    public function __construct(array $data, array $options)
-    {
-        $this->data = $data;
-        $this->options = $options;
-    }
-
-    public function collectionPreBatchInsert(EventArgs $args)
-    {
-        $args->setOptions($this->options);
-        $args->setData($this->data);
-    }
-}
-
 class PreFindListener
 {
     public function __construct(array $query, array $fields)
@@ -442,7 +337,7 @@ class PreFindAndRemoveListener
         $this->options = $options;
     }
 
-    public function collectionPreFindAndRemove(EventArgs $args)
+    public function collectionPreFindAndRemove(MutableEventArgs $args)
     {
         $args->setData($this->query);
         $args->setOptions($this->options);
@@ -498,19 +393,6 @@ class PreFindOneListener
     }
 }
 
-class DbRefListener
-{
-    public function __construct(array $reference)
-    {
-        $this->reference = $reference;
-    }
-
-    public function collectionPreGetDBRef(EventArgs $args)
-    {
-        $args->setData($this->reference);
-    }
-}
-
 class PreGroupListener
 {
     public function __construct(array $keys, array $initial, array $reduce, array $options)
@@ -527,21 +409,6 @@ class PreGroupListener
         $args->setInitial($this->initial);
         $args->setReduce($this->reduce);
         $args->setOptions($this->options);
-    }
-}
-
-class PreInsertListener
-{
-    public function __construct(array $data, array $options)
-    {
-        $this->data = $data;
-        $this->options = $options;
-    }
-
-    public function collectionPreInsert(EventArgs $args)
-    {
-        $args->setOptions($this->options);
-        $args->setData($this->data);
     }
 }
 
@@ -591,22 +458,7 @@ class PreRemoveListener
         $this->options = $options;
     }
 
-    public function collectionPreRemove(EventArgs $args)
-    {
-        $args->setData($this->query);
-        $args->setOptions($this->options);
-    }
-}
-
-class PreSaveListener
-{
-    public function __construct(array $query, array $options)
-    {
-        $this->query = $query;
-        $this->options = $options;
-    }
-
-    public function collectionPreSave(EventArgs $args)
+    public function collectionPreRemove(MutableEventArgs $args)
     {
         $args->setData($this->query);
         $args->setOptions($this->options);

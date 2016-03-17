@@ -28,7 +28,9 @@ namespace Doctrine\MongoDB\Event;
 class MutableEventArgs extends EventArgs
 {
     private $changedData;
+    private $changedOptions;
     private $isDataChanged = false;
+    private $isOptionsChanged = false;
 
     /**
      * @return mixed|null
@@ -53,5 +55,33 @@ class MutableEventArgs extends EventArgs
     public function isDataChanged()
     {
         return $this->isDataChanged;
+    }
+
+    /**
+     * @since 1.3
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->isOptionsChanged ? $this->changedOptions : parent::getOptions();
+    }
+
+    /**
+     * @since 1.3
+     * @param mixed $options
+     */
+    public function setOptions(array $options)
+    {
+        $this->isOptionsChanged = parent::getOptions() !== $options;
+        $this->changedOptions = $this->isOptionsChanged ? $options : null;
+    }
+
+    /**
+     * @since 1.3
+     * @return bool
+     */
+    public function isOptionsChanged()
+    {
+        return $this->isOptionsChanged;
     }
 }

@@ -364,7 +364,7 @@ class Collection
     public function findAndRemove(array $query, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preFindAndRemove)) {
-            $eventArgs = new EventArgs($this, $query, $options);
+            $eventArgs = new MutableEventArgs($this, $query, $options);
             $this->eventManager->dispatchEvent(Events::preFindAndRemove, $eventArgs);
             $query = $eventArgs->getData();
             $options = $eventArgs->getOptions();
@@ -784,7 +784,7 @@ class Collection
     public function remove(array $query, array $options = array())
     {
         if ($this->eventManager->hasListeners(Events::preRemove)) {
-            $eventArgs = new EventArgs($this, $query, $options);
+            $eventArgs = new MutableEventArgs($this, $query, $options);
             $this->eventManager->dispatchEvent(Events::preRemove, $eventArgs);
             $query = $eventArgs->getData();
             $options = $eventArgs->getOptions();
@@ -793,7 +793,9 @@ class Collection
         $result = $this->doRemove($query, $options);
 
         if ($this->eventManager->hasListeners(Events::postRemove)) {
-            $this->eventManager->dispatchEvent(Events::postRemove, new EventArgs($this, $result));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postRemove, $eventArgs);
+            $result = $eventArgs->getData();
         }
 
         return $result;
@@ -858,7 +860,9 @@ class Collection
         $result = $this->doUpdate($query, $newObj, $options);
 
         if ($this->eventManager->hasListeners(Events::postUpdate)) {
-            $this->eventManager->dispatchEvent(Events::postUpdate, new EventArgs($this, $result));
+            $eventArgs = new MutableEventArgs($this, $result);
+            $this->eventManager->dispatchEvent(Events::postUpdate, $eventArgs);
+            $result = $eventArgs->getData();
         }
 
         return $result;
