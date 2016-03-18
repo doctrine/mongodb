@@ -29,23 +29,8 @@ use Doctrine\MongoDB\Aggregation\Stage;
  * @author alcaeus <alcaeus@alcaeus.org>
  * @since 1.2
  */
-class Group extends Stage
+class Group extends Operator
 {
-    /**
-     * @var Expr
-     */
-    protected $expr;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(Builder $builder)
-    {
-        $this->expr = new Expr();
-
-        parent::__construct($builder);
-    }
-
     /**
      * {@inheritdoc}
      */

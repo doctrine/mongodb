@@ -74,4 +74,16 @@ class GroupTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(array(array('$group' => array('_id' => '$field', 'count' => array('$sum' => 1)))), $builder->getPipeline());
     }
+
+    public function testGroupWithOperatorInId()
+    {
+        $groupStage = new Group($this->getTestAggregationBuilder());
+        $groupStage
+            ->field('_id')
+            ->year('$dateField')
+            ->field('count')
+            ->sum(1);
+
+        $this->assertSame(array('$group' => array('_id' => ['$year' => '$dateField'], 'count' => array('$sum' => 1))), $groupStage->getExpression());
+    }
 }
