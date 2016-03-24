@@ -42,7 +42,7 @@ class Builder
     /**
      * @var Stage[]
      */
-    private $stages;
+    private $stages = array();
 
     /**
      * Create a new aggregation builder.
