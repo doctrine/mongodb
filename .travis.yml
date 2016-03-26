@@ -22,7 +22,7 @@ before_script:
   - if [ "x${MONGO_VERSION}" != "x" ]; then php --ri mongo; fi
   - composer self-update
   - if [ "x${MONGODB_VERSION}" != "x" ]; then pecl install -f mongodb-${MONGODB_VERSION}; fi
-  - if [ "x${ADAPTER_VERSION}" != "x" ]; then composer require "alcaeus/mongo-php-adapter=${ADAPTER_VERSION}"; fi
+  - if [ "x${ADAPTER_VERSION}" != "x" ]; then composer require "alcaeus/mongo-php-adapter=${ADAPTER_VERSION}" --ignore-platform-reqs; fi
   - composer update --dev --no-interaction --prefer-source $PREFER_LOWEST
 
 script:
