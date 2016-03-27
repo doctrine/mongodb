@@ -6,16 +6,23 @@ php:
   - 5.6
 
 env:
-  - MONGO_VERSION=1.5.8 PREFER_LOWEST=""
-  - MONGO_VERSION=stable PREFER_LOWEST=""
+  - MONGO_VERSION=1.5.8
+  - MONGO_VERSION=stable
   - MONGO_VERSION=stable PREFER_LOWEST="--prefer-lowest"
+
+matrix:
+  include:
+    - php: 7.0
+      env: ADAPTER_VERSION="^1.0.0" MONGODB_VERSION=stable
 
 services: mongodb
 
 before_script:
-  - yes '' | pecl -q install -f mongo-${MONGO_VERSION}
-  - php --ri mongo
+  - if [ "x${MONGO_VERSION}" != "x" ]; then yes '' | pecl -q install -f mongo-${MONGO_VERSION}; fi
+  - if [ "x${MONGO_VERSION}" != "x" ]; then php --ri mongo; fi
   - composer self-update
+  - if [ "x${MONGODB_VERSION}" != "x" ]; then pecl install -f mongodb-${MONGODB_VERSION}; fi
+  - if [ "x${ADAPTER_VERSION}" != "x" ]; then composer require "alcaeus/mongo-php-adapter=${ADAPTER_VERSION}" --ignore-platform-reqs; fi
   - composer update --dev --no-interaction --prefer-source $PREFER_LOWEST
 
 script:
