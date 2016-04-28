@@ -44,7 +44,7 @@ class GroupEventArgs extends BaseEventArgs
      * @param string|\MongoCode       $reduce
      * @param array                   $options
      */
-    public function __construct($invoker, $keys, array $initial, $reduce, array $options = array())
+    public function __construct($invoker, $keys, array $initial, $reduce, array $options = [])
     {
         $this->invoker = $invoker;
         $this->keys = $keys;

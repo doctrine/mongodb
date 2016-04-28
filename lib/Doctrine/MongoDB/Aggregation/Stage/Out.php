@@ -51,9 +51,9 @@ class Out extends Stage
      */
     public function getExpression()
     {
-        return array(
+        return [
             '$out' => $this->collection
-        );
+        ];
     }
 
     /**

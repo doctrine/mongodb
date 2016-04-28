@@ -37,13 +37,13 @@ class ArrayIteratorTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Countable', new ArrayIterator());
 
         $this->assertCount(0, new ArrayIterator());
-        $this->assertCount(1, new ArrayIterator(array(1)));
-        $this->assertCount(2, new ArrayIterator(array(1, 2)));
+        $this->assertCount(1, new ArrayIterator([1]));
+        $this->assertCount(2, new ArrayIterator([1, 2]));
     }
 
     public function testGetSingleResult()
     {
-        $arrayIterator = new ArrayIterator(array(1, 2, 3));
+        $arrayIterator = new ArrayIterator([1, 2, 3]);
 
         $this->assertSame(1, $arrayIterator->getSingleResult());
 
@@ -63,7 +63,7 @@ class ArrayIteratorTest extends \PHPUnit_Framework_TestCase
 
     public function testIteration()
     {
-        $arrayIterator = new ArrayIterator(array(1, 2, 3));
+        $arrayIterator = new ArrayIterator([1, 2, 3]);
 
         $this->assertInstanceOf('Iterator', $arrayIterator);
 
@@ -98,14 +98,14 @@ class ArrayIteratorTest extends \PHPUnit_Framework_TestCase
 
     public function testToArray()
     {
-        $arrayIterator = new ArrayIterator(array(1, 2, 3));
+        $arrayIterator = new ArrayIterator([1, 2, 3]);
 
-        $this->assertSame(array(1, 2, 3), $arrayIterator->toArray());
+        $this->assertSame([1, 2, 3], $arrayIterator->toArray());
     }
 
     public function testFirstAndLast()
     {
-        $arrayIterator = new ArrayIterator(array(1, 2, 3));
+        $arrayIterator = new ArrayIterator([1, 2, 3]);
 
         $this->assertSame(1, $arrayIterator->first());
         $this->assertSame(3, $arrayIterator->last());

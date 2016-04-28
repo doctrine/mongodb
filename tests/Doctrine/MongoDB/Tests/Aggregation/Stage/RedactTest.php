@@ -22,7 +22,7 @@ class RedactTest extends \PHPUnit_Framework_TestCase
                 '$$REDACT'
             );
 
-        $this->assertSame(array('$redact' => array('$cond' => array('if' => array('$lte' => array('$accessLevel', 3)), 'then' => '$$KEEP', 'else' => '$$REDACT'))), $redactStage->getExpression());
+        $this->assertSame(['$redact' => ['$cond' => ['if' => ['$lte' => ['$accessLevel', 3]], 'then' => '$$KEEP', 'else' => '$$REDACT']]], $redactStage->getExpression());
     }
 
     public function testRedactFromBuilder()
@@ -36,6 +36,6 @@ class RedactTest extends \PHPUnit_Framework_TestCase
                 '$$REDACT'
             );
 
-        $this->assertSame(array(array('$redact' => array('$cond' => array('if' => array('$lte' => array('$accessLevel', 3)), 'then' => '$$KEEP', 'else' => '$$REDACT')))), $builder->getPipeline());
+        $this->assertSame([['$redact' => ['$cond' => ['if' => ['$lte' => ['$accessLevel', 3]], 'then' => '$$KEEP', 'else' => '$$REDACT']]]], $builder->getPipeline());
     }
 }

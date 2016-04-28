@@ -45,7 +45,7 @@ class Builder
      *
      * @var array
      */
-    protected $query = array('type' => Query::TYPE_FIND);
+    protected $query = ['type' => Query::TYPE_FIND];
 
     /**
      * The Expr instance used for building this query.
@@ -454,7 +454,7 @@ class Builder
     public function exclude($fieldName = null)
     {
         if ( ! isset($this->query['select'])) {
-            $this->query['select'] = array();
+            $this->query['select'] = [];
         }
 
         $fieldNames = is_array($fieldName) ? $fieldName : func_get_args();
@@ -607,12 +607,12 @@ class Builder
         }
 
         $this->query['type'] = Query::TYPE_GEO_NEAR;
-        $this->query['geoNear'] = array(
-            'near' => is_array($x) ? $x : array($x, $y),
-            'options' => array(
+        $this->query['geoNear'] = [
+            'near' => is_array($x) ? $x : [$x, $y],
+            'options' => [
                 'spherical' => is_array($x) && isset($x['type']),
-            ),
-        );
+            ],
+        ];
         return $this;
     }
 
@@ -711,7 +711,7 @@ class Builder
      */
     public function geoWithinPolygon(/* array($x1, $y1), ... */)
     {
-        call_user_func_array(array($this->expr, 'geoWithinPolygon'), func_get_args());
+        call_user_func_array([$this->expr, 'geoWithinPolygon'], func_get_args());
         return $this;
     }
 
@@ -745,7 +745,7 @@ class Builder
      * @param array $options
      * @return Query
      */
-    public function getQuery(array $options = array())
+    public function getQuery(array $options = [])
     {
         $query = $this->query;
         $query['query'] = $this->expr->getQuery();
@@ -800,15 +800,15 @@ class Builder
      * @param array $options
      * @return $this
      */
-    public function group($keys, array $initial, $reduce = null, array $options = array())
+    public function group($keys, array $initial, $reduce = null, array $options = [])
     {
         $this->query['type'] = Query::TYPE_GROUP;
-        $this->query['group'] = array(
+        $this->query['group'] = [
             'keys' => $keys,
             'initial' => $initial,
             'reduce' => $reduce,
             'options' => $options,
-        );
+        ];
         return $this;
     }
 
@@ -980,12 +980,12 @@ class Builder
     public function map($map)
     {
         $this->query['type'] = Query::TYPE_MAP_REDUCE;
-        $this->query['mapReduce'] = array(
+        $this->query['mapReduce'] = [
             'map' => $map,
             'reduce' => null,
-            'out' => array('inline' => true),
-            'options' => array(),
-        );
+            'out' => ['inline' => true],
+            'options' => [],
+        ];
         return $this;
     }
 
@@ -999,15 +999,15 @@ class Builder
      * @param array $options
      * @return $this
      */
-    public function mapReduce($map, $reduce, $out = array('inline' => true), array $options = array())
+    public function mapReduce($map, $reduce, $out = ['inline' => true], array $options = [])
     {
         $this->query['type'] = Query::TYPE_MAP_REDUCE;
-        $this->query['mapReduce'] = array(
+        $this->query['mapReduce'] = [
             'map' => $map,
             'reduce' => $reduce,
             'out' => $out,
             'options' => $options
-        );
+        ];
         return $this;
     }
 
@@ -1460,7 +1460,7 @@ class Builder
     public function select($fieldName = null)
     {
         if ( ! isset($this->query['select'])) {
-            $this->query['select'] = array();
+            $this->query['select'] = [];
         }
 
         $fieldNames = is_array($fieldName) ? $fieldName : func_get_args();
@@ -1486,7 +1486,7 @@ class Builder
         if ($expression instanceof Expr) {
             $expression = $expression->getQuery();
         }
-        $this->query['select'][$fieldName] = array('$elemMatch' => $expression);
+        $this->query['select'][$fieldName] = ['$elemMatch' => $expression];
         return $this;
     }
 
@@ -1500,7 +1500,7 @@ class Builder
      */
     public function selectMeta($fieldName, $metaDataKeyword)
     {
-        $this->query['select'][$fieldName] = array('$meta' => $metaDataKeyword);
+        $this->query['select'][$fieldName] = ['$meta' => $metaDataKeyword];
         return $this;
     }
 
@@ -1521,9 +1521,9 @@ class Builder
     {
         $slice = $countOrSkip;
         if ($limit !== null) {
-            $slice = array($slice, $limit);
+            $slice = [$slice, $limit];
         }
-        $this->query['select'][$fieldName] = array('$slice' => $slice);
+        $this->query['select'][$fieldName] = ['$slice' => $slice];
         return $this;
     }
 
@@ -1655,10 +1655,10 @@ class Builder
     public function sort($fieldName, $order = 1)
     {
         if ( ! isset($this->query['sort'])) {
-            $this->query['sort'] = array();
+            $this->query['sort'] = [];
         }
 
-        $fields = is_array($fieldName) ? $fieldName : array($fieldName => $order);
+        $fields = is_array($fieldName) ? $fieldName : [$fieldName => $order];
 
         foreach ($fields as $fieldName => $order) {
             if (is_string($order)) {
@@ -1693,7 +1693,7 @@ class Builder
             $this->selectMeta($fieldName, $metaDataKeyword);
         }
 
-        $this->query['sort'][$fieldName] = array('$meta' => $metaDataKeyword);
+        $this->query['sort'][$fieldName] = ['$meta' => $metaDataKeyword];
 
         return $this;
     }
@@ -1869,7 +1869,7 @@ class Builder
      */
     public function withinPolygon(/* array($x1, $y1), array($x2, $y2), ... */)
     {
-        call_user_func_array(array($this->expr, 'withinPolygon'), func_get_args());
+        call_user_func_array([$this->expr, 'withinPolygon'], func_get_args());
         return $this;
     }
 

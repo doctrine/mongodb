@@ -16,11 +16,11 @@ class ProjectTest extends \PHPUnit_Framework_TestCase
         $projectStage = new Project($this->getTestAggregationBuilder());
         $projectStage
             ->excludeIdField()
-            ->includeFields(array('$field', '$otherField'))
+            ->includeFields(['$field', '$otherField'])
             ->field('product')
             ->multiply('$field', 5);
 
-        $this->assertSame(array('$project' => array('_id' => false, '$field' => true, '$otherField' => true, 'product' => array('$multiply' => array('$field', 5)))), $projectStage->getExpression());
+        $this->assertSame(['$project' => ['_id' => false, '$field' => true, '$otherField' => true, 'product' => ['$multiply' => ['$field', 5]]]], $projectStage->getExpression());
     }
 
     public function testProjectFromBuilder()
@@ -29,11 +29,11 @@ class ProjectTest extends \PHPUnit_Framework_TestCase
         $builder
             ->project()
             ->excludeIdField()
-            ->includeFields(array('$field', '$otherField'))
+            ->includeFields(['$field', '$otherField'])
             ->field('product')
             ->multiply('$field', 5);
 
-        $this->assertSame(array(array('$project' => array('_id' => false, '$field' => true, '$otherField' => true, 'product' => array('$multiply' => array('$field', 5))))), $builder->getPipeline());
+        $this->assertSame([['$project' => ['_id' => false, '$field' => true, '$otherField' => true, 'product' => ['$multiply' => ['$field', 5]]]]], $builder->getPipeline());
     }
 
     /**
@@ -46,29 +46,29 @@ class ProjectTest extends \PHPUnit_Framework_TestCase
             ->field('something')
             ->$operator('$expression1', '$expression2');
 
-        $this->assertSame(array('$project' => array('something' => array('$' . $operator => array('$expression1', '$expression2')))), $projectStage->getExpression());
+        $this->assertSame(['$project' => ['something' => ['$' . $operator => ['$expression1', '$expression2']]]], $projectStage->getExpression());
     }
 
     public function provideAccumulators()
     {
-        $operators = array('avg', 'max', 'min', 'stdDevPop', 'stdDevSamp', 'sum');
+        $operators = ['avg', 'max', 'min', 'stdDevPop', 'stdDevSamp', 'sum'];
 
-        return array_combine($operators, array_map(function ($operator) { return array($operator); }, $operators));
+        return array_combine($operators, array_map(function ($operator) { return [$operator]; }, $operators));
     }
 
     /**
      * @dataProvider provideProxiedExprMethods
      */
-    public function testProxiedExprMethods($method, array $args = array())
+    public function testProxiedExprMethods($method, array $args = [])
     {
         $expr = $this->getMockAggregationExpr();
         $invocationMocker = $expr->expects($this->once())->method($method);
-        call_user_func_array(array($invocationMocker, 'with'), $args);
+        call_user_func_array([$invocationMocker, 'with'], $args);
 
         $stage = new GroupStub($this->getTestAggregationBuilder());
         $stage->setQuery($expr);
 
-        $this->assertSame($stage, call_user_func_array(array($stage, $method), $args));
+        $this->assertSame($stage, call_user_func_array([$stage, $method], $args));
     }
 
     public static function provideProxiedExprMethods()
@@ -80,13 +80,13 @@ class ProjectTest extends \PHPUnit_Framework_TestCase
             ->field('dayOfWeek')
             ->dayOfWeek('$dateField');
 
-        return array(
-            'avg()' => array('avg', array('$field')),
-            'max()' => array('max', array('$field')),
-            'min()' => array('min', array('$field')),
-            'stdDevPop()' => array('stdDevPop', array('$field')),
-            'stdDevSamp()' => array('stdDevSamp', array('$field')),
-            'sum()' => array('sum', array('$field')),
-        );
+        return [
+            'avg()' => ['avg', ['$field']],
+            'max()' => ['max', ['$field']],
+            'min()' => ['min', ['$field']],
+            'stdDevPop()' => ['stdDevPop', ['$field']],
+            'stdDevSamp()' => ['stdDevSamp', ['$field']],
+            'sum()' => ['sum', ['$field']],
+        ];
     }
 }

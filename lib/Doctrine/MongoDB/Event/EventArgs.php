@@ -40,7 +40,7 @@ class EventArgs extends BaseEventArgs
      * @param mixed  $data
      * @param array  $options
      */
-    public function __construct($invoker, $data = null, array $options = array())
+    public function __construct($invoker, $data = null, array $options = [])
     {
         $this->invoker = $invoker;
         $this->data = $data;

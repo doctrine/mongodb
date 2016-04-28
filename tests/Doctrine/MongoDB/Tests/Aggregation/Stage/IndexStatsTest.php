@@ -14,7 +14,7 @@ class IndexStatsTest extends \PHPUnit_Framework_TestCase
     {
         $indexStatsStage = new IndexStats($this->getTestAggregationBuilder());
 
-        $this->assertEquals(array('$indexStats' => new \stdClass()), $indexStatsStage->getExpression());
+        $this->assertEquals(['$indexStats' => new \stdClass()], $indexStatsStage->getExpression());
     }
 
     public function testIndexStatsFromBuilder()
@@ -22,6 +22,6 @@ class IndexStatsTest extends \PHPUnit_Framework_TestCase
         $builder = $this->getTestAggregationBuilder();
         $builder->indexStats();
 
-        $this->assertEquals(array(array('$indexStats' => new \stdClass())), $builder->getPipeline());
+        $this->assertEquals([['$indexStats' => new \stdClass()]], $builder->getPipeline());
     }
 }

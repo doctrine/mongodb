@@ -25,22 +25,22 @@ class DatabaseEventsTest extends \PHPUnit_Framework_TestCase
     public function testCreateCollection()
     {
         $name = 'collection';
-        $options = array('capped' => false, 'size' => 0, 'max' => 0);
+        $options = ['capped' => false, 'size' => 0, 'max' => 0];
         $result = $this->getMockCollection();
 
-        $db = $this->getMockDatabase(array('doCreateCollection' => $result));
+        $db = $this->getMockDatabase(['doCreateCollection' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preCreateCollection, new CreateCollectionEventArgs($db, $name, $options)),
-            array(Events::postCreateCollection, new EventArgs($db, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preCreateCollection, new CreateCollectionEventArgs($db, $name, $options)],
+            [Events::postCreateCollection, new EventArgs($db, $result)],
+        ]);
 
         $this->assertSame($result, $db->createCollection($name, $options));
     }
 
     public function testDrop()
     {
-        $result = array('dropped' => 'databaseName', 'ok' => 1);
+        $result = ['dropped' => 'databaseName', 'ok' => 1];
 
         $this->mongoDB->expects($this->once())
             ->method('drop')
@@ -48,25 +48,25 @@ class DatabaseEventsTest extends \PHPUnit_Framework_TestCase
 
         $db = new Database($this->connection, $this->mongoDB, $this->eventManager);
 
-        $this->expectEvents(array(
-            array(Events::preDropDatabase, new EventArgs($db)),
-            array(Events::postDropDatabase, new EventArgs($db)),
-        ));
+        $this->expectEvents([
+            [Events::preDropDatabase, new EventArgs($db)],
+            [Events::postDropDatabase, new EventArgs($db)],
+        ]);
 
         $this->assertSame($result, $db->drop());
     }
 
     public function testGetDBRef()
     {
-        $reference = array('$ref' => 'collection', '$id' => 1);
-        $result = array('_id' => 1);
+        $reference = ['$ref' => 'collection', '$id' => 1];
+        $result = ['_id' => 1];
 
-        $db = $this->getMockDatabase(array('doGetDBRef' => $result));
+        $db = $this->getMockDatabase(['doGetDBRef' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preGetDBRef, new EventArgs($db, $reference)),
-            array(Events::postGetDBRef, new MutableEventArgs($db, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preGetDBRef, new EventArgs($db, $reference)],
+            [Events::postGetDBRef, new MutableEventArgs($db, $result)],
+        ]);
 
         $this->assertSame($result, $db->getDBRef($reference));
     }
@@ -76,12 +76,12 @@ class DatabaseEventsTest extends \PHPUnit_Framework_TestCase
         $prefix = 'fs';
         $result = $this->getMockGridFS();
 
-        $db = $this->getMockDatabase(array('doGetGridFS' => $result));
+        $db = $this->getMockDatabase(['doGetGridFS' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preGetGridFS, new EventArgs($db, $prefix)),
-            array(Events::postGetGridFS, new EventArgs($db, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preGetGridFS, new EventArgs($db, $prefix)],
+            [Events::postGetGridFS, new EventArgs($db, $result)],
+        ]);
 
         $this->assertSame($result, $db->getGridFS());
     }
@@ -91,12 +91,12 @@ class DatabaseEventsTest extends \PHPUnit_Framework_TestCase
         $name = 'collection';
         $result = $this->getMockCollection();
 
-        $db = $this->getMockDatabase(array('doSelectCollection' => $result));
+        $db = $this->getMockDatabase(['doSelectCollection' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preSelectCollection, new EventArgs($db, $name)),
-            array(Events::postSelectCollection, new EventArgs($db, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preSelectCollection, new EventArgs($db, $name)],
+            [Events::postSelectCollection, new EventArgs($db, $result)],
+        ]);
 
         $this->assertSame($result, $db->selectCollection($name));
     }
@@ -141,10 +141,10 @@ class DatabaseEventsTest extends \PHPUnit_Framework_TestCase
             ->getMock();
     }
 
-    private function getMockDatabase(array $methods = array())
+    private function getMockDatabase(array $methods = [])
     {
         $db = $this->getMockBuilder('Doctrine\MongoDB\Database')
-            ->setConstructorArgs(array($this->connection, $this->mongoDB, $this->eventManager))
+            ->setConstructorArgs([$this->connection, $this->mongoDB, $this->eventManager])
             ->setMethods(array_keys($methods))
             ->getMock();
 

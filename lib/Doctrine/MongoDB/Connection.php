@@ -49,7 +49,7 @@ class Connection
      *
      * @var array
      */
-    protected $options = array();
+    protected $options = [];
 
     /**
      * The Configuration for this connection.
@@ -76,7 +76,7 @@ class Connection
      * @param Configuration       $config  Configuration instance
      * @param EventManager        $evm     EventManager instance
      */
-    public function __construct($server = null, array $options = array(), Configuration $config = null, EventManager $evm = null)
+    public function __construct($server = null, array $options = [], Configuration $config = null, EventManager $evm = null)
     {
         if ($server instanceof \MongoClient || $server instanceof \Mongo) {
             $this->mongoClient = $server;
@@ -321,7 +321,7 @@ class Connection
     public function log(array $log)
     {
         if (null !== $this->config->getLoggerCallable()) {
-            call_user_func_array($this->config->getLoggerCallable(), array($log));
+            call_user_func_array($this->config->getLoggerCallable(), [$log]);
         }
     }
 

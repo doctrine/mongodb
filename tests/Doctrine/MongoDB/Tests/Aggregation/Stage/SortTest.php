@@ -17,7 +17,7 @@ class SortTest extends \PHPUnit_Framework_TestCase
     {
         $sortStage = new Sort($this->getTestAggregationBuilder(), $field, $order);
 
-        $this->assertSame(array('$sort' => $expectedSort), $sortStage->getExpression());
+        $this->assertSame(['$sort' => $expectedSort], $sortStage->getExpression());
     }
 
     /**
@@ -28,29 +28,29 @@ class SortTest extends \PHPUnit_Framework_TestCase
         $builder = $this->getTestAggregationBuilder();
         $builder->sort($field, $order);
 
-        $this->assertSame(array(array('$sort' => $expectedSort)), $builder->getPipeline());
+        $this->assertSame([['$sort' => $expectedSort]], $builder->getPipeline());
     }
 
     public static function provideSortOptions()
     {
-        return array(
-            'singleFieldSeparated' => array(
-                array('field' => -1),
+        return [
+            'singleFieldSeparated' => [
+                ['field' => -1],
                 'field',
                 'desc'
-            ),
-            'singleFieldCombined' => array(
-                array('field' => -1),
-                array('field' => 'desc')
-            ),
-            'multipleFields' => array(
-                array('field' => -1, 'otherField' => 1),
-                array('field' => 'desc', 'otherField' => 'asc')
-            ),
-            'sortMeta' => array(
-                array('field' => array('$meta' => 'textScore'), 'invalidField' => -1),
-                array('field' => 'textScore', 'invalidField' => 'nonExistingMetaField')
-            )
-        );
+            ],
+            'singleFieldCombined' => [
+                ['field' => -1],
+                ['field' => 'desc']
+            ],
+            'multipleFields' => [
+                ['field' => -1, 'otherField' => 1],
+                ['field' => 'desc', 'otherField' => 'asc']
+            ],
+            'sortMeta' => [
+                ['field' => ['$meta' => 'textScore'], 'invalidField' => -1],
+                ['field' => 'textScore', 'invalidField' => 'nonExistingMetaField']
+            ]
+        ];
     }
 }

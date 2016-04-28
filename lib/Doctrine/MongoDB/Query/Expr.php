@@ -38,7 +38,7 @@ class Expr
      *
      * @var string
      */
-    protected $query = array();
+    protected $query = [];
 
     /**
      * The "new object" array containing either a full document or a number of
@@ -47,7 +47,7 @@ class Expr
      * @see docs.mongodb.org/manual/reference/method/db.collection.update/#update-parameter
      * @var array
      */
-    protected $newObj = array();
+    protected $newObj = [];
 
     /**
      * The current field we are operating on.
@@ -88,7 +88,7 @@ class Expr
     public function addManyToSet(array $values)
     {
         $this->requiresCurrentField();
-        $this->newObj['$addToSet'][$this->currentField] = array('$each' => $values);
+        $this->newObj['$addToSet'][$this->currentField] = ['$each' => $values];
         return $this;
     }
 
@@ -330,7 +330,7 @@ class Expr
      */
     public function currentDate($type = 'date')
     {
-        if (!in_array($type, array('date', 'timestamp'))) {
+        if (!in_array($type, ['date', 'timestamp'])) {
             throw new InvalidArgumentException('Type for currentDate operator must be date or timestamp.');
         }
 
@@ -455,7 +455,7 @@ class Expr
             $geometry = $geometry->jsonSerialize();
         }
 
-        return $this->operator('$geoIntersects', array('$geometry' => $geometry));
+        return $this->operator('$geoIntersects', ['$geometry' => $geometry]);
     }
 
     /**
@@ -475,7 +475,7 @@ class Expr
             $geometry = $geometry->jsonSerialize();
         }
 
-        return $this->operator('$geoWithin', array('$geometry' => $geometry));
+        return $this->operator('$geoWithin', ['$geometry' => $geometry]);
     }
 
     /**
@@ -497,7 +497,7 @@ class Expr
      */
     public function geoWithinBox($x1, $y1, $x2, $y2)
     {
-        $shape = array('$box' => array(array($x1, $y1), array($x2, $y2)));
+        $shape = ['$box' => [[$x1, $y1], [$x2, $y2]]];
 
         return $this->operator('$geoWithin', $shape);
     }
@@ -517,7 +517,7 @@ class Expr
      */
     public function geoWithinCenter($x, $y, $radius)
     {
-        $shape = array('$center' => array(array($x, $y), $radius));
+        $shape = ['$center' => [[$x, $y], $radius]];
 
         return $this->operator('$geoWithin', $shape);
     }
@@ -536,7 +536,7 @@ class Expr
      */
     public function geoWithinCenterSphere($x, $y, $radius)
     {
-        $shape = array('$centerSphere' => array(array($x, $y), $radius));
+        $shape = ['$centerSphere' => [[$x, $y], $radius]];
 
         return $this->operator('$geoWithin', $shape);
     }
@@ -564,7 +564,7 @@ class Expr
             throw new InvalidArgumentException('Polygon must be defined by three or more points.');
         }
 
-        $shape = array('$polygon' => func_get_args());
+        $shape = ['$polygon' => func_get_args()];
 
         return $this->operator('$geoWithin', $shape);
     }
@@ -844,7 +844,7 @@ class Expr
      */
     public function mod($divisor, $remainder = 0)
     {
-        return $this->operator('$mod', array($divisor, $remainder));
+        return $this->operator('$mod', [$divisor, $remainder]);
     }
 
     /**
@@ -884,10 +884,10 @@ class Expr
         }
 
         if (is_array($x)) {
-            return $this->operator('$near', array('$geometry' => $x));
+            return $this->operator('$near', ['$geometry' => $x]);
         }
 
-        return $this->operator('$near', array($x, $y));
+        return $this->operator('$near', [$x, $y]);
     }
 
     /**
@@ -910,10 +910,10 @@ class Expr
         }
 
         if (is_array($x)) {
-            return $this->operator('$nearSphere', array('$geometry' => $x));
+            return $this->operator('$nearSphere', ['$geometry' => $x]);
         }
 
-        return $this->operator('$nearSphere', array($x, $y));
+        return $this->operator('$nearSphere', [$x, $y]);
     }
 
     /**
@@ -1079,7 +1079,7 @@ class Expr
     {
         if ($valueOrExpression instanceof Expr) {
             $valueOrExpression = array_merge(
-                array('$each' => array()),
+                ['$each' => []],
                 $valueOrExpression->getQuery()
             );
         }
@@ -1247,7 +1247,7 @@ class Expr
      */
     public function sort($fieldName, $order = null)
     {
-        $fields = is_array($fieldName) ? $fieldName : array($fieldName => $order);
+        $fields = is_array($fieldName) ? $fieldName : [$fieldName => $order];
 
         foreach ($fields as $fieldName => $order) {
             if (is_string($order)) {
@@ -1271,7 +1271,7 @@ class Expr
      */
     public function text($search)
     {
-        $this->query['$text'] = array('$search' => (string) $search);
+        $this->query['$text'] = ['$search' => (string) $search];
         return $this;
     }
 
@@ -1287,7 +1287,7 @@ class Expr
     public function type($type)
     {
         if (is_string($type)) {
-            $map = array(
+            $map = [
                 'double' => 1,
                 'string' => 2,
                 'object' => 3,
@@ -1307,7 +1307,7 @@ class Expr
                 'integer64' => 18,
                 'maxkey' => 127,
                 'minkey' => 255,
-            );
+            ];
 
             $type = isset($map[$type]) ? $map[$type] : $type;
         }
@@ -1359,7 +1359,7 @@ class Expr
      */
     public function withinBox($x1, $y1, $x2, $y2)
     {
-        $shape = array('$box' => array(array($x1, $y1), array($x2, $y2)));
+        $shape = ['$box' => [[$x1, $y1], [$x2, $y2]]];
 
         return $this->operator('$within', $shape);
     }
@@ -1377,7 +1377,7 @@ class Expr
      */
     public function withinCenter($x, $y, $radius)
     {
-        $shape = array('$center' => array(array($x, $y), $radius));
+        $shape = ['$center' => [[$x, $y], $radius]];
 
         return $this->operator('$within', $shape);
     }
@@ -1395,7 +1395,7 @@ class Expr
      */
     public function withinCenterSphere($x, $y, $radius)
     {
-        $shape = array('$centerSphere' => array(array($x, $y), $radius));
+        $shape = ['$centerSphere' => [[$x, $y], $radius]];
 
         return $this->operator('$within', $shape);
     }
@@ -1421,7 +1421,7 @@ class Expr
             throw new InvalidArgumentException('Polygon must be defined by three or more points.');
         }
 
-        $shape = array('$polygon' => func_get_args());
+        $shape = ['$polygon' => func_get_args()];
 
         return $this->operator('$within', $shape);
     }
@@ -1472,6 +1472,6 @@ class Expr
             return;
         }
 
-        $query = array('$in' => array($query));
+        $query = ['$in' => [$query]];
     }
 }

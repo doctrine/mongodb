@@ -20,7 +20,7 @@ class EagerCursorTest extends BaseTest
 
         $cursor->expects($this->once())
             ->method('toArray')
-            ->will($this->returnValue(array()));
+            ->will($this->returnValue([]));
 
         $eagerCursor = new EagerCursor($cursor);
 
@@ -33,10 +33,10 @@ class EagerCursorTest extends BaseTest
 
     public function testCount()
     {
-        $results = array(
-            array('_id' => 1, 'x' => 'foo'),
-            array('_id' => 2, 'x' => 'bar'),
-        );
+        $results = [
+            ['_id' => 1, 'x' => 'foo'],
+            ['_id' => 2, 'x' => 'bar'],
+        ];
 
         $cursor = $this->getMockCursor();
 
@@ -87,10 +87,10 @@ class EagerCursorTest extends BaseTest
 
     public function testGetSingleResultShouldAlwaysReturnTheFirstResult()
     {
-        $results = array(
-            array('_id' => 1, 'x' => 'foo'),
-            array('_id' => 2, 'x' => 'bar'),
-        );
+        $results = [
+            ['_id' => 1, 'x' => 'foo'],
+            ['_id' => 2, 'x' => 'bar'],
+        ];
 
         $cursor = $this->getMockCursor();
 
@@ -114,7 +114,7 @@ class EagerCursorTest extends BaseTest
 
         $cursor->expects($this->once())
             ->method('toArray')
-            ->will($this->returnValue(array()));
+            ->will($this->returnValue([]));
 
         $eagerCursor = new EagerCursor($cursor);
 
@@ -123,10 +123,10 @@ class EagerCursorTest extends BaseTest
 
     public function testToArray()
     {
-        $results = array(
-            array('_id' => 1, 'x' => 'foo'),
-            array('_id' => 2, 'x' => 'bar'),
-        );
+        $results = [
+            ['_id' => 1, 'x' => 'foo'],
+            ['_id' => 2, 'x' => 'bar'],
+        ];
 
         $cursor = $this->getMockCursor();
 
@@ -143,10 +143,10 @@ class EagerCursorTest extends BaseTest
 
     public function testIterationMethods()
     {
-        $results = array(
-            array('_id' => 1, 'x' => 'foo'),
-            array('_id' => 2, 'x' => 'bar'),
-        );
+        $results = [
+            ['_id' => 1, 'x' => 'foo'],
+            ['_id' => 2, 'x' => 'bar'],
+        ];
 
         $cursor = $this->getMockCursor();
 
@@ -174,10 +174,10 @@ class EagerCursorTest extends BaseTest
 
     public function testGetNextHasNext()
     {
-        $results = array(
-            array('_id' => 1, 'x' => 'foo'),
-            array('_id' => 2, 'x' => 'bar'),
-        );
+        $results = [
+            ['_id' => 1, 'x' => 'foo'],
+            ['_id' => 2, 'x' => 'bar'],
+        ];
 
         $cursor = $this->getMockCursor();
 

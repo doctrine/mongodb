@@ -14,16 +14,16 @@ class GroupTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideProxiedExprMethods
      */
-    public function testProxiedExprMethods($method, array $args = array())
+    public function testProxiedExprMethods($method, array $args = [])
     {
         $expr = $this->getMockAggregationExpr();
         $invocationMocker = $expr->expects($this->once())->method($method);
-        call_user_func_array(array($invocationMocker, 'with'), $args);
+        call_user_func_array([$invocationMocker, 'with'], $args);
 
         $stage = new GroupStub($this->getTestAggregationBuilder());
         $stage->setQuery($expr);
 
-        $this->assertSame($stage, call_user_func_array(array($stage, $method), $args));
+        $this->assertSame($stage, call_user_func_array([$stage, $method], $args));
     }
 
     public function provideProxiedExprMethods()
@@ -35,19 +35,19 @@ class GroupTest extends \PHPUnit_Framework_TestCase
             ->field('dayOfWeek')
             ->dayOfWeek('$dateField');
 
-        return array(
-            'addToSet()' => array('addToSet', array('$field')),
-            'avg()' => array('avg', array('$field')),
-            'expression()' => array('expression', array($expression)),
-            'first()' => array('first', array('$field')),
-            'last()' => array('last', array('$field')),
-            'max()' => array('max', array('$field')),
-            'min()' => array('min', array('$field')),
-            'push()' => array('push', array('$field')),
-            'stdDevPop()' => array('stdDevPop', array('$field')),
-            'stdDevSamp()' => array('stdDevSamp', array('$field')),
-            'sum()' => array('sum', array('$field')),
-        );
+        return [
+            'addToSet()' => ['addToSet', ['$field']],
+            'avg()' => ['avg', ['$field']],
+            'expression()' => ['expression', [$expression]],
+            'first()' => ['first', ['$field']],
+            'last()' => ['last', ['$field']],
+            'max()' => ['max', ['$field']],
+            'min()' => ['min', ['$field']],
+            'push()' => ['push', ['$field']],
+            'stdDevPop()' => ['stdDevPop', ['$field']],
+            'stdDevSamp()' => ['stdDevSamp', ['$field']],
+            'sum()' => ['sum', ['$field']],
+        ];
     }
 
     public function testGroupStage()
@@ -59,7 +59,7 @@ class GroupTest extends \PHPUnit_Framework_TestCase
             ->field('count')
             ->sum(1);
 
-        $this->assertSame(array('$group' => array('_id' => '$field', 'count' => array('$sum' => 1))), $groupStage->getExpression());
+        $this->assertSame(['$group' => ['_id' => '$field', 'count' => ['$sum' => 1]]], $groupStage->getExpression());
     }
 
     public function testGroupFromBuilder()
@@ -72,7 +72,7 @@ class GroupTest extends \PHPUnit_Framework_TestCase
             ->field('count')
             ->sum(1);
 
-        $this->assertSame(array(array('$group' => array('_id' => '$field', 'count' => array('$sum' => 1)))), $builder->getPipeline());
+        $this->assertSame([['$group' => ['_id' => '$field', 'count' => ['$sum' => 1]]]], $builder->getPipeline());
     }
 
     public function testGroupWithOperatorInId()
@@ -84,6 +84,6 @@ class GroupTest extends \PHPUnit_Framework_TestCase
             ->field('count')
             ->sum(1);
 
-        $this->assertSame(array('$group' => array('_id' => ['$year' => '$dateField'], 'count' => array('$sum' => 1))), $groupStage->getExpression());
+        $this->assertSame(['$group' => ['_id' => ['$year' => '$dateField'], 'count' => ['$sum' => 1]]], $groupStage->getExpression());
     }
 }

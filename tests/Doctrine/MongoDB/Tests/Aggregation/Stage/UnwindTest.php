@@ -14,7 +14,7 @@ class UnwindTest extends \PHPUnit_Framework_TestCase
     {
         $unwindStage = new Unwind($this->getTestAggregationBuilder(), 'fieldName');
 
-        $this->assertSame(array('$unwind' => 'fieldName'), $unwindStage->getExpression());
+        $this->assertSame(['$unwind' => 'fieldName'], $unwindStage->getExpression());
     }
 
     public function testUnwindStageWithNewFields()
@@ -24,7 +24,7 @@ class UnwindTest extends \PHPUnit_Framework_TestCase
             ->preserveNullAndEmptyArrays()
             ->includeArrayIndex('index');
 
-        $this->assertSame(array('$unwind' => array('path' => 'fieldName', 'includeArrayIndex' => 'index', 'preserveNullAndEmptyArrays' => true)), $unwindStage->getExpression());
+        $this->assertSame(['$unwind' => ['path' => 'fieldName', 'includeArrayIndex' => 'index', 'preserveNullAndEmptyArrays' => true]], $unwindStage->getExpression());
     }
 
     public function testUnwindFromBuilder()
@@ -32,7 +32,7 @@ class UnwindTest extends \PHPUnit_Framework_TestCase
         $builder = $this->getTestAggregationBuilder();
         $builder->unwind('fieldName');
 
-        $this->assertSame(array(array('$unwind' => 'fieldName')), $builder->getPipeline());
+        $this->assertSame([['$unwind' => 'fieldName']], $builder->getPipeline());
     }
 
     public function testSubsequentUnwindStagesArePreserved()
@@ -42,6 +42,6 @@ class UnwindTest extends \PHPUnit_Framework_TestCase
             ->unwind('fieldName')
             ->unwind('otherField');
 
-        $this->assertSame(array(array('$unwind' => 'fieldName'), array('$unwind' => 'otherField')), $builder->getPipeline());
+        $this->assertSame([['$unwind' => 'fieldName'], ['$unwind' => 'otherField']], $builder->getPipeline());
     }
 }

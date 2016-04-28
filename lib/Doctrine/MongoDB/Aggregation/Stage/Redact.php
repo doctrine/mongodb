@@ -32,8 +32,8 @@ class Redact extends Operator
      */
     public function getExpression()
     {
-        return array(
+        return [
             '$redact' => $this->expr->getExpression()
-        );
+        ];
     }
 }

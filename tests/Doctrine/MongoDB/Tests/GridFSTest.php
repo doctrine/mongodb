@@ -8,15 +8,15 @@ class GridFSTest extends BaseTest
 {
     public function testInsertFindOneAndWrite()
     {
-        $document = array(
+        $document = [
             'foo' => 'bar',
             'file' => new GridFSFile(__FILE__),
-        );
+        ];
 
         $gridFS = $this->getGridFS();
         $gridFS->insert($document);
 
-        $document = $gridFS->findOne(array('_id' => $document['_id']));
+        $document = $gridFS->findOne(['_id' => $document['_id']]);
 
         $this->assertTrue(isset($document['_id']));
         $this->assertEquals('bar', $document['foo']);
@@ -38,7 +38,7 @@ class GridFSTest extends BaseTest
 
     public function testStoreFile()
     {
-        $document = array('foo' => 'bar');
+        $document = ['foo' => 'bar'];
 
         $gridFS = $this->getGridFS();
         $file = $gridFS->storeFile(__FILE__, $document);
@@ -59,25 +59,25 @@ class GridFSTest extends BaseTest
 
         $path = __DIR__.'/file.txt';
         $file = new GridFSFile($path);
-        $document = array(
+        $document = [
             'title' => 'Test Title',
             'file' => $file
-        );
+        ];
         $gridFS->insert($document);
         $id = $document['_id'];
 
-        $document = $gridFS->findOne(array('_id' => $id));
+        $document = $gridFS->findOne(['_id' => $id]);
         $file = $document['file'];
 
-        $gridFS->update(array('_id' => $id), array('$pushAll' => array('test' => array(1, 2, 3))));
-        $check = $gridFS->findOne(array('_id' => $id));
+        $gridFS->update(['_id' => $id], ['$pushAll' => ['test' => [1, 2, 3]]]);
+        $check = $gridFS->findOne(['_id' => $id]);
         $this->assertTrue(isset($check['test']));
         $this->assertEquals(3, count($check['test']));
-        $this->assertEquals(array(1, 2, 3), $check['test']);
+        $this->assertEquals([1, 2, 3], $check['test']);
 
-        $gridFS->update(array('_id' => $id), array('_id' => $id));
-        $gridFS->update(array('_id' => $id), array('_id' => $id, 'boom' => true));
-        $check = $gridFS->findOne(array('_id' => $id));
+        $gridFS->update(['_id' => $id], ['_id' => $id]);
+        $gridFS->update(['_id' => $id], ['_id' => $id, 'boom' => true]);
+        $check = $gridFS->findOne(['_id' => $id]);
         $this->assertFalse(array_key_exists('test', $check));
         $this->assertTrue($check['boom']);
     }
@@ -87,9 +87,9 @@ class GridFSTest extends BaseTest
         $gridFS = $this->getGridFS();
 
         $gridFS->update(
-            array('id' => 123),
-            array('x' => 1),
-            array('upsert' => true, 'multiple' => false)
+            ['id' => 123],
+            ['x' => 1],
+            ['upsert' => true, 'multiple' => false]
         );
 
         $document = $gridFS->findOne();
@@ -104,12 +104,12 @@ class GridFSTest extends BaseTest
         $gridFS = $this->getGridFS();
 
         $gridFS->update(
-            array('x' => 1),
-            array('_id' => 123),
-            array('upsert' => true, 'multiple' => false)
+            ['x' => 1],
+            ['_id' => 123],
+            ['upsert' => true, 'multiple' => false]
         );
 
-        $document = $gridFS->findOne(array('_id' => 123));
+        $document = $gridFS->findOne(['_id' => 123]);
 
         $this->assertNotNull($document);
         $this->assertFalse(array_key_exists('x', $document));
@@ -120,12 +120,12 @@ class GridFSTest extends BaseTest
         $gridFS = $this->getGridFS();
 
         $gridFS->update(
-            array('_id' => 123),
-            array('$set' => array('x' => 1)),
-            array('upsert' => true, 'multiple' => false)
+            ['_id' => 123],
+            ['$set' => ['x' => 1]],
+            ['upsert' => true, 'multiple' => false]
         );
 
-        $document = $gridFS->findOne(array('_id' => 123));
+        $document = $gridFS->findOne(['_id' => 123]);
 
         $this->assertNotNull($document);
         $this->assertEquals(1, $document['x']);
@@ -139,15 +139,15 @@ class GridFSTest extends BaseTest
         $path = __DIR__.'/file.txt';
         $file = new GridFSFile($path);
 
-        $newObj = array(
-            '$set' => array(
+        $newObj = [
+            '$set' => [
                 'title' => 'Test Title',
                 'file' => $file,
-            ),
-        );
-        $gridFS->update(array('_id' => $id), $newObj, array('upsert' => true, 'multiple' => false));
+            ],
+        ];
+        $gridFS->update(['_id' => $id], $newObj, ['upsert' => true, 'multiple' => false]);
 
-        $document = $gridFS->findOne(array('_id' => $id));
+        $document = $gridFS->findOne(['_id' => $id]);
 
         $file = $document['file'];
 

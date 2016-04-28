@@ -126,7 +126,7 @@ class Query implements IteratorAggregate
      * @param boolean $foundOnly
      * @return integer
      */
-    public function count($foundOnly = false)
+    public function count($foundOnly = true)
     {
         return $this->getIterator()->count($foundOnly);
     }
@@ -165,14 +165,14 @@ class Query implements IteratorAggregate
             case self::TYPE_FIND:
                 $cursor = $this->collection->find(
                     $this->query['query'],
-                    isset($this->query['select']) ? $this->query['select'] : array()
+                    isset($this->query['select']) ? $this->query['select'] : []
                 );
 
                 return $this->prepareCursor($cursor);
 
             case self::TYPE_FIND_AND_UPDATE:
                 $queryOptions = $this->getQueryOptions('new', 'select', 'sort', 'upsert');
-                $queryOptions = $this->renameQueryOptions($queryOptions, array('select' => 'fields'));
+                $queryOptions = $this->renameQueryOptions($queryOptions, ['select' => 'fields']);
 
                 return $this->collection->findAndUpdate(
                     $this->query['query'],
@@ -182,7 +182,7 @@ class Query implements IteratorAggregate
 
             case self::TYPE_FIND_AND_REMOVE:
                 $queryOptions = $this->getQueryOptions('select', 'sort');
-                $queryOptions = $this->renameQueryOptions($queryOptions, array('select' => 'fields'));
+                $queryOptions = $this->renameQueryOptions($queryOptions, ['select' => 'fields']);
 
                 return $this->collection->findAndRemove(
                     $this->query['query'],

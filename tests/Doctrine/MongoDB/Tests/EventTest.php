@@ -16,7 +16,7 @@ class EventTest extends PHPUnit_Framework_TestCase
 
         $manager->addEventListener(\Doctrine\MongoDB\Events::preConnect, $listener);
 
-        $connection = new Connection(null, array(), null, $manager);
+        $connection = new Connection(null, [], null, $manager);
         $connection->initialize();
     }
 }

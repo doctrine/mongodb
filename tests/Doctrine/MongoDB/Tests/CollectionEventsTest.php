@@ -29,31 +29,31 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
 
     public function testAggregate()
     {
-        $pipeline = array(array('$match' => array('_id' => '1')));
-        $result = array(array('_id' => '1'));
+        $pipeline = [['$match' => ['_id' => '1']]];
+        $result = [['_id' => '1']];
 
-        $collection = $this->getMockCollection(array('doAggregate' => $result));
+        $collection = $this->getMockCollection(['doAggregate' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preAggregate, new AggregateEventArgs($collection, $pipeline)),
-            array(Events::postAggregate, new MutableEventArgs($collection, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preAggregate, new AggregateEventArgs($collection, $pipeline)],
+            [Events::postAggregate, new MutableEventArgs($collection, $result)],
+        ]);
 
         $this->assertSame($result, $collection->aggregate($pipeline));
     }
 
     public function testBatchInsert()
     {
-        $documents = array(array('x' => 1));
-        $options = array('continueOnError' => true);
-        $result = array(array('_id' => new \MongoId(), 'x' => 1));
+        $documents = [['x' => 1]];
+        $options = ['continueOnError' => true];
+        $result = [['_id' => new \MongoId(), 'x' => 1]];
 
-        $collection = $this->getMockCollection(array('doBatchInsert' => $result));
+        $collection = $this->getMockCollection(['doBatchInsert' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preBatchInsert, new EventArgs($collection, $documents, $options)),
-            array(Events::postBatchInsert, new MutableEventArgs($collection, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preBatchInsert, new EventArgs($collection, $documents, $options)],
+            [Events::postBatchInsert, new MutableEventArgs($collection, $result)],
+        ]);
 
         $this->assertSame($result, $collection->batchInsert($documents, $options));
     }
@@ -61,109 +61,109 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
     public function testDistinct()
     {
         $field = 'x';
-        $query = array('y' => 1);
-        $result = array(array('x' => 1, 'y' => 1), array('x' => 2, 'y' => 1));
+        $query = ['y' => 1];
+        $result = [['x' => 1, 'y' => 1], ['x' => 2, 'y' => 1]];
 
-        $collection = $this->getMockCollection(array('doDistinct' => $result));
+        $collection = $this->getMockCollection(['doDistinct' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preDistinct, new DistinctEventArgs($collection, $field, $query)),
-            array(Events::postDistinct, new MutableEventArgs($collection, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preDistinct, new DistinctEventArgs($collection, $field, $query)],
+            [Events::postDistinct, new MutableEventArgs($collection, $result)],
+        ]);
 
         $this->assertSame($result, $collection->distinct($field, $query));
     }
 
     public function testDrop()
     {
-        $result = array('ok' => 1);
+        $result = ['ok' => 1];
 
-        $collection = $this->getMockCollection(array('doDrop' => $result));
+        $collection = $this->getMockCollection(['doDrop' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preDropCollection, new EventArgs($collection)),
-            array(Events::postDropCollection, new EventArgs($collection, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preDropCollection, new EventArgs($collection)],
+            [Events::postDropCollection, new EventArgs($collection, $result)],
+        ]);
 
         $this->assertSame($result, $collection->drop());
     }
 
     public function testFind()
     {
-        $query = array('x' => 1);
-        $fields = array('_id' => 0);
-        $result = array(array('x' => 1, 'y' => 2));
+        $query = ['x' => 1];
+        $fields = ['_id' => 0];
+        $result = [['x' => 1, 'y' => 2]];
 
-        $collection = $this->getMockCollection(array('doFind' => $result));
+        $collection = $this->getMockCollection(['doFind' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preFind, new FindEventArgs($collection, $query, $fields)),
-            array(Events::postFind, new MutableEventArgs($collection, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preFind, new FindEventArgs($collection, $query, $fields)],
+            [Events::postFind, new MutableEventArgs($collection, $result)],
+        ]);
 
         $this->assertSame($result, $collection->find($query, $fields));
     }
 
     public function testFindOne()
     {
-        $query = array('x' => 1);
-        $fields = array('_id' => 0);
-        $result = array('x' => 1, 'y' => 2);
+        $query = ['x' => 1];
+        $fields = ['_id' => 0];
+        $result = ['x' => 1, 'y' => 2];
 
-        $collection = $this->getMockCollection(array('doFindOne' => $result));
+        $collection = $this->getMockCollection(['doFindOne' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preFindOne, new FindEventArgs($collection, $query, $fields)),
-            array(Events::postFindOne, new MutableEventArgs($collection, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preFindOne, new FindEventArgs($collection, $query, $fields)],
+            [Events::postFindOne, new MutableEventArgs($collection, $result)],
+        ]);
 
         $this->assertSame($result, $collection->findOne($query, $fields));
     }
 
     public function testFindAndRemove()
     {
-        $query = array('x' => 1);
-        $options = array('sort' => array('y' => -1));
-        $result = array('x' => 1);
+        $query = ['x' => 1];
+        $options = ['sort' => ['y' => -1]];
+        $result = ['x' => 1];
 
-        $collection = $this->getMockCollection(array('doFindAndRemove' => $result));
+        $collection = $this->getMockCollection(['doFindAndRemove' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preFindAndRemove, new MutableEventArgs($collection, $query, $options)),
-            array(Events::postFindAndRemove, new MutableEventArgs($collection, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preFindAndRemove, new MutableEventArgs($collection, $query, $options)],
+            [Events::postFindAndRemove, new MutableEventArgs($collection, $result)],
+        ]);
 
         $this->assertSame($result, $collection->findAndRemove($query, $options));
     }
 
     public function testFindAndUpdate()
     {
-        $query = array('x' => 1);
-        $newObj = array('$set' => array('x' => 2));
-        $options = array('sort' => array('y' => -1));
-        $result = array('x' => 2);
+        $query = ['x' => 1];
+        $newObj = ['$set' => ['x' => 2]];
+        $options = ['sort' => ['y' => -1]];
+        $result = ['x' => 2];
 
-        $collection = $this->getMockCollection(array('doFindAndUpdate' => $result));
+        $collection = $this->getMockCollection(['doFindAndUpdate' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preFindAndUpdate, new UpdateEventArgs($collection, $query, $newObj, $options)),
-            array(Events::postFindAndUpdate, new MutableEventArgs($collection, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preFindAndUpdate, new UpdateEventArgs($collection, $query, $newObj, $options)],
+            [Events::postFindAndUpdate, new MutableEventArgs($collection, $result)],
+        ]);
 
         $this->assertSame($result, $collection->findAndUpdate($query, $newObj, $options));
     }
 
     public function testGetDBRef()
     {
-        $reference = array('$ref' => 'collection', '$id' => 1);
-        $result = array('_id' => 1);
+        $reference = ['$ref' => 'collection', '$id' => 1];
+        $result = ['_id' => 1];
 
-        $collection = $this->getMockCollection(array('doGetDBRef' => $result));
+        $collection = $this->getMockCollection(['doGetDBRef' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preGetDBRef, new EventArgs($collection, $reference)),
-            array(Events::postGetDBRef, new MutableEventArgs($collection, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preGetDBRef, new EventArgs($collection, $reference)],
+            [Events::postGetDBRef, new MutableEventArgs($collection, $result)],
+        ]);
 
         $this->assertSame($result, $collection->getDBRef($reference));
     }
@@ -171,33 +171,33 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
     public function testGroup()
     {
         $keys = 'x';
-        $initial = array('count' => 0);
+        $initial = ['count' => 0];
         $reduce = new \MongoCode('');
-        $options = array('finalize' => new \MongoCode(''));
-        $result = array(array('count' => '1'));
+        $options = ['finalize' => new \MongoCode('')];
+        $result = [['count' => '1']];
 
-        $collection = $this->getMockCollection(array('doGroup' => $result));
+        $collection = $this->getMockCollection(['doGroup' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preGroup, new GroupEventArgs($collection, $keys, $initial, $reduce, $options)),
-            array(Events::postGroup, new MutableEventArgs($collection, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preGroup, new GroupEventArgs($collection, $keys, $initial, $reduce, $options)],
+            [Events::postGroup, new MutableEventArgs($collection, $result)],
+        ]);
 
         $this->assertSame($result, $collection->group($keys, $initial, $reduce, $options));
     }
 
     public function testInsert()
     {
-        $document = array('x' => 1);
-        $options = array('w' => 1);
-        $result = array('_id' => new \MongoId(), 'x' => 1);
+        $document = ['x' => 1];
+        $options = ['w' => 1];
+        $result = ['_id' => new \MongoId(), 'x' => 1];
 
-        $collection = $this->getMockCollection(array('doInsert' => $result));
+        $collection = $this->getMockCollection(['doInsert' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preInsert, new EventArgs($collection, $document, $options)),
-            array(Events::postInsert, new MutableEventArgs($collection, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preInsert, new EventArgs($collection, $document, $options)],
+            [Events::postInsert, new MutableEventArgs($collection, $result)],
+        ]);
 
         $this->assertSame($result, $collection->insert($document, $options));
     }
@@ -206,83 +206,83 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
     {
         $map = new \MongoCode('');
         $reduce = new \MongoCode('');
-        $out = array('inline' => true);
-        $query = array('x' => 1);
-        $options = array('finalize' => new \MongoCode(''));
-        $result = array(array('count' => '1'));
+        $out = ['inline' => true];
+        $query = ['x' => 1];
+        $options = ['finalize' => new \MongoCode('')];
+        $result = [['count' => '1']];
 
-        $collection = $this->getMockCollection(array('doMapReduce' => $result));
+        $collection = $this->getMockCollection(['doMapReduce' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preMapReduce, new MapReduceEventArgs($collection, $map, $reduce, $out, $query, $options)),
-            array(Events::postMapReduce, new MutableEventArgs($collection, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preMapReduce, new MapReduceEventArgs($collection, $map, $reduce, $out, $query, $options)],
+            [Events::postMapReduce, new MutableEventArgs($collection, $result)],
+        ]);
 
         $this->assertSame($result, $collection->mapReduce($map, $reduce, $out, $query, $options));
     }
 
     public function testNear()
     {
-        $query = array('x' => 1);
-        $near = array(10, 20);
-        $options = array('limit' => 5);
-        $result = array(array('x' => 1, 'loc' => array(11, 19)));
+        $query = ['x' => 1];
+        $near = [10, 20];
+        $options = ['limit' => 5];
+        $result = [['x' => 1, 'loc' => [11, 19]]];
 
-        $collection = $this->getMockCollection(array('doNear' => $result));
+        $collection = $this->getMockCollection(['doNear' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preNear, new NearEventArgs($collection, $query, $near, $options)),
-            array(Events::postNear, new MutableEventArgs($collection, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preNear, new NearEventArgs($collection, $query, $near, $options)],
+            [Events::postNear, new MutableEventArgs($collection, $result)],
+        ]);
 
         $this->assertSame($result, $collection->near($near, $query, $options));
     }
 
     public function testRemove()
     {
-        $query = array('x' => 1);
-        $options = array('justOne' => true);
-        $result = array('ok' => 1);
+        $query = ['x' => 1];
+        $options = ['justOne' => true];
+        $result = ['ok' => 1];
 
-        $collection = $this->getMockCollection(array('doRemove' => $result));
+        $collection = $this->getMockCollection(['doRemove' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preRemove, new MutableEventArgs($collection, $query, $options)),
-            array(Events::postRemove, new MutableEventArgs($collection, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preRemove, new MutableEventArgs($collection, $query, $options)],
+            [Events::postRemove, new MutableEventArgs($collection, $result)],
+        ]);
 
         $this->assertSame($result, $collection->remove($query, $options));
     }
 
     public function testSave()
     {
-        $document = array('x' => 1);
-        $options = array('w' => 1);
-        $result = array('_id' => new \MongoId(), 'x' => 1);
+        $document = ['x' => 1];
+        $options = ['w' => 1];
+        $result = ['_id' => new \MongoId(), 'x' => 1];
 
-        $collection = $this->getMockCollection(array('doSave' => $result));
+        $collection = $this->getMockCollection(['doSave' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preSave, new EventArgs($collection, $document, $options)),
-            array(Events::postSave, new MutableEventArgs($collection, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preSave, new EventArgs($collection, $document, $options)],
+            [Events::postSave, new MutableEventArgs($collection, $result)],
+        ]);
 
         $this->assertSame($result, $collection->save($document, $options));
     }
 
     public function testUpdate()
     {
-        $query = array('x' => 1);
-        $newObj = array('$set' => array('x' => 2));
-        $options = array('upsert' => true);
-        $result = array(array('ok' => 1));
+        $query = ['x' => 1];
+        $newObj = ['$set' => ['x' => 2]];
+        $options = ['upsert' => true];
+        $result = [['ok' => 1]];
 
-        $collection = $this->getMockCollection(array('doUpdate' => $result));
+        $collection = $this->getMockCollection(['doUpdate' => $result]);
 
-        $this->expectEvents(array(
-            array(Events::preUpdate, new UpdateEventArgs($collection, $query, $newObj, $options)),
-            array(Events::postUpdate, new MutableEventArgs($collection, $result)),
-        ));
+        $this->expectEvents([
+            [Events::preUpdate, new UpdateEventArgs($collection, $query, $newObj, $options)],
+            [Events::postUpdate, new MutableEventArgs($collection, $result)],
+        ]);
 
         $this->assertSame($result, $collection->update($query, $newObj, $options));
     }
@@ -316,7 +316,7 @@ class CollectionEventsTest extends \PHPUnit_Framework_TestCase
     private function getMockCollection(array $methods)
     {
         $collection = $this->getMockBuilder('Doctrine\MongoDB\Collection')
-            ->setConstructorArgs(array($this->database, $this->mongoCollection, $this->eventManager))
+            ->setConstructorArgs([$this->database, $this->mongoCollection, $this->eventManager])
             ->setMethods(array_keys($methods))
             ->getMock();
 

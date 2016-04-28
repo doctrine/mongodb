@@ -50,7 +50,7 @@ class CreateCollectionEventArgs extends BaseEventArgs
 
         $options = is_array($cappedOrOptions)
             ? $cappedOrOptions
-            : array('capped' => $cappedOrOptions, 'size' => $size, 'max' => $max);
+            : ['capped' => $cappedOrOptions, 'size' => $size, 'max' => $max];
 
         $this->options = $options;
     }

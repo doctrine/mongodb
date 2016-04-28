@@ -51,8 +51,8 @@ class Limit extends Stage
      */
     public function getExpression()
     {
-        return array(
+        return [
             '$limit' => $this->limit
-        );
+        ];
     }
 }

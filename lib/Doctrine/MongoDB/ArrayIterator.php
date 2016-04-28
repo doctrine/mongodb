@@ -44,7 +44,7 @@ class ArrayIterator implements Iterator, ArrayAccess
      *
      * @param array $elements
      */
-    public function __construct(array $elements = array())
+    public function __construct(array $elements = [])
     {
         $this->elements = $elements;
     }

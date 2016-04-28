@@ -40,7 +40,7 @@ class EagerCursor implements CursorInterface
      *
      * @var array
      */
-    protected $data = array();
+    protected $data = [];
 
     /**
      * Whether the internal data has been initialized.
@@ -382,7 +382,7 @@ class EagerCursor implements CursorInterface
     public function recreate()
     {
         $this->initialized = false;
-        $this->data = array();
+        $this->data = [];
         $this->iterating = false;
         $this->cursor->recreate();
     }
