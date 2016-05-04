@@ -126,7 +126,7 @@ class Query implements IteratorAggregate
      * @param boolean $foundOnly
      * @return integer
      */
-    public function count($foundOnly = true)
+    public function count($foundOnly = false)
     {
         return $this->getIterator()->count($foundOnly);
     }
