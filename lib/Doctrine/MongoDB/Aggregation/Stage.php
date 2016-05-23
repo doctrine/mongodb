@@ -33,7 +33,7 @@ abstract class Stage
     /**
      * @var Builder
      */
-    private $builder;
+    protected $builder;
 
     /**
      * @param Builder $builder

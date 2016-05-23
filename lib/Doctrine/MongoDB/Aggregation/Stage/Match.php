@@ -196,7 +196,7 @@ class Match extends Stage
      */
     public function expr()
     {
-        return new Expr();
+        return $this->builder->matchExpr();
     }
 
     /**
