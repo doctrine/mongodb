@@ -23,7 +23,8 @@
         "jmikola/geojson": "^1.0"
     },
     "suggest": {
-        "jmikola/geojson": "Support GeoJSON geometry objects in 2dsphere queries"
+        "jmikola/geojson": "Support GeoJSON geometry objects in 2dsphere queries",
+        "alcaeus/mongo-php-adapter": "Allows usage of PHP 7"
     },
     "autoload": {
         "psr-0": { "Doctrine\\MongoDB": "lib/" }
