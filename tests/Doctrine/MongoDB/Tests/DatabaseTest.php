@@ -2,11 +2,7 @@
 
 namespace Doctrine\MongoDB\Tests;
 
-use Doctrine\MongoDB\Collection;
-use Doctrine\MongoDB\Connection;
-use Doctrine\MongoDB\LoggableCollection;
 use Doctrine\MongoDB\Database;
-use Doctrine\Common\EventManager;
 
 class DatabaseTest extends \PHPUnit_Framework_TestCase
 {

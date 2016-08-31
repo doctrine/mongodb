@@ -20,7 +20,6 @@
 namespace Doctrine\MongoDB\Query;
 
 use Doctrine\MongoDB\Collection;
-use Doctrine\MongoDB\Database;
 use GeoJson\Geometry\Geometry;
 use GeoJson\Geometry\Point;
 use BadMethodCallException;
