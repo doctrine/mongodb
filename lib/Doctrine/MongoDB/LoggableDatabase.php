@@ -159,6 +159,16 @@ class LoggableDatabase extends Database implements Loggable
     }
 
     /**
+     * @see Database::doGetGridFS()
+     */
+    protected function doGetGridFS($prefix)
+    {
+        $mongoGridFS = $this->mongoDB->getGridFS($prefix);
+
+        return new LoggableGridFS($this, $mongoGridFS, $this->eventManager, $this->numRetries, $this->loggerCallable);
+    }
+
+    /**
      * Return a new LoggableCollection instance.
      *
      * @see Database::doSelectCollection()
