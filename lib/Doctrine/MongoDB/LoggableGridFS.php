@@ -20,15 +20,11 @@
 namespace Doctrine\MongoDB;
 
 use Doctrine\Common\EventManager;
+use Doctrine\MongoDB\Traits\LoggableCollectionTrait;
 
 class LoggableGridFS extends GridFS implements Loggable
 {
-    /**
-     * The logger callable.
-     *
-     * @var callable
-     */
-    private $loggerCallable;
+    use LoggableCollectionTrait;
 
     /**
      * @param Database     $database    Database to which this collection belongs
@@ -46,29 +42,5 @@ class LoggableGridFS extends GridFS implements Loggable
         parent::__construct($database, $mongoGridFS, $evm, $numRetries, $loggerCallable);
 
         $this->loggerCallable = $loggerCallable;
-    }
-
-    /**
-     * @see Loggable::log()
-     */
-    public function log(array $log)
-    {
-        $log['db'] = $this->database->getName();
-        $log['collection'] = $this->getName();
-        call_user_func_array($this->loggerCallable, [$log]);
-    }
-
-    /**
-     * @see Collection::find()
-     */
-    public function find(array $query = [], array $fields = [])
-    {
-        $this->log([
-            'find' => true,
-            'query' => $query,
-            'fields' => $fields,
-        ]);
-
-        return parent::find($query, $fields);
     }
 }
