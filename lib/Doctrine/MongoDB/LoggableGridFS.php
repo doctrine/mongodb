@@ -43,4 +43,18 @@ class LoggableGridFS extends GridFS implements Loggable
 
         $this->loggerCallable = $loggerCallable;
     }
+
+    /*
+     * @see GridFS::storeFile()
+     */
+    public function storeFile($file, array &$document, array $options = [])
+    {
+        $this->log([
+            'storeFile' => true,
+            'count' => count($document),
+            'options' => $options,
+        ]);
+
+        return parent::storeFile($file, $document, $options);
+    }
 }
