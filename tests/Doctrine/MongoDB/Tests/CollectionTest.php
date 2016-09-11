@@ -5,7 +5,6 @@ namespace Doctrine\MongoDB\Tests;
 use Doctrine\Common\EventManager;
 use Doctrine\MongoDB\ArrayIterator;
 use Doctrine\MongoDB\Collection;
-use Doctrine\MongoDB\Connection;
 use Doctrine\MongoDB\Database;
 use Doctrine\MongoDB\Tests\Constraint\ArrayHasKeyAndValue;
 use MongoCollection;

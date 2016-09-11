@@ -2,7 +2,6 @@
 namespace Doctrine\MongoDB\Tests\Query;
 
 use Doctrine\MongoDB\Query\Query;
-use Doctrine\MongoDB\Tests\Constraint\ArrayHasKeyAndValue;
 
 class QueryTest extends \PHPUnit_Framework_TestCase
 {

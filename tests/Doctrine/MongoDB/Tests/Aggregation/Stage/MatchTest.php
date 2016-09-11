@@ -2,7 +2,6 @@
 
 namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
-use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Stage\Match;
 use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
 

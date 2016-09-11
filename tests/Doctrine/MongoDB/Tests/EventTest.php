@@ -5,7 +5,6 @@ namespace Doctrine\MongoDB\Tests;
 use Doctrine\MongoDB\Connection;
 use Doctrine\Common\EventManager;
 use PHPUnit_Framework_TestCase;
-use Mongo;
 
 class EventTest extends PHPUnit_Framework_TestCase
 {

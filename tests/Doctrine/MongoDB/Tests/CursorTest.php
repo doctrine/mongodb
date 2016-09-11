@@ -3,7 +3,6 @@
 namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\Collection;
-use Doctrine\MongoDB\Connection;
 use Doctrine\MongoDB\Cursor;
 
 class CursorTest extends BaseTest

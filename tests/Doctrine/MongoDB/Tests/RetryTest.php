@@ -2,7 +2,6 @@
 
 namespace Doctrine\MongoDB\Tests;
 
-use PHPUnit_Framework_TestCase;
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Configuration;
 use Doctrine\MongoDB\Connection;
