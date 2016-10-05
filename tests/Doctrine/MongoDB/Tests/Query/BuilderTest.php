@@ -177,7 +177,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     public function testUpsertUpdateQuery()
     {
         $qb = $this->getTestQueryBuilder()
-            ->update()
+            ->updateOne()
             ->upsert(true)
             ->field('username')->set('jwage');
 
@@ -193,8 +193,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     public function testMultipleUpdateQuery()
     {
         $qb = $this->getTestQueryBuilder()
-            ->update()
-            ->multiple(true)
+            ->updateMany()
             ->field('username')->set('jwage');
 
         $expected = [
@@ -209,7 +208,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     public function testComplexUpdateQuery()
     {
         $qb = $this->getTestQueryBuilder()
-            ->update()
+            ->updateOne()
             ->field('username')
             ->set('jwage')
             ->equals('boo');
@@ -228,7 +227,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     public function testIncUpdateQuery()
     {
         $qb = $this->getTestQueryBuilder()
-            ->update()
+            ->updateOne()
             ->field('hits')->inc(5)
             ->field('username')->equals('boo');
 
@@ -265,7 +264,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     {
         $createDate = new \MongoDate();
         $qb = $this->getTestQueryBuilder()
-            ->update()
+            ->updateOne()
             ->upsert()
             ->field('username')->equals('boo')
             ->field('createDate')->setOnInsert($createDate);
@@ -723,7 +722,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     public function testCurrentDateUpdateQuery($type)
     {
         $qb = $this->getTestQueryBuilder()
-            ->update()
+            ->updateOne()
             ->field('lastUpdated')->currentDate($type)
             ->field('username')->equals('boo');
 
@@ -752,14 +751,14 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     public function testCurrentDateInvalidType()
     {
         $this->getTestQueryBuilder()
-            ->update()
+            ->updateOne()
             ->field('lastUpdated')->currentDate('notADate');
     }
 
     public function testBitAndUpdateQuery()
     {
         $qb = $this->getTestQueryBuilder()
-            ->update()
+            ->updateOne()
             ->field('flags')->bitAnd(15)
             ->field('username')->equals('boo');
 
@@ -777,7 +776,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     public function testBitOrUpdateQuery()
     {
         $qb = $this->getTestQueryBuilder()
-            ->update()
+            ->updateOne()
             ->field('flags')->bitOr(15)
             ->field('username')->equals('boo');
 
@@ -795,7 +794,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     public function testBitXorUpdateQuery()
     {
         $qb = $this->getTestQueryBuilder()
-            ->update()
+            ->updateOne()
             ->field('flags')->bitXor(15)
             ->field('username')->equals('boo');
 

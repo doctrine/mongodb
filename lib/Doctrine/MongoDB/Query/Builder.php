@@ -1163,6 +1163,8 @@ class Builder
      *
      * @param boolean $bool
      * @return $this
+     *
+     * @deprecated Deprecated in version 1.4 - use updateOne or updateMany instead
      */
     public function multiple($bool = true)
     {
@@ -1763,10 +1765,36 @@ class Builder
      * Change the query type to update.
      *
      * @return $this
+     *
+     * @deprecated Deprecated in version 1.4 - use updateOne or updateMany instead
      */
     public function update()
     {
         $this->query['type'] = Query::TYPE_UPDATE;
+        return $this;
+    }
+
+    /**
+     * Change the query type to update a single document
+     *
+     * @return $this
+     */
+    public function updateOne()
+    {
+        $this->query['type'] = Query::TYPE_UPDATE;
+        $this->query['multiple'] = false;
+        return $this;
+    }
+
+    /**
+     * Change the query type to update multiple documents
+     *
+     * @return $this
+     */
+    public function updateMany()
+    {
+        $this->query['type'] = Query::TYPE_UPDATE;
+        $this->query['multiple'] = true;
         return $this;
     }
 
