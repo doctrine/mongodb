@@ -18,6 +18,7 @@
  */
 
 namespace Doctrine\MongoDB\Aggregation\Stage;
+
 use Doctrine\MongoDB\Aggregation\Expr;
 
 /**
