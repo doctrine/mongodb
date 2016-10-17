@@ -43,7 +43,7 @@ class Out extends Stage
     {
         parent::__construct($builder);
 
-        $this->collection = $collection;
+        $this->out($collection);
     }
 
     /**
