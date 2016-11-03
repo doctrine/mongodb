@@ -41,9 +41,9 @@ abstract class Operator extends Stage
      */
     public function __construct(Builder $builder)
     {
-        $this->expr = new Expr();
-
         parent::__construct($builder);
+
+        $this->expr = $builder->expr();
     }
 
     /**

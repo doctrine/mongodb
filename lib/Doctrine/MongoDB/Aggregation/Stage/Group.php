@@ -19,8 +19,8 @@
 
 namespace Doctrine\MongoDB\Aggregation\Stage;
 
+use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Expr;
-use Doctrine\MongoDB\Aggregation\Stage;
 
 /**
  * Fluent interface for adding a $group stage to an aggregation pipeline.
@@ -30,6 +30,21 @@ use Doctrine\MongoDB\Aggregation\Stage;
  */
 class Group extends Operator
 {
+    /**
+     * @var Expr
+     */
+    protected $expr;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct(Builder $builder)
+    {
+        parent::__construct($builder);
+
+        $this->expr = $builder->expr();
+    }
+
     /**
      * {@inheritdoc}
      */

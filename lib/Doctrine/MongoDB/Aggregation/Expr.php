@@ -286,7 +286,7 @@ class Expr
      * @param mixed|self $expression
      * @return mixed
      */
-    private function ensureArray($expression)
+    protected function ensureArray($expression)
     {
         if (is_array($expression)) {
             $array = [];
