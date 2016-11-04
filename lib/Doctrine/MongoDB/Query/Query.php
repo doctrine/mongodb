@@ -275,8 +275,11 @@ class Query implements IteratorAggregate
                 $collection = $this->collection;
                 $query = $this->query;
 
-                $closure = function() use ($collection, $query) {
-                    return $collection->count($query['query']);
+                $closure = function() use ($collection, $query, $options) {
+                    return $collection->count(
+                        $query['query'],
+                        array_merge($options, $this->getQueryOptions('hint', 'limit', 'maxTimeMS', 'skip'))
+                    );
                 };
 
                 return $this->withReadPreference($collection, $closure);

@@ -235,6 +235,27 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $query->execute();
     }
 
+    public function testCountWithOptions()
+    {
+        $collection = $this->getMockCollection();
+
+        $collection->expects($this->at(0))
+            ->method('count')
+            ->with(['foo' => 'bar'], ['skip' => 5, 'maxTimeMS' => 10])
+            ->will($this->returnValue(100));
+
+        $queryArray = [
+            'type' => Query::TYPE_COUNT,
+            'query' => ['foo' => 'bar'],
+            'skip' => 5,
+            'maxTimeMS' => 10,
+        ];
+
+        $query = new Query($collection, $queryArray, []);
+
+        $this->assertSame(100, $query->execute());
+    }
+
     public function testEagerCursorPreparation()
     {
         $cursor = $this->getMockCursor();
