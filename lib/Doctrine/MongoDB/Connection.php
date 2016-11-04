@@ -52,6 +52,13 @@ class Connection
     protected $options = [];
 
     /**
+     * Driver options used to construct the MongoClient instance (optional).
+     *
+     * @var array
+     */
+    protected $driverOptions = [];
+
+    /**
      * The Configuration for this connection.
      *
      * @var Configuration
@@ -71,18 +78,20 @@ class Connection
      * If $server is an existing MongoClient instance, the $options parameter
      * will not be used.
      *
-     * @param string|\MongoClient $server  Server string or MongoClient instance
-     * @param array               $options MongoClient constructor options
-     * @param Configuration       $config  Configuration instance
-     * @param EventManager        $evm     EventManager instance
+     * @param string|\MongoClient $server        Server string or MongoClient instance
+     * @param array               $options       MongoClient constructor options
+     * @param Configuration       $config        Configuration instance
+     * @param EventManager        $evm           EventManager instance
+     * @param array               $driverOptions MongoClient constructor options
      */
-    public function __construct($server = null, array $options = [], Configuration $config = null, EventManager $evm = null)
+    public function __construct($server = null, array $options = [], Configuration $config = null, EventManager $evm = null, array $driverOptions = [])
     {
         if ($server instanceof \MongoClient || $server instanceof \Mongo) {
             $this->mongoClient = $server;
         } else {
             $this->server = $server;
             $this->options = $options;
+            $this->driverOptions = $driverOptions;
         }
         $this->config = $config ? $config : new Configuration();
         $this->eventManager = $evm ? $evm : new EventManager();
@@ -279,7 +288,7 @@ class Connection
         $options = isset($options['wTimeout']) ? $this->convertWriteTimeout($options) : $options;
 
         $this->mongoClient = $this->retry(function() use ($server, $options) {
-            return new \MongoClient($server, $options);
+            return new \MongoClient($server, $options, $this->driverOptions);
         });
 
         if ($this->eventManager->hasListeners(Events::postConnect)) {
