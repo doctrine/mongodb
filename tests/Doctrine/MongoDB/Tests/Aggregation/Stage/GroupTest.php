@@ -16,13 +16,15 @@ class GroupTest extends \PHPUnit_Framework_TestCase
     public function testProxiedExprMethods($method, array $args = [])
     {
         $expr = $this->getMockAggregationExpr();
-        $invocationMocker = $expr->expects($this->once())->method($method);
-        call_user_func_array([$invocationMocker, 'with'], $args);
+        $expr
+            ->expects($this->once())
+            ->method($method)
+            ->with(...$args);
 
         $stage = new GroupStub($this->getTestAggregationBuilder());
         $stage->setQuery($expr);
 
-        $this->assertSame($stage, call_user_func_array([$stage, $method], $args));
+        $this->assertSame($stage, $stage->$method(...$args));
     }
 
     public function provideProxiedExprMethods()

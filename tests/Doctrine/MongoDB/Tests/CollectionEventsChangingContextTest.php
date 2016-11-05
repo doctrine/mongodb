@@ -276,9 +276,10 @@ class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
             ->getMock();
 
         foreach ($methods as $method => $withValues) {
-            $expectation = $collection->expects($this->once());
-            $expectation->method($method);
-            call_user_func_array([$expectation, 'with'], $withValues);
+            $collection
+                ->expects($this->once())
+                ->method($method)
+                ->with(...$withValues);
         }
 
         return $collection;

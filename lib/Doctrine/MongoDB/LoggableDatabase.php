@@ -64,7 +64,7 @@ class LoggableDatabase extends Database implements Loggable
     public function log(array $log)
     {
         $log['db'] = $this->getName();
-        call_user_func_array($this->loggerCallable, [$log]);
+        call_user_func($this->loggerCallable, $log);
     }
 
     /**

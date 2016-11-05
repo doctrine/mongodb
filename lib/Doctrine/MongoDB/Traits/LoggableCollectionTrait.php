@@ -41,7 +41,7 @@ trait LoggableCollectionTrait
     {
         $log['db'] = $this->database->getName();
         $log['collection'] = $this->getName();
-        call_user_func_array($this->loggerCallable, [$log]);
+        call_user_func($this->loggerCallable, $log);
     }
 
     /**

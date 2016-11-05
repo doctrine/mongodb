@@ -82,7 +82,7 @@ abstract class Operator extends Stage
      */
     public function add($expression1, $expression2 /* , $expression3, ... */)
     {
-        call_user_func_array([$this->expr, 'add'], func_get_args());
+        $this->expr->add(...func_get_args());
 
         return $this;
     }
@@ -231,7 +231,7 @@ abstract class Operator extends Stage
      */
     public function concat($expression1, $expression2 /* , $expression3, ... */)
     {
-        call_user_func_array([$this->expr, 'concat'], func_get_args());
+        $this->expr->concat(...func_get_args());
 
         return $this;
     }
@@ -253,7 +253,7 @@ abstract class Operator extends Stage
      */
     public function concatArrays($array1, $array2 /* , $array3, ... */)
     {
-        call_user_func_array([$this->expr, 'concatArrays'], func_get_args());
+        $this->expr->concatArrays(...func_get_args());
 
         return $this;
     }
@@ -822,7 +822,7 @@ abstract class Operator extends Stage
      */
     public function multiply($expression1, $expression2 /* , $expression3, ... */)
     {
-        call_user_func_array([$this->expr, 'multiply'], func_get_args());
+        $this->expr->multiply(...func_get_args());
 
         return $this;
     }
@@ -935,7 +935,7 @@ abstract class Operator extends Stage
      */
     public function setEquals($expression1, $expression2 /* , $expression3, ... */)
     {
-        call_user_func_array([$this->expr, 'setEquals'], func_get_args());
+        $this->expr->setEquals(...func_get_args());
 
         return $this;
     }
@@ -955,7 +955,7 @@ abstract class Operator extends Stage
      */
     public function setIntersection($expression1, $expression2 /* , $expression3, ... */)
     {
-        call_user_func_array([$this->expr, 'setIntersection'], func_get_args());
+        $this->expr->setIntersection(...func_get_args());
 
         return $this;
     }
@@ -975,7 +975,7 @@ abstract class Operator extends Stage
      */
     public function setIsSubset($expression1, $expression2)
     {
-        call_user_func_array([$this->expr, 'setIsSubset'], func_get_args());
+        $this->expr->setIsSubset($expression1, $expression2);
 
         return $this;
     }
@@ -995,7 +995,7 @@ abstract class Operator extends Stage
      */
     public function setUnion($expression1, $expression2 /* , $expression3, ... */)
     {
-        call_user_func_array([$this->expr, 'setUnion'], func_get_args());
+        $this->expr->setUnion(...func_get_args());
 
         return $this;
     }
