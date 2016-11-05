@@ -57,16 +57,29 @@ class Expr
     protected $currentField;
 
     /**
-     * Add an $and clause to the current query.
+     * Add one or more $and clauses to the current query.
      *
      * @see Builder::addAnd()
      * @see http://docs.mongodb.org/manual/reference/operator/and/
      * @param array|Expr $expression
      * @return $this
      */
-    public function addAnd($expression)
+    public function addAnd($expression /*, $expression2, ... */)
     {
-        $this->query['$and'][] = $expression instanceof Expr ? $expression->getQuery() : $expression;
+        if (! isset($this->query['$and'])) {
+            $this->query['$and'] = [];
+        }
+
+        $this->query['$and'] = array_merge(
+            $this->query['$and'],
+            array_map(
+                function ($expression) {
+                    return $expression instanceof Expr ? $expression->getQuery() : $expression;
+                },
+                func_get_args()
+            )
+        );
+
         return $this;
     }
 
@@ -93,30 +106,46 @@ class Expr
     }
 
     /**
-     * Add a $nor clause to the current query.
+     * Add one or more $nor clauses to the current query.
      *
      * @see Builder::addNor()
      * @see http://docs.mongodb.org/manual/reference/operator/nor/
      * @param array|Expr $expression
      * @return $this
      */
-    public function addNor($expression)
+    public function addNor($expression /* , $expression2, ... */)
     {
-        $this->query['$nor'][] = $expression instanceof Expr ? $expression->getQuery() : $expression;
+        if (! isset($this->query['$nor'])) {
+            $this->query['$nor'] = [];
+        }
+
+        $this->query['$nor'] = array_merge(
+            $this->query['$nor'],
+            array_map(function ($expression) { return $expression instanceof Expr ? $expression->getQuery() : $expression; }, func_get_args())
+        );
+
         return $this;
     }
 
     /**
-     * Add an $or clause to the current query.
+     * Add one or more $or clauses to the current query.
      *
      * @see Builder::addOr()
      * @see http://docs.mongodb.org/manual/reference/operator/or/
      * @param array|Expr $expression
      * @return $this
      */
-    public function addOr($expression)
+    public function addOr($expression /* , $expression2, ... */)
     {
-        $this->query['$or'][] = $expression instanceof Expr ? $expression->getQuery() : $expression;
+        if (! isset($this->query['$or'])) {
+            $this->query['$or'] = [];
+        }
+
+        $this->query['$or'] = array_merge(
+            $this->query['$or'],
+            array_map(function ($expression) { return $expression instanceof Expr ? $expression->getQuery() : $expression; }, func_get_args())
+        );
+
         return $this;
     }
 

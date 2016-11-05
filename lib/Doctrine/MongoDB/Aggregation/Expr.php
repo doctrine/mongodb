@@ -78,37 +78,37 @@ class Expr
     }
 
     /**
-     * Add an $and clause to the current expression.
+     * Adds one or more $and clauses to the current expression.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/and/
      * @param array|self $expression
      * @return $this
      */
-    public function addAnd($expression)
+    public function addAnd($expression /*, $expression2, ... */)
     {
-        if ($this->currentField) {
-            $this->expr[$this->currentField]['$and'][] = $this->ensureArray($expression);
-        } else {
-            $this->expr['$and'][] = $this->ensureArray($expression);
+        if (! isset($this->expr['$and'])) {
+            $this->expr['$and'] = [];
         }
+
+        $this->expr['$and'] = array_merge($this->expr['$and'], array_map([$this, 'ensureArray'], func_get_args()));
 
         return $this;
     }
 
     /**
-     * Add an $or clause to the current expression.
+     * Adds one or more $or clause to the current expression.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/or/
      * @param array|self $expression
      * @return $this
      */
-    public function addOr($expression)
+    public function addOr($expression /*, $expression2, ... */)
     {
-        if ($this->currentField) {
-            $this->expr[$this->currentField]['$or'][] = $this->ensureArray($expression);
-        } else {
-            $this->expr['$or'][] = $this->ensureArray($expression);
+        if (! isset($this->expr['$or'])) {
+            $this->expr['$or'] = [];
         }
+
+        $this->expr['$or'] = array_merge($this->expr['$or'], array_map([$this, 'ensureArray'], func_get_args()));
 
         return $this;
     }
