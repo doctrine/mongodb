@@ -58,7 +58,7 @@ class Match extends Stage
     }
 
     /**
-     * Add an $and clause to the current query.
+     * Add one or more $and clauses to the current query.
      *
      * You can create a new expression using the {@link Builder::matchExpr()}
      * method.
@@ -68,15 +68,15 @@ class Match extends Stage
      * @param array|Expr $expression
      * @return $this
      */
-    public function addAnd($expression)
+    public function addAnd($expression /* , $expression2, ... */)
     {
-        $this->query->addAnd($expression);
+        $this->query->addAnd(...func_get_args());
 
         return $this;
     }
 
     /**
-     * Add a $nor clause to the current query.
+     * Add one or more $nor clauses to the current query.
      *
      * You can create a new expression using the {@link Builder::matchExpr()}
      * method.
@@ -86,15 +86,15 @@ class Match extends Stage
      * @param array|Expr $expression
      * @return $this
      */
-    public function addNor($expression)
+    public function addNor($expression /*, $expression2, ... */)
     {
-        $this->query->addNor($expression);
+        $this->query->addNor(...func_get_args());
 
         return $this;
     }
 
     /**
-     * Add an $or clause to the current query.
+     * Add one or more $or clauses to the current query.
      *
      * You can create a new expression using the {@link Builder::matchExpr()}
      * method.
@@ -104,9 +104,9 @@ class Match extends Stage
      * @param array|Expr $expression
      * @return $this
      */
-    public function addOr($expression)
+    public function addOr($expression /* , $expression2, ... */)
     {
-        $this->query->addOr($expression);
+        $this->query->addOr(...func_get_args());
 
         return $this;
     }

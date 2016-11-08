@@ -68,7 +68,7 @@ class Builder
     }
 
     /**
-     * Add an $and clause to the current query.
+     * Add one or more $and clauses to the current query.
      *
      * You can create a new expression using the {@link Builder::expr()} method.
      *
@@ -77,9 +77,9 @@ class Builder
      * @param array|Expr $expression
      * @return $this
      */
-    public function addAnd($expression)
+    public function addAnd($expression /* , $expression2, ... */)
     {
-        $this->expr->addAnd($expression);
+        $this->expr->addAnd(...func_get_args());
         return $this;
     }
 
@@ -105,7 +105,7 @@ class Builder
     }
 
     /**
-     * Add a $nor clause to the current query.
+     * Add one or more $nor clauses to the current query.
      *
      * You can create a new expression using the {@link Builder::expr()} method.
      *
@@ -114,14 +114,14 @@ class Builder
      * @param array|Expr $expression
      * @return $this
      */
-    public function addNor($expression)
+    public function addNor($expression /* , $expression2, ... */)
     {
-        $this->expr->addNor($expression);
+        $this->expr->addNor(...func_get_args());
         return $this;
     }
 
     /**
-     * Add an $or clause to the current query.
+     * Add one or more $or clauses to the current query.
      *
      * You can create a new expression using the {@link Builder::expr()} method.
      *
@@ -130,9 +130,9 @@ class Builder
      * @param array|Expr $expression
      * @return $this
      */
-    public function addOr($expression)
+    public function addOr($expression /* , $expression2, ... */)
     {
-        $this->expr->addOr($expression);
+        $this->expr->addOr(...func_get_args());
         return $this;
     }
 

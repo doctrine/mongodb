@@ -88,31 +88,31 @@ abstract class Operator extends Stage
     }
 
     /**
-     * Add an $and clause to the current expression.
+     * Add one or more $and clauses to the current expression.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/and/
      * @see Expr::addAnd
      * @param array|Expr $expression
      * @return $this
      */
-    public function addAnd($expression)
+    public function addAnd($expression /* , $expression2, ... */)
     {
-        $this->expr->addAnd($expression);
+        $this->expr->addAnd(...func_get_args());
 
         return $this;
     }
 
     /**
-     * Add an $or clause to the current expression.
+     * Add one or more $or clauses to the current expression.
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/or/
      * @see Expr::addOr
      * @param array|Expr $expression
      * @return $this
      */
-    public function addOr($expression)
+    public function addOr($expression /* , $expression2, ... */)
     {
-        $this->expr->addOr($expression);
+        $this->expr->addOr(...func_get_args());
 
         return $this;
     }
