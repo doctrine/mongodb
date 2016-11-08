@@ -710,7 +710,7 @@ class Builder
      */
     public function geoWithinPolygon(/* array($x1, $y1), ... */)
     {
-        call_user_func_array([$this->expr, 'geoWithinPolygon'], func_get_args());
+        $this->expr->geoWithinPolygon(...func_get_args());
         return $this;
     }
 
@@ -1896,7 +1896,7 @@ class Builder
      */
     public function withinPolygon(/* array($x1, $y1), array($x2, $y2), ... */)
     {
-        call_user_func_array([$this->expr, 'withinPolygon'], func_get_args());
+        $this->expr->withinPolygon(...func_get_args());
         return $this;
     }
 

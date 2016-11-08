@@ -324,13 +324,15 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     public function testProxiedExprMethods($method, array $args = [])
     {
         $expr = $this->getMockExpr();
-        $invocationMocker = $expr->expects($this->once())->method($method);
-        call_user_func_array([$invocationMocker, 'with'], $args);
+        $expr
+            ->expects($this->once())
+            ->method($method)
+            ->with(...$args);
 
         $qb = $this->getStubQueryBuilder();
         $qb->setExpr($expr);
 
-        $this->assertSame($qb, call_user_func_array([$qb, $method], $args));
+        $this->assertSame($qb, $qb->$method(...$args));
     }
 
     public function provideProxiedExprMethods()
@@ -540,7 +542,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     public function testSelect(array $args, array $expected)
     {
         $qb = $this->getTestQueryBuilder();
-        call_user_func_array([$qb, 'select'], $args);
+        $qb->select(...$args);
 
         $this->assertEquals($expected, $qb->debug('select'));
     }
@@ -556,7 +558,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
     public function testExclude(array $args, array $expected)
     {
         $qb = $this->getTestQueryBuilder();
-        call_user_func_array([$qb, 'exclude'], $args);
+        $qb->exclude(...$args);
 
         $this->assertEquals($expected, $qb->debug('select'));
     }

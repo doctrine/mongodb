@@ -330,7 +330,7 @@ class Match extends Stage
      */
     public function geoWithinPolygon(/* array($x1, $y1), ... */)
     {
-        call_user_func_array([$this->query, 'geoWithinPolygon'], func_get_args());
+        $this->query->geoWithinPolygon(...func_get_args());
 
         return $this;
     }

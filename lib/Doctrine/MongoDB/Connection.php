@@ -330,7 +330,7 @@ class Connection
     public function log(array $log)
     {
         if (null !== $this->config->getLoggerCallable()) {
-            call_user_func_array($this->config->getLoggerCallable(), [$log]);
+            call_user_func($this->config->getLoggerCallable(), $log);
         }
     }
 

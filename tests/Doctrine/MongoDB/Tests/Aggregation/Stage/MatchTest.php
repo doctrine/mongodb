@@ -36,13 +36,15 @@ class MatchTest extends \PHPUnit_Framework_TestCase
     public function testProxiedExprMethods($method, array $args = [])
     {
         $expr = $this->getMockQueryExpr();
-        $invocationMocker = $expr->expects($this->once())->method($method);
-        call_user_func_array([$invocationMocker, 'with'], $args);
+        $expr
+            ->expects($this->once())
+            ->method($method)
+            ->with(...$args);
 
         $stage = $this->getStubStage();
         $stage->setQuery($expr);
 
-        $this->assertSame($stage, call_user_func_array([$stage, $method], $args));
+        $this->assertSame($stage, $stage->$method(...$args));
     }
 
     public function provideProxiedExprMethods()
