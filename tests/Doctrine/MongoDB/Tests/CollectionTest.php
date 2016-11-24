@@ -74,6 +74,40 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $coll->aggregate(array());
     }
 
+    public function testAggregateWithTimeout()
+    {
+        $pipeline = array(
+            array('$match' => array('_id' => 'bar')),
+            array('$project' => array('_id' => 1)),
+        );
+        $options = array(
+            'timeout' => 45
+        );
+
+        $aggregated = array(array('_id' => 'bar'));
+        $commandResult = array('ok' => 1, 'result' => $aggregated);
+
+        $expectedCommand = array(
+            'aggregate' => self::collectionName,
+            'pipeline' => $pipeline,
+        );
+
+        if (BaseTest::checkMongoVersion('1.5.0', '<')) {
+            $expectedOptions = array('timeout' => 45);
+        } else {
+            $expectedOptions = array('socketTimeoutMS' => 45);
+        }
+
+        $database = $this->getMockDatabase();
+        $database->expects($this->once())
+            ->method('command')
+            ->with($expectedCommand, $expectedOptions)
+            ->willReturn($commandResult);
+
+        $coll = $this->getTestCollection($database);
+        $coll->aggregate($pipeline, $options);
+    }
+
     public function testBatchInsert()
     {
         $docs = array(array('x' => 1, 'y' => 2));
@@ -353,9 +387,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testGetSetSlaveOkay()
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {
-            $this->markTestSkipped('This test is not applicable to driver versions >= 1.3.0');
-        }
+        BaseTest::markTestSkippedByMongoVersion('1.3.0', '>=');
 
         $mongoCollection = $this->getMockMongoCollection();
 
@@ -376,9 +408,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testGetSetSlaveOkayReadPreferences()
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
-        }
+        BaseTest::markTestSkippedByMongoVersion('1.3.0', '<');
 
         $mongoCollection = $this->getMockMongoCollection();
 
@@ -429,9 +459,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testSetReadPreference()
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
-        }
+        BaseTest::markTestSkippedByMongoVersion('1.3.0', '<');
 
         $mongoCollection = $this->getMockMongoCollection();
 
@@ -830,9 +858,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testWriteConcernOptionIsNotConvertedForOlderDrivers()
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {
-            $this->markTestSkipped('This test is not applicable to driver versions >= 1.3.0');
-        }
+        BaseTest::markTestSkippedByMongoVersion('1.3.0', '>=');
 
         $mongoCollection = $this->getMockMongoCollection();
         $mongoCollection->expects($this->once())
@@ -864,9 +890,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testSocketTimeoutOptionIsNotConvertedForOlderDrivers()
     {
-        if (version_compare(phpversion('mongo'), '1.5.0', '>=')) {
-            $this->markTestSkipped('This test is not applicable to driver versions >= 1.5.0');
-        }
+        BaseTest::markTestSkippedByMongoVersion('1.5.0', '>=');
 
         $mongoCollection = $this->getMockMongoCollection();
         $mongoCollection->expects($this->once())
@@ -898,9 +922,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testWriteTimeoutOptionIsNotConvertedForOlderDrivers()
     {
-        if (version_compare(phpversion('mongo'), '1.5.0', '>=')) {
-            $this->markTestSkipped('This test is not applicable to driver versions >= 1.5.0');
-        }
+        BaseTest::markTestSkippedByMongoVersion('1.5.0', '>=');
 
         $mongoCollection = $this->getMockMongoCollection();
         $mongoCollection->expects($this->once())

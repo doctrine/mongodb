@@ -14,7 +14,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     {
         $mongoDB = $this->getMockMongoDB();
 
-        if (version_compare(phpversion('mongo'), '1.4.0', '>=')) {
+        if (BaseTest::checkMongoVersion('1.4.0', '>=')) {
             $mongoDB->expects($this->once())
                 ->method('createCollection')
                 ->with('foo', array('capped' => true, 'size' => 10485760, 'max' => 0));
@@ -39,7 +39,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     {
         $mongoDB = $this->getMockMongoDB();
 
-        if (version_compare(phpversion('mongo'), '1.4.0', '>=')) {
+        if (BaseTest::checkMongoVersion('1.4.0', '>=')) {
             $mongoDB->expects($this->once())
                 ->method('createCollection')
                 ->with('foo', array('capped' => true, 'size' => 10485760, 'max' => 0, 'autoIndexId' => false,));
@@ -87,9 +87,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
     public function testGetSetSlaveOkay()
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '>=')) {
-            $this->markTestSkipped('This test is not applicable to driver versions >= 1.3.0');
-        }
+        BaseTest::markTestSkippedByMongoVersion('1.3.0', '>=');
 
         $mongoDB = $this->getMockMongoDB();
 
@@ -138,9 +136,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
     public function testSetSlaveOkayPreservesReadPreferenceTags()
     {
-        if (version_compare(phpversion('mongo'), '1.3.0', '<')) {
-            $this->markTestSkipped('This test is not applicable to driver versions < 1.3.0');
-        }
+        BaseTest::markTestSkippedByMongoVersion('1.3.0', '<');
 
         $mongoDB = $this->getMockMongoDB();
 

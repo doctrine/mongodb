@@ -94,11 +94,12 @@ class Collection
      * @see http://php.net/manual/en/mongocollection.aggregate.php
      * @see http://docs.mongodb.org/manual/reference/command/aggregate/
      * @param array $pipeline Array of pipeline operators, or the first operator
+     * @param array $options
      * @param array $op,...   Additional operators (if $pipeline was the first)
-     * @return ArrayIterator
+     * @return ArrayIterator|\MongoCommandCursor
      * @throws ResultException if the command fails
      */
-    public function aggregate(array $pipeline /* , array $op, ... */)
+    public function aggregate(array $pipeline, array $options = array() /* , array $op, ... */)
     {
         /* If the single array argument contains a zeroth index, consider it an
          * array of pipeline operators. Otherwise, assume that each argument is
@@ -106,13 +107,14 @@ class Collection
          */
         if ( ! array_key_exists(0, $pipeline)) {
             $pipeline = func_get_args();
+            $options = array();
         }
 
         if ($this->eventManager->hasListeners(Events::preAggregate)) {
             $this->eventManager->dispatchEvent(Events::preAggregate, new AggregateEventArgs($this, $pipeline));
         }
 
-        $result = $this->doAggregate($pipeline);
+        $result = $this->doAggregate($pipeline, $options);
 
         if ($this->eventManager->hasListeners(Events::postAggregate)) {
             $eventArgs = new MutableEventArgs($this, $result);
@@ -836,28 +838,83 @@ class Collection
      *
      * @see Collection::aggregate()
      * @param array $pipeline
-     * @return ArrayIterator
-     * @throws ResultException if the command fails
+     * @param array $options
+     * @throws \Exception
+     * @throws \MongoException
+     * @throws null
+     * @return ArrayIterator|\MongoCommandCursor
      */
-    protected function doAggregate(array $pipeline)
+    protected function doAggregate(array $pipeline, array $options = array())
+    {
+        $options = isset($options['timeout']) ? $this->convertSocketTimeout($options) : $options;
+
+        if (isset($options['cursor'])) {
+            return $this->doAggregateCursor($pipeline, $options);
+        } else {
+            return $this->doAggregateCommand($pipeline, $options);
+        }
+    }
+
+    /**
+     * @param array $pipeline
+     * @param array $options
+     * @return ArrayIterator
+     * @throws ResultException
+     */
+    protected function doAggregateCommand(array $pipeline, array $options = array())
     {
         $command = array();
         $command['aggregate'] = $this->mongoCollection->getName();
         $command['pipeline'] = $pipeline;
 
         $database = $this->database;
-        $result = $this->retry(function() use ($database, $command) {
-            return $database->command($command);
+        $result = $this->retry(function() use ($database, $command, $options) {
+            return $database->command($command, $options);
         });
 
         if (empty($result['ok'])) {
             throw new ResultException($result);
         }
 
-        $arrayIterator = new ArrayIterator(isset($result['result']) ? $result['result'] : array());
-        $arrayIterator->setCommandResult($result);
+        $out = $this->aggregatePipelineGetOperator($pipeline, '$out');
+        if (false !== $out) {
+            return $this->database->selectCollection($out)->find();
+        } else {
+            $arrayIterator = new ArrayIterator(isset($result['result']) ? $result['result'] : array());
+            $arrayIterator->setCommandResult($result);
+            return $arrayIterator;
+        }
+    }
 
-        return $arrayIterator;
+    /**
+     * @param array $pipeline
+     * @param string $operator
+     * @return mixed|
+     */
+    protected function aggregatePipelineGetOperator(array $pipeline, $operator)
+    {
+        foreach ($pipeline as $operation) {
+            if (isset($operation[$operator])) {
+                return $operation[$operator];
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param array $pipeline
+     * @param array $options
+     * @return \MongoCommandCursor
+     * @throws \MongoException
+     */
+    protected function doAggregateCursor(array $pipeline, array $options = array())
+    {
+        $collection = $this->mongoCollection;
+        $result = $this->retry(function() use ($collection, $pipeline, $options) {
+            return $collection->aggregateCursor($pipeline, $options);
+        });
+
+        return $result;
     }
 
     /**
