@@ -27,10 +27,10 @@
         "alcaeus/mongo-php-adapter": "Allows usage of PHP 7"
     },
     "autoload": {
-        "psr-0": { "Doctrine\\MongoDB": "lib/" }
+        "psr-4": { "Doctrine\\MongoDB\\": "lib/Doctrine/MongoDB/" }
     },
     "autoload-dev": {
-        "psr-0": { "Doctrine\\MongoDB\\Tests": "tests/" }
+        "psr-4": { "Doctrine\\MongoDB\\Tests\\": "tests/Doctrine/MongoDB/Tests/" }
     },
     "extra": {
         "branch-alias": {
