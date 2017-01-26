@@ -19,6 +19,9 @@
 
 namespace Doctrine\MongoDB;
 
+use Doctrine\Common\EventManager;
+use Doctrine\MongoDB\Event\FetchSingleResultFromCursorEventArgs;
+
 /**
  * Wrapper for the PHP MongoCursor class.
  *
@@ -324,7 +327,20 @@ class Cursor implements CursorInterface
         $this->limit(1);
         $this->setUseIdentifierKeys(false);
 
-        $result = current($this->toArray()) ?: null;
+        $eventManager = $this->collection->getEventManager();
+
+        if ($eventManager->hasListeners(Events::preFetchSingleResultFromCursor)) {
+            $eventManager->dispatchEvent(Events::preFetchSingleResultFromCursor, new FetchSingleResultFromCursorEventArgs($this, $this->query, $this->fields));
+        }
+
+        $toArrayResult = $this->toArray();
+
+        if ($eventManager->hasListeners(Events::postFetchSingleResultFromCursor)) {
+            $eventArgs = new FetchSingleResultFromCursorEventArgs($this, $this->query, $this->fields);
+            $eventManager->dispatchEvent(Events::postFetchSingleResultFromCursor, $eventArgs);
+        }
+
+        $result = current($toArrayResult) ?: null;
 
         $this->reset();
         $this->limit($originalLimit);
