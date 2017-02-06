@@ -627,4 +627,13 @@ class ExprTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expr, $expr->notIn([1 => 'value1', 'some' => 'value2']));
         $this->assertEquals(['$nin' => ['value1', 'value2']], $expr->getQuery());
     }
+
+    public function testOperatorFollowsEquals()
+    {
+        $expr = new Expr();
+        $this->assertSame($expr, $expr->field('a')->equals('b'));
+        $this->assertEquals(array('a' => 'b'), $expr->getQuery());
+        $this->assertSame($expr, $expr->field('a')->in(array(1 => 'value1', 'some' => 'value2')));
+        $this->assertEquals(array('a' => array('$in' => array('value1', 'value2'))), $expr->getQuery());
+    }
 }

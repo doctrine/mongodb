@@ -999,6 +999,10 @@ class Expr
         $this->wrapEqualityCriteria();
 
         if ($this->currentField) {
+            if (isset($this->query[$this->currentField]) && !is_array($this->query[$this->currentField])) {
+                $this->query[$this->currentField] = array();
+            }
+
             $this->query[$this->currentField][$operator] = $value;
         } else {
             $this->query[$operator] = $value;
