@@ -672,6 +672,118 @@ class Collection
         }
         return false;
     }
+    
+    /**
+     * Check if given fields are prefix of any existing index. Fields'
+     * order does NOT matter in this method.
+     * 
+     * http://docs.mongodb.org/manual/core/index-compound/#prefixes
+     * Given the following index: { "item": 1, "location": 1, "stock": 1 }
+     * Supported queries are those including
+     *  * item
+     *  * item and location
+     *  * item and location and stock
+     *  * item and stock (however, this index would be less efficient than an index on only item and stock)
+     * 
+     * @param array $fieldsNames
+     * @param boolean $allowLessEfficient
+     * @return boolean
+     */
+    public function areFieldsIndexed($fieldsNames, $allowLessEfficient = true)
+    {
+        $indexes = $this->getIndexInfo();
+        $numFields = count($fieldsNames);
+        foreach ($indexes as $index) {
+            // no keys or less keys are indexed than we need
+            if (!isset($index['key']) || count($index['key']) < $numFields) {
+                continue;
+            }
+            // array of index_field => position
+            $indexFieldPositions = array(); $i = 0;
+            foreach ($index['key'] as $field => $order) {
+                $indexFieldPositions[$field] = $i++;
+            }
+            $matchedPositions = array();
+            foreach ($fieldsNames as $field) {
+                if (isset($indexFieldPositions[$field])) {
+                    $matchedPositions[] = $indexFieldPositions[$field];
+                } else {
+                    continue 2; // field is not indexed, see next index
+                }
+            }
+            sort($matchedPositions);
+            if ($allowLessEfficient && $matchedPositions[0] === 0) {
+                return true;
+            }
+            foreach ($matchedPositions as $i => $expected) {
+                if ($i !== $expected) {
+                    continue 2; // prefix is not continuous subset
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Checks if there is any index capable of sorting results in
+     * required order. This method does not run index check against
+     * $prefixPrepend
+     * 
+     * @param array $sort [ field => -1|1, .. ]
+     * @param array $prefixPrepend list of fields from find() that made an equality check
+     * @param boolean $allowLessEfficient
+     * @return boolean
+     */
+    public function areFieldsIndexedForSorting($sort, $prefixPrepend = array(), $allowLessEfficient = true)
+    {
+        $indexes = $this->getIndexInfo();
+        $numFields = count($sort);
+        foreach ($indexes as $index) {
+            // no keys or less keys are indexed than we need
+            if (!isset($index['key']) || count($index['key']) < $numFields) {
+                continue;
+            }
+            // array of index_field => position
+            $indexFieldPositions = array(); $i = 0;
+            foreach ($index['key'] as $field => $order) {
+                $indexFieldPositions[$field] = $i++;
+            }
+            $matchedPositions = array();
+            foreach ($prefixPrepend as $p) {
+                $matchedPositions[] = $indexFieldPositions[$p];
+            }
+            $indexToUse = array(); $currentIndexPosition=-1;
+            foreach ($sort as $field => $order) {
+                if (!isset($indexFieldPositions[$field])) {
+                    continue 2; // field is not indexed
+                }
+                if ($indexFieldPositions[$field] < $currentIndexPosition) {
+                    continue 2; // wrong field order in index
+                }
+                $currentIndexPosition = $indexFieldPositions[$field];
+                $matchedPositions[] = $currentIndexPosition;
+                $indexToUse[$field] = $index['key'][$field];
+            }
+            sort($matchedPositions);
+            if ($matchedPositions[0] !== 0) {
+                continue; // this is not prefix
+            }
+            if (!$allowLessEfficient) {
+                foreach ($matchedPositions as $i => $expected) {
+                    if ($i !== $expected) {
+                        continue 2; // prefix is not continuous subset
+                    }
+                }
+            }
+            // Mongo can traverse index from end to beginning as well
+            $reversedIndexToUse = array_map(function($order) { return -$order; }, $indexToUse);
+            if ($sort === $indexToUse || $sort === $reversedIndexToUse) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Invokes the mapReduce command.

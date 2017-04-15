@@ -626,7 +626,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Doctrine\MongoDB\Collection::getIndexInfo
-     * @dataProvider provideIsFieldIndex
+     * @dataProvider provideIsFieldIndexed
      */
     public function testIsFieldIndexed($indexInfo, $field, $expectedResult)
     {
@@ -641,7 +641,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedResult, $coll->isFieldIndexed($field));
     }
 
-    public function provideIsFieldIndex()
+    public function provideIsFieldIndexed()
     {
         $indexInfo = [
             [
@@ -662,6 +662,111 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             [$indexInfo, 'bat', true],
             [$indexInfo, 'baz', false],
         ];
+    }
+    
+    /**
+     * @covers Doctrine\MongoDB\Collection::getIndexInfo
+     * @covers Doctrine\MongoDB\Collection::areFieldsIndexed
+     * @dataProvider provideAreFieldsIndexed
+     */
+    public function testAreFieldsIndexed($indexInfo, $fields, $allowLessEfficient, $expectedResult)
+    {
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->once())
+            ->method('getIndexInfo')
+            ->will($this->returnValue($indexInfo));
+
+        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
+
+        $this->assertEquals($expectedResult, $coll->areFieldsIndexed($fields, $allowLessEfficient));
+    }
+    
+    public function provideAreFieldsIndexed()
+    {
+        $indexInfo = array(
+            array(
+                'name' => '_id_',
+                'ns' => 'test.foo',
+                'key' => array('_id' => 1)
+            ),
+            array(
+                'name' => 'foo_1_bar_1_baz_1',
+                'ns' => 'test.foo',
+                'key' => array('foo' => 1, 'bar' => 1, 'baz' => 1)
+            )
+        );
+        
+        return array(
+            array($indexInfo, array('_id'), false, true),
+            array($indexInfo, array('foo'), false, true),
+            array($indexInfo, array('bar'), false, false),
+            array($indexInfo, array('ohmy'), false, false),
+            array($indexInfo, array('foo', 'baz'), false, false),
+            array($indexInfo, array('foo', 'baz'), true, true),
+            array($indexInfo, array('foo', 'ohmy'), false, false),
+            array($indexInfo, array('baz', 'bar'), false, false),
+            array($indexInfo, array('foo', 'bar'), false, true),
+            array($indexInfo, array('baz', 'foo', 'bar'), false, true),
+        );
+    }
+    
+    /**
+     * @covers Doctrine\MongoDB\Collection::getIndexInfo
+     * @covers Doctrine\MongoDB\Collection::areFieldsIndexedForSorting
+     * @dataProvider provideAreFieldsIndexedForSorting
+     */
+    public function testAreFieldsIndexedForSorting($indexInfo, $fields, $prependPrefix, $allowLessEfficient, $expectedResult)
+    {
+        $mongoCollection = $this->getMockMongoCollection();
+
+        $mongoCollection->expects($this->once())
+            ->method('getIndexInfo')
+            ->will($this->returnValue($indexInfo));
+
+        $coll = $this->getTestCollection($this->getMockDatabase(), $mongoCollection);
+
+        $this->assertEquals($expectedResult, $coll->areFieldsIndexedForSorting($fields, $prependPrefix, $allowLessEfficient));
+    }
+    
+    public function provideAreFieldsIndexedForSorting()
+    {
+        $indexInfo = array(
+            array(
+                'name' => '_id_',
+                'ns' => 'test.foo',
+                'key' => array('_id' => 1)
+            ),
+            array(
+                'name' => 'foo_1_bar_1_baz_1',
+                'ns' => 'test.foo',
+                'key' => array('foo' => 1, 'bar' => 1, 'baz' => 1)
+            )
+        );
+        
+        return array(
+            array($indexInfo, array('_id' => 1), array(), false, true),
+            array($indexInfo, array('_id' => -1), array(), false, true),
+            array($indexInfo, array('foo' => 1), array(), false, true),
+            array($indexInfo, array('foo' => -1), array(), false, true),
+            array($indexInfo, array('bar' => 1), array(), false, false),
+            array($indexInfo, array('ohmy' => -1), array(), false, false), // not indexed
+            array($indexInfo, array('foo' => 1, 'baz' => 1), array(), false, false), // inefficient
+            array($indexInfo, array('foo' => 1, 'baz' => 1), array(), true, true),
+            array($indexInfo, array('foo' => -1, 'baz' => -1), array(), true, true),
+            array($indexInfo, array('foo' => 1, 'baz' => -1), array(), true, false), // no index with this sort order
+            array($indexInfo, array('foo' => 1, 'ohmy' => -1), array(), false, false), // not indexed
+            array($indexInfo, array('baz' => 1, 'bar' => 1), array(), false, false),
+            array($indexInfo, array('bar' => 1, 'baz' => 1), array(), false, false), // not a prefix
+            array($indexInfo, array('bar' => 1, 'baz' => 1), array('foo'), false, true), // can be executed because equality check on foo
+            array($indexInfo, array('foo' => 1, 'bar' => 1), array(), false, true),
+            array($indexInfo, array('foo' => -1, 'bar' => -1), array(), false, true),
+            array($indexInfo, array('foo' => 1, 'bar' => -1), array(), false, false), // no index with this sort order
+            array($indexInfo, array('foo' => 1, 'bar' => 1, 'baz' => 1), array(), false, true),
+            array($indexInfo, array('foo' => -1, 'bar' => -1, 'baz' => -1), array(), false, true),
+            array($indexInfo, array('foo' => 1, 'bar' => 1, 'baz' => -1), array(), false, false), // no index with this sort order
+            array($indexInfo, array('baz' => 1, 'foo' => 1, 'bar' => 1), array(), false, false), // wrong order of fields
+        );
     }
 
     public function testMapReduceWithResultsInline()
