@@ -190,7 +190,11 @@ class Connection
     public function setMongo($mongoClient)
     {
         if ( ! ($mongoClient instanceof \MongoClient || $mongoClient instanceof \Mongo)) {
-            throw new \InvalidArgumentException('MongoClient or Mongo instance required');
+            $exception = new \InvalidArgumentException('MongoClient or Mongo instance required');
+            if ($this->eventManager->hasListeners(Events::preThrowException)) {
+                $this->eventManager->dispatchEvent(Events::preThrowException, new EventArgs($this, $exception));
+            }
+            throw $exception;
         }
 
         $this->mongoClient = $mongoClient;
