@@ -62,6 +62,25 @@ abstract class Stage
     }
 
     /**
+     * Categorizes incoming documents into groups, called buckets, based on a
+     * specified expression and bucket boundaries.
+     *
+     * Each bucket is represented as a document in the output. The document for
+     * each bucket contains an _id field, whose value specifies the inclusive
+     * lower bound of the bucket and a count field that contains the number of
+     * documents in the bucket. The count field is included by default when the
+     * output is not specified.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/bucket/
+     *
+     * @return Stage\Bucket
+     */
+    public function bucket()
+    {
+        return $this->builder->bucket();
+    }
+
+    /**
      * Outputs documents in order of nearest to farthest from a specified point.
      * You can only use this as the first stage of a pipeline.
      *
