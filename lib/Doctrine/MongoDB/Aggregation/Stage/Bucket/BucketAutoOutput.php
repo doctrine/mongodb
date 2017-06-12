@@ -17,73 +17,53 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\MongoDB\Aggregation\Stage;
+namespace Doctrine\MongoDB\Aggregation\Stage\Bucket;
 
 use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Stage;
 
 /**
- * Fluent interface for adding a $bucket stage to an aggregation pipeline.
+ * Fluent interface for adding an output specification to a bucket stage.
  *
  * @author alcaeus <alcaeus@alcaeus.org>
  * @since 1.5
  */
-class Bucket extends AbstractBucket
+class BucketAutoOutput extends AbstractOutput
 {
     /**
-     * @var array
+     * @param Builder $builder
+     * @param Stage\BucketAuto $bucket
      */
-    private $boundaries;
+    public function __construct(Builder $builder, Stage\BucketAuto $bucket)
+    {
+        parent::__construct($builder, $bucket);
+    }
 
     /**
-     * @var mixed
+     * @return Stage\BucketAuto
      */
-    private $default;
+    public function groupBy($expression)
+    {
+        return $this->bucket->groupBy($expression);
+    }
 
     /**
-     * @param array ...$boundaries
+     * @param int $buckets
      *
-     * @return $this
+     * @return Stage\BucketAuto
      */
-    public function boundaries(...$boundaries)
+    public function buckets($buckets)
     {
-        $this->boundaries = $boundaries;
-        return $this;
+        return $this->bucket->buckets($buckets);
     }
 
     /**
-     * @param mixed $default
+     * @param string $granularity
      *
-     * @return $this
+     * @return Stage\BucketAuto
      */
-    public function defaultBucket($default)
+    public function granularity($granularity)
     {
-        $this->default = $default;
-        return $this;
-    }
-
-    /**
-     * @return Bucket\BucketOutput
-     */
-    public function output()
-    {
-        if (!$this->output) {
-            $this->output = new Stage\Bucket\BucketOutput($this->builder, $this);
-        }
-
-        return $this->output;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getExtraPipelineFields()
-    {
-        $fields = ['boundaries' => $this->boundaries];
-        if ($this->default !== null) {
-            $fields['default'] = $this->default;
-        }
-
-        return $fields;
+        return $this->bucket->granularity($granularity);
     }
 }

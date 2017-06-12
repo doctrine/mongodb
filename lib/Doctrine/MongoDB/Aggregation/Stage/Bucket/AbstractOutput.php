@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\MongoDB\Aggregation\Stage\Bucket;
 
@@ -24,24 +7,29 @@ use Doctrine\MongoDB\Aggregation\Expr;
 use Doctrine\MongoDB\Aggregation\Stage;
 
 /**
- * Fluent interface for adding an output specification to a bucket stage.
+ * Abstract class with common functionality for output objects in bucket stages
  *
+ * @internal
  * @author alcaeus <alcaeus@alcaeus.org>
  * @since 1.5
  */
-class Output extends Stage
+abstract class AbstractOutput extends Stage
 {
     /**
-     * @var Stage\Bucket
+     * @var Stage\AbstractBucket
      */
-    private $bucket;
+    protected $bucket;
 
     /**
      * @var Expr
      */
     private $expr;
 
-    public function __construct(Builder $builder, Stage\Bucket $bucket)
+    /**
+     * @param Builder $builder
+     * @param Stage\AbstractBucket $bucket
+     */
+    public function __construct(Builder $builder, Stage\AbstractBucket $bucket)
     {
         parent::__construct($builder);
 
@@ -57,21 +45,6 @@ class Output extends Stage
         return $this->expr->getExpression();
     }
 
-    public function groupBy($expression)
-    {
-        return $this->bucket->groupBy($expression);
-    }
-
-    public function boundaries(...$boundaries)
-    {
-        return $this->bucket->boundaries(...$boundaries);
-    }
-
-    public function defaultBucket($default)
-    {
-        return $this->bucket->defaultBucket($default);
-    }
-
     /**
      * Returns an array of all unique values that results from applying an
      * expression to each document in a group of documents that share the same
@@ -81,7 +54,9 @@ class Output extends Stage
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/addToSet/
      * @see Expr::addToSet
+     *
      * @param mixed|Expr $expression
+     *
      * @return $this
      */
     public function addToSet($expression)
@@ -98,7 +73,9 @@ class Output extends Stage
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/avg/
      * @see Expr::avg
+     *
      * @param mixed|Expr $expression
+     *
      * @return $this
      */
     public function avg($expression)
@@ -113,7 +90,9 @@ class Output extends Stage
      *
      * @see http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#aggregation-expressions
      * @see Expr::expression
+     *
      * @param mixed|Expr $value
+     *
      * @return $this
      */
     public function expression($value)
@@ -127,7 +106,9 @@ class Output extends Stage
      * Set the current field for building the expression.
      *
      * @see Expr::field
+     *
      * @param string $fieldName
+     *
      * @return $this
      */
     public function field($fieldName)
@@ -144,7 +125,9 @@ class Output extends Stage
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/first/
      * @see Expr::first
+     *
      * @param mixed|Expr $expression
+     *
      * @return $this
      */
     public function first($expression)
@@ -161,7 +144,9 @@ class Output extends Stage
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/last/
      * @see Expr::last
+     *
      * @param mixed|Expr $expression
+     *
      * @return $this
      */
     public function last($expression)
@@ -177,7 +162,9 @@ class Output extends Stage
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/max/
      * @see Expr::max
+     *
      * @param mixed|Expr $expression
+     *
      * @return $this
      */
     public function max($expression)
@@ -193,7 +180,9 @@ class Output extends Stage
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/min/
      * @see Expr::min
+     *
      * @param mixed|Expr $expression
+     *
      * @return $this
      */
     public function min($expression)
@@ -209,7 +198,9 @@ class Output extends Stage
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/push/
      * @see Expr::push
+     *
      * @param mixed|Expr $expression
+     *
      * @return $this
      */
     public function push($expression)
@@ -226,7 +217,9 @@ class Output extends Stage
      *
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/stdDevPop/
      * @see Expr::stdDevPop
+     *
      * @param mixed|Expr $expression
+     *
      * @return $this
      */
     public function stdDevPop($expression)
@@ -243,7 +236,9 @@ class Output extends Stage
      *
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/stdDevSamp/
      * @see Expr::stdDevSamp
+     *
      * @param mixed|Expr $expression
+     *
      * @return $this
      */
     public function stdDevSamp($expression)
@@ -260,7 +255,9 @@ class Output extends Stage
      *
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/sum/
      * @see Expr::sum
+     *
      * @param mixed|Expr $expression
+     *
      * @return $this
      */
     public function sum($expression)

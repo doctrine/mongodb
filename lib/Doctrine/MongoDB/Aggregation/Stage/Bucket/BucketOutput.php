@@ -17,73 +17,49 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\MongoDB\Aggregation\Stage;
+namespace Doctrine\MongoDB\Aggregation\Stage\Bucket;
 
 use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Stage;
 
 /**
- * Fluent interface for adding a $bucket stage to an aggregation pipeline.
+ * Fluent interface for adding an output specification to a bucket stage.
  *
  * @author alcaeus <alcaeus@alcaeus.org>
  * @since 1.5
  */
-class Bucket extends AbstractBucket
+class BucketOutput extends AbstractOutput
 {
     /**
-     * @var array
+     * @param Builder $builder
+     * @param Stage\Bucket $bucket
      */
-    private $boundaries;
+    public function __construct(Builder $builder, Stage\Bucket $bucket)
+    {
+        parent::__construct($builder, $bucket);
+    }
 
     /**
-     * @var mixed
+     * @return Stage\Bucket
      */
-    private $default;
+    public function groupBy($expression)
+    {
+        return $this->bucket->groupBy($expression);
+    }
 
     /**
-     * @param array ...$boundaries
-     *
-     * @return $this
+     * @return Stage\Bucket
      */
     public function boundaries(...$boundaries)
     {
-        $this->boundaries = $boundaries;
-        return $this;
+        return $this->bucket->boundaries(...$boundaries);
     }
 
     /**
-     * @param mixed $default
-     *
-     * @return $this
+     * @return Stage\Bucket
      */
     public function defaultBucket($default)
     {
-        $this->default = $default;
-        return $this;
-    }
-
-    /**
-     * @return Bucket\BucketOutput
-     */
-    public function output()
-    {
-        if (!$this->output) {
-            $this->output = new Stage\Bucket\BucketOutput($this->builder, $this);
-        }
-
-        return $this->output;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getExtraPipelineFields()
-    {
-        $fields = ['boundaries' => $this->boundaries];
-        if ($this->default !== null) {
-            $fields['default'] = $this->default;
-        }
-
-        return $fields;
+        return $this->bucket->defaultBucket($default);
     }
 }

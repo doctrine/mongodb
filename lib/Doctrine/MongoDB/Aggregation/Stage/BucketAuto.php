@@ -23,42 +23,37 @@ use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Stage;
 
 /**
- * Fluent interface for adding a $bucket stage to an aggregation pipeline.
+ * Fluent interface for adding a $bucketAuto stage to an aggregation pipeline.
  *
  * @author alcaeus <alcaeus@alcaeus.org>
  * @since 1.5
  */
-class Bucket extends AbstractBucket
+class BucketAuto extends AbstractBucket
 {
     /**
-     * @var array
+     * @var int
      */
-    private $boundaries;
+    private $buckets;
 
     /**
-     * @var mixed
+     * @var string
      */
-    private $default;
+    private $granularity;
 
     /**
-     * @param array ...$boundaries
+     * @param int $buckets
      *
      * @return $this
      */
-    public function boundaries(...$boundaries)
+    public function buckets($buckets)
     {
-        $this->boundaries = $boundaries;
+        $this->buckets = $buckets;
         return $this;
     }
 
-    /**
-     * @param mixed $default
-     *
-     * @return $this
-     */
-    public function defaultBucket($default)
+    public function granularity($granularity)
     {
-        $this->default = $default;
+        $this->granularity = $granularity;
         return $this;
     }
 
@@ -68,7 +63,7 @@ class Bucket extends AbstractBucket
     public function output()
     {
         if (!$this->output) {
-            $this->output = new Stage\Bucket\BucketOutput($this->builder, $this);
+            $this->output = new Stage\Bucket\BucketAutoOutput($this->builder, $this);
         }
 
         return $this->output;
@@ -79,9 +74,9 @@ class Bucket extends AbstractBucket
      */
     protected function getExtraPipelineFields()
     {
-        $fields = ['boundaries' => $this->boundaries];
-        if ($this->default !== null) {
-            $fields['default'] = $this->default;
+        $fields = ['buckets' => $this->buckets];
+        if ($this->granularity !== null) {
+            $fields['granularity'] = $this->granularity;
         }
 
         return $fields;

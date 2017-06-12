@@ -81,6 +81,27 @@ abstract class Stage
     }
 
     /**
+     * Categorizes incoming documents into a specific number of groups, called
+     * buckets, based on a specified expression.
+     *
+     * Bucket boundaries are automatically determined in an attempt to evenly
+     * distribute the documents into the specified number of buckets. Each
+     * bucket is represented as a document in the output. The document for each
+     * bucket contains an _id field, whose value specifies the inclusive lower
+     * bound and the exclusive upper bound for the bucket, and a count field
+     * that contains the number of documents in the bucket. The count field is
+     * included by default when the output is not specified.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/bucketAuto/
+     *
+     * @return Stage\BucketAuto
+     */
+    public function bucketAuto()
+    {
+        return $this->builder->bucketAuto();
+    }
+
+    /**
      * Outputs documents in order of nearest to farthest from a specified point.
      * You can only use this as the first stage of a pipeline.
      *
