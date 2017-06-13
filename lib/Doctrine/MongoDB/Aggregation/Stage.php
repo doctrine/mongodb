@@ -261,6 +261,20 @@ abstract class Stage
     }
 
     /**
+     * Groups incoming documents based on the value of a specified expression,
+     * then computes the count of documents in each distinct group.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/sortByCount/
+     *
+     * @param string $expression The expression to group by
+     * @return Stage\SortByCount
+     */
+    public function sortByCount($expression)
+    {
+        return $this->builder->sortByCount($expression);
+    }
+
+    /**
      * Sorts all input documents and returns them to the pipeline in sorted order.
      *
      * If sorting by multiple fields, the first argument should be an array of

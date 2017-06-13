@@ -345,6 +345,20 @@ class Builder
     }
 
     /**
+     * Groups incoming documents based on the value of a specified expression,
+     * then computes the count of documents in each distinct group.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/sortByCount/
+     *
+     * @param string $expression The expression to group by
+     * @return Stage\SortByCount
+     */
+    public function sortByCount($expression)
+    {
+        return $this->addStage(new Stage\SortByCount($this, $expression));
+    }
+
+    /**
      * Deconstructs an array field from the input documents to output a document
      * for each element. Each output document is the input document with the
      * value of the array field replaced by the element.
