@@ -234,6 +234,23 @@ abstract class Stage
     }
 
     /**
+     * Promotes a specified document to the top level and replaces all other
+     * fields.
+     *
+     * The operation replaces all existing fields in the input document,
+     * including the _id field. You can promote an existing embedded document to
+     * the top level, or create a new document for promotion.
+     *
+     * @param string $expression
+     *
+     * @return Stage\ReplaceRoot
+     */
+    public function replaceRoot($expression = null)
+    {
+        return $this->builder->replaceRoot($expression);
+    }
+
+    /**
      * Randomly selects the specified number of documents from its input.
      *
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/sample/
