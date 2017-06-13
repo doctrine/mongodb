@@ -102,6 +102,20 @@ abstract class Stage
     }
 
     /**
+     * Processes multiple aggregation pipelines within a single stage on the
+     * same set of input documents.
+     *
+     * Each sub-pipeline has its own field in the output document where its
+     * results are stored as an array of documents.
+     *
+     * @return Stage\Facet
+     */
+    public function facet()
+    {
+        return $this->builder->facet();
+    }
+
+    /**
      * Outputs documents in order of nearest to farthest from a specified point.
      * You can only use this as the first stage of a pipeline.
      *

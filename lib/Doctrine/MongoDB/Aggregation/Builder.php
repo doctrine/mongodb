@@ -134,6 +134,20 @@ class Builder
     }
 
     /**
+     * Processes multiple aggregation pipelines within a single stage on the
+     * same set of input documents.
+     *
+     * Each sub-pipeline has its own field in the output document where its
+     * results are stored as an array of documents.
+     *
+     * @return Stage\Facet
+     */
+    public function facet()
+    {
+        return $this->addStage(new Stage\Facet($this));
+    }
+
+    /**
      * Outputs documents in order of nearest to farthest from a specified point.
      *
      * A GeoJSON point may be provided as the first and only argument for
