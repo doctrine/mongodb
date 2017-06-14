@@ -90,7 +90,7 @@ class Expr
             $this->expr['$and'] = [];
         }
 
-        $this->expr['$and'] = array_merge($this->expr['$and'], array_map([$this, 'ensureArray'], func_get_args()));
+        $this->expr['$and'] = array_merge($this->expr['$and'], array_map(['static', 'convertExpression'], func_get_args()));
 
         return $this;
     }
@@ -108,7 +108,7 @@ class Expr
             $this->expr['$or'] = [];
         }
 
-        $this->expr['$or'] = array_merge($this->expr['$or'], array_map([$this, 'ensureArray'], func_get_args()));
+        $this->expr['$or'] = array_merge($this->expr['$or'], array_map(['static', 'convertExpression'], func_get_args()));
 
         return $this;
     }
@@ -281,25 +281,38 @@ class Expr
     }
 
     /**
+     * Converts an expression object into an array, recursing into nested items
+     *
+     * For expression objects, it calls getExpression on the expression object.
+     * For arrays, it recursively calls itself for each array item. Other values
+     * are returned directly
+     *
+     * @param mixed|self $expression
+     * @return string|array
+     * @internal
+     */
+    public static function convertExpression($expression)
+    {
+        if (is_array($expression)) {
+            return array_map(['static', 'convertExpression'], $expression);
+        } elseif ($expression instanceof self) {
+            return $expression->getExpression();
+        }
+
+        return $expression;
+    }
+
+    /**
      * Ensures an array or operator expression is converted to an array.
+     *
+     * @deprecated Deprecated in favor of convertExpression
      *
      * @param mixed|self $expression
      * @return mixed
      */
     protected function ensureArray($expression)
     {
-        if (is_array($expression)) {
-            $array = [];
-            foreach ($expression as $index => $value) {
-                $array[$index] = $this->ensureArray($value);
-            }
-
-            return $array;
-        } elseif ($expression instanceof self) {
-            return $expression->getExpression();
-        }
-
-        return $expression;
+        return static::convertExpression($expression);
     }
 
     /**
@@ -430,7 +443,7 @@ class Expr
     public function expression($value)
     {
         $this->requiresCurrentField(__METHOD__);
-        $this->expr[$this->currentField] = $this->ensureArray($value);
+        $this->expr[$this->currentField] = static::convertExpression($value);
 
         return $this;
     }
@@ -881,9 +894,9 @@ class Expr
     private function operator($operator, $expression)
     {
         if ($this->currentField) {
-            $this->expr[$this->currentField][$operator] = $this->ensureArray($expression);
+            $this->expr[$this->currentField][$operator] = static::convertExpression($expression);
         } else {
-            $this->expr[$operator] = $this->ensureArray($expression);
+            $this->expr[$operator] = static::convertExpression($expression);
         }
 
         return $this;
