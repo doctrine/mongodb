@@ -55,6 +55,26 @@ class Builder
     }
 
     /**
+     * Adds new fields to documents. $addFields outputs documents that contain all
+     * existing fields from the input documents and newly added fields.
+     *
+     * The $addFields stage is equivalent to a $project stage that explicitly specifies
+     * all existing fields in the input documents and adds the new fields.
+     *
+     * If the name of the new field is the same as an existing field name (including _id),
+     * $addFields overwrites the existing value of that field with the value of the
+     * specified expression.
+     *
+     * @see http://docs.mongodb.com/manual/reference/operator/aggregation/addFields/
+     *
+     * @return Stage\AddFields
+     */
+    public function addFields()
+    {
+        return $this->addStage(new Stage\AddFields($this));
+    }
+
+    /**
      * @return Expr
      */
     public function expr()
