@@ -4,7 +4,7 @@ namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\GridFSFile;
 
-class FunctionalTest extends BaseTest
+class FunctionalTest extends DatabaseTestCase
 {
     public function testUpsertSetsId()
     {
@@ -114,7 +114,7 @@ class FunctionalTest extends BaseTest
 
         $this->assertTrue(isset($file['_id']));
 
-        $path = __DIR__.'/BaseTest.php';
+        $path = __DIR__.'/TestCase.php';
         $files->update(['_id' => $file['_id']], ['$set' => ['title' => 'test', 'file' => new GridFSFile($path)]]);
 
         $file = $files->find()->getSingleResult();

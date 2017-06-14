@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\MongoDB\Util;
 
 use Doctrine\MongoDB\Util\ReadPreference;
-use PHPUnit\Framework\TestCase;
+use Doctrine\MongoDB\Tests\TestCase;
 
 class ReadPreferenceTest extends TestCase
 {

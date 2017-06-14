@@ -2,7 +2,7 @@
 
 namespace Doctrine\MongoDB\Tests;
 
-class CommandCursorFunctionalTest extends BaseTest
+class CommandCursorFunctionalTest extends DatabaseTestCase
 {
     private $collection;
     private $docs;

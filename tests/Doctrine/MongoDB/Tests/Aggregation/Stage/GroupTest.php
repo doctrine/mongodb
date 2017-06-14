@@ -5,7 +5,7 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 use Doctrine\MongoDB\Aggregation\Expr;
 use Doctrine\MongoDB\Aggregation\Stage\Group;
 use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
-use PHPUnit\Framework\TestCase;
+use Doctrine\MongoDB\Tests\TestCase;
 
 class GroupTest extends TestCase
 {

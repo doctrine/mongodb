@@ -3,7 +3,6 @@
 namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\ArrayIterator;
-use PHPUnit\Framework\TestCase;
 
 class ArrayIteratorTest extends TestCase
 {

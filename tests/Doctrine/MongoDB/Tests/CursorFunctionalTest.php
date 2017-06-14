@@ -2,7 +2,7 @@
 
 namespace Doctrine\MongoDB\Tests;
 
-class CursorFunctionalTest extends BaseTest
+class CursorFunctionalTest extends DatabaseTestCase
 {
     public function testRecreate()
     {

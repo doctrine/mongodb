@@ -3,7 +3,7 @@
 namespace Doctrine\MongoDB\Tests\Event;
 
 use Doctrine\MongoDB\Event\DistinctEventArgs;
-use PHPUnit\Framework\TestCase;
+use Doctrine\MongoDB\Tests\TestCase;
 
 class DistinctEventArgsTest extends TestCase
 {

@@ -3,7 +3,7 @@
 namespace Doctrine\MongoDB\Tests\Event;
 
 use Doctrine\MongoDB\Event\UpdateEventArgs;
-use PHPUnit\Framework\TestCase;
+use Doctrine\MongoDB\Tests\TestCase;
 
 class UpdateEventArgsTest extends TestCase
 {

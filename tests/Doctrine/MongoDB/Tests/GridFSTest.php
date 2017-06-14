@@ -4,7 +4,7 @@ namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\GridFSFile;
 
-class GridFSTest extends BaseTest
+class GridFSTest extends DatabaseTestCase
 {
     public function testInsertFindOneAndWrite()
     {

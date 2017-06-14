@@ -4,7 +4,6 @@ namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\Connection;
 use Doctrine\Common\EventManager;
-use PHPUnit\Framework\TestCase;
 
 class EventTest extends TestCase
 {

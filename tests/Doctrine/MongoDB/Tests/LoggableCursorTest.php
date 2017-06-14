@@ -3,7 +3,7 @@
 namespace Doctrine\MongoDB\Tests;
 
 
-class LoggableCursorTest extends BaseTest
+class LoggableCursorTest extends DatabaseTestCase
 {
     /**
      * @dataProvider provideLoggedMethods

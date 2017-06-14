@@ -3,7 +3,7 @@
 namespace Doctrine\MongoDB\Tests\Aggregation;
 
 use Doctrine\MongoDB\Aggregation\Expr;
-use PHPUnit\Framework\TestCase;
+use Doctrine\MongoDB\Tests\TestCase;
 
 class ExprTest extends TestCase
 {

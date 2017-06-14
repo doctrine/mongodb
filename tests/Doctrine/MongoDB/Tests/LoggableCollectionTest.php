@@ -3,7 +3,6 @@
 namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\LoggableCollection;
-use PHPUnit\Framework\TestCase;
 
 class LoggableCollectionTest extends TestCase
 {

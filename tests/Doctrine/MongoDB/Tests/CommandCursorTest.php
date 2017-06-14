@@ -3,7 +3,6 @@
 namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\CommandCursor;
-use PHPUnit\Framework\TestCase;
 
 class CommandCursorTest extends TestCase
 {

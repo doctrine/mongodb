@@ -4,7 +4,7 @@ namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\Connection;
 
-class ConnectionFunctionalTest extends BaseTest
+class ConnectionFunctionalTest extends DatabaseTestCase
 {
     public function testIsConnected()
     {

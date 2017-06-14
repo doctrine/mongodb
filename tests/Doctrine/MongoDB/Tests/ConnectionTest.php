@@ -4,7 +4,6 @@ namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\Connection;
 use Mongo;
-use PHPUnit\Framework\TestCase;
 
 class ConnectionTest extends TestCase
 {

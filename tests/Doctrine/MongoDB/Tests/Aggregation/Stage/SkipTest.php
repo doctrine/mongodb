@@ -4,7 +4,7 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Stage\Skip;
 use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
-use PHPUnit\Framework\TestCase;
+use Doctrine\MongoDB\Tests\TestCase;
 
 class SkipTest extends TestCase
 {

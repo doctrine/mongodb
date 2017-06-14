@@ -7,7 +7,7 @@ use Doctrine\MongoDB\Configuration;
 use Doctrine\MongoDB\Connection;
 use Doctrine\MongoDB\Cursor;
 
-class RetryTest extends BaseTest
+class RetryTest extends DatabaseTestCase
 {
     public function setUp()
     {

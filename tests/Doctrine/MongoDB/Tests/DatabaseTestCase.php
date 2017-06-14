@@ -4,9 +4,8 @@ namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\Configuration;
 use Doctrine\MongoDB\Connection;
-use PHPUnit\Framework\TestCase;
 
-abstract class BaseTest extends TestCase
+abstract class DatabaseTestCase extends TestCase
 {
     protected static $dbName = 'doctrine_mongodb';
 
