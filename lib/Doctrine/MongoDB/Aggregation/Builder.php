@@ -115,6 +115,19 @@ class Builder
     }
 
     /**
+     * Returns a document that contains a count of the number of documents input
+     * to the stage.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/count/
+     *
+     * @return Stage\Count
+     */
+    public function count($fieldName)
+    {
+        return $this->addStage(new Stage\Count($this, $fieldName));
+    }
+
+    /**
      * @return Expr
      */
     public function expr()

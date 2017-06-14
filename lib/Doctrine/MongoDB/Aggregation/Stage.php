@@ -102,6 +102,19 @@ abstract class Stage
     }
 
     /**
+     * Returns a document that contains a count of the number of documents input
+     * to the stage.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/count/
+     *
+     * @return Stage\Count
+     */
+    public function count($fieldName)
+    {
+        return $this->builder->count($fieldName);
+    }
+
+    /**
      * Processes multiple aggregation pipelines within a single stage on the
      * same set of input documents.
      *
