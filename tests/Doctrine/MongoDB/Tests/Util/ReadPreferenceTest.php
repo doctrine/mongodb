@@ -3,8 +3,9 @@
 namespace Doctrine\Tests\MongoDB\Util;
 
 use Doctrine\MongoDB\Util\ReadPreference;
+use PHPUnit\Framework\TestCase;
 
-class ReadPreferenceTest extends \PHPUnit_Framework_TestCase
+class ReadPreferenceTest extends TestCase
 {
     /**
      * @expectedException InvalidArgumentException

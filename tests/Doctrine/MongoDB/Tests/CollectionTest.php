@@ -8,8 +8,9 @@ use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Database;
 use Doctrine\MongoDB\Tests\Constraint\ArrayHasKeyAndValue;
 use MongoCollection;
+use PHPUnit\Framework\TestCase;
 
-class CollectionTest extends \PHPUnit_Framework_TestCase
+class CollectionTest extends TestCase
 {
     const collectionName = 'collection';
 

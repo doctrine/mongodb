@@ -3,8 +3,9 @@
 namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\LoggableDatabase;
+use PHPUnit\Framework\TestCase;
 
-class LoggableDatabaseTest extends \PHPUnit_Framework_TestCase
+class LoggableDatabaseTest extends TestCase
 {
     const databaseName = 'databaseName';
 

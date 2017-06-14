@@ -4,8 +4,9 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Stage\Sort;
 use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
+use PHPUnit\Framework\TestCase;
 
-class SortTest extends \PHPUnit_Framework_TestCase
+class SortTest extends TestCase
 {
     use AggregationTestCase;
 

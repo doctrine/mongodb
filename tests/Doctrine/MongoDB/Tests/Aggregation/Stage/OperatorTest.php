@@ -4,8 +4,9 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Expr;
 use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
+use PHPUnit\Framework\TestCase;
 
-class OperatorTest extends \PHPUnit_Framework_TestCase
+class OperatorTest extends TestCase
 {
     use AggregationTestCase;
 

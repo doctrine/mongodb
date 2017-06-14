@@ -3,8 +3,9 @@
 namespace Doctrine\MongoDB\Tests\Event;
 
 use Doctrine\MongoDB\Event\AggregateEventArgs;
+use PHPUnit\Framework\TestCase;
 
-class AggregateEventArgsTest extends \PHPUnit_Framework_TestCase
+class AggregateEventArgsTest extends TestCase
 {
     public function testAggregateEventArgs()
     {

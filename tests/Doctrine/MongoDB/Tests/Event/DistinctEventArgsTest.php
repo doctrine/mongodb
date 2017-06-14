@@ -3,8 +3,9 @@
 namespace Doctrine\MongoDB\Tests\Event;
 
 use Doctrine\MongoDB\Event\DistinctEventArgs;
+use PHPUnit\Framework\TestCase;
 
-class DistinctEventArgsTest extends \PHPUnit_Framework_TestCase
+class DistinctEventArgsTest extends TestCase
 {
     public function testDistinctEventArgs()
     {

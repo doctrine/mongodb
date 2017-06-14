@@ -2,11 +2,11 @@
 
 namespace Doctrine\MongoDB\Tests;
 
-use PHPUnit_Framework_TestCase;
 use Doctrine\MongoDB\Configuration;
 use Doctrine\MongoDB\Connection;
+use PHPUnit\Framework\TestCase;
 
-abstract class BaseTest extends PHPUnit_Framework_TestCase
+abstract class BaseTest extends TestCase
 {
     protected static $dbName = 'doctrine_mongodb';
 

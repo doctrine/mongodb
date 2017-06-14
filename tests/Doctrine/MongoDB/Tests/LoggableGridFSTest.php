@@ -8,8 +8,9 @@ use Doctrine\MongoDB\GridFSFile;
 use Doctrine\MongoDB\LoggableGridFS;
 use Doctrine\MongoDB\Database;
 use Doctrine\Common\EventManager;
+use PHPUnit\Framework\TestCase;
 
-class LoggableGridFSTest extends \PHPUnit_Framework_TestCase
+class LoggableGridFSTest extends TestCase
 {
     const COLLECTION_NAME = 'collectionName';
     const DATABASE_NAME = 'databaseName';

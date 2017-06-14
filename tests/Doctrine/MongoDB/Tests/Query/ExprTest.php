@@ -3,8 +3,9 @@
 namespace Doctrine\MongoDB\Tests\Query;
 
 use Doctrine\MongoDB\Query\Expr;
+use PHPUnit\Framework\TestCase;
 
-class ExprTest extends \PHPUnit_Framework_TestCase
+class ExprTest extends TestCase
 {
     public function testAddManyToSet()
     {

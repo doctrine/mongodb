@@ -3,8 +3,9 @@
 namespace Doctrine\MongoDB\Tests\Event;
 
 use Doctrine\MongoDB\Event\MutableEventArgs;
+use PHPUnit\Framework\TestCase;
 
-class MutableEventArgsTest extends \PHPUnit_Framework_TestCase
+class MutableEventArgsTest extends TestCase
 {
     public function testMutableEventArgs()
     {

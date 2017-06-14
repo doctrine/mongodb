@@ -3,8 +3,9 @@
 namespace Doctrine\MongoDB\Tests\Event;
 
 use Doctrine\MongoDB\Event\CreateCollectionEventArgs;
+use PHPUnit\Framework\TestCase;
 
-class CreateCollectionEventArgsTest extends \PHPUnit_Framework_TestCase
+class CreateCollectionEventArgsTest extends TestCase
 {
     public function testCreateCollectionEventArgs()
     {

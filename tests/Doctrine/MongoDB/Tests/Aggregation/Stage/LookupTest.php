@@ -4,8 +4,9 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Stage\Lookup;
 use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
+use PHPUnit\Framework\TestCase;
 
-class LookupTest extends \PHPUnit_Framework_TestCase
+class LookupTest extends TestCase
 {
     use AggregationTestCase;
 

@@ -11,8 +11,9 @@ use Doctrine\MongoDB\Event\MapReduceEventArgs;
 use Doctrine\MongoDB\Event\MutableEventArgs;
 use Doctrine\MongoDB\Event\NearEventArgs;
 use Doctrine\MongoDB\Event\UpdateEventArgs;
+use PHPUnit\Framework\TestCase;
 
-class CollectionEventsChangingContextTest extends \PHPUnit_Framework_TestCase
+class CollectionEventsChangingContextTest extends TestCase
 {
     private $database;
     private $mongoCollection;

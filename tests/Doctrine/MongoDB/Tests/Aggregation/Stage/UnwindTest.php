@@ -4,8 +4,9 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Stage\Unwind;
 use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
+use PHPUnit\Framework\TestCase;
 
-class UnwindTest extends \PHPUnit_Framework_TestCase
+class UnwindTest extends TestCase
 {
     use AggregationTestCase;
 
