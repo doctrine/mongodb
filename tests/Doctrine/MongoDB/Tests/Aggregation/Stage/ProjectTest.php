@@ -15,7 +15,7 @@ class ProjectTest extends TestCase
     {
         $projectStage = new Project($this->getTestAggregationBuilder());
         $projectStage
-            ->excludeIdField()
+            ->excludeFields(['_id'])
             ->includeFields(['$field', '$otherField'])
             ->field('product')
             ->multiply('$field', 5);
@@ -28,7 +28,7 @@ class ProjectTest extends TestCase
         $builder = $this->getTestAggregationBuilder();
         $builder
             ->project()
-            ->excludeIdField()
+            ->excludeFields(['_id'])
             ->includeFields(['$field', '$otherField'])
             ->field('product')
             ->multiply('$field', 5);
