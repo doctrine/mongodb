@@ -9,7 +9,10 @@ class EventTest extends TestCase
 {
     public function testEventArgsNamespaceTest() 
     {
-        $listener = new ListenerStub();
+        $listener = $this->createMock(ListenerStub::class);
+        $listener
+            ->expects($this->once())
+            ->method('preConnect');
         $manager  = new EventManager();
 
         $manager->addEventListener(\Doctrine\MongoDB\Events::preConnect, $listener);
