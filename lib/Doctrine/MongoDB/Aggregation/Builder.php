@@ -197,6 +197,20 @@ class Builder
     }
 
     /**
+     * Performs a recursive search on a collection, with options for restricting
+     * the search by recursion depth and query filter.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/graphLookup/
+     *
+     * @param string $from
+     * @return Stage\GraphLookup
+     */
+    public function graphLookup($from)
+    {
+        return $this->addStage(new Stage\GraphLookup($this, $from));
+    }
+
+    /**
      * Groups documents by some specified expression and outputs to the next
      * stage a document for each distinct grouping.
      *
