@@ -203,7 +203,8 @@ class QueryTest extends TestCase
 
     public function testWithReadPreferenceRestoresReadPreferenceBeforePropagatingException()
     {
-        $this->setExpectedException('RuntimeException', 'count');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('count');
 
         $collection = $this->getMockCollection();
 

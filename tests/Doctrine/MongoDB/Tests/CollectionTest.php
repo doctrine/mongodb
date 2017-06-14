@@ -7,6 +7,7 @@ use Doctrine\MongoDB\ArrayIterator;
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Database;
 use MongoCollection;
+use PHPUnit\Framework\Error\Deprecated;
 
 class CollectionTest extends TestCase
 {
@@ -884,6 +885,12 @@ class CollectionTest extends TestCase
      */
     public function testUpdateShouldTriggerErrorForDeprecatedScalarQueryArgument()
     {
+        if (class_exists(\PHPUnit_Framework_Error_Deprecated::class)) {
+            $this->expectException(\PHPUnit_Framework_Error_Deprecated::class);
+        } else {
+            $this->expectException(Deprecated::class);
+        }
+
         $coll = $this->getTestCollection();
         $coll->update('id', []);
     }
