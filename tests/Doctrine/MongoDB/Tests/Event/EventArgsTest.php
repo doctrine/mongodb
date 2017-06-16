@@ -3,8 +3,9 @@
 namespace Doctrine\MongoDB\Tests\Event;
 
 use Doctrine\MongoDB\Event\EventArgs;
+use Doctrine\MongoDB\Tests\TestCase;
 
-class EventArgsTest extends \PHPUnit_Framework_TestCase
+class EventArgsTest extends TestCase
 {
     public function testEventArgs()
     {

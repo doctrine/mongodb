@@ -4,8 +4,9 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Stage\Limit;
 use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
+use Doctrine\MongoDB\Tests\TestCase;
 
-class LimitTest extends \PHPUnit_Framework_TestCase
+class LimitTest extends TestCase
 {
     use AggregationTestCase;
 

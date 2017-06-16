@@ -4,8 +4,9 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Stage\GeoNear;
 use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
+use Doctrine\MongoDB\Tests\TestCase;
 
-class GeoNearTest extends \PHPUnit_Framework_TestCase
+class GeoNearTest extends TestCase
 {
     use AggregationTestCase;
 

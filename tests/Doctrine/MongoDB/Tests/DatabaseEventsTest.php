@@ -9,7 +9,7 @@ use Doctrine\MongoDB\Event\CreateCollectionEventArgs;
 use Doctrine\MongoDB\Event\EventArgs;
 use Doctrine\MongoDB\Event\MutableEventArgs;
 
-class DatabaseEventsTest extends \PHPUnit_Framework_TestCase
+class DatabaseEventsTest extends TestCase
 {
     private $connection;
     private $eventManager;

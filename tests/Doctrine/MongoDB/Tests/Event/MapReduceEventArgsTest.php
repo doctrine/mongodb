@@ -3,8 +3,9 @@
 namespace Doctrine\MongoDB\Tests\Event;
 
 use Doctrine\MongoDB\Event\MapReduceEventArgs;
+use Doctrine\MongoDB\Tests\TestCase;
 
-class MapReduceEventArgsTest extends \PHPUnit_Framework_TestCase
+class MapReduceEventArgsTest extends TestCase
 {
     public function testMapReduceEventArgs()
     {

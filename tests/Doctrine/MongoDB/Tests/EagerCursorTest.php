@@ -4,7 +4,7 @@ namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\EagerCursor;
 
-class EagerCursorTest extends BaseTest
+class EagerCursorTest extends DatabaseTestCase
 {
     public function testGetCursor()
     {

@@ -4,8 +4,9 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Stage\Redact;
 use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
+use Doctrine\MongoDB\Tests\TestCase;
 
-class RedactTest extends \PHPUnit_Framework_TestCase
+class RedactTest extends TestCase
 {
     use AggregationTestCase;
 

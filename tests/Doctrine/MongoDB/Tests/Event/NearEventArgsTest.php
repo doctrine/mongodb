@@ -3,8 +3,9 @@
 namespace Doctrine\MongoDB\Tests\Event;
 
 use Doctrine\MongoDB\Event\NearEventArgs;
+use Doctrine\MongoDB\Tests\TestCase;
 
-class NearEventArgsTest extends \PHPUnit_Framework_TestCase
+class NearEventArgsTest extends TestCase
 {
     public function testNearEventArgs()
     {

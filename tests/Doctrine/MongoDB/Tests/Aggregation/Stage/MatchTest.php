@@ -4,8 +4,9 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Stage\Match;
 use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
+use Doctrine\MongoDB\Tests\TestCase;
 
-class MatchTest extends \PHPUnit_Framework_TestCase
+class MatchTest extends TestCase
 {
     use AggregationTestCase;
 

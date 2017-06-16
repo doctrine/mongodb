@@ -2,7 +2,9 @@
 
 namespace Doctrine\MongoDB\Tests\Aggregation;
 
-class BuilderTest extends \PHPUnit_Framework_TestCase
+use Doctrine\MongoDB\Tests\TestCase;
+
+class BuilderTest extends TestCase
 {
     use AggregationTestCase;
 

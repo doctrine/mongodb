@@ -4,8 +4,9 @@ namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Stage\IndexStats;
 use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
+use Doctrine\MongoDB\Tests\TestCase;
 
-class IndexStatsTest extends \PHPUnit_Framework_TestCase
+class IndexStatsTest extends TestCase
 {
     use AggregationTestCase;
 

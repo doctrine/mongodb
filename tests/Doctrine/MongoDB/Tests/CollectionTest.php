@@ -6,10 +6,10 @@ use Doctrine\Common\EventManager;
 use Doctrine\MongoDB\ArrayIterator;
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Database;
-use Doctrine\MongoDB\Tests\Constraint\ArrayHasKeyAndValue;
 use MongoCollection;
+use PHPUnit\Framework\Error\Deprecated;
 
-class CollectionTest extends \PHPUnit_Framework_TestCase
+class CollectionTest extends TestCase
 {
     const collectionName = 'collection';
 
@@ -683,12 +683,12 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $database->expects($this->once())
             ->method('command')
             ->with($this->logicalAnd(
-                new ArrayHasKeyAndValue('mapreduce', self::collectionName),
-                new ArrayHasKeyAndValue('map', new \MongoCode('map')),
-                new ArrayHasKeyAndValue('reduce', new \MongoCode('reduce')),
-                new ArrayHasKeyAndValue('out', $out),
-                new ArrayHasKeyAndValue('query', (object) ['deleted' => false]),
-                new ArrayHasKeyAndValue('finalize', new \MongoCode('finalize'))
+                $this->arraySubset(['mapreduce' => self::collectionName]),
+                $this->arraySubset(['map' => new \MongoCode('map')]),
+                $this->arraySubset(['reduce' => new \MongoCode('reduce')]),
+                $this->arraySubset(['out' => $out]),
+                $this->arraySubset(['query' => (object) ['deleted' => false]]),
+                $this->arraySubset(['finalize' => new \MongoCode('finalize')])
             ))
             ->will($this->returnValue($commandResult));
 
@@ -713,7 +713,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
-            ->with(new ArrayHasKeyAndValue('out', 'outputCollection'))
+            ->with($this->arraySubset(['out' => 'outputCollection']))
             ->will($this->returnValue(['ok' => 1, 'result' => 'outputCollection']));
 
         $database->expects($this->once())
@@ -737,7 +737,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $database = $this->getMockDatabase();
         $database->expects($this->once())
             ->method('command')
-            ->with(new ArrayHasKeyAndValue('out', ['replace' => 'outputCollection', 'db' => 'outputDatabase']))
+            ->with($this->arraySubset(['out' => ['replace' => 'outputCollection', 'db' => 'outputDatabase']]))
             ->will($this->returnValue(['ok' => 1, 'result' => ['db' => 'outputDatabase', 'collection' => 'outputCollection']]));
 
         $connection = $this->getMockConnection();
@@ -885,6 +885,12 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
      */
     public function testUpdateShouldTriggerErrorForDeprecatedScalarQueryArgument()
     {
+        if (class_exists(\PHPUnit_Framework_Error_Deprecated::class)) {
+            $this->expectException(\PHPUnit_Framework_Error_Deprecated::class);
+        } else {
+            $this->expectException(Deprecated::class);
+        }
+
         $coll = $this->getTestCollection();
         $coll->update('id', []);
     }

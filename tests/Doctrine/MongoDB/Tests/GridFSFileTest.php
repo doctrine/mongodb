@@ -4,7 +4,7 @@ namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\GridFSFile;
 
-class GridFSFileTest extends BaseTest
+class GridFSFileTest extends DatabaseTestCase
 {
     public function testIsDirty()
     {

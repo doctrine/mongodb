@@ -4,8 +4,9 @@ namespace Doctrine\MongoDB\Tests\Query;
 
 use Doctrine\MongoDB\Query\Builder;
 use Doctrine\MongoDB\Query\Query;
+use Doctrine\MongoDB\Tests\TestCase;
 
-class BuilderTest extends \PHPUnit_Framework_TestCase
+class BuilderTest extends TestCase
 {
     public function testMapReduceQueryWithSingleMethod()
     {

@@ -3,8 +3,9 @@
 namespace Doctrine\MongoDB\Tests\Aggregation;
 
 use Doctrine\MongoDB\Aggregation\Expr;
+use Doctrine\MongoDB\Tests\TestCase;
 
-class ExprTest extends \PHPUnit_Framework_TestCase
+class ExprTest extends TestCase
 {
     public function testAbs()
     {

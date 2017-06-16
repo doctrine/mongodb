@@ -4,7 +4,7 @@ namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\Database;
 
-class DatabaseTest extends \PHPUnit_Framework_TestCase
+class DatabaseTest extends TestCase
 {
     public function testCommandPassesServerHashOnlyIfProvided()
     {

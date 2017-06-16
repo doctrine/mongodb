@@ -14,7 +14,7 @@ use Doctrine\MongoDB\Event\MutableEventArgs;
 use Doctrine\MongoDB\Event\NearEventArgs;
 use Doctrine\MongoDB\Event\UpdateEventArgs;
 
-class CollectionEventsTest extends \PHPUnit_Framework_TestCase
+class CollectionEventsTest extends TestCase
 {
     private $database;
     private $eventManager;

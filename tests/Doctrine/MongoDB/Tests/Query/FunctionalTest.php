@@ -3,12 +3,12 @@
 namespace Doctrine\MongoDB\Tests\Query;
 
 use Doctrine\MongoDB\Query\Query;
-use Doctrine\MongoDB\Tests\BaseTest;
+use Doctrine\MongoDB\Tests\DatabaseTestCase;
 
 /**
  * @group functional
  */
-class FunctionalTest extends BaseTest
+class FunctionalTest extends DatabaseTestCase
 {
     public function testDistinctQuery()
     {

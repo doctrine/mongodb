@@ -4,7 +4,7 @@ namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\CommandCursor;
 
-class CommandCursorTest extends \PHPUnit_Framework_TestCase
+class CommandCursorTest extends TestCase
 {
     public function setUp()
     {

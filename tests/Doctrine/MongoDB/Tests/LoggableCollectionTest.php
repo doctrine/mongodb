@@ -4,7 +4,7 @@ namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\LoggableCollection;
 
-class LoggableCollectionTest extends \PHPUnit_Framework_TestCase
+class LoggableCollectionTest extends TestCase
 {
     const collectionName = 'collectionName';
     const databaseName = 'databaseName';

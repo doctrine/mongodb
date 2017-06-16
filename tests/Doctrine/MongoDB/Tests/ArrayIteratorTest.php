@@ -4,7 +4,7 @@ namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\MongoDB\ArrayIterator;
 
-class ArrayIteratorTest extends \PHPUnit_Framework_TestCase
+class ArrayIteratorTest extends TestCase
 {
     public function testArrayAccess()
     {

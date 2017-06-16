@@ -5,7 +5,7 @@ namespace Doctrine\MongoDB\Tests;
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Cursor;
 
-class CursorTest extends BaseTest
+class CursorTest extends DatabaseTestCase
 {
     private $doc1;
     private $doc2;

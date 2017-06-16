@@ -2,8 +2,9 @@
 namespace Doctrine\MongoDB\Tests\Query;
 
 use Doctrine\MongoDB\Query\Query;
+use Doctrine\MongoDB\Tests\TestCase;
 
-class QueryTest extends \PHPUnit_Framework_TestCase
+class QueryTest extends TestCase
 {
     /**
      * @expectedException InvalidArgumentException
@@ -202,7 +203,8 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 
     public function testWithReadPreferenceRestoresReadPreferenceBeforePropagatingException()
     {
-        $this->setExpectedException('RuntimeException', 'count');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('count');
 
         $collection = $this->getMockCollection();
 
