@@ -285,7 +285,7 @@ class Expr
      *
      * For expression objects, it calls getExpression on the expression object.
      * For arrays, it recursively calls itself for each array item. Other values
-     * are returned directly
+     * are returned directly.
      *
      * @param mixed|self $expression
      * @return string|array

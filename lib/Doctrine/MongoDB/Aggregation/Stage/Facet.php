@@ -41,9 +41,7 @@ class Facet extends Stage
     private $fieldName;
 
     /**
-     * Assembles the aggregation stage
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function getExpression()
     {
@@ -53,7 +51,10 @@ class Facet extends Stage
     }
 
     /**
+     * Set the current field for building the pipeline stage.
+     *
      * @param string $fieldName
+     *
      * @return $this
      */
     public function field($fieldName)
@@ -63,6 +64,8 @@ class Facet extends Stage
     }
 
     /**
+     * Use the given pipeline for the current field.
+     *
      * @param Builder|Stage $builder
      * @return $this
      */

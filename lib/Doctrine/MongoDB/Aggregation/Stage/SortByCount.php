@@ -37,7 +37,9 @@ class SortByCount extends Stage
 
     /**
      * @param Builder $builder
-     * @param string $fieldName
+     * @param string $fieldName Expression to group by. To specify a field path,
+     * prefix the field name with a dollar sign $ and enclose it in quotes.
+     * The expression can not evaluate to an object.
      */
     public function __construct(Builder $builder, $fieldName)
     {
@@ -47,9 +49,7 @@ class SortByCount extends Stage
     }
 
     /**
-     * Assembles the aggregation stage
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function getExpression()
     {

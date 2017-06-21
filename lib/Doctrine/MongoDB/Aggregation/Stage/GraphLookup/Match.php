@@ -34,6 +34,12 @@ class Match extends BaseMatch
     }
 
     /**
+     * Target collection for the $graphLookup operation to search, recursively
+     * matching the connectFromField to the connectToField.
+     *
+     * The from collection cannot be sharded and must be in the same database as
+     * any other collections used in the operation.
+     *
      * @param string $from
      *
      * @return GraphLookup
@@ -44,6 +50,12 @@ class Match extends BaseMatch
     }
 
     /**
+     * Expression that specifies the value of the connectFromField with which to
+     * start the recursive search.
+     *
+     * Optionally, startWith may be array of values, each of which is
+     * individually followed through the traversal process.
+     *
      * @param string|array|Expr $expression
      *
      * @return GraphLookup
@@ -54,6 +66,12 @@ class Match extends BaseMatch
     }
 
     /**
+     * Field name whose value $graphLookup uses to recursively match against the
+     * connectToField of other documents in the collection.
+     *
+     * Optionally, connectFromField may be an array of field names, each of
+     * which is individually followed through the traversal process.
+     *
      * @param string $connectFromField
      *
      * @return GraphLookup
@@ -64,6 +82,9 @@ class Match extends BaseMatch
     }
 
     /**
+     * Field name in other documents against which to match the value of the
+     * field specified by the connectFromField parameter.
+     *
      * @param string $connectToField
      *
      * @return GraphLookup
@@ -74,6 +95,11 @@ class Match extends BaseMatch
     }
 
     /**
+     * Name of the array field added to each output document.
+     *
+     * Contains the documents traversed in the $graphLookup stage to reach the
+     * document.
+     *
      * @param string $alias
      *
      * @return GraphLookup
@@ -84,6 +110,8 @@ class Match extends BaseMatch
     }
 
     /**
+     * Non-negative integral number specifying the maximum recursion depth.
+     *
      * @param int $maxDepth
      *
      * @return GraphLookup
@@ -94,6 +122,12 @@ class Match extends BaseMatch
     }
 
     /**
+     * Name of the field to add to each traversed document in the search path.
+     *
+     * The value of this field is the recursion depth for the document,
+     * represented as a NumberLong. Recursion depth value starts at zero, so the
+     * first lookup corresponds to zero depth.
+     *
      * @param string $depthField
      *
      * @return GraphLookup

@@ -86,7 +86,7 @@ abstract class AbstractOutput extends Stage
     }
 
     /**
-     * Used to use an expression as field value. Can be any expression
+     * Used to use an expression as field value. Can be any expression.
      *
      * @see http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#aggregation-expressions
      * @see Expr::expression

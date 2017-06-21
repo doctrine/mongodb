@@ -27,9 +27,7 @@ namespace Doctrine\MongoDB\Aggregation\Stage;
 class AddFields extends Operator
 {
     /**
-     * Assembles the aggregation stage
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function getExpression()
     {

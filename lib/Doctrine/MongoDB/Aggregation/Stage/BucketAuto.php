@@ -41,6 +41,9 @@ class BucketAuto extends AbstractBucket
     private $granularity;
 
     /**
+     * A positive 32-bit integer that specifies the number of buckets into which
+     * input documents are grouped.
+     *
      * @param int $buckets
      *
      * @return $this
@@ -51,6 +54,15 @@ class BucketAuto extends AbstractBucket
         return $this;
     }
 
+    /**
+     * A string that specifies the preferred number series to use to ensure that
+     * the calculated boundary edges end on preferred round numbers or their
+     * powers of 10.
+     *
+     * @param string $granularity
+     *
+     * @return $this
+     */
     public function granularity($granularity)
     {
         $this->granularity = $granularity;
@@ -58,6 +70,10 @@ class BucketAuto extends AbstractBucket
     }
 
     /**
+     * A document that specifies the fields to include in the output documents
+     * in addition to the _id field. To specify the field to include, you must
+     * use accumulator expressions.
+     *
      * @return Bucket\BucketOutput
      */
     public function output()

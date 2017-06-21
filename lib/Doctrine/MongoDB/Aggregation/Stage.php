@@ -159,7 +159,8 @@ abstract class Stage
      *
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/graphLookup/
      *
-     * @param string $from
+     * @param string $from Target collection for the $graphLookup operation to
+     * search, recursively matching the connectFromField to the connectToField.
      * @return Stage\GraphLookup
      */
     public function graphLookup($from)
@@ -282,7 +283,8 @@ abstract class Stage
      * including the _id field. You can promote an existing embedded document to
      * the top level, or create a new document for promotion.
      *
-     * @param string $expression
+     * @param string|null $expression Optional. A replacement expression that
+     * resolves to a document.
      *
      * @return Stage\ReplaceRoot
      */

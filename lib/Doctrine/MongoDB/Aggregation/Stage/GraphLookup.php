@@ -75,7 +75,8 @@ class GraphLookup extends Stage
      * Lookup constructor.
      *
      * @param Builder $builder
-     * @param string $from
+     * @param string $from Target collection for the $graphLookup operation to
+     * search, recursively matching the connectFromField to the connectToField.
      */
     public function __construct(Builder $builder, $from)
     {
@@ -85,12 +86,21 @@ class GraphLookup extends Stage
         $this->restrictSearchWithMatch = $this->createMatchObject();
     }
 
+    /**
+     * @return GraphLookup\Match
+     */
     protected function createMatchObject()
     {
         return new Stage\GraphLookup\Match($this->builder, $this);
     }
 
     /**
+     * Target collection for the $graphLookup operation to search, recursively
+     * matching the connectFromField to the connectToField.
+     *
+     * The from collection cannot be sharded and must be in the same database as
+     * any other collections used in the operation.
+     *
      * @param string $from
      *
      * @return $this
@@ -103,6 +113,12 @@ class GraphLookup extends Stage
     }
 
     /**
+     * Expression that specifies the value of the connectFromField with which to
+     * start the recursive search.
+     *
+     * Optionally, startWith may be array of values, each of which is
+     * individually followed through the traversal process.
+     *
      * @param string|array|Expr $expression
      *
      * @return $this
@@ -115,6 +131,12 @@ class GraphLookup extends Stage
     }
 
     /**
+     * Field name whose value $graphLookup uses to recursively match against the
+     * connectToField of other documents in the collection.
+     *
+     * Optionally, connectFromField may be an array of field names, each of
+     * which is individually followed through the traversal process.
+     *
      * @param string $connectFromField
      *
      * @return $this
@@ -127,6 +149,9 @@ class GraphLookup extends Stage
     }
 
     /**
+     * Field name in other documents against which to match the value of the
+     * field specified by the connectFromField parameter.
+     *
      * @param string $connectToField
      *
      * @return $this
@@ -139,6 +164,11 @@ class GraphLookup extends Stage
     }
 
     /**
+     * Name of the array field added to each output document.
+     *
+     * Contains the documents traversed in the $graphLookup stage to reach the
+     * document.
+     *
      * @param string $alias
      *
      * @return $this
@@ -151,6 +181,8 @@ class GraphLookup extends Stage
     }
 
     /**
+     * Non-negative integral number specifying the maximum recursion depth.
+     *
      * @param int $maxDepth
      *
      * @return $this
@@ -163,6 +195,12 @@ class GraphLookup extends Stage
     }
 
     /**
+     * Name of the field to add to each traversed document in the search path.
+     *
+     * The value of this field is the recursion depth for the document,
+     * represented as a NumberLong. Recursion depth value starts at zero, so the
+     * first lookup corresponds to zero depth.
+     *
      * @param string $depthField
      *
      * @return $this
@@ -175,6 +213,8 @@ class GraphLookup extends Stage
     }
 
     /**
+     * A document specifying additional conditions for the recursive search.
+     *
      * @return GraphLookup\Match
      */
     public function restrictSearchWithMatch()

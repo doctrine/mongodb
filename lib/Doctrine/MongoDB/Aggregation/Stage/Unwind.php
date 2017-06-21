@@ -57,9 +57,7 @@ class Unwind extends Stage
     }
 
     /**
-     * Assembles the aggregation stage
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function getExpression()
     {

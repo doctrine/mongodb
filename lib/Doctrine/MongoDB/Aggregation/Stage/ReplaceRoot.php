@@ -37,7 +37,8 @@ class ReplaceRoot extends Operator
 
     /**
      * @param Builder $builder
-     * @param string|null $expression
+     * @param string|null $expression Optional. A replacement expression that
+     * resolves to a document.
      */
     public function __construct(Builder $builder, $expression = null)
     {

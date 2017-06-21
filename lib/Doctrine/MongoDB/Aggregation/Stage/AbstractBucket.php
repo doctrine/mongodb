@@ -25,6 +25,9 @@ abstract class AbstractBucket extends Stage
     protected $groupBy;
 
     /**
+     * An expression to group documents by. To specify a field path, prefix the
+     * field name with a dollar sign $ and enclose it in quotes.
+     *
      * @param array|Expr $expression
      * @return $this
      */
