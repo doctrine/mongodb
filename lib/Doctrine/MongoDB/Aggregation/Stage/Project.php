@@ -62,7 +62,7 @@ class Project extends Operator
     /**
      * Shorthand method to exclude the _id field.
      *
-     * @deprecated Deprecated in 1.5, please use @see excludeFields.
+     * @deprecated Deprecated in 1.5, please use {@link excludeFields()}.
      * @param bool $exclude
      * @return $this
      */
