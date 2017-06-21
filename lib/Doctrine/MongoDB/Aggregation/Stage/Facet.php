@@ -38,7 +38,7 @@ class Facet extends Stage
     /**
      * @var string
      */
-    private $fieldName;
+    private $field;
 
     /**
      * {@inheritdoc}
@@ -53,13 +53,13 @@ class Facet extends Stage
     /**
      * Set the current field for building the pipeline stage.
      *
-     * @param string $fieldName
+     * @param string $field
      *
      * @return $this
      */
-    public function field($fieldName)
+    public function field($field)
     {
-        $this->fieldName = $fieldName;
+        $this->field = $field;
         return $this;
     }
 
@@ -71,7 +71,7 @@ class Facet extends Stage
      */
     public function pipeline($builder)
     {
-        if (!$this->fieldName) {
+        if (!$this->field) {
             throw new \LogicException(__METHOD__ . ' requires you set a current field using field().');
         }
 
@@ -83,7 +83,7 @@ class Facet extends Stage
             throw new \InvalidArgumentException(__METHOD__ . ' expects either an aggregation builder or an aggregation stage.');
         }
 
-        $this->pipelines[$this->fieldName] = $builder;
+        $this->pipelines[$this->field] = $builder;
         return $this;
     }
 }
