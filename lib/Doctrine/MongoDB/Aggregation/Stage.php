@@ -62,6 +62,73 @@ abstract class Stage
     }
 
     /**
+     * Categorizes incoming documents into groups, called buckets, based on a
+     * specified expression and bucket boundaries.
+     *
+     * Each bucket is represented as a document in the output. The document for
+     * each bucket contains an _id field, whose value specifies the inclusive
+     * lower bound of the bucket and a count field that contains the number of
+     * documents in the bucket. The count field is included by default when the
+     * output is not specified.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/bucket/
+     *
+     * @return Stage\Bucket
+     */
+    public function bucket()
+    {
+        return $this->builder->bucket();
+    }
+
+    /**
+     * Categorizes incoming documents into a specific number of groups, called
+     * buckets, based on a specified expression.
+     *
+     * Bucket boundaries are automatically determined in an attempt to evenly
+     * distribute the documents into the specified number of buckets. Each
+     * bucket is represented as a document in the output. The document for each
+     * bucket contains an _id field, whose value specifies the inclusive lower
+     * bound and the exclusive upper bound for the bucket, and a count field
+     * that contains the number of documents in the bucket. The count field is
+     * included by default when the output is not specified.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/bucketAuto/
+     *
+     * @return Stage\BucketAuto
+     */
+    public function bucketAuto()
+    {
+        return $this->builder->bucketAuto();
+    }
+
+    /**
+     * Returns a document that contains a count of the number of documents input
+     * to the stage.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/count/
+     *
+     * @return Stage\Count
+     */
+    public function count($fieldName)
+    {
+        return $this->builder->count($fieldName);
+    }
+
+    /**
+     * Processes multiple aggregation pipelines within a single stage on the
+     * same set of input documents.
+     *
+     * Each sub-pipeline has its own field in the output document where its
+     * results are stored as an array of documents.
+     *
+     * @return Stage\Facet
+     */
+    public function facet()
+    {
+        return $this->builder->facet();
+    }
+
+    /**
      * Outputs documents in order of nearest to farthest from a specified point.
      * You can only use this as the first stage of a pipeline.
      *
@@ -84,6 +151,21 @@ abstract class Stage
     public function getPipeline()
     {
         return $this->builder->getPipeline();
+    }
+
+    /**
+     * Performs a recursive search on a collection, with options for restricting
+     * the search by recursion depth and query filter.
+     *
+     * @see https://docs.mongodb.org/manual/reference/operator/aggregation/graphLookup/
+     *
+     * @param string $from Target collection for the $graphLookup operation to
+     * search, recursively matching the connectFromField to the connectToField.
+     * @return Stage\GraphLookup
+     */
+    public function graphLookup($from)
+    {
+        return $this->builder->graphLookup($from);
     }
 
     /**
@@ -194,6 +276,24 @@ abstract class Stage
     }
 
     /**
+     * Promotes a specified document to the top level and replaces all other
+     * fields.
+     *
+     * The operation replaces all existing fields in the input document,
+     * including the _id field. You can promote an existing embedded document to
+     * the top level, or create a new document for promotion.
+     *
+     * @param string|null $expression Optional. A replacement expression that
+     * resolves to a document.
+     *
+     * @return Stage\ReplaceRoot
+     */
+    public function replaceRoot($expression = null)
+    {
+        return $this->builder->replaceRoot($expression);
+    }
+
+    /**
      * Randomly selects the specified number of documents from its input.
      *
      * @see https://docs.mongodb.org/manual/reference/operator/aggregation/sample/
@@ -218,6 +318,20 @@ abstract class Stage
     public function skip($skip)
     {
         return $this->builder->skip($skip);
+    }
+
+    /**
+     * Groups incoming documents based on the value of a specified expression,
+     * then computes the count of documents in each distinct group.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/sortByCount/
+     *
+     * @param string $expression The expression to group by
+     * @return Stage\SortByCount
+     */
+    public function sortByCount($expression)
+    {
+        return $this->builder->sortByCount($expression);
     }
 
     /**

@@ -19,20 +19,41 @@
 
 namespace Doctrine\MongoDB\Aggregation\Stage;
 
+use Doctrine\MongoDB\Aggregation\Builder;
+use Doctrine\MongoDB\Aggregation\Expr;
+
 /**
- * Fluent interface for adding a $addFields stage to an aggregation pipeline.
+ * Fluent interface for adding a $replaceRoot stage to an aggregation pipeline.
  *
- * @author Boris Guéry <guery.b@gmail.com>
+ * @author alcaeus <alcaeus@alcaeus.org>
+ * @since 1.5
  */
-class AddFields extends Operator
+class ReplaceRoot extends Operator
 {
+    /**
+     * @var string|null
+     */
+    private $expression;
+
+    /**
+     * @param Builder $builder
+     * @param string|null $expression Optional. A replacement expression that
+     * resolves to a document.
+     */
+    public function __construct(Builder $builder, $expression = null)
+    {
+        parent::__construct($builder);
+
+        $this->expression = $expression;
+    }
+
     /**
      * {@inheritdoc}
      */
     public function getExpression()
     {
         return [
-            '$addFields' => $this->expr->getExpression()
+            '$replaceRoot' => $this->expression !== null ? Expr::convertExpression($this->expression) : $this->expr->getExpression()
         ];
     }
 }

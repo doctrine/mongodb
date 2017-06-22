@@ -19,20 +19,40 @@
 
 namespace Doctrine\MongoDB\Aggregation\Stage;
 
+use Doctrine\MongoDB\Aggregation\Builder;
+use Doctrine\MongoDB\Aggregation\Stage;
+
 /**
- * Fluent interface for adding a $addFields stage to an aggregation pipeline.
+ * Fluent interface for adding a $count stage to an aggregation pipeline.
  *
- * @author Boris Guéry <guery.b@gmail.com>
+ * @author alcaeus <alcaeus@alcaeus.org>
+ * @since 1.5
  */
-class AddFields extends Operator
+class Count extends Stage
 {
+    /**
+     * @var string
+     */
+    private $fieldName;
+
+    /**
+     * @param Builder $builder
+     * @param string $fieldName
+     */
+    public function __construct(Builder $builder, $fieldName)
+    {
+        parent::__construct($builder);
+
+        $this->fieldName = $fieldName;
+    }
+
     /**
      * {@inheritdoc}
      */
     public function getExpression()
     {
         return [
-            '$addFields' => $this->expr->getExpression()
+            '$count' => $this->fieldName
         ];
     }
 }
