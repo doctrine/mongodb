@@ -584,6 +584,49 @@ class Expr
     }
 
     /**
+     * Returns a boolean indicating whether a specified value is in an array.
+     *
+     * Unlike the $in query operator, the aggregation $in operator does not
+     * support matching by regular expressions.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/in/
+     * @since 1.5
+     * @param mixed|self $expression
+     * @param mixed|self $arrayExpression
+     * @return Expr
+     */
+    public function in($expression, $arrayExpression)
+    {
+        return $this->operator('$in', [$expression, $arrayExpression]);
+    }
+
+    /**
+     * Searches an array for an occurence of a specified value and returns the
+     * array index (zero-based) of the first occurence. If the value is not
+     * found, returns -1.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/indexOfArray/
+     * @since 1.5
+     * @param mixed|self $arrayExpression Can be any valid expression as long as it resolves to an array.
+     * @param mixed|self $searchExpression Can be any valid expression.
+     * @param mixed|self $start Optional. An integer, or a number that can be represented as integers (such as 2.0), that specifies the starting index position for the search. Can be any valid expression that resolves to a non-negative integral number.
+     * @param mixed|self $end An integer, or a number that can be represented as integers (such as 2.0), that specifies the ending index position for the search. Can be any valid expression that resolves to a non-negative integral number.
+     * @return Expr
+     */
+    public function indexOfArray($arrayExpression, $searchExpression, $start = null, $end = null)
+    {
+        $args = [$arrayExpression, $searchExpression];
+        if ($start !== null) {
+            $args[] = $start;
+        }
+        if ($end !== null) {
+            $args[] = $end;
+        }
+
+        return $this->operator('$indexOfArray', $args);
+    }
+
+    /**
      * Determines if the operand is an array. Returns a boolean.
      *
      * The <expression> can be any valid expression.
@@ -936,6 +979,23 @@ class Expr
     }
 
     /**
+     * Returns an array whose elements are a generated sequence of numbers.
+     *
+     * $range generates the sequence from the specified starting number by successively incrementing the starting number by the specified step value up to but not including the end point.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/range/
+     * @since 1.5
+     * @param mixed|self $start An integer that specifies the start of the sequence. Can be any valid expression that resolves to an integer.
+     * @param mixed|self $end An integer that specifies the exclusive upper limit of the sequence. Can be any valid expression that resolves to an integer.
+     * @param mixed|self $step Optional. An integer that specifies the increment value. Can be any valid expression that resolves to a non-zero integer. Defaults to 1.
+     * @return Expr
+     */
+    public function range($start, $end, $step = 1)
+    {
+        return $this->operator('$range', [$start, $end, $step]);
+    }
+
+    /**
      * Ensure that a current field has been set.
      *
      * @param string $method
@@ -947,6 +1007,36 @@ class Expr
         if ( ! $this->currentField) {
             throw new LogicException(($method ?: 'This method') . ' requires you set a current field using field().');
         }
+    }
+
+    /**
+     * Applies an expression to each element in an array and combines them into
+     * a single value.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/reduce/
+     * @since 1.5
+     * @param mixed|self $input Can be any valid expression that resolves to an array.
+     * @param mixed|self $initialValue The initial cumulative value set before in is applied to the first element of the input array.
+     * @param mixed|self $in A valid expression that $reduce applies to each element in the input array in left-to-right order. Wrap the input value with $reverseArray to yield the equivalent of applying the combining expression from right-to-left.
+     * @return Expr
+     */
+    public function reduce($input, $initialValue, $in)
+    {
+        return $this->operator('$reduce', ['input' => $input, 'initialValue' => $initialValue, 'in' => $in]);
+    }
+
+    /**
+     * Accepts an array expression as an argument and returns an array with the
+     * elements in reverse order.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/reverseArray/
+     * @since 1.5
+     * @param mixed|self $expression
+     * @return Expr
+     */
+    public function reverseArray($expression)
+    {
+        return $this->operator('$reverseArray', $expression);
     }
 
     /**
@@ -1271,5 +1361,30 @@ class Expr
     public function year($expression)
     {
         return $this->operator('$year', $expression);
+    }
+
+    /**
+     * Transposes an array of input arrays so that the first element of the
+     * output array would be an array containing, the first element of the first
+     * input array, the first element of the second input array, etc.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/zip/
+     * @since 1.5
+     * @param mixed|self $inputs An array of expressions that resolve to arrays. The elements of these input arrays combine to form the arrays of the output array.
+     * @param bool|null $useLongestLength A boolean which specifies whether the length of the longest array determines the number of arrays in the output array.
+     * @param mixed|self|null $defaults An array of default element values to use if the input arrays have different lengths. You must specify useLongestLength: true along with this field, or else $zip will return an error.
+     * @return Expr
+     */
+    public function zip($inputs, $useLongestLength = null, $defaults = null)
+    {
+        $args = ['inputs' => $inputs];
+        if ($useLongestLength !== null) {
+            $args['useLongestLength'] = $useLongestLength;
+        }
+        if ($defaults !== null) {
+            $args['defaults'] = $defaults;
+        }
+
+        return $this->operator('$zip', $args);
     }
 }

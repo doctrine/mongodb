@@ -210,6 +210,26 @@ trait AggregationOperatorsProviderTrait
                 'operator' => 'ifNull',
                 'args' => ['$field', '$otherField'],
             ],
+            'in' => [
+                'expected' => ['$in' => ['$field', '$otherField']],
+                'operator' => 'in',
+                'args' => ['$field', '$otherField'],
+            ],
+            'indexOfArrayWithoutStartOrEnd' => [
+                'expected' => ['$indexOfArray' => ['$field', '$otherField']],
+                'operator' => 'indexOfArray',
+                'args' => ['$field', '$otherField'],
+            ],
+            'indexOfArrayWithStart' => [
+                'expected' => ['$indexOfArray' => ['$field', '$otherField', '$start']],
+                'operator' => 'indexOfArray',
+                'args' => ['$field', '$otherField', '$start'],
+            ],
+            'indexOfArrayWithStartAndEnd' => [
+                'expected' => ['$indexOfArray' => ['$field', '$otherField', '$start', '$end']],
+                'operator' => 'indexOfArray',
+                'args' => ['$field', '$otherField', '$start', '$end'],
+            ],
             'isArray' => [
                 'expected' => ['$isArray' => '$field'],
                 'operator' => 'isArray',
@@ -311,6 +331,39 @@ trait AggregationOperatorsProviderTrait
                 'expected' => ['$pow' => ['$number', '$exponent']],
                 'operator' => 'pow',
                 'args' => ['$number', '$exponent'],
+            ],
+            'rangeWithoutStep' => [
+                'expected' => ['$range' => ['$start', '$end', 1]],
+                'operator' => 'range',
+                'args' => ['$start', '$end'],
+            ],
+            'rangeWithStep' => [
+                'expected' => ['$range' => ['$start', '$end', 5]],
+                'operator' => 'range',
+                'args' => ['$start', '$end', 5],
+            ],
+            'reduce' => [
+                'expected' => [
+                    '$reduce' => [
+                        'input' => '$array',
+                        'initialValue' => ['sum' => 0, 'product' => 1],
+                        'in' => [
+                            '$add' => ['$$value.sum', '$$this'],
+                            '$multiply' => ['$$value.product', '$$this'],
+                        ],
+                    ],
+                ],
+                'operator' => 'reduce',
+                'args' => [
+                    '$array',
+                    ['sum' => 0, 'product' => 1],
+                    (new Expr)->add('$$value.sum', '$$this')->multiply('$$value.product', '$$this')
+                ],
+            ],
+            'reverseArray' => [
+                'expected' => ['$reverseArray' => '$array'],
+                'operator' => 'reverseArray',
+                'args' => ['$array'],
             ],
             'second' => [
                 'expected' => ['$second' => '$dateField'],
@@ -416,6 +469,21 @@ trait AggregationOperatorsProviderTrait
                 'expected' => ['$year' => '$dateField'],
                 'operator' => 'year',
                 'args' => ['$dateField'],
+            ],
+            'zipWithoutExtraFields' => [
+                'expected' => ['$zip' => ['inputs' => ['$array1', '$array2']]],
+                'operator' => 'zip',
+                'args' => [['$array1', '$array2']],
+            ],
+            'zipWithUseLongestLengthWithoutDefault' => [
+                'expected' => ['$zip' => ['inputs' => ['$array1', '$array2'], 'useLongestLength' => true]],
+                'operator' => 'zip',
+                'args' => [['$array1', '$array2'], true],
+            ],
+            'zipWithUseLongestLengthAndDefault' => [
+                'expected' => ['$zip' => ['inputs' => ['$array1', '$array2'], 'useLongestLength' => true, 'defaults' => ['a', 'b']]],
+                'operator' => 'zip',
+                'args' => [['$array1', '$array2'], true, ['a', 'b']],
             ],
         ];
     }

@@ -530,6 +530,47 @@ abstract class Operator extends Stage
     }
 
     /**
+     * Returns a boolean indicating whether a specified value is in an array.
+     *
+     * Unlike the $in query operator, the aggregation $in operator does not
+     * support matching by regular expressions.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/in/
+     * @see Expr::in
+     * @since 1.5
+     * @param mixed|Expr $expression
+     * @param mixed|Expr $arrayExpression
+     * @return $this
+     */
+    public function in($expression, $arrayExpression)
+    {
+        $this->expr->in($expression, $arrayExpression);
+
+        return $this;
+    }
+
+    /**
+     * Searches an array for an occurence of a specified value and returns the
+     * array index (zero-based) of the first occurence. If the value is not
+     * found, returns -1.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/indexOfArray/
+     * @see Expr::indexOfArray
+     * @since 1.5
+     * @param mixed|Expr $arrayExpression Can be any valid expression as long as it resolves to an array.
+     * @param mixed|Expr $searchExpression Can be any valid expression.
+     * @param mixed|Expr $start Optional. An integer, or a number that can be represented as integers (such as 2.0), that specifies the starting index position for the search. Can be any valid expression that resolves to a non-negative integral number.
+     * @param mixed|Expr $end An integer, or a number that can be represented as integers (such as 2.0), that specifies the ending index position for the search. Can be any valid expression that resolves to a non-negative integral number.
+     * @return $this
+     */
+    public function indexOfArray($arrayExpression, $searchExpression, $start = null, $end = null)
+    {
+        $this->expr->indexOfArray($arrayExpression, $searchExpression, $start, $end);
+
+        return $this;
+    }
+
+    /**
      * Evaluates an expression and returns the value of the expression if the
      * expression evaluates to a non-null value. If the expression evaluates to
      * a null value, including instances of undefined values or missing fields,
@@ -884,6 +925,62 @@ abstract class Operator extends Stage
     }
 
     /**
+     * Returns an array whose elements are a generated sequence of numbers.
+     *
+     * $range generates the sequence from the specified starting number by successively incrementing the starting number by the specified step value up to but not including the end point.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/range/
+     * @see Expr::range
+     * @since 1.5
+     * @param mixed|Expr $start An integer that specifies the start of the sequence. Can be any valid expression that resolves to an integer.
+     * @param mixed|Expr $end An integer that specifies the exclusive upper limit of the sequence. Can be any valid expression that resolves to an integer.
+     * @param mixed|Expr $step Optional. An integer that specifies the increment value. Can be any valid expression that resolves to a non-zero integer. Defaults to 1.
+     * @return $this
+     */
+    public function range($start, $end, $step = 1)
+    {
+        $this->expr->range($start, $end, $step);
+
+        return $this;
+    }
+
+    /**
+     * Applies an expression to each element in an array and combines them into
+     * a single value.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/reduce/
+     * @see Expr::reduce
+     * @since 1.5
+     * @param mixed|Expr $input Can be any valid expression that resolves to an array.
+     * @param mixed|Expr $initialValue The initial cumulative value set before in is applied to the first element of the input array.
+     * @param mixed|Expr $in A valid expression that $reduce applies to each element in the input array in left-to-right order. Wrap the input value with $reverseArray to yield the equivalent of applying the combining expression from right-to-left.
+     * @return $this
+     */
+    public function reduce($input, $initialValue, $in)
+    {
+        $this->expr->reduce($input, $initialValue, $in);
+
+        return $this;
+    }
+
+    /**
+     * Accepts an array expression as an argument and returns an array with the
+     * elements in reverse order.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/reverseArray/
+     * @see Expr::reverseArray
+     * @since 1.5
+     * @param mixed|Expr $expression
+     * @return $this
+     */
+    public function reverseArray($expression)
+    {
+        $this->expr->reverseArray($expression);
+
+        return $this;
+    }
+
+    /**
      * Returns the second portion of a date as a number between 0 and 59, but
      * can be 60 to account for leap seconds.
      *
@@ -1199,6 +1296,26 @@ abstract class Operator extends Stage
     public function year($expression)
     {
         $this->expr->year($expression);
+
+        return $this;
+    }
+
+    /**
+     * Transposes an array of input arrays so that the first element of the
+     * output array would be an array containing, the first element of the first
+     * input array, the first element of the second input array, etc.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/zip/
+     * @see Expr::zip
+     * @since 1.5
+     * @param mixed|Expr $inputs An array of expressions that resolve to arrays. The elements of these input arrays combine to form the arrays of the output array.
+     * @param bool|null $useLongestLength A boolean which specifies whether the length of the longest array determines the number of arrays in the output array.
+     * @param mixed|Expr|null $defaults An array of default element values to use if the input arrays have different lengths. You must specify useLongestLength: true along with this field, or else $zip will return an error.
+     * @return $this
+     */
+    public function zip($inputs, $useLongestLength = null, $defaults = null)
+    {
+        $this->expr->zip($inputs, $useLongestLength, $defaults);
 
         return $this;
     }
