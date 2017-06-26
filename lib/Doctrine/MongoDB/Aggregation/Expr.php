@@ -1529,6 +1529,22 @@ class Expr
     }
 
     /**
+     * Returns a string that specifies the BSON type of the argument.
+     *
+     * The argument can be any valid expression.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/type/
+     * @since 1.5
+     * @param mixed|self $expression
+     *
+     * @return Expr
+     */
+    public function type($expression)
+    {
+        return $this->operator('$type', $expression);
+    }
+
+    /**
      * Returns the week of the year for a date as a number between 0 and 53.
      *
      * The argument can be any expression as long as it resolves to a date.

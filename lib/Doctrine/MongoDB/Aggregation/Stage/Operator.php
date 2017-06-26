@@ -1464,6 +1464,24 @@ abstract class Operator extends Stage
     }
 
     /**
+     * Returns a string that specifies the BSON type of the argument.
+     *
+     * The argument can be any valid expression.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/type/
+     * @since 1.5
+     * @param mixed|Expr $expression
+     *
+     * @return $this
+     */
+    public function type($expression)
+    {
+        $this->expr->type($expression);
+
+        return $this;
+    }
+
+    /**
      * Returns the week of the year for a date as a number between 0 and 53.
      *
      * The argument can be any expression as long as it resolves to a date.

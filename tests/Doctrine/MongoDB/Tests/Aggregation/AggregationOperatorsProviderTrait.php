@@ -530,6 +530,11 @@ trait AggregationOperatorsProviderTrait
                 'operator' => 'trunc',
                 'args' => ['$field'],
             ],
+            'type' => [
+                'expected' => ['$type' => '$field'],
+                'operator' => 'type',
+                'args' => ['$field'],
+            ],
             'week' => [
                 'expected' => ['$week' => '$dateField'],
                 'operator' => 'week',
