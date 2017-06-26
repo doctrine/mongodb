@@ -697,6 +697,58 @@ class Expr
     }
 
     /**
+     * Returns the weekday number in ISO 8601 format, ranging from 1 (for Monday)
+     * to 7 (for Sunday).
+     *
+     * The argument can be any expression as long as it resolves to a date.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/isoDayOfWeek/
+     * @since 1.5
+     * @param mixed|self $expression
+     * @return $this
+     */
+    public function isoDayOfWeek($expression)
+    {
+        return $this->operator('$isoDayOfWeek', $expression);
+    }
+
+    /**
+     * Returns the week number in ISO 8601 format, ranging from 1 to 53.
+     *
+     * Week numbers start at 1 with the week (Monday through Sunday) that
+     * contains the year’s first Thursday.
+     *
+     * The argument can be any expression as long as it resolves to a date.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/isoWeek/
+     * @since 1.5
+     * @param mixed|self $expression
+     * @return $this
+     */
+    public function isoWeek($expression)
+    {
+        return $this->operator('$isoWeek', $expression);
+    }
+
+    /**
+     * Returns the year number in ISO 8601 format.
+     *
+     * The year starts with the Monday of week 1 (ISO 8601) and ends with the
+     * Sunday of the last week (ISO 8601).
+     *
+     * The argument can be any expression as long as it resolves to a date.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/isoWeek/
+     * @since 1.5
+     * @param mixed|self $expression
+     * @return $this
+     */
+    public function isoWeekYear($expression)
+    {
+        return $this->operator('$isoWeekYear', $expression);
+    }
+
+    /**
      * Returns the value that results from applying an expression to the last
      * document in a group of documents that share the same group by a field.
      * Only meaningful when documents are in a defined order.

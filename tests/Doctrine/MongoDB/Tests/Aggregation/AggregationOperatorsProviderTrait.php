@@ -265,6 +265,21 @@ trait AggregationOperatorsProviderTrait
                 'operator' => 'isArray',
                 'args' => ['$field'],
             ],
+            'isoDayOfWeek' => [
+                'expected' => ['$isoDayOfWeek' => '$dateField'],
+                'operator' => 'isoDayOfWeek',
+                'args' => ['$dateField'],
+            ],
+            'isoWeek' => [
+                'expected' => ['$isoWeek' => '$dateField'],
+                'operator' => 'isoWeek',
+                'args' => ['$dateField'],
+            ],
+            'isoWeekYear' => [
+                'expected' => ['$isoWeekYear' => '$dateField'],
+                'operator' => 'isoWeekYear',
+                'args' => ['$dateField'],
+            ],
             'let' => [
                 'expected' => [
                     '$let' => [

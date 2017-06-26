@@ -653,6 +653,64 @@ abstract class Operator extends Stage
     }
 
     /**
+     * Returns the weekday number in ISO 8601 format, ranging from 1 (for Monday)
+     * to 7 (for Sunday).
+     *
+     * The argument can be any expression as long as it resolves to a date.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/isoDayOfWeek/
+     * @since 1.5
+     * @param mixed|Expr $expression
+     * @return $this
+     */
+    public function isoDayOfWeek($expression)
+    {
+        $this->expr->isoDayOfWeek($expression);
+
+        return $this;
+    }
+
+    /**
+     * Returns the week number in ISO 8601 format, ranging from 1 to 53.
+     *
+     * Week numbers start at 1 with the week (Monday through Sunday) that
+     * contains the year’s first Thursday.
+     *
+     * The argument can be any expression as long as it resolves to a date.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/isoWeek/
+     * @since 1.5
+     * @param mixed|Expr $expression
+     * @return $this
+     */
+    public function isoWeek($expression)
+    {
+        $this->expr->isoWeek($expression);
+
+        return $this;
+    }
+
+    /**
+     * Returns the year number in ISO 8601 format.
+     *
+     * The year starts with the Monday of week 1 (ISO 8601) and ends with the
+     * Sunday of the last week (ISO 8601).
+     *
+     * The argument can be any expression as long as it resolves to a date.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/isoWeek/
+     * @since 1.5
+     * @param mixed|Expr $expression
+     * @return $this
+     */
+    public function isoWeekYear($expression)
+    {
+        $this->expr->isoWeekYear($expression);
+
+        return $this;
+    }
+
+    /**
      * Binds variables for use in the specified expression, and returns the
      * result of the expression.
      *
