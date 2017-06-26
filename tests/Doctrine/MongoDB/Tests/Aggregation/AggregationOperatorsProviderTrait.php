@@ -230,6 +230,36 @@ trait AggregationOperatorsProviderTrait
                 'operator' => 'indexOfArray',
                 'args' => ['$field', '$otherField', '$start', '$end'],
             ],
+            'indexOfBytesWithoutStartOrEnd' => [
+                'expected' => ['$indexOfBytes' => ['$field', '$otherField']],
+                'operator' => 'indexOfBytes',
+                'args' => ['$field', '$otherField'],
+            ],
+            'indexOfBytesWithStart' => [
+                'expected' => ['$indexOfBytes' => ['$field', '$otherField', '$start']],
+                'operator' => 'indexOfBytes',
+                'args' => ['$field', '$otherField', '$start'],
+            ],
+            'indexOfBytesWithStartAndEnd' => [
+                'expected' => ['$indexOfBytes' => ['$field', '$otherField', '$start', '$end']],
+                'operator' => 'indexOfBytes',
+                'args' => ['$field', '$otherField', '$start', '$end'],
+            ],
+            'indexOfCPWithoutStartOrEnd' => [
+                'expected' => ['$indexOfCP' => ['$field', '$otherField']],
+                'operator' => 'indexOfCP',
+                'args' => ['$field', '$otherField'],
+            ],
+            'indexOfCPWithStart' => [
+                'expected' => ['$indexOfCP' => ['$field', '$otherField', '$start']],
+                'operator' => 'indexOfCP',
+                'args' => ['$field', '$otherField', '$start'],
+            ],
+            'indexOfCPWithStartAndEnd' => [
+                'expected' => ['$indexOfCP' => ['$field', '$otherField', '$start', '$end']],
+                'operator' => 'indexOfCP',
+                'args' => ['$field', '$otherField', '$start', '$end'],
+            ],
             'isArray' => [
                 'expected' => ['$isArray' => '$field'],
                 'operator' => 'isArray',
@@ -425,6 +455,11 @@ trait AggregationOperatorsProviderTrait
                 'operator' => 'slice',
                 'args' => ['$array', '$n', '$position'],
             ],
+            'split' => [
+                'expected' => ['$split' => ['$string', '$delimiter']],
+                'operator' => 'split',
+                'args' => ['$string', '$delimiter'],
+            ],
             'sqrt' => [
                 'expected' => ['$sqrt' => '$field'],
                 'operator' => 'sqrt',
@@ -435,9 +470,29 @@ trait AggregationOperatorsProviderTrait
                 'operator' => 'strcasecmp',
                 'args' => ['$field', '$otherField'],
             ],
+            'strLenBytes' => [
+                'expected' => ['$strLenBytes' => '$field'],
+                'operator' => 'strLenBytes',
+                'args' => ['$field'],
+            ],
+            'strLenCP' => [
+                'expected' => ['$strLenCP' => '$field'],
+                'operator' => 'strLenCP',
+                'args' => ['$field'],
+            ],
             'substr' => [
                 'expected' => ['$substr' => ['$field', 0, '$length']],
                 'operator' => 'substr',
+                'args' => ['$field', 0, '$length'],
+            ],
+            'substrBytes' => [
+                'expected' => ['$substrBytes' => ['$field', 0, '$length']],
+                'operator' => 'substrBytes',
+                'args' => ['$field', 0, '$length'],
+            ],
+            'substrCP' => [
+                'expected' => ['$substrCP' => ['$field', 0, '$length']],
+                'operator' => 'substrCP',
                 'args' => ['$field', 0, '$length'],
             ],
             'subtract' => [

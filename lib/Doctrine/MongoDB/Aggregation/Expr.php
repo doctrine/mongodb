@@ -627,6 +627,60 @@ class Expr
     }
 
     /**
+     * Searches a string for an occurence of a substring and returns the UTF-8
+     * byte index (zero-based) of the first occurence. If the substring is not
+     * found, returns -1.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/indexOfBytes/
+     * @since 1.5
+     * @param mixed|self $stringExpression Can be any valid expression as long as it resolves to a string.
+     * @param mixed|self $substringExpression Can be any valid expression as long as it resolves to a string.
+     * @param int|null $start An integral number that specifies the starting index position for the search. Can be any valid expression that resolves to a non-negative integral number.
+     * @param int|null $end An integral number that specifies the ending index position for the search. Can be any valid expression that resolves to a non-negative integral number.
+     *
+     * @return Expr
+     */
+    public function indexOfBytes($stringExpression, $substringExpression, $start = null, $end = null)
+    {
+        $args = [$stringExpression, $substringExpression];
+        if ($start !== null) {
+            $args[] = $start;
+        }
+        if ($end !== null) {
+            $args[] = $end;
+        }
+
+        return $this->operator('$indexOfBytes', $args);
+    }
+
+    /**
+     * Searches a string for an occurence of a substring and returns the UTF-8
+     * code point index (zero-based) of the first occurence. If the substring is
+     * not found, returns -1.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/indexOfCP/
+     * @since 1.5
+     * @param mixed|self $stringExpression Can be any valid expression as long as it resolves to a string.
+     * @param mixed|self $substringExpression Can be any valid expression as long as it resolves to a string.
+     * @param int|null $start An integral number that specifies the starting index position for the search. Can be any valid expression that resolves to a non-negative integral number.
+     * @param int|null $end An integral number that specifies the ending index position for the search. Can be any valid expression that resolves to a non-negative integral number.
+     *
+     * @return Expr
+     */
+    public function indexOfCP($stringExpression, $substringExpression, $start = null, $end = null)
+    {
+        $args = [$stringExpression, $substringExpression];
+        if ($start !== null) {
+            $args[] = $start;
+        }
+        if ($end !== null) {
+            $args[] = $end;
+        }
+
+        return $this->operator('$indexOfCP', $args);
+    }
+
+    /**
      * Determines if the operand is an array. Returns a boolean.
      *
      * The <expression> can be any valid expression.
@@ -1172,6 +1226,25 @@ class Expr
     }
 
     /**
+     * Divides a string into an array of substrings based on a delimiter.
+     *
+     * $split removes the delimiter and returns the resulting substrings as
+     * elements of an array. If the delimiter is not found in the string, $split
+     * returns the original string as the only element of an array.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/split/
+     * @since 1.5
+     * @param mixed|self $string The string to be split. Can be any valid expression as long as it resolves to a string.
+     * @param mixed|self $delimiter The delimiter to use when splitting the string expression. Can be any valid expression as long as it resolves to a string.
+     *
+     * @return Expr
+     */
+    public function split($string, $delimiter)
+    {
+        return $this->operator('$split', [$string, $delimiter]);
+    }
+
+    /**
      * Calculates the square root of a positive number and returns the result as
      * a double.
      *
@@ -1244,6 +1317,34 @@ class Expr
     }
 
     /**
+     * Returns the number of UTF-8 encoded bytes in the specified string.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/strLenBytes/
+     * @since 1.5
+     * @param mixed|self $string
+     *
+     * @return Expr
+     */
+    public function strLenBytes($string)
+    {
+        return $this->operator('$strLenBytes', $string);
+    }
+
+    /**
+     * Returns the number of UTF-8 code points in the specified string.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/strLenCP/
+     * @since 1.5
+     * @param mixed|self $string
+     *
+     * @return Expr
+     */
+    public function strLenCP($string)
+    {
+        return $this->operator('$strLenCP', $string);
+    }
+
+    /**
      * Returns a substring of a string, starting at a specified index position
      * and including the specified number of characters. The index is zero-based.
      *
@@ -1258,6 +1359,46 @@ class Expr
     public function substr($string, $start, $length)
     {
         return $this->operator('$substr', [$string, $start, $length]);
+    }
+
+    /**
+     * Returns the substring of a string.
+     *
+     * The substring starts with the character at the specified UTF-8 byte index
+     * (zero-based) in the string and continues for the number of bytes
+     * specified.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/substrBytes/
+     * @since 1.5
+     * @param mixed|self $string The string from which the substring will be extracted. Can be any valid expression as long as it resolves to a string.
+     * @param mixed|self $start Indicates the starting point of the substring. Can be any valid expression as long as it resolves to a non-negative integer or number that can be represented as an integer.
+     * @param mixed|self $count Can be any valid expression as long as it resolves to a non-negative integer or number that can be represented as an integer.
+     *
+     * @return Expr
+     */
+    public function substrBytes($string, $start, $count)
+    {
+        return $this->operator('$substrBytes', [$string, $start, $count]);
+    }
+
+    /**
+     * Returns the substring of a string.
+     *
+     * The substring starts with the character at the specified UTF-8 code point
+     * (CP) index (zero-based) in the string for the number of code points
+     * specified.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/substrBytes/
+     * @since 1.5
+     * @param mixed|self $string The string from which the substring will be extracted. Can be any valid expression as long as it resolves to a string.
+     * @param mixed|self $start Indicates the starting point of the substring. Can be any valid expression as long as it resolves to a non-negative integer or number that can be represented as an integer.
+     * @param mixed|self $count Can be any valid expression as long as it resolves to a non-negative integer or number that can be represented as an integer.
+     *
+     * @return Expr
+     */
+    public function substrCP($string, $start, $count)
+    {
+        return $this->operator('$substrCP', [$string, $start, $count]);
     }
 
     /**
