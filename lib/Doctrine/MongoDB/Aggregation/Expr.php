@@ -618,9 +618,10 @@ class Expr
         $args = [$arrayExpression, $searchExpression];
         if ($start !== null) {
             $args[] = $start;
-        }
-        if ($end !== null) {
-            $args[] = $end;
+
+            if ($end !== null) {
+                $args[] = $end;
+            }
         }
 
         return $this->operator('$indexOfArray', $args);
@@ -645,9 +646,10 @@ class Expr
         $args = [$stringExpression, $substringExpression];
         if ($start !== null) {
             $args[] = $start;
-        }
-        if ($end !== null) {
-            $args[] = $end;
+
+            if ($end !== null) {
+                $args[] = $end;
+            }
         }
 
         return $this->operator('$indexOfBytes', $args);
@@ -672,9 +674,10 @@ class Expr
         $args = [$stringExpression, $substringExpression];
         if ($start !== null) {
             $args[] = $start;
-        }
-        if ($end !== null) {
-            $args[] = $end;
+
+            if ($end !== null) {
+                $args[] = $end;
+            }
         }
 
         return $this->operator('$indexOfCP', $args);

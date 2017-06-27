@@ -220,6 +220,11 @@ trait AggregationOperatorsProviderTrait
                 'operator' => 'indexOfArray',
                 'args' => ['$field', '$otherField'],
             ],
+            'indexOfArrayWithoutStartWithEnd' => [
+                'expected' => ['$indexOfArray' => ['$field', '$otherField']],
+                'operator' => 'indexOfArray',
+                'args' => ['$field', '$otherField', null, '$end'],
+            ],
             'indexOfArrayWithStart' => [
                 'expected' => ['$indexOfArray' => ['$field', '$otherField', '$start']],
                 'operator' => 'indexOfArray',
@@ -235,6 +240,11 @@ trait AggregationOperatorsProviderTrait
                 'operator' => 'indexOfBytes',
                 'args' => ['$field', '$otherField'],
             ],
+            'indexOfBytesWithoutStartWithEnd' => [
+                'expected' => ['$indexOfBytes' => ['$field', '$otherField']],
+                'operator' => 'indexOfBytes',
+                'args' => ['$field', '$otherField', null, '$end'],
+            ],
             'indexOfBytesWithStart' => [
                 'expected' => ['$indexOfBytes' => ['$field', '$otherField', '$start']],
                 'operator' => 'indexOfBytes',
@@ -249,6 +259,11 @@ trait AggregationOperatorsProviderTrait
                 'expected' => ['$indexOfCP' => ['$field', '$otherField']],
                 'operator' => 'indexOfCP',
                 'args' => ['$field', '$otherField'],
+            ],
+            'indexOfCPWithoutStartWithEnd' => [
+                'expected' => ['$indexOfCP' => ['$field', '$otherField']],
+                'operator' => 'indexOfCP',
+                'args' => ['$field', '$otherField', null, '$end'],
             ],
             'indexOfCPWithStart' => [
                 'expected' => ['$indexOfCP' => ['$field', '$otherField', '$start']],
