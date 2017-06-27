@@ -26,6 +26,11 @@ use LogicException;
  *
  * @author alcaeus <alcaeus@alcaeus.org>
  * @since 1.2
+ *
+ * @method $this switch()
+ * @method $this case(mixed|Expr $expression)
+ * @method $this then(mixed|Expr $expression)
+ * @method $this default(mixed|Expr $expression)
  */
 class Expr
 {
@@ -40,6 +45,26 @@ class Expr
      * @var string
      */
     private $currentField;
+
+    /**
+     * @var array
+     */
+    private $switchBranch;
+
+    /**
+     * @param string $method
+     * @param array $args
+     * @return $this
+     */
+    public function __call($method, $args)
+    {
+        $internalMethodName = $method . 'Internal';
+        if (!is_callable([$this, $internalMethodName])) {
+            throw new \BadMethodCallException('The method ' . $method . ' does not exist.');
+        }
+
+        return $this->$internalMethodName(...$args);
+    }
 
     /**
      * Returns the absolute value of a number.
@@ -191,6 +216,26 @@ class Expr
     public function avg($expression)
     {
         return $this->operator('$avg', $expression);
+    }
+
+    /**
+     * Adds a case statement for a branch of the $switch operator.
+     *
+     * Requires {@link switch()} to be called first. The argument can be any
+     * valid expression that resolves to a boolean. If the result is not a
+     * boolean, it is coerced to a boolean value.
+     *
+     * @param mixed|self $expression
+     *
+     * @return $this
+     */
+    protected function caseInternal($expression)
+    {
+        $this->requiresSwitchStatement(static::class . '::case');
+
+        $this->switchBranch = ['case' => $expression];
+
+        return $this;
     }
 
     /**
@@ -373,6 +418,32 @@ class Expr
     public function dayOfYear($expression)
     {
         return $this->operator('$dayOfYear', $expression);
+    }
+
+    /**
+     * Adds a default statement for the current $switch operator.
+     *
+     * Requires {@link switch()} to be called first. The argument can be any
+     * valid expression.
+     *
+     * Note: if no default is specified and no branch evaluates to true, the
+     * $switch operator throws an error.
+     *
+     * @param mixed|self $expression
+     *
+     * @return $this
+     */
+    protected function defaultInternal($expression)
+    {
+        $this->requiresSwitchStatement(static::class . '::default');
+
+        if ($this->currentField) {
+            $this->expr[$this->currentField]['$switch']['default'] = static::convertExpression($expression);
+        } else {
+            $this->expr['$switch']['default'] = static::convertExpression($expression);
+        }
+
+        return $this;
     }
 
     /**
@@ -1119,6 +1190,24 @@ class Expr
     }
 
     /**
+     * @param string $method
+     *
+     * @throws \BadMethodCallException if there is no current switch operator
+     */
+    private function requiresSwitchStatement($method = null)
+    {
+        $message = ($method ?: 'This method') . ' requires a valid switch statement (call switch() first).';
+
+        if ($this->currentField) {
+            if (!isset($this->expr[$this->currentField]['$switch'])) {
+                throw new \BadMethodCallException($message);
+            }
+        } elseif (!isset($this->expr['$switch'])) {
+            throw new \BadMethodCallException($message);
+        }
+    }
+
+    /**
      * Applies an expression to each element in an array and combines them into
      * a single value.
      *
@@ -1484,6 +1573,52 @@ class Expr
     public function sum($expression)
     {
         return $this->operator('$sum', $expression);
+    }
+
+    /**
+     * Evaluates a series of case expressions. When it finds an expression which
+     * evaluates to true, $switch executes a specified expression and breaks out
+     * of the control flow.
+     *
+     * To add statements, use the {@link case()}, {@link then()} and
+     * {@link default()} methods.
+     *
+     * @return $this
+     */
+    protected function switchInternal()
+    {
+        $this->operator('$switch', []);
+
+        return $this;
+    }
+
+    /**
+     * Adds a case statement for the current branch of the $switch operator.
+     *
+     * Requires {@link case()} to be called first. The argument can be any valid
+     * expression.
+     *
+     * @param mixed|self $expression
+     *
+     * @return $this
+     */
+    protected function thenInternal($expression)
+    {
+        if (!is_array($this->switchBranch)) {
+            throw new \BadMethodCallException(static::class . '::then requires a valid case statement (call case() first).');
+        }
+
+        $this->switchBranch['then'] = $expression;
+
+        if ($this->currentField) {
+            $this->expr[$this->currentField]['$switch']['branches'][] = static::convertExpression($this->switchBranch);
+        } else {
+            $this->expr['$switch']['branches'][] = static::convertExpression($this->switchBranch);
+        }
+
+        $this->switchBranch = null;
+
+        return $this;
     }
 
     /**

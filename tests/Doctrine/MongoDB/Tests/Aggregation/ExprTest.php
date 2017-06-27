@@ -79,4 +79,73 @@ class ExprTest extends TestCase
 
         $expr->expression($nestedExpr);
     }
+
+    public function testSwitch()
+    {
+        $expr = new Expr();
+
+        $expr->switch()
+            ->case((new Expr())->eq('$numElements', 0))
+            ->then('Zero elements given')
+            ->case((new Expr())->eq('$numElements', 1))
+            ->then('One element given')
+            ->default((new Expr())->concat('$numElements', ' elements given'));
+
+        $this->assertSame(
+            [
+                '$switch' => [
+                    'branches' => [
+                        ['case' => ['$eq' => ['$numElements', 0]], 'then' => 'Zero elements given'],
+                        ['case' => ['$eq' => ['$numElements', 1]], 'then' => 'One element given'],
+                    ],
+                    'default' => ['$concat' => ['$numElements', ' elements given']],
+                ]
+            ],
+            $expr->getExpression()
+        );
+    }
+
+    public function testCallingCaseWithoutSwitchThrowsException()
+    {
+        $expr = new Expr();
+
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('Doctrine\MongoDB\Aggregation\Expr::case requires a valid switch statement (call switch() first).');
+
+        $expr->case('$field');
+    }
+
+    public function testCallingThenWithoutCaseThrowsException()
+    {
+        $expr = new Expr();
+
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('Doctrine\MongoDB\Aggregation\Expr::then requires a valid case statement (call case() first).');
+
+        $expr->then('$field');
+    }
+
+    public function testCallingThenWithoutCaseAfterSuccessfulCaseThrowsException()
+    {
+        $expr = new Expr();
+
+        $expr->switch()
+            ->case('$field')
+            ->then('$field');
+
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('Doctrine\MongoDB\Aggregation\Expr::then requires a valid case statement (call case() first).');
+
+        $expr->then('$field');
+    }
+
+    public function testCallingDefaultWithoutSwitchThrowsException()
+    {
+        $expr = new Expr();
+
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('Doctrine\MongoDB\Aggregation\Expr::default requires a valid switch statement (call switch() first).');
+
+        $expr->default('$field');
+    }
 }

@@ -28,6 +28,10 @@ use Doctrine\MongoDB\Aggregation\Stage;
  *
  * @author alcaeus <alcaeus@alcaeus.org>
  * @since 1.2
+ * @method $this switch()
+ * @method $this case(mixed|Expr $expression)
+ * @method $this then(mixed|Expr $expression)
+ * @method $this default(mixed|Expr $expression)
  */
 abstract class Operator extends Stage
 {
@@ -44,6 +48,18 @@ abstract class Operator extends Stage
         parent::__construct($builder);
 
         $this->expr = $builder->expr();
+    }
+
+    /**
+     * @param string $method
+     * @param array $args
+     * @return $this
+     */
+    public function __call($method, $args)
+    {
+        $this->expr->$method(...$args);
+
+        return $this;
     }
 
     /**
