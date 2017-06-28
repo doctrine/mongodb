@@ -48,7 +48,7 @@ class Project extends Operator
      * @see Expr::avg
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2, ... Additional expressions
-     * @return Operator
+     * @return $this
      *
      * @since 1.3
      */
@@ -115,7 +115,7 @@ class Project extends Operator
      * @see Expr::max
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2, ... Additional expressions
-     * @return Operator
+     * @return $this
      *
      * @since 1.3
      */
@@ -134,7 +134,7 @@ class Project extends Operator
      * @see Expr::min
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2, ... Additional expressions
-     * @return Operator
+     * @return $this
      *
      * @since 1.3
      */
@@ -194,7 +194,7 @@ class Project extends Operator
      * @see Expr::sum
      * @param mixed|Expr $expression1
      * @param mixed|Expr $expression2, ... Additional expressions
-     * @return Operator
+     * @return $this
      *
      * @since 1.3
      */

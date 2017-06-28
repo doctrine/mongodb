@@ -74,7 +74,7 @@ class BucketAuto extends AbstractBucket
      * in addition to the _id field. To specify the field to include, you must
      * use accumulator expressions.
      *
-     * @return Bucket\BucketOutput
+     * @return Bucket\BucketAutoOutput
      */
     public function output()
     {

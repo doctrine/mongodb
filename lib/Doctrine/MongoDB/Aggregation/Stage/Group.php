@@ -65,7 +65,7 @@ class Group extends Operator
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/addToSet/
      * @see Expr::addToSet
      * @param mixed|Expr $expression
-     * @return Operator
+     * @return $this
      */
     public function addToSet($expression)
     {
@@ -82,7 +82,7 @@ class Group extends Operator
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/avg/
      * @see Expr::avg
      * @param mixed|Expr $expression
-     * @return Operator
+     * @return $this
      */
     public function avg($expression)
     {
@@ -128,7 +128,7 @@ class Group extends Operator
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/first/
      * @see Expr::first
      * @param mixed|Expr $expression
-     * @return Operator
+     * @return $this
      */
     public function first($expression)
     {
@@ -145,7 +145,7 @@ class Group extends Operator
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/last/
      * @see Expr::last
      * @param mixed|Expr $expression
-     * @return Operator
+     * @return $this
      */
     public function last($expression)
     {
@@ -161,7 +161,7 @@ class Group extends Operator
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/max/
      * @see Expr::max
      * @param mixed|Expr $expression
-     * @return Operator
+     * @return $this
      */
     public function max($expression)
     {
@@ -177,7 +177,7 @@ class Group extends Operator
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/min/
      * @see Expr::min
      * @param mixed|Expr $expression
-     * @return Operator
+     * @return $this
      */
     public function min($expression)
     {
@@ -193,7 +193,7 @@ class Group extends Operator
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/push/
      * @see Expr::push
      * @param mixed|Expr $expression
-     * @return Operator
+     * @return $this
      */
     public function push($expression)
     {
@@ -248,7 +248,7 @@ class Group extends Operator
      * @see http://docs.mongodb.org/manual/reference/operator/aggregation/sum/
      * @see Expr::sum
      * @param mixed|Expr $expression
-     * @return Operator
+     * @return $this
      */
     public function sum($expression)
     {

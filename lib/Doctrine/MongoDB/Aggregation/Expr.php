@@ -664,7 +664,7 @@ class Expr
      * @since 1.5
      * @param mixed|self $expression
      * @param mixed|self $arrayExpression
-     * @return Expr
+     * @return $this
      */
     public function in($expression, $arrayExpression)
     {
@@ -682,7 +682,7 @@ class Expr
      * @param mixed|self $searchExpression Can be any valid expression.
      * @param mixed|self $start Optional. An integer, or a number that can be represented as integers (such as 2.0), that specifies the starting index position for the search. Can be any valid expression that resolves to a non-negative integral number.
      * @param mixed|self $end An integer, or a number that can be represented as integers (such as 2.0), that specifies the ending index position for the search. Can be any valid expression that resolves to a non-negative integral number.
-     * @return Expr
+     * @return $this
      */
     public function indexOfArray($arrayExpression, $searchExpression, $start = null, $end = null)
     {
@@ -710,7 +710,7 @@ class Expr
      * @param int|null $start An integral number that specifies the starting index position for the search. Can be any valid expression that resolves to a non-negative integral number.
      * @param int|null $end An integral number that specifies the ending index position for the search. Can be any valid expression that resolves to a non-negative integral number.
      *
-     * @return Expr
+     * @return $this
      */
     public function indexOfBytes($stringExpression, $substringExpression, $start = null, $end = null)
     {
@@ -738,7 +738,7 @@ class Expr
      * @param int|null $start An integral number that specifies the starting index position for the search. Can be any valid expression that resolves to a non-negative integral number.
      * @param int|null $end An integral number that specifies the ending index position for the search. Can be any valid expression that resolves to a non-negative integral number.
      *
-     * @return Expr
+     * @return $this
      */
     public function indexOfCP($stringExpression, $substringExpression, $start = null, $end = null)
     {
@@ -1168,7 +1168,7 @@ class Expr
      * @param mixed|self $start An integer that specifies the start of the sequence. Can be any valid expression that resolves to an integer.
      * @param mixed|self $end An integer that specifies the exclusive upper limit of the sequence. Can be any valid expression that resolves to an integer.
      * @param mixed|self $step Optional. An integer that specifies the increment value. Can be any valid expression that resolves to a non-zero integer. Defaults to 1.
-     * @return Expr
+     * @return $this
      */
     public function range($start, $end, $step = 1)
     {
@@ -1216,7 +1216,7 @@ class Expr
      * @param mixed|self $input Can be any valid expression that resolves to an array.
      * @param mixed|self $initialValue The initial cumulative value set before in is applied to the first element of the input array.
      * @param mixed|self $in A valid expression that $reduce applies to each element in the input array in left-to-right order. Wrap the input value with $reverseArray to yield the equivalent of applying the combining expression from right-to-left.
-     * @return Expr
+     * @return $this
      */
     public function reduce($input, $initialValue, $in)
     {
@@ -1230,7 +1230,7 @@ class Expr
      * @see https://docs.mongodb.com/manual/reference/operator/aggregation/reverseArray/
      * @since 1.5
      * @param mixed|self $expression
-     * @return Expr
+     * @return $this
      */
     public function reverseArray($expression)
     {
@@ -1381,7 +1381,7 @@ class Expr
      * @param mixed|self $string The string to be split. Can be any valid expression as long as it resolves to a string.
      * @param mixed|self $delimiter The delimiter to use when splitting the string expression. Can be any valid expression as long as it resolves to a string.
      *
-     * @return Expr
+     * @return $this
      */
     public function split($string, $delimiter)
     {
@@ -1467,7 +1467,7 @@ class Expr
      * @since 1.5
      * @param mixed|self $string
      *
-     * @return Expr
+     * @return $this
      */
     public function strLenBytes($string)
     {
@@ -1481,7 +1481,7 @@ class Expr
      * @since 1.5
      * @param mixed|self $string
      *
-     * @return Expr
+     * @return $this
      */
     public function strLenCP($string)
     {
@@ -1518,7 +1518,7 @@ class Expr
      * @param mixed|self $start Indicates the starting point of the substring. Can be any valid expression as long as it resolves to a non-negative integer or number that can be represented as an integer.
      * @param mixed|self $count Can be any valid expression as long as it resolves to a non-negative integer or number that can be represented as an integer.
      *
-     * @return Expr
+     * @return $this
      */
     public function substrBytes($string, $start, $count)
     {
@@ -1538,7 +1538,7 @@ class Expr
      * @param mixed|self $start Indicates the starting point of the substring. Can be any valid expression as long as it resolves to a non-negative integer or number that can be represented as an integer.
      * @param mixed|self $count Can be any valid expression as long as it resolves to a non-negative integer or number that can be represented as an integer.
      *
-     * @return Expr
+     * @return $this
      */
     public function substrCP($string, $start, $count)
     {
@@ -1675,7 +1675,7 @@ class Expr
      * @since 1.5
      * @param mixed|self $expression
      *
-     * @return Expr
+     * @return $this
      */
     public function type($expression)
     {
@@ -1720,7 +1720,7 @@ class Expr
      * @param mixed|self $inputs An array of expressions that resolve to arrays. The elements of these input arrays combine to form the arrays of the output array.
      * @param bool|null $useLongestLength A boolean which specifies whether the length of the longest array determines the number of arrays in the output array.
      * @param mixed|self|null $defaults An array of default element values to use if the input arrays have different lengths. You must specify useLongestLength: true along with this field, or else $zip will return an error.
-     * @return Expr
+     * @return $this
      */
     public function zip($inputs, $useLongestLength = null, $defaults = null)
     {
