@@ -61,7 +61,7 @@ final class ReadPreference
      */
     public static function convertNumericType($type)
     {
-        if (!isset(self::$types[$type])) {
+        if (! isset(self::$types[$type])) {
             throw new \InvalidArgumentException('Unknown numeric read preference type: ' . $type);
         }
 
@@ -118,7 +118,7 @@ final class ReadPreference
              * does not contain a colon character, we can assume this tag set is
              * already in the format expected by setReadPreference().
              */
-            if (!isset($tagSet[0]) || false === strpos($tagSet[0], ':')) {
+            if (! isset($tagSet[0]) || false === strpos($tagSet[0], ':')) {
                 return $tagSet;
             }
 

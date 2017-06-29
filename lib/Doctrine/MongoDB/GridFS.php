@@ -268,7 +268,7 @@ class GridFS extends Collection
             /* If findAndRemove() returned nothing (no match or removal), create
              * a new document with the query's "_id" if available.
              */
-            if (!isset($document)) {
+            if (! isset($document)) {
                 /* If $newObj had modifiers, we'll need to do an update later,
                  * so default to an empty array for now. Otherwise, we can do
                  * without that update and store $newObj now.
@@ -279,11 +279,11 @@ class GridFS extends Collection
                  * or $newObj, we can use that instead of having storeFile()
                  * generate one.
                  */
-                if (!isset($document['_id']) && isset($query['_id'])) {
+                if (! isset($document['_id']) && isset($query['_id'])) {
                     $document['_id'] = $query['_id'];
                 }
 
-                if (!isset($document['_id']) && isset($newObj['_id'])) {
+                if (! isset($document['_id']) && isset($newObj['_id'])) {
                     $document['_id'] = $newObj['_id'];
                 }
             }
@@ -291,7 +291,7 @@ class GridFS extends Collection
             // Document will definitely have an "_id" after storing the file.
             $this->storeFile($file, $document);
 
-            if (!$newObjHasModifiers) {
+            if (! $newObjHasModifiers) {
                 /* TODO: MongoCollection::update() would return a boolean if
                  * $newObj was not empty, or an array describing the update
                  * operation. Improvise, since we only stored the file and that

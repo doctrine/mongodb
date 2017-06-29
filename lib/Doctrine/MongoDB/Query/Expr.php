@@ -359,7 +359,7 @@ class Expr
      */
     public function currentDate($type = 'date')
     {
-        if (!in_array($type, ['date', 'timestamp'])) {
+        if (! in_array($type, ['date', 'timestamp'])) {
             throw new InvalidArgumentException('Type for currentDate operator must be date or timestamp.');
         }
 

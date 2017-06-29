@@ -78,7 +78,7 @@ class BucketAuto extends AbstractBucket
      */
     public function output()
     {
-        if (!$this->output) {
+        if (! $this->output) {
             $this->output = new Stage\Bucket\BucketAutoOutput($this->builder, $this);
         }
 

@@ -83,7 +83,7 @@ class Bucket extends AbstractBucket
      */
     public function output()
     {
-        if (!$this->output) {
+        if (! $this->output) {
             $this->output = new Stage\Bucket\BucketOutput($this->builder, $this);
         }
 
