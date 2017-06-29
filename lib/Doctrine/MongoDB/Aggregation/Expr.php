@@ -59,7 +59,7 @@ class Expr
     public function __call($method, $args)
     {
         $internalMethodName = $method . 'Internal';
-        if (!is_callable([$this, $internalMethodName])) {
+        if (! is_callable([$this, $internalMethodName])) {
             throw new \BadMethodCallException('The method ' . $method . ' does not exist.');
         }
 
@@ -1203,10 +1203,10 @@ class Expr
         $message = ($method ?: 'This method') . ' requires a valid switch statement (call switch() first).';
 
         if ($this->currentField) {
-            if (!isset($this->expr[$this->currentField]['$switch'])) {
+            if (! isset($this->expr[$this->currentField]['$switch'])) {
                 throw new \BadMethodCallException($message);
             }
-        } elseif (!isset($this->expr['$switch'])) {
+        } elseif (! isset($this->expr['$switch'])) {
             throw new \BadMethodCallException($message);
         }
     }
@@ -1612,7 +1612,7 @@ class Expr
      */
     protected function thenInternal($expression)
     {
-        if (!is_array($this->switchBranch)) {
+        if (! is_array($this->switchBranch)) {
             throw new \BadMethodCallException(static::class . '::then requires a valid case statement (call case() first).');
         }
 
