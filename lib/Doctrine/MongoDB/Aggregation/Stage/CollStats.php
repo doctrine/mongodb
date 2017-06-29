@@ -23,78 +23,75 @@ use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Stage;
 
 /**
- * Fluent interface for adding a $bucketAuto stage to an aggregation pipeline.
+ * Fluent interface for adding a $collStats stage to an aggregation pipeline.
  *
  * @author alcaeus <alcaeus@alcaeus.org>
  * @since 1.5
  */
-class BucketAuto extends AbstractBucket
+class CollStats extends Stage
 {
+    const LATENCY_STATS_NONE = 0;
+    const LATENCY_STATS_SIMPLE = 1;
+    const LATENCY_STATS_HISTOGRAMS = 2;
+
     /**
      * @var int
      */
-    private $buckets;
+    private $latencyStats = self::LATENCY_STATS_NONE;
 
     /**
-     * @var string
+     * @var bool
      */
-    private $granularity;
+    private $storageStats = false;
 
     /**
-     * A positive 32-bit integer that specifies the number of buckets into which
-     * input documents are grouped.
+     * @param Builder $builder
+     */
+    public function __construct(Builder $builder)
+    {
+        parent::__construct($builder);
+    }
+
+    /**
+     * Adds latency statistics to the return document.
      *
-     * @param int $buckets
+     * @param bool $histograms Adds latency histogram information to latencyStats if true.
      *
      * @return $this
      */
-    public function buckets($buckets)
+    public function showLatencyStats($histograms = false)
     {
-        $this->buckets = $buckets;
+        $this->latencyStats = $histograms ? self::LATENCY_STATS_HISTOGRAMS : self::LATENCY_STATS_SIMPLE;
+
         return $this;
     }
 
     /**
-     * A string that specifies the preferred number series to use to ensure that
-     * the calculated boundary edges end on preferred round numbers or their
-     * powers of 10.
-     *
-     * @param string $granularity
+     * Adds storage statistics to the return document.
      *
      * @return $this
      */
-    public function granularity($granularity)
+    public function showStorageStats()
     {
-        $this->granularity = $granularity;
+        $this->storageStats = true;
+
         return $this;
-    }
-
-    /**
-     * A document that specifies the fields to include in the output documents
-     * in addition to the _id field. To specify the field to include, you must
-     * use accumulator expressions.
-     *
-     * @return Bucket\BucketAutoOutput
-     */
-    public function output()
-    {
-        if (!$this->output) {
-            $this->output = new Stage\Bucket\BucketAutoOutput($this->builder, $this);
-        }
-
-        return $this->output;
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getExtraPipelineFields()
+    public function getExpression()
     {
-        $fields = ['buckets' => $this->buckets];
-        if ($this->granularity !== null) {
-            $fields['granularity'] = $this->granularity;
+        $collStats = [];
+        if ($this->latencyStats !== self::LATENCY_STATS_NONE) {
+            $collStats['latencyStats'] = ['histograms' => $this->latencyStats === self::LATENCY_STATS_HISTOGRAMS];
         }
 
-        return $fields;
+        if ($this->storageStats) {
+            $collStats['storageStats'] = [];
+        }
+
+        return ['$collStats' => $collStats];
     }
 }

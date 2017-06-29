@@ -28,6 +28,10 @@ use Doctrine\MongoDB\Aggregation\Stage;
  *
  * @author alcaeus <alcaeus@alcaeus.org>
  * @since 1.2
+ * @method $this switch()
+ * @method $this case(mixed|Expr $expression)
+ * @method $this then(mixed|Expr $expression)
+ * @method $this default(mixed|Expr $expression)
  */
 abstract class Operator extends Stage
 {
@@ -44,6 +48,18 @@ abstract class Operator extends Stage
         parent::__construct($builder);
 
         $this->expr = $builder->expr();
+    }
+
+    /**
+     * @param string $method
+     * @param array $args
+     * @return $this
+     */
+    public function __call($method, $args)
+    {
+        $this->expr->$method(...$args);
+
+        return $this;
     }
 
     /**
@@ -530,6 +546,89 @@ abstract class Operator extends Stage
     }
 
     /**
+     * Returns a boolean indicating whether a specified value is in an array.
+     *
+     * Unlike the $in query operator, the aggregation $in operator does not
+     * support matching by regular expressions.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/in/
+     * @see Expr::in
+     * @since 1.5
+     * @param mixed|Expr $expression
+     * @param mixed|Expr $arrayExpression
+     * @return $this
+     */
+    public function in($expression, $arrayExpression)
+    {
+        $this->expr->in($expression, $arrayExpression);
+
+        return $this;
+    }
+
+    /**
+     * Searches an array for an occurence of a specified value and returns the
+     * array index (zero-based) of the first occurence. If the value is not
+     * found, returns -1.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/indexOfArray/
+     * @see Expr::indexOfArray
+     * @since 1.5
+     * @param mixed|Expr $arrayExpression Can be any valid expression as long as it resolves to an array.
+     * @param mixed|Expr $searchExpression Can be any valid expression.
+     * @param mixed|Expr $start Optional. An integer, or a number that can be represented as integers (such as 2.0), that specifies the starting index position for the search. Can be any valid expression that resolves to a non-negative integral number.
+     * @param mixed|Expr $end An integer, or a number that can be represented as integers (such as 2.0), that specifies the ending index position for the search. Can be any valid expression that resolves to a non-negative integral number.
+     * @return $this
+     */
+    public function indexOfArray($arrayExpression, $searchExpression, $start = null, $end = null)
+    {
+        $this->expr->indexOfArray($arrayExpression, $searchExpression, $start, $end);
+
+        return $this;
+    }
+
+    /**
+     * Searches a string for an occurence of a substring and returns the UTF-8
+     * byte index (zero-based) of the first occurence. If the substring is not
+     * found, returns -1.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/indexOfBytes/
+     * @since 1.5
+     * @param mixed|Expr $stringExpression Can be any valid expression as long as it resolves to a string.
+     * @param mixed|Expr $substringExpression Can be any valid expression as long as it resolves to a string.
+     * @param int|null $start An integral number that specifies the starting index position for the search. Can be any valid expression that resolves to a non-negative integral number.
+     * @param int|null $end An integral number that specifies the ending index position for the search. Can be any valid expression that resolves to a non-negative integral number.
+     *
+     * @return $this
+     */
+    public function indexOfBytes($stringExpression, $substringExpression, $start = null, $end = null)
+    {
+        $this->expr->indexOfBytes($stringExpression, $substringExpression, $start, $end);
+
+        return $this;
+    }
+
+    /**
+     * Searches a string for an occurence of a substring and returns the UTF-8
+     * code point index (zero-based) of the first occurence. If the substring is
+     * not found, returns -1.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/indexOfCP/
+     * @since 1.5
+     * @param mixed|Expr $stringExpression Can be any valid expression as long as it resolves to a string.
+     * @param mixed|Expr $substringExpression Can be any valid expression as long as it resolves to a string.
+     * @param int|null $start An integral number that specifies the starting index position for the search. Can be any valid expression that resolves to a non-negative integral number.
+     * @param int|null $end An integral number that specifies the ending index position for the search. Can be any valid expression that resolves to a non-negative integral number.
+     *
+     * @return $this
+     */
+    public function indexOfCP($stringExpression, $substringExpression, $start = null, $end = null)
+    {
+        $this->expr->indexOfCP($stringExpression, $substringExpression, $start, $end);
+
+        return $this;
+    }
+
+    /**
      * Evaluates an expression and returns the value of the expression if the
      * expression evaluates to a non-null value. If the expression evaluates to
      * a null value, including instances of undefined values or missing fields,
@@ -565,6 +664,64 @@ abstract class Operator extends Stage
     public function isArray($expression)
     {
         $this->expr->isArray($expression);
+
+        return $this;
+    }
+
+    /**
+     * Returns the weekday number in ISO 8601 format, ranging from 1 (for Monday)
+     * to 7 (for Sunday).
+     *
+     * The argument can be any expression as long as it resolves to a date.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/isoDayOfWeek/
+     * @since 1.5
+     * @param mixed|Expr $expression
+     * @return $this
+     */
+    public function isoDayOfWeek($expression)
+    {
+        $this->expr->isoDayOfWeek($expression);
+
+        return $this;
+    }
+
+    /**
+     * Returns the week number in ISO 8601 format, ranging from 1 to 53.
+     *
+     * Week numbers start at 1 with the week (Monday through Sunday) that
+     * contains the year’s first Thursday.
+     *
+     * The argument can be any expression as long as it resolves to a date.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/isoWeek/
+     * @since 1.5
+     * @param mixed|Expr $expression
+     * @return $this
+     */
+    public function isoWeek($expression)
+    {
+        $this->expr->isoWeek($expression);
+
+        return $this;
+    }
+
+    /**
+     * Returns the year number in ISO 8601 format.
+     *
+     * The year starts with the Monday of week 1 (ISO 8601) and ends with the
+     * Sunday of the last week (ISO 8601).
+     *
+     * The argument can be any expression as long as it resolves to a date.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/isoWeek/
+     * @since 1.5
+     * @param mixed|Expr $expression
+     * @return $this
+     */
+    public function isoWeekYear($expression)
+    {
+        $this->expr->isoWeekYear($expression);
 
         return $this;
     }
@@ -884,6 +1041,62 @@ abstract class Operator extends Stage
     }
 
     /**
+     * Returns an array whose elements are a generated sequence of numbers.
+     *
+     * $range generates the sequence from the specified starting number by successively incrementing the starting number by the specified step value up to but not including the end point.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/range/
+     * @see Expr::range
+     * @since 1.5
+     * @param mixed|Expr $start An integer that specifies the start of the sequence. Can be any valid expression that resolves to an integer.
+     * @param mixed|Expr $end An integer that specifies the exclusive upper limit of the sequence. Can be any valid expression that resolves to an integer.
+     * @param mixed|Expr $step Optional. An integer that specifies the increment value. Can be any valid expression that resolves to a non-zero integer. Defaults to 1.
+     * @return $this
+     */
+    public function range($start, $end, $step = 1)
+    {
+        $this->expr->range($start, $end, $step);
+
+        return $this;
+    }
+
+    /**
+     * Applies an expression to each element in an array and combines them into
+     * a single value.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/reduce/
+     * @see Expr::reduce
+     * @since 1.5
+     * @param mixed|Expr $input Can be any valid expression that resolves to an array.
+     * @param mixed|Expr $initialValue The initial cumulative value set before in is applied to the first element of the input array.
+     * @param mixed|Expr $in A valid expression that $reduce applies to each element in the input array in left-to-right order. Wrap the input value with $reverseArray to yield the equivalent of applying the combining expression from right-to-left.
+     * @return $this
+     */
+    public function reduce($input, $initialValue, $in)
+    {
+        $this->expr->reduce($input, $initialValue, $in);
+
+        return $this;
+    }
+
+    /**
+     * Accepts an array expression as an argument and returns an array with the
+     * elements in reverse order.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/reverseArray/
+     * @see Expr::reverseArray
+     * @since 1.5
+     * @param mixed|Expr $expression
+     * @return $this
+     */
+    public function reverseArray($expression)
+    {
+        $this->expr->reverseArray($expression);
+
+        return $this;
+    }
+
+    /**
      * Returns the second portion of a date as a number between 0 and 59, but
      * can be 60 to account for leap seconds.
      *
@@ -1037,6 +1250,27 @@ abstract class Operator extends Stage
     }
 
     /**
+     * Divides a string into an array of substrings based on a delimiter.
+     *
+     * $split removes the delimiter and returns the resulting substrings as
+     * elements of an array. If the delimiter is not found in the string, $split
+     * returns the original string as the only element of an array.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/split/
+     * @since 1.5
+     * @param mixed|Expr $string The string to be split. Can be any valid expression as long as it resolves to a string.
+     * @param mixed|Expr $delimiter The delimiter to use when splitting the string expression. Can be any valid expression as long as it resolves to a string.
+     *
+     * @return $this
+     */
+    public function split($string, $delimiter)
+    {
+        $this->expr->split($string, $delimiter);
+
+        return $this;
+    }
+
+    /**
      * Calculates the square root of a positive number and returns the result as
      * a double.
      *
@@ -1077,6 +1311,38 @@ abstract class Operator extends Stage
     }
 
     /**
+     * Returns the number of UTF-8 encoded bytes in the specified string.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/strLenBytes/
+     * @since 1.5
+     * @param mixed|Expr $string
+     *
+     * @return $this
+     */
+    public function strLenBytes($string)
+    {
+        $this->expr->strLenBytes($string);
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of UTF-8 code points in the specified string.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/strLenCP/
+     * @since 1.5
+     * @param mixed|Expr $string
+     *
+     * @return $this
+     */
+    public function strLenCP($string)
+    {
+        $this->expr->strLenCP($string);
+
+        return $this;
+    }
+
+    /**
      * Returns a substring of a string, starting at a specified index position
      * and including the specified number of characters. The index is zero-based.
      *
@@ -1092,6 +1358,50 @@ abstract class Operator extends Stage
     public function substr($string, $start, $length)
     {
         $this->expr->substr($string, $start, $length);
+
+        return $this;
+    }
+
+    /**
+     * Returns the substring of a string.
+     *
+     * The substring starts with the character at the specified UTF-8 byte index
+     * (zero-based) in the string and continues for the number of bytes
+     * specified.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/substrBytes/
+     * @since 1.5
+     * @param mixed|Expr $string The string from which the substring will be extracted. Can be any valid expression as long as it resolves to a string.
+     * @param mixed|Expr $start Indicates the starting point of the substring. Can be any valid expression as long as it resolves to a non-negative integer or number that can be represented as an integer.
+     * @param mixed|Expr $count Can be any valid expression as long as it resolves to a non-negative integer or number that can be represented as an integer.
+     *
+     * @return $this
+     */
+    public function substrBytes($string, $start, $count)
+    {
+        $this->expr->substrBytes($string, $start, $count);
+
+        return $this;
+    }
+
+    /**
+     * Returns the substring of a string.
+     *
+     * The substring starts with the character at the specified UTF-8 code point
+     * (CP) index (zero-based) in the string for the number of code points
+     * specified.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/substrBytes/
+     * @since 1.5
+     * @param mixed|Expr $string The string from which the substring will be extracted. Can be any valid expression as long as it resolves to a string.
+     * @param mixed|Expr $start Indicates the starting point of the substring. Can be any valid expression as long as it resolves to a non-negative integer or number that can be represented as an integer.
+     * @param mixed|Expr $count Can be any valid expression as long as it resolves to a non-negative integer or number that can be represented as an integer.
+     *
+     * @return $this
+     */
+    public function substrCP($string, $start, $count)
+    {
+        $this->expr->substrCP($string, $start, $count);
 
         return $this;
     }
@@ -1170,6 +1480,24 @@ abstract class Operator extends Stage
     }
 
     /**
+     * Returns a string that specifies the BSON type of the argument.
+     *
+     * The argument can be any valid expression.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/type/
+     * @since 1.5
+     * @param mixed|Expr $expression
+     *
+     * @return $this
+     */
+    public function type($expression)
+    {
+        $this->expr->type($expression);
+
+        return $this;
+    }
+
+    /**
      * Returns the week of the year for a date as a number between 0 and 53.
      *
      * The argument can be any expression as long as it resolves to a date.
@@ -1199,6 +1527,26 @@ abstract class Operator extends Stage
     public function year($expression)
     {
         $this->expr->year($expression);
+
+        return $this;
+    }
+
+    /**
+     * Transposes an array of input arrays so that the first element of the
+     * output array would be an array containing, the first element of the first
+     * input array, the first element of the second input array, etc.
+     *
+     * @see https://docs.mongodb.com/manual/reference/operator/aggregation/zip/
+     * @see Expr::zip
+     * @since 1.5
+     * @param mixed|Expr $inputs An array of expressions that resolve to arrays. The elements of these input arrays combine to form the arrays of the output array.
+     * @param bool|null $useLongestLength A boolean which specifies whether the length of the longest array determines the number of arrays in the output array.
+     * @param mixed|Expr|null $defaults An array of default element values to use if the input arrays have different lengths. You must specify useLongestLength: true along with this field, or else $zip will return an error.
+     * @return $this
+     */
+    public function zip($inputs, $useLongestLength = null, $defaults = null)
+    {
+        $this->expr->zip($inputs, $useLongestLength, $defaults);
 
         return $this;
     }

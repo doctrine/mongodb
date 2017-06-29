@@ -3,103 +3,121 @@
 namespace Doctrine\MongoDB\Tests\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Expr;
+use Doctrine\MongoDB\Tests\Aggregation\AggregationOperatorsProviderTrait;
 use Doctrine\MongoDB\Tests\Aggregation\AggregationTestCase;
 use Doctrine\MongoDB\Tests\TestCase;
 
 class OperatorTest extends TestCase
 {
-    use AggregationTestCase;
+    use AggregationTestCase, AggregationOperatorsProviderTrait;
 
     /**
-     * @dataProvider provideProxiedExprMethods
+     * @dataProvider provideExpressionOperators
      */
-    public function testProxiedExprMethods($method, array $args = [])
+    public function testProxiedExpressionOperators($expected, $operator, $args)
     {
-        $expr = $this->getMockAggregationExpr();
-        $expr
-            ->expects($this->once())
-            ->method($method)
-            ->with(...$args);
-
         $stage = $this->getStubStage();
-        $stage->setQuery($expr);
 
-        $this->assertSame($stage, $stage->$method(...$args));
+        $this->assertSame($stage, $stage->$operator(...$args));
+        $this->assertSame($expected, $stage->getExpression());
     }
 
-    public function provideProxiedExprMethods()
+    public function testExpression()
     {
-        $expression = new Expr();
-        $expression
+        $stage = $this->getStubStage();
+
+        $nestedExpr = new Expr();
+        $nestedExpr
             ->field('dayOfMonth')
             ->dayOfMonth('$dateField')
             ->field('dayOfWeek')
             ->dayOfWeek('$dateField');
 
-        return [
-            'abs()' => ['abs', ['$number']],
-            'add()' => ['add', [5, '$field', '$otherField']],
-            'allElementsTrue()' => ['allElementsTrue', ['$field']],
-            'anyElementTrue()' => ['anyElementTrue', ['$field']],
-            'arrayElemAt()' => ['arrayElemAt', ['$array', '$index']],
-            'ceil()' => ['ceil', ['$number']],
-            'cmp()' => ['cmp', ['$field', '$otherField']],
-            'concat()' => ['concat', ['foo', '$field', '$otherField']],
-            'concatArrays()' => ['concatArrays', ['$field', '$otherField']],
-            'cond()' => ['cond', ['$ifField', '$field', '$otherField']],
-            'dateToString()' => ['dateToString', ['%Y-%m-%d', '$dateField']],
-            'dayOfMonth()' => ['dayOfMonth', ['$dateField']],
-            'dayOfWeek()' => ['dayOfWeek', ['$dateField']],
-            'dayOfYear()' => ['dayOfYear', ['$dateField']],
-            'divide()' => ['divide', ['$field', 5]],
-            'eq()' => ['eq', ['$field', '$otherField']],
-            'exp()' => ['exp', ['$field']],
-            'expression()' => ['expression', [$expression]],
-            'filter()' => ['filter', ['$input', '$as', '$cond']],
-            'floor()' => ['floor', ['$number']],
-            'gt()' => ['gt', ['$field', '$otherField']],
-            'gte()' => ['gte', ['$field', '$otherField']],
-            'hour()' => ['hour', ['$dateField']],
-            'ifNull()' => ['ifNull', ['$field', '$otherField']],
-            'isArray()' => ['isArray', ['$field']],
-            'let()' => ['let', ['$vars', '$in']],
-            'literal()' => ['literal', ['$field']],
-            'ln()' => ['ln', ['$number']],
-            'log()' => ['log', ['$number', '$base']],
-            'log10()' => ['log10', ['$number']],
-            'lt()' => ['lt', ['$field', '$otherField']],
-            'lte()' => ['lte', ['$field', '$otherField']],
-            'map()' => ['map', ['$quizzes', 'grade', ['$add' => ['$$grade' => 2]]]],
-            'meta()' => ['meta', ['textScore']],
-            'millisecond()' => ['millisecond', ['$dateField']],
-            'minute()' => ['minute', ['$dateField']],
-            'mod()' => ['mod', ['$field', 5]],
-            'month()' => ['month', ['$dateField']],
-            'multiply()' => ['multiply', ['$field', 5]],
-            'ne()' => ['ne', ['$field', '$otherField']],
-            'not()' => ['not', ['$field']],
-            'pow()' => ['pow', ['$number', '$exponent']],
-            'second()' => ['second', ['$dateField']],
-            'setDifference()' => ['setDifference', ['$field', '$otherField']],
-            'setEquals()' => ['setEquals', ['$field', '$otherField', '$anotherField']],
-            'setIntersection()' => ['setIntersection', ['$field', '$otherField', '$anotherField']],
-            'setIsSubset()' => ['setIsSubset', ['$field', '$otherField']],
-            'setUnion()' => ['setUnion', ['$field', '$otherField', '$anotherField']],
-            'size()' => ['size', ['$field']],
-            'slice()' => ['slice', ['$array', '$index']],
-            'sqrt()' => ['sqrt', ['$number']],
-            'strcasecmp()' => ['strcasecmp', ['$field', '$otherField']],
-            'substr()' => ['substr', ['$field', 0, '$length']],
-            'subtract()' => ['subtract', ['$field', 5]],
-            'toLower()' => ['toLower', ['$field']],
-            'toUpper()' => ['toUpper', ['$field']],
-            'trunc()' => ['trunc', ['$number']],
-            'week()' => ['week', ['$dateField']],
-            'year()' => ['year', ['$dateField']],
-        ];
+        $this->assertSame($stage, $stage->field('nested')->expression($nestedExpr));
+        $this->assertSame(
+            [
+                'nested' => [
+                    'dayOfMonth' => ['$dayOfMonth' => '$dateField'],
+                    'dayOfWeek' => ['$dayOfWeek' => '$dateField']
+                ]
+            ],
+            $stage->getExpression()
+        );
     }
 
-    private function getStubStage()
+    public function testSwitch()
+    {
+        $stage = $this->getStubStage();
+
+        $stage->switch()
+            ->case((new Expr())->eq('$numElements', 0))
+            ->then('Zero elements given')
+            ->case((new Expr())->eq('$numElements', 1))
+            ->then('One element given')
+            ->default((new Expr())->concat('$numElements', ' elements given'));
+
+        $this->assertSame(
+            [
+                '$switch' => [
+                    'branches' => [
+                        ['case' => ['$eq' => ['$numElements', 0]], 'then' => 'Zero elements given'],
+                        ['case' => ['$eq' => ['$numElements', 1]], 'then' => 'One element given'],
+                    ],
+                    'default' => ['$concat' => ['$numElements', ' elements given']],
+                ]
+            ],
+            $stage->getExpression()
+        );
+    }
+
+    public function testCallingCaseWithoutSwitchThrowsException()
+    {
+        $stage = $this->getStubStage();
+
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('Doctrine\MongoDB\Aggregation\Expr::case requires a valid switch statement (call switch() first).');
+
+        $stage->case('$field');
+    }
+
+    public function testCallingThenWithoutCaseThrowsException()
+    {
+        $stage = $this->getStubStage();
+
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('Doctrine\MongoDB\Aggregation\Expr::then requires a valid case statement (call case() first).');
+
+        $stage->then('$field');
+    }
+
+    public function testCallingThenWithoutCaseAfterSuccessfulCaseThrowsException()
+    {
+        $stage = $this->getStubStage();
+
+        $stage->switch()
+            ->case('$field')
+            ->then('$field');
+
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('Doctrine\MongoDB\Aggregation\Expr::then requires a valid case statement (call case() first).');
+
+        $stage->then('$field');
+    }
+
+    public function testCallingDefaultWithoutSwitchThrowsException()
+    {
+        $stage = $this->getStubStage();
+
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('Doctrine\MongoDB\Aggregation\Expr::default requires a valid switch statement (call switch() first).');
+
+        $stage->default('$field');
+    }
+
+    /**
+     * @return OperatorStub
+     */
+    public function getStubStage()
     {
         return new OperatorStub($this->getTestAggregationBuilder());
     }

@@ -102,6 +102,22 @@ abstract class Stage
     }
 
     /**
+     * Returns statistics regarding a collection or view.
+     *
+     * $collStats must be the first stage in an aggregation pipeline, or else
+     * the pipeline returns an error.
+     *
+     * @see http://docs.mongodb.org/manual/reference/operator/aggregation/geoNear/
+     * @since 1.5
+     *
+     * @return Stage\CollStats
+     */
+    public function collStats()
+    {
+        return $this->builder->collStats();
+    }
+
+    /**
      * Returns a document that contains a count of the number of documents input
      * to the stage.
      *
