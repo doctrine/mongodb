@@ -228,6 +228,8 @@ class Expr
      * @param mixed|self $expression
      *
      * @return $this
+     *
+     * @deprecated Method will be renamed to "case" in next major version
      */
     protected function caseInternal($expression)
     {
@@ -432,6 +434,8 @@ class Expr
      * @param mixed|self $expression
      *
      * @return $this
+     *
+     * @deprecated Method will be renamed to "default" in next major version
      */
     protected function defaultInternal($expression)
     {
@@ -1584,6 +1588,8 @@ class Expr
      * {@link default()} methods.
      *
      * @return $this
+     *
+     * @deprecated Method will be renamed to "switch" in next major version
      */
     protected function switchInternal()
     {
@@ -1601,6 +1607,8 @@ class Expr
      * @param mixed|self $expression
      *
      * @return $this
+     *
+     * @deprecated Method will be renamed to "then" in next major version
      */
     protected function thenInternal($expression)
     {
