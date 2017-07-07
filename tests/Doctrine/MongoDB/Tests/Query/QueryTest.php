@@ -56,7 +56,7 @@ class QueryTest extends TestCase
             'type' => $type,
             'query' => [],
             'group' => ['keys' => [], 'initial' => [], 'reduce' => '', 'options' => []],
-            'mapReduce' => ['map' => '', 'reduce' => '', 'out' => '', 'options' => []],
+            'mapReduce' => ['map' => '', 'reduce' => '', 'out' => ['inline' => true], 'options' => []],
             'geoNear' => ['near' => [], 'options' => []],
             'distinct' => 0,
         ];
@@ -89,6 +89,10 @@ class QueryTest extends TestCase
         $collection->expects($this->once())
             ->method('findAndRemove')
             ->with(['type' => 1], ['fields' => ['_id' => 1]]);
+
+        $collection->expects($this->any())
+            ->method('getDatabase')
+            ->will($this->returnValue($this->getMockDatabase()));
 
         $query = new Query($collection, $queryArray, []);
         $query->execute();
@@ -143,6 +147,10 @@ class QueryTest extends TestCase
             ->method('mapReduce')
             ->with($map, $reduce, 'collection', ['type' => 1], ['limit' => 10, 'jsMode' => true]);
 
+        $collection->expects($this->any())
+            ->method('getDatabase')
+            ->will($this->returnValue($this->getMockDatabase()));
+
         $query = new Query($collection, $queryArray, []);
         $query->execute();
     }
@@ -163,6 +171,41 @@ class QueryTest extends TestCase
         $collection->expects($this->once())
             ->method('near')
             ->with([1, 1], ['type' => 1], ['num' => 10, 'spherical' => true]);
+
+        $query = new Query($collection, $queryArray, []);
+        $query->execute();
+    }
+
+    public function testWithPrimaryReadPreference()
+    {
+        $collection = $this->getMockCollection();
+        $database = $this->getMockDatabase();
+
+        $collection->expects($this->at(0))
+            ->method('getDatabase')
+            ->will($this->returnValue($database));
+
+        $collection->expects($this->at(1))
+            ->method('findAndRemove')
+            ->with(['type' => 1], ['fields' => ['_id' => 1]]);
+
+        $database->expects($this->at(0))
+            ->method('getReadPreference')
+            ->will($this->returnValue(['type' => 'secondary', 'tagsets' => [['dc' => 'east']]]));
+
+        $database->expects($this->at(1))
+            ->method('setReadPreference')
+            ->with('primary', null);
+
+        $database->expects($this->at(2))
+            ->method('setReadPreference')
+            ->with('secondary', [['dc' => 'east']]);
+
+        $queryArray = [
+            'type' => Query::TYPE_FIND_AND_REMOVE,
+            'query' => ['type' => 1],
+            'select' => ['_id' => 1],
+        ];
 
         $query = new Query($collection, $queryArray, []);
         $query->execute();
@@ -350,6 +393,16 @@ class QueryTest extends TestCase
     private function getMockCursor()
     {
         return $this->getMockBuilder('Doctrine\MongoDB\Cursor')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    /**
+     * @return \Doctrine\MongoDB\Database
+     */
+    private function getMockDatabase()
+    {
+        return $this->getMockBuilder('Doctrine\MongoDB\Database')
             ->disableOriginalConstructor()
             ->getMock();
     }

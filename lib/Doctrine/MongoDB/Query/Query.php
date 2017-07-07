@@ -174,20 +174,28 @@ class Query implements IteratorAggregate
                 $queryOptions = $this->getQueryOptions('new', 'select', 'sort', 'upsert');
                 $queryOptions = $this->renameQueryOptions($queryOptions, ['select' => 'fields']);
 
-                return $this->collection->findAndUpdate(
-                    $this->query['query'],
-                    $this->query['newObj'],
-                    array_merge($options, $queryOptions)
-                );
+                $closure = function() use ($options, $queryOptions) {
+                    return $this->collection->findAndUpdate(
+                        $this->query['query'],
+                        $this->query['newObj'],
+                        array_merge($options, $queryOptions)
+                    );
+                };
+
+                return $this->withPrimaryReadPreference($this->collection->getDatabase(), $closure);
 
             case self::TYPE_FIND_AND_REMOVE:
                 $queryOptions = $this->getQueryOptions('select', 'sort');
                 $queryOptions = $this->renameQueryOptions($queryOptions, ['select' => 'fields']);
 
-                return $this->collection->findAndRemove(
-                    $this->query['query'],
-                    array_merge($options, $queryOptions)
-                );
+                $closure = function() use ($options, $queryOptions) {
+                    return $this->collection->findAndRemove(
+                        $this->query['query'],
+                        array_merge($options, $queryOptions)
+                    );
+                };
+
+                return $this->withPrimaryReadPreference($this->collection->getDatabase(), $closure);
 
             case self::TYPE_INSERT:
                 return $this->collection->insert($this->query['newObj'], $options);
@@ -239,7 +247,10 @@ class Query implements IteratorAggregate
                     );
                 };
 
-                $results = $this->withReadPreference($collection->getDatabase(), $closure);
+                // Force a primary read preference if mapReduce is a write operation
+                $results = ((array) $this->query['mapReduce']['out'] !== ['inline' => true])
+                    ? $this->withPrimaryReadPreference($collection->getDatabase(), $closure)
+                    : $this->withReadPreference($collection->getDatabase(), $closure);
 
                 return ($results instanceof Cursor) ? $this->prepareCursor($results) : $results;
 
@@ -451,6 +462,22 @@ class Query implements IteratorAggregate
             ),
             array_values($options)
         );
+    }
+
+    /**
+     * Executes a closure with a temporary primary read preference on a database
+     * or collection.
+     *
+     * @param Database|Collection $object
+     * @param \Closure            $closure
+     * @return mixed
+     */
+    private function withPrimaryReadPreference($object, \Closure $closure)
+    {
+        $this->query['readPreference'] = \MongoClient::RP_PRIMARY;
+        $this->query['readPreferenceTags'] = null;
+
+        return $this->withReadPreference($object, $closure);
     }
 
     /**
