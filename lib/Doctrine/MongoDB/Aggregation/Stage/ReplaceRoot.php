@@ -53,7 +53,22 @@ class ReplaceRoot extends Operator
     public function getExpression()
     {
         return [
-            '$replaceRoot' => $this->expression !== null ? Expr::convertExpression($this->expression) : $this->expr->getExpression()
+            '$replaceRoot' => $this->expression !== null ? $this->convertExpression($this->expression) : $this->expr->getExpression()
         ];
+    }
+
+    /**
+     * Converts an expression object into an array, recursing into nested items
+     *
+     * This method is meant to be overwritten by extending classes to apply
+     * custom conversions (e.g. field name translation in MongoDB ODM) to the
+     * expression object.
+     *
+     * @param mixed|self $expression
+     * @return string|array
+     */
+    protected function convertExpression($expression)
+    {
+        return Expr::convertExpression($expression);
     }
 }
