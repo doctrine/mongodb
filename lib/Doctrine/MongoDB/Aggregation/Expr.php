@@ -115,7 +115,7 @@ class Expr
             $this->expr['$and'] = [];
         }
 
-        $this->expr['$and'] = array_merge($this->expr['$and'], array_map(['static', 'convertExpression'], func_get_args()));
+        $this->expr['$and'] = array_merge($this->expr['$and'], array_map([$this, 'ensureArray'], func_get_args()));
 
         return $this;
     }
@@ -133,7 +133,7 @@ class Expr
             $this->expr['$or'] = [];
         }
 
-        $this->expr['$or'] = array_merge($this->expr['$or'], array_map(['static', 'convertExpression'], func_get_args()));
+        $this->expr['$or'] = array_merge($this->expr['$or'], array_map([$this, 'ensureArray'], func_get_args()));
 
         return $this;
     }
@@ -359,7 +359,13 @@ class Expr
      */
     protected function ensureArray($expression)
     {
-        return static::convertExpression($expression);
+        if (is_array($expression)) {
+            return array_map([$this, 'ensureArray'], $expression);
+        } elseif ($expression instanceof self) {
+            return $expression->getExpression();
+        }
+
+        return $expression;
     }
 
     /**
@@ -442,9 +448,9 @@ class Expr
         $this->requiresSwitchStatement(static::class . '::default');
 
         if ($this->currentField) {
-            $this->expr[$this->currentField]['$switch']['default'] = static::convertExpression($expression);
+            $this->expr[$this->currentField]['$switch']['default'] = $this->ensureArray($expression);
         } else {
-            $this->expr['$switch']['default'] = static::convertExpression($expression);
+            $this->expr['$switch']['default'] = $this->ensureArray($expression);
         }
 
         return $this;
@@ -518,7 +524,7 @@ class Expr
     public function expression($value)
     {
         $this->requiresCurrentField(__METHOD__);
-        $this->expr[$this->currentField] = static::convertExpression($value);
+        $this->expr[$this->currentField] = $this->ensureArray($value);
 
         return $this;
     }
@@ -1121,9 +1127,9 @@ class Expr
     private function operator($operator, $expression)
     {
         if ($this->currentField) {
-            $this->expr[$this->currentField][$operator] = static::convertExpression($expression);
+            $this->expr[$this->currentField][$operator] = $this->ensureArray($expression);
         } else {
-            $this->expr[$operator] = static::convertExpression($expression);
+            $this->expr[$operator] = $this->ensureArray($expression);
         }
 
         return $this;
@@ -1619,9 +1625,9 @@ class Expr
         $this->switchBranch['then'] = $expression;
 
         if ($this->currentField) {
-            $this->expr[$this->currentField]['$switch']['branches'][] = static::convertExpression($this->switchBranch);
+            $this->expr[$this->currentField]['$switch']['branches'][] = $this->ensureArray($this->switchBranch);
         } else {
-            $this->expr['$switch']['branches'][] = static::convertExpression($this->switchBranch);
+            $this->expr['$switch']['branches'][] = $this->ensureArray($this->switchBranch);
         }
 
         $this->switchBranch = null;

@@ -229,7 +229,7 @@ class GraphLookup extends Stage
     {
         $graphLookup = [
             'from' => $this->from,
-            'startWith' => Expr::convertExpression($this->startWith),
+            'startWith' => $this->convertExpression($this->startWith),
             'connectFromField' => $this->connectFromField,
             'connectToField' => $this->connectToField,
             'as' => $this->as,
@@ -245,5 +245,20 @@ class GraphLookup extends Stage
         }
 
         return ['$graphLookup' => $graphLookup];
+    }
+
+    /**
+     * Converts an expression object into an array, recursing into nested items
+     *
+     * This method is meant to be overwritten by extending classes to apply
+     * custom conversions (e.g. field name translation in MongoDB ODM) to the
+     * expression object.
+     *
+     * @param mixed|self $expression
+     * @return string|array
+     */
+    protected function convertExpression($expression)
+    {
+        return Expr::convertExpression($expression);
     }
 }

@@ -45,7 +45,7 @@ abstract class AbstractBucket extends Stage
     {
         $stage = [
             '$bucket' => [
-                'groupBy' => Expr::convertExpression($this->groupBy),
+                'groupBy' => $this->convertExpression($this->groupBy),
             ] + $this->getExtraPipelineFields(),
         ];
 
@@ -54,6 +54,21 @@ abstract class AbstractBucket extends Stage
         }
 
         return $stage;
+    }
+
+    /**
+     * Converts an expression object into an array, recursing into nested items
+     *
+     * This method is meant to be overwritten by extending classes to apply
+     * custom conversions (e.g. field name translation in MongoDB ODM) to the
+     * expression object.
+     *
+     * @param mixed|self $expression
+     * @return string|array
+     */
+    protected function convertExpression($expression)
+    {
+        return Expr::convertExpression($expression);
     }
 
     /**
