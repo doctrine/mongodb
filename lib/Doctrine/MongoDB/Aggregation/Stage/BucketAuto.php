@@ -97,4 +97,9 @@ class BucketAuto extends AbstractBucket
 
         return $fields;
     }
+
+    protected function getStageName()
+    {
+        return '$bucketAuto';
+    }
 }

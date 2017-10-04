@@ -21,7 +21,7 @@ class BucketAutoTest extends TestCase
                 ->field('averageValue')
                 ->avg('$value');
 
-        $this->assertSame(['$bucket' => [
+        $this->assertSame(['$bucketAuto' => [
             'groupBy' => '$someField',
             'buckets' => 3,
             'granularity' => 'R10',
@@ -40,7 +40,7 @@ class BucketAutoTest extends TestCase
                 ->field('averageValue')
                 ->avg('$value');
 
-        $this->assertSame([['$bucket' => [
+        $this->assertSame([['$bucketAuto' => [
             'groupBy' => '$someField',
             'buckets' => 3,
             'granularity' => 'R10',
@@ -55,7 +55,7 @@ class BucketAutoTest extends TestCase
             ->groupBy('$someField')
             ->buckets(3);
 
-        $this->assertSame(['$bucket' => [
+        $this->assertSame(['$bucketAuto' => [
             'groupBy' => '$someField',
             'buckets' => 3,
         ]], $bucketStage->getExpression());

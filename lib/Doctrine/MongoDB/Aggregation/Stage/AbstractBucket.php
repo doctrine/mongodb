@@ -44,13 +44,13 @@ abstract class AbstractBucket extends Stage
     public function getExpression()
     {
         $stage = [
-            '$bucket' => [
+            $this->getStageName() => [
                 'groupBy' => $this->convertExpression($this->groupBy),
             ] + $this->getExtraPipelineFields(),
         ];
 
         if ($this->output !== null) {
-            $stage['$bucket']['output'] = $this->output->getExpression();
+            $stage[$this->getStageName()]['output'] = $this->output->getExpression();
         }
 
         return $stage;
@@ -75,4 +75,11 @@ abstract class AbstractBucket extends Stage
      * @return array
      */
     abstract protected function getExtraPipelineFields();
+
+    /**
+     * Returns the stage name with the dollar prefix
+     *
+     * @return string
+     */
+    abstract protected function getStageName();
 }
