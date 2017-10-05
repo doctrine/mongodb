@@ -102,4 +102,9 @@ class Bucket extends AbstractBucket
 
         return $fields;
     }
+
+    protected function getStageName()
+    {
+        return '$bucket';
+    }
 }
