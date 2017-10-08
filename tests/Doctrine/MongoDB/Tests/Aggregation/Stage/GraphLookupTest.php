@@ -19,14 +19,14 @@ class GraphLookupTest extends TestCase
             ->connectToField('name')
             ->alias('reportingHierarchy');
 
-        $this->assertSame(
+        $this->assertEquals(
             ['$graphLookup' => [
                 'from' => 'employees',
                 'startWith' => '$reportsTo',
                 'connectFromField' => 'reportsTo',
                 'connectToField' => 'name',
                 'as' => 'reportingHierarchy',
-                'restrictSearchWithMatch' => [],
+                'restrictSearchWithMatch' => (object) [],
             ]],
             $graphLookupStage->getExpression()
         );
@@ -41,14 +41,14 @@ class GraphLookupTest extends TestCase
             ->connectToField('name')
             ->alias('reportingHierarchy');
 
-        $this->assertSame(
+        $this->assertEquals(
             [['$graphLookup' => [
                 'from' => 'employees',
                 'startWith' => '$reportsTo',
                 'connectFromField' => 'reportsTo',
                 'connectToField' => 'name',
                 'as' => 'reportingHierarchy',
-                'restrictSearchWithMatch' => [],
+                'restrictSearchWithMatch' => (object) [],
             ]]],
             $builder->getPipeline()
         );

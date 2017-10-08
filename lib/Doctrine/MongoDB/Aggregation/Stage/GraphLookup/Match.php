@@ -30,7 +30,7 @@ class Match extends BaseMatch
      */
     public function getExpression()
     {
-        return $this->query->getQuery();
+        return $this->query->getQuery() ?: (object) [];
     }
 
     /**

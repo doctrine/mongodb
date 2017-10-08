@@ -53,7 +53,7 @@ class Match extends Stage
     public function getExpression()
     {
         return [
-            '$match' => $this->query->getQuery()
+            '$match' => $this->query->getQuery() ?: (object) [],
         ];
     }
 
