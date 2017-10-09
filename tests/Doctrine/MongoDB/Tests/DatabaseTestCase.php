@@ -9,6 +9,9 @@ abstract class DatabaseTestCase extends TestCase
 {
     protected static $dbName = 'doctrine_mongodb';
 
+    /**
+     * @var Connection
+     */
     protected $conn;
 
     public function setUp()
