@@ -55,6 +55,10 @@ class Bucket extends AbstractBucket
      */
     public function boundaries(...$boundaries)
     {
+        if (count($boundaries) === 1 && is_array($boundaries[0])) {
+            $boundaries = $boundaries[0];
+        }
+
         $this->boundaries = $boundaries;
         return $this;
     }
