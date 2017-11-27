@@ -18,18 +18,18 @@ class ArrayIteratorTest extends TestCase
 
         $this->assertFalse($arrayIterator->offsetExists(0));
         $this->assertFalse(isset($arrayIterator[0]));
-        $this->assertSame(null, $arrayIterator[0]);
+        $this->assertNull($arrayIterator[0]);
 
         $arrayIterator[] = true;
 
         $this->assertTrue($arrayIterator->offsetExists(1));
         $this->assertTrue(isset($arrayIterator[1]));
-        $this->assertSame(true, $arrayIterator[1]);
+        $this->assertTrue($arrayIterator[1]);
 
         unset($arrayIterator[0]);
 
         $this->assertFalse($arrayIterator->offsetExists(0));
-        $this->assertTrue(empty($arrayIterator[0]));
+        $this->assertEmpty($arrayIterator[0]);
     }
 
     public function testCount()
@@ -58,7 +58,7 @@ class ArrayIteratorTest extends TestCase
     {
         $arrayIterator = new ArrayIterator();
 
-        $this->assertSame(null, $arrayIterator->getSingleResult());
+        $this->assertNull($arrayIterator->getSingleResult());
     }
 
     public function testIteration()
@@ -85,8 +85,8 @@ class ArrayIteratorTest extends TestCase
 
         $arrayIterator->next();
 
-        $this->assertSame(null, $arrayIterator->key());
-        $this->assertSame(false, $arrayIterator->current());
+        $this->assertNull($arrayIterator->key());
+        $this->assertFalse($arrayIterator->current());
         $this->assertFalse($arrayIterator->valid());
 
         $arrayIterator->rewind();
