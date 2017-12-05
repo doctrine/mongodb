@@ -95,7 +95,7 @@ class CursorTest extends DatabaseTestCase
             /* Note: Driver versions before 1.5.0 had an off-by-one error and
              * count from one, so just assert the key's type here.
              */
-            $this->assertTrue(is_integer($key));
+            $this->assertInternalType('int', $key);
         }
     }
 

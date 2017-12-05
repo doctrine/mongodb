@@ -27,7 +27,7 @@ class RetryTest extends DatabaseTestCase
         $check = $test->find(['test' => 'test']);
         $this->assertInstanceOf('Doctrine\MongoDB\Cursor', $check);
         $array = $check->toArray();
-        $this->assertTrue(is_array($array));
+        $this->assertInternalType('array', $array);
         $array = array_values($array);
         $this->assertEquals('test', $array[0]['test']);
     }
