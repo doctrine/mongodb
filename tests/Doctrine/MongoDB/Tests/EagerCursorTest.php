@@ -47,7 +47,7 @@ class EagerCursorTest extends DatabaseTestCase
         $eagerCursor = new EagerCursor($cursor);
 
         $this->assertFalse($eagerCursor->isInitialized());
-        $this->assertEquals(2, count($eagerCursor));
+        $this->assertCount(2, $eagerCursor);
         $this->assertTrue($eagerCursor->isInitialized());
     }
 
