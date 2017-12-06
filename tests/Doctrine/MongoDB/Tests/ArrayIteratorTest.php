@@ -17,13 +17,13 @@ class ArrayIteratorTest extends TestCase
         $arrayIterator[0] = null;
 
         $this->assertFalse($arrayIterator->offsetExists(0));
-        $this->assertFalse(isset($arrayIterator[0]));
+        $this->assertArrayNotHasKey(0, $arrayIterator);
         $this->assertNull($arrayIterator[0]);
 
         $arrayIterator[] = true;
 
         $this->assertTrue($arrayIterator->offsetExists(1));
-        $this->assertTrue(isset($arrayIterator[1]));
+        $this->assertArrayHasKey(1, $arrayIterator);
         $this->assertTrue($arrayIterator[1]);
 
         unset($arrayIterator[0]);
