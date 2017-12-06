@@ -18,7 +18,7 @@ class GridFSTest extends DatabaseTestCase
 
         $document = $gridFS->findOne(['_id' => $document['_id']]);
 
-        $this->assertTrue(isset($document['_id']));
+        $this->assertArrayHasKey('_id', $document);
         $this->assertEquals('bar', $document['foo']);
 
         $file = $document['file'];
@@ -43,7 +43,7 @@ class GridFSTest extends DatabaseTestCase
         $gridFS = $this->getGridFS();
         $file = $gridFS->storeFile(__FILE__, $document);
 
-        $this->assertTrue(isset($document['_id']));
+        $this->assertArrayHasKey('_id', $document);
         $this->assertEquals('bar', $document['foo']);
 
         $this->assertInstanceOf('Doctrine\MongoDB\GridFSFile', $file);
@@ -71,7 +71,7 @@ class GridFSTest extends DatabaseTestCase
 
         $gridFS->update(['_id' => $id], ['$pushAll' => ['test' => [1, 2, 3]]]);
         $check = $gridFS->findOne(['_id' => $id]);
-        $this->assertTrue(isset($check['test']));
+        $this->assertArrayHasKey('test', $check);
         $this->assertCount(3, $check['test']);
         $this->assertEquals([1, 2, 3], $check['test']);
 

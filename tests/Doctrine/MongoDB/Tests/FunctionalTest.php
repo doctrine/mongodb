@@ -21,7 +21,7 @@ class FunctionalTest extends DatabaseTestCase
         $coll->upsert(['_id' => $check['_id']], ['$set' => ['boo' => 'test']]);
         $this->assertEquals(1, $coll->find()->count());
         $check = $coll->findOne();
-        $this->assertTrue(isset($check['boo']));
+        $this->assertArrayHasKey('boo', $check);
     }
 
     public function testMapReduce()
@@ -112,7 +112,7 @@ class FunctionalTest extends DatabaseTestCase
         ];
         $files->insert($file);
 
-        $this->assertTrue(isset($file['_id']));
+        $this->assertArrayHasKey('_id', $file);
 
         $path = __DIR__.'/TestCase.php';
         $files->update(['_id' => $file['_id']], ['$set' => ['title' => 'test', 'file' => new GridFSFile($path)]]);
