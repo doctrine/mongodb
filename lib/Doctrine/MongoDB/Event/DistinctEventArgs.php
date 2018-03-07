@@ -72,7 +72,7 @@ class DistinctEventArgs extends BaseEventArgs
     }
 
     /**
-     * @param $query
+     * @param array $query
      * @since 1.3
      */
     public function setQuery($query)

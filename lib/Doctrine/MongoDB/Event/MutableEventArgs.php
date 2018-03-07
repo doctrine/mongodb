@@ -68,7 +68,7 @@ class MutableEventArgs extends EventArgs
 
     /**
      * @since 1.3
-     * @param mixed $options
+     * @param array $options
      */
     public function setOptions(array $options)
     {

@@ -378,7 +378,7 @@ class QueryTest extends TestCase
     }
 
     /**
-     * @return \Doctrine\MongoDB\Collection
+     * @return \Doctrine\MongoDB\Collection|\PHPUnit_Framework_MockObject_MockObject
      */
     private function getMockCollection()
     {
@@ -388,7 +388,7 @@ class QueryTest extends TestCase
     }
 
     /**
-     * @return \Doctrine\MongoDB\Cursor
+     * @return \Doctrine\MongoDB\Cursor|\PHPUnit_Framework_MockObject_MockObject
      */
     private function getMockCursor()
     {
@@ -398,7 +398,7 @@ class QueryTest extends TestCase
     }
 
     /**
-     * @return \Doctrine\MongoDB\Database
+     * @return \Doctrine\MongoDB\Database|\PHPUnit_Framework_MockObject_MockObject
      */
     private function getMockDatabase()
     {

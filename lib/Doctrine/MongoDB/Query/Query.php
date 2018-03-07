@@ -480,6 +480,7 @@ class Query implements IteratorAggregate
         $prevReadPref = $object->getReadPreference();
         $object->setReadPreference($this->query['readPreference'], $this->query['readPreferenceTags']);
 
+
         try {
             $result = $closure();
         } catch (\Exception $e) {

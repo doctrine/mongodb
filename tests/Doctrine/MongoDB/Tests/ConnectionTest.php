@@ -176,23 +176,23 @@ class ConnectionTest extends TestCase
 
     private function getMockMongo()
     {
-        return $this->createMock('Mongo', [], [], '', false, false);
+        return $this->createMock(\Mongo::class);
     }
 
     private function getMockMongoClient()
     {
-        return $this->getMockBuilder('MongoClient')
+        return $this->getMockBuilder(\MongoClient::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
 
     private function getMockMongoDB()
     {
-        return $this->createMock('MongoDB', [], [], '', false, false);
+        return $this->createMock(\MongoDB::class);
     }
 
     private function getMockMongoCollection()
     {
-        return $this->createMock('MongoCollection', [], [], '', false, false);
+        return $this->createMock(\MongoCollection::class);
     }
 }

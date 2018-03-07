@@ -93,7 +93,7 @@ class NearEventArgs extends BaseEventArgs
     }
 
     /**
-     * @param $near
+     * @param array|Point $near
      * @since 1.3
      */
     public function setNear($near)

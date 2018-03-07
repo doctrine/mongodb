@@ -94,7 +94,7 @@ class GroupEventArgs extends BaseEventArgs
     }
 
     /**
-     * @param $keys
+     * @param array|\MongoCode|string $keys
      * @since 1.3
      */
     public function setKeys($keys)
@@ -112,7 +112,7 @@ class GroupEventArgs extends BaseEventArgs
     }
 
     /**
-     * @param $reduce
+     * @param \MongoCode|string $reduce
      * @since 1.3
      */
     public function setReduce($reduce)
