@@ -23,7 +23,7 @@ class FunctionalTest extends DatabaseTestCase
         $this->assertInstanceOf('Doctrine\MongoDB\Query\Query', $query);
         $this->assertEquals(Query::TYPE_DISTINCT, $query->getType());
         $this->assertEquals($expected, $qb->getQueryArray());
-        $this->assertInstanceof('Doctrine\MongoDB\ArrayIterator', $query->execute());
+        $this->assertInstanceOf('Doctrine\MongoDB\ArrayIterator', $query->execute());
     }
 
     public function testFindAndRemoveQuery()

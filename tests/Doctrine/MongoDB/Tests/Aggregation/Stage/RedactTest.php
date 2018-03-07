@@ -14,7 +14,7 @@ class RedactTest extends TestCase
     {
         $builder = $this->getTestAggregationBuilder();
 
-        $redactStage = new Redact($builder, 'someCollection');
+        $redactStage = new Redact($builder);
         $redactStage
             ->cond(
                 $builder->expr()->lte('$accessLevel', 3),

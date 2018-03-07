@@ -3,6 +3,8 @@
 namespace Doctrine\MongoDB\Tests;
 
 use Doctrine\Common\EventManager;
+use Doctrine\MongoDB\Collection;
+use Doctrine\MongoDB\Database;
 use Doctrine\MongoDB\Events;
 use Doctrine\MongoDB\Event\AggregateEventArgs;
 use Doctrine\MongoDB\Event\FindEventArgs;
@@ -268,9 +270,14 @@ class CollectionEventsChangingContextTest extends TestCase
         $collection->update($query, $newObj, $options);
     }
 
+    /**
+     * @param EventManager $eventManager
+     * @param array $methods
+     * @return \PHPUnit_Framework_MockObject_MockObject|Collection
+     */
     private function getMockCollection(EventManager $eventManager, array $methods)
     {
-        $collection = $this->getMockBuilder('Doctrine\MongoDB\Collection')
+        $collection = $this->getMockBuilder(Collection::class)
             ->setConstructorArgs([$this->database, $this->mongoCollection, $eventManager])
             ->setMethods(array_keys($methods))
             ->getMock();
@@ -285,16 +292,22 @@ class CollectionEventsChangingContextTest extends TestCase
         return $collection;
     }
 
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|Database
+     */
     private function getMockDatabase()
     {
-        return $this->getMockBuilder('Doctrine\MongoDB\Database')
+        return $this->getMockBuilder(Database::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
 
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\MongoCollection
+     */
     private function getMockMongoCollection()
     {
-        return $this->getMockBuilder('MongoCollection')
+        return $this->getMockBuilder(\MongoCollection::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
@@ -302,6 +315,12 @@ class CollectionEventsChangingContextTest extends TestCase
 
 class PreAggregateListener
 {
+    /** @var array */
+    private $pipeline;
+
+    /** @var array */
+    private $options;
+
     public function __construct(array $pipeline, array $options)
     {
         $this->pipeline = $pipeline;
@@ -317,6 +336,12 @@ class PreAggregateListener
 
 class PreFindListener
 {
+    /** @var array */
+    private $query;
+
+    /** @var array */
+    private $fields;
+
     public function __construct(array $query, array $fields)
     {
         $this->query = $query;
@@ -332,6 +357,12 @@ class PreFindListener
 
 class PreFindAndRemoveListener
 {
+    /** @var array */
+    private $query;
+
+    /** @var array */
+    private $options;
+
     public function __construct(array $query, array $options)
     {
         $this->query = $query;
@@ -347,6 +378,15 @@ class PreFindAndRemoveListener
 
 class PreFindAndUpdateListener
 {
+    /** @var array */
+    private $query;
+
+    /** @var array */
+    private $newObj;
+
+    /** @var array */
+    private $options;
+
     public function __construct(array $query, array $newObj, array $options)
     {
         $this->query = $query;
@@ -364,6 +404,15 @@ class PreFindAndUpdateListener
 
 class PreUpdateListener
 {
+    /** @var array */
+    private $query;
+
+    /** @var array */
+    private $newObj;
+
+    /** @var array */
+    private $options;
+
     public function __construct(array $query, array $newObj, array $options)
     {
         $this->query = $query;
@@ -381,6 +430,12 @@ class PreUpdateListener
 
 class PreFindOneListener
 {
+    /** @var array */
+    private $query;
+
+    /** @var array */
+    private $fields;
+
     public function __construct(array $query, array $fields)
     {
         $this->query = $query;
@@ -396,6 +451,18 @@ class PreFindOneListener
 
 class PreGroupListener
 {
+    /** @var array */
+    private $keys;
+
+    /** @var array */
+    private $initial;
+
+    /** @var array */
+    private $reduce;
+
+    /** @var array */
+    private $options;
+
     public function __construct(array $keys, array $initial, array $reduce, array $options)
     {
         $this->keys = $keys;
@@ -415,6 +482,21 @@ class PreGroupListener
 
 class PreMapReduceListener
 {
+    /** @var mixed */
+    private $map;
+
+    /** @var mixed */
+    private $reduce;
+
+    /** @var array */
+    private $out;
+
+    /** @var array */
+    private $query;
+
+    /** @var array */
+    private $options;
+
     public function __construct($map, $reduce, array $out, array $query, array $options)
     {
         $this->map = $map;
@@ -436,6 +518,15 @@ class PreMapReduceListener
 
 class PreNearListener
 {
+    /** @var array */
+    private $query;
+
+    /** @var mixed */
+    private $near;
+
+    /** @var array */
+    private $options;
+
     public function __construct($near, array $query, array $options)
     {
         $this->query = $query;
@@ -453,6 +544,12 @@ class PreNearListener
 
 class PreRemoveListener
 {
+    /** @var array */
+    private $query;
+
+    /** @var array */
+    private $options;
+
     public function __construct(array $query, array $options)
     {
         $this->query = $query;

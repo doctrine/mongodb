@@ -114,7 +114,7 @@ class MapReduceEventArgs extends BaseEventArgs
     }
 
     /**
-     * @param $map
+     * @param \MongoCode|string $map
      * @since 1.3
      */
     public function setMap($map)
@@ -123,7 +123,7 @@ class MapReduceEventArgs extends BaseEventArgs
     }
 
     /**
-     * @param $reduce
+     * @param \MongoCode|string $reduce
      * @since 1.3
      */
     public function setReduce($reduce)

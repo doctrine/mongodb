@@ -1260,6 +1260,7 @@ class Expr
     public function sort($fieldName, $order = null)
     {
         $fields = is_array($fieldName) ? $fieldName : [$fieldName => $order];
+        $sort = [];
 
         foreach ($fields as $fieldName => $order) {
             if (is_string($order)) {

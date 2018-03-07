@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\MongoDB\Util;
+namespace Doctrine\MongoDB\Tests\Util;
 
 use Doctrine\MongoDB\Util\ReadPreference;
 use Doctrine\MongoDB\Tests\TestCase;

@@ -22,7 +22,7 @@ class LoggableGridFS extends GridFS implements Loggable
             throw new \InvalidArgumentException('$loggerCallable must be a valid callback');
         }
 
-        parent::__construct($database, $mongoGridFS, $evm, $numRetries, $loggerCallable);
+        parent::__construct($database, $mongoGridFS, $evm, $numRetries);
 
         $this->loggerCallable = $loggerCallable;
     }

@@ -4,7 +4,6 @@ namespace Doctrine\MongoDB\Tests;
 
 use MongoGridFS;
 use MongoGridFSFile;
-use Doctrine\MongoDB\GridFSFile;
 use Doctrine\MongoDB\LoggableGridFS;
 use Doctrine\MongoDB\Database;
 use Doctrine\Common\EventManager;
@@ -13,6 +12,9 @@ class LoggableGridFSTest extends TestCase
 {
     const COLLECTION_NAME = 'collectionName';
     const DATABASE_NAME = 'databaseName';
+
+    /** @var \MongoGridFS|\PHPUnit_Framework_MockObject_MockObject */
+    private $mongoCollection;
 
     public function testLog()
     {
