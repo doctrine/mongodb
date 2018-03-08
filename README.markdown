@@ -4,6 +4,8 @@
 
 The Doctrine MongoDB project is a library that provides a wrapper around the native PHP Mongo PECL extension to provide additional functionality.
 
+**Note**: this library is in maintenance mode, which means that we only accept pull requests to fix bugs or security issues. The library is deprecated and will not be adapted for the new MongoDB driver (`ext-mongodb`). For similar functionality, please use the [PHP library provided by MongoDB](https://github.com/mongodb/mongo-php-library).
+
 ## Contributing
 
 To get your local environment setup:
