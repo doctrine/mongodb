@@ -3,6 +3,10 @@ Introduction
 
 The Doctrine MongoDB project is an abstraction layer on top of MongoDB that the Doctrine MongoDB ODM project is built on top of.
 
+.. note::
+
+    It wraps the legacy PHP driver and is in bug-fixes-only mode.
+
 Connecting
 ----------
 
