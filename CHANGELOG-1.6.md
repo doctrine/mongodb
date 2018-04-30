@@ -4,6 +4,11 @@ CHANGELOG for 1.6.x
 This changelog references the relevant changes (bug and security fixes) done
 in 1.6.x patch versions.
 
+1.6.2 (2018-04-30)
+------------------
+
+ * [#324](https://github.com/doctrine/mongodb/pull/324): Use primary read preference when reading newly peristed GridFS files
+
 1.6.1 (2017-10-09)
 ------------------
 
