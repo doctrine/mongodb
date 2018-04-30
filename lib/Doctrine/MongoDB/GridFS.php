@@ -74,10 +74,15 @@ class GridFS extends Collection
         }
 
         $document = array_merge(['_id' => $id], $document);
-        $gridFsFile = $this->mongoCollection->get($id);
+        $gridFsFile = $this->withPrimaryReadPreference(function () use ($id) {
+            return $this->mongoCollection->get($id);
+        });
 
-        // TODO: Consider throwing exception if file cannot be fetched
-        $file->setMongoGridFSFile($this->mongoCollection->get($id));
+        if ( ! $gridFsFile instanceof \MongoGridFSFile) {
+            throw new \LogicException('Could not find newly persisted GridFS file');
+        }
+
+        $file->setMongoGridFSFile($gridFsFile);
 
         return $file;
     }
@@ -287,5 +292,25 @@ class GridFS extends Collection
         // Now send the original update bringing the file up to date
         $options = isset($options['safe']) ? $this->convertWriteConcern($options) : $options;
         return $this->mongoCollection->update($query, $newObj, $options);
+    }
+
+    /**
+     * Executes a closure with a temporary primary read preference.
+     *
+     * @param \Closure $closure
+     *
+     * @return mixed
+     */
+    private function withPrimaryReadPreference(\Closure $closure)
+    {
+        $prevReadPref = $this->mongoCollection->getReadPreference();
+        $this->mongoCollection->setReadPreference(\MongoClient::RP_PRIMARY);
+
+        try {
+            return $closure();
+        } finally {
+            $prevTags = ! empty($prevReadPref['tagsets']) ? $prevReadPref['tagsets'] : [];
+            $this->mongoCollection->setReadPreference($prevReadPref['type'], $prevTags);
+        }
     }
 }
