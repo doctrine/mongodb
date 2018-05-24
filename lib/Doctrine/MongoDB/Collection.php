@@ -892,7 +892,7 @@ class Collection
             return $this->doAggregateCursor($pipeline, $options);
         }
 
-        unset($options['cursor']);
+        //unset($options['cursor']);
 
         list($commandOptions, $clientOptions) = isset($options['socketTimeoutMS']) || isset($options['timeout'])
             ? $this->splitCommandAndClientOptions($options)
