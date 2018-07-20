@@ -4,6 +4,11 @@ CHANGELOG for 1.6.x
 This changelog references the relevant changes (bug and security fixes) done
 in 1.6.x patch versions.
 
+1.6.3 (2018-07-20)
+------------------
+
+ * [#326](https://github.com/doctrine/mongodb/pull/326): Fix wrong element deletion in popFirst and popLast
+
 1.6.2 (2018-04-30)
 ------------------
 
