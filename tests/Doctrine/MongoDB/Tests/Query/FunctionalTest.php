@@ -185,9 +185,57 @@ class FunctionalTest extends DatabaseTestCase
         $this->assertArrayHasKeyValue(['insertValue' => 1], $document);
     }
 
+    public function testPopFirst()
+    {
+        $this->getTestQueryBuilder()
+            ->insert()
+            ->field('list')->set([1, 2, 3])
+            ->getQuery()
+            ->execute();
+
+        $this->getTestQueryBuilder()
+            ->updateOne()
+            ->field('list')->popFirst()
+            ->getQuery()
+            ->execute();
+
+        $count = $this->getTestQueryBuilder()
+            ->count()
+            ->field('list')
+            ->equals(1)
+            ->getQuery()
+            ->execute();
+
+        $this->assertSame(0, $count);
+    }
+
+    public function testPopLast()
+    {
+        $this->getTestQueryBuilder()
+            ->insert()
+            ->field('list')->set([1, 2, 3])
+            ->getQuery()
+            ->execute();
+
+        $this->getTestQueryBuilder()
+            ->updateOne()
+            ->field('list')->popLast()
+            ->getQuery()
+            ->execute();
+
+        $count = $this->getTestQueryBuilder()
+            ->count()
+            ->field('list')
+            ->equals(3)
+            ->getQuery()
+            ->execute();
+
+        $this->assertSame(0, $count);
+    }
+
     private function getTestQueryBuilder()
     {
-        return $this->conn->selectCollection('db', 'users')->createQueryBuilder();
+        return $this->conn->selectCollection(self::$dbName, 'users')->createQueryBuilder();
     }
 
     private function assertArrayHasKeyValue($expected, $array, $message = '')

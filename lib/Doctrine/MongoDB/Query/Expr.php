@@ -999,7 +999,7 @@ class Expr
     public function popFirst()
     {
         $this->requiresCurrentField();
-        $this->newObj['$pop'][$this->currentField] = 1;
+        $this->newObj['$pop'][$this->currentField] = -1;
         return $this;
     }
 
@@ -1013,7 +1013,7 @@ class Expr
     public function popLast()
     {
         $this->requiresCurrentField();
-        $this->newObj['$pop'][$this->currentField] = -1;
+        $this->newObj['$pop'][$this->currentField] = 1;
         return $this;
     }
 
