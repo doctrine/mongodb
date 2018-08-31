@@ -9,7 +9,7 @@
         "mongodb",
         "abstraction"
     ],
-    "homepage": "http://www.doctrine-project.org",
+    "homepage": "https://www.doctrine-project.org/projects/mongodb.html",
     "license": "MIT",
     "authors": [
         { "name": "Bulat Shakirzyanov", "email": "mallluhuct@gmail.com" },
