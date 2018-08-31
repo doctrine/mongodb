@@ -1,0 +1,18 @@
+{
+    "active": true,
+    "name": "MongoDB Abstraction Layer",
+    "shortName": "MongoDB",
+    "slug": "mongodb",
+    "docsSlug": "doctrine-mongodb",
+    "versions": [
+        {
+            "name": "master",
+            "branchName": "master",
+            "slug": "latest",
+            "aliases": [
+                "current",
+                "stable"
+            ]
+        }
+    ]
+}

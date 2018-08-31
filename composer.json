@@ -1,8 +1,14 @@
 {
     "name": "doctrine/mongodb",
     "type": "library",
-    "description": "Doctrine MongoDB Abstraction Layer",
-    "keywords": ["database", "persistence", "mongodb"],
+    "description": "PHP Doctrine MongoDB project is a library that provides a wrapper around the native PHP Mongo PECL extension to provide additional functionality.",
+    "keywords": [
+        "database",
+        "persistence",
+        "php",
+        "mongodb",
+        "abstraction"
+    ],
     "homepage": "http://www.doctrine-project.org",
     "license": "MIT",
     "authors": [
