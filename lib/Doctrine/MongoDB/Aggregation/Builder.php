@@ -436,7 +436,7 @@ class Builder
      * @param Stage $stage
      * @return Stage
      */
-    protected function addStage(Stage $stage)
+    public function addStage(Stage $stage)
     {
         $this->stages[] = $stage;
 
