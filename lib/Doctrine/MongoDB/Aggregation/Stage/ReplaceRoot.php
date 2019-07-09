@@ -4,6 +4,7 @@ namespace Doctrine\MongoDB\Aggregation\Stage;
 
 use Doctrine\MongoDB\Aggregation\Builder;
 use Doctrine\MongoDB\Aggregation\Expr;
+use function is_array;
 
 /**
  * Fluent interface for adding a $replaceRoot stage to an aggregation pipeline.
@@ -35,8 +36,12 @@ class ReplaceRoot extends Operator
      */
     public function getExpression()
     {
+        $expression = $this->expression !== null ? $this->convertExpression($this->expression) : $this->expr->getExpression();
+
         return [
-            '$replaceRoot' => $this->expression !== null ? $this->convertExpression($this->expression) : $this->expr->getExpression()
+            '$replaceRoot' => [
+                'newRoot' => is_array($expression) ? (object) $expression : $expression,
+            ],
         ];
     }
 

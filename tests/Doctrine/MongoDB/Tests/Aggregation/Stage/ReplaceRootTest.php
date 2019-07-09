@@ -17,7 +17,16 @@ class ReplaceRootTest extends TestCase
             ->field('product')
             ->multiply('$field', 5);
 
-        $this->assertSame(['$replaceRoot' => ['product' => ['$multiply' => ['$field', 5]]]], $replaceRootStage->getExpression());
+        $this->assertEquals(
+            [
+                '$replaceRoot' => [
+                    'newRoot' => (object) [
+                        'product' => ['$multiply' => ['$field', 5]],
+                    ],
+                ],
+            ],
+            $replaceRootStage->getExpression()
+        );
     }
 
     public function testReplaceRootFromBuilder()
@@ -28,7 +37,18 @@ class ReplaceRootTest extends TestCase
                 ->field('product')
                 ->multiply('$field', 5);
 
-        $this->assertSame([['$replaceRoot' => ['product' => ['$multiply' => ['$field', 5]]]]], $builder->getPipeline());
+        $this->assertEquals(
+            [
+                [
+                    '$replaceRoot' => [
+                        'newRoot' => (object) [
+                            'product' => ['$multiply' => ['$field', 5]],
+                        ],
+                    ],
+                ],
+            ],
+            $builder->getPipeline()
+        );
     }
 
     public function testReplaceWithEmbeddedDocument()
@@ -36,6 +56,15 @@ class ReplaceRootTest extends TestCase
         $builder = $this->getTestAggregationBuilder();
         $builder->replaceRoot('$some.embedded.document');
 
-        $this->assertSame([['$replaceRoot' => '$some.embedded.document']], $builder->getPipeline());
+        $this->assertEquals(
+            [
+                [
+                    '$replaceRoot' => [
+                        'newRoot' => '$some.embedded.document'
+                    ]
+                ]
+            ],
+            $builder->getPipeline()
+        );
     }
 }
