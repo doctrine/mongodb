@@ -4,6 +4,11 @@ CHANGELOG for 1.6.x
 This changelog references the relevant changes (bug and security fixes) done
 in 1.6.x patch versions.
 
+1.6.4 (2019-07-10)
+------------------
+
+ * [#333](https://github.com/doctrine/mongodb/pull/333): Fix wrong syntax for replaceRoot stage
+
 1.6.3 (2018-07-20)
 ------------------
 
