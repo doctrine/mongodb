@@ -62,6 +62,14 @@ matrix:
               key_url: "https://www.mongodb.org/static/pgp/server-3.4.asc"
             - "mongodb-upstart"
           packages: ['mongodb-org-server']
+    - php: 7.4snapshot
+      addons:
+        apt:
+          sources:
+            - sourceline: "deb [arch=amd64] https://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.4 multiverse"
+              key_url: "https://www.mongodb.org/static/pgp/server-3.4.asc"
+            - "mongodb-upstart"
+          packages: ['mongodb-org-server']
 
 before_script:
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then yes '' | pecl -q install -f mongo-${DRIVER_VERSION}; fi
