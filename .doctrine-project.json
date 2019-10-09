@@ -6,15 +6,15 @@
     "docsSlug": "doctrine-mongodb",
     "versions": [
         {
-            "name": "master",
-            "branchName": "master",
-            "slug": "latest"
-        },
-        {
             "name": "1.6",
             "branchName": "1.6.x",
             "slug": "1.6",
-            "current": true
+            "current": true,
+            "maintained": false,
+            "aliases": [
+                "latest",
+                "stable"
+            ]
         }
     ]
 }
